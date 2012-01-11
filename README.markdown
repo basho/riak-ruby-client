@@ -7,8 +7,8 @@ and map-reduce.
 
 ## Dependencies
 
-`riak-client` requires i18n and either json or yajl-ruby. For higher
-performance on HTTP requests, install the 'curb' or 'excon' gems. The
+`riak-client` requires i18n, builder, beefcake, and multi_json. For
+higher performance on HTTP requests, install the 'excon' gem. The
 cache store implementation requires ActiveSupport 3 or later.
 
 Development dependencies are handled with bundler. Install bundler
