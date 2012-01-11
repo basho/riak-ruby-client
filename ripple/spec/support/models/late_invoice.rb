@@ -1,2 +1,0 @@
-class LateInvoice < Invoice
-end
