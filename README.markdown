@@ -1,29 +1,15 @@
-# ripple [![Build Status](https://secure.travis-ci.org/seancribbs/ripple.png)](http://travis-ci.org/seancribbs/ripple)
+# Riak Ruby Client (riak-client) [![Build Status](https://secure.travis-ci.org/basho/riak-ruby-client.png)](http://travis-ci.org/basho/riak-ruby-client)
 
-ripple is a rich Ruby toolkit for Riak, Basho's distributed
-database. It consists of three gems:
-
-* `riak-client` (`Riak` namespace) contains a basic wrapper around
-  typical operations, including bucket manipulation, object CRUD,
-  link-walking, and map-reduce.
-* `ripple` (`Ripple` namespace) contains an ActiveModel-compatible
-  modeling layer that is inspired by ActiveRecord, DataMapper, and
-  MongoMapper.
-* `riak-sessions` contains session stores for Rack and Rails 3
-  applications.
+`riak-client` is a rich Ruby client/toolkit for Riak, Basho's
+distributed database that contains a basic wrapper around typical
+operations, including bucket manipulation, object CRUD, link-walking,
+and map-reduce.
 
 ## Dependencies
 
 `riak-client` requires i18n and either json or yajl-ruby. For higher
 performance on HTTP requests, install the 'curb' or 'excon' gems. The
 cache store implementation requires ActiveSupport 3 or later.
-
-`ripple` requires Ruby 1.8.7 or later and versions 3 or above of
-ActiveModel and ActiveSupport (and their dependencies, including
-i18n).
-
-`riak-sessions` requires Rack (any version > 1.0), and Rails 3.0 if
-you want the Rails-specific session store.
 
 Development dependencies are handled with bundler. Install bundler
 (`gem install bundler`) and run this command in each sub-project to
@@ -36,7 +22,7 @@ $ bundle install
 Run the RSpec suite using `bundle exec`:
 
 ``` bash
-$ bundle exec rake spec
+$ bundle exec rake
 ```
 
 ## Basic Example
@@ -107,6 +93,7 @@ For more information about Riak Search, see [the Basho wiki](http://wiki.basho.c
 
 ``` ruby
 # Create a client, specifying the Solr-compatible endpoint
+# When connecting to Riak 0.14 and later, the Solr endpoint configuration option is not necessary.
 client = Riak::Client.new :solr => "/solr"
 
 # Search the default index for documents
@@ -149,117 +136,13 @@ client['users'].enable_index!
 client['users'].disable_index!
 ```
 
-## Document Model Examples
-
-``` ruby
-require 'ripple'
-
-# Documents are stored as JSON objects in Riak but have rich
-# semantics, including validations and associations.
-class Email
-  include Ripple::Document
-  property :from,    String, :presence => true
-  property :to,      String, :presence => true
-  property :sent,    Time,   :default => proc { Time.now }
-  property :body,    String
-end
-
-email = Email.find("37458abc752f8413e")  # GET /riak/emails/37458abc752f8413e
-email.from = "someone@nowhere.net"
-email.save                               # PUT /riak/emails/37458abc752f8413e
-
-reply = Email.new
-reply.from = "justin@bashoooo.com"
-reply.to   = "sean@geeemail.com"
-reply.body = "Riak is a good fit for scalable Ruby apps."
-reply.save                               # POST /riak/emails (Riak-assigned key)
-
-# Documents can contain embedded documents, and link to other standalone documents 
-# via associations using the many and one class methods.
-class Person
-  include Ripple::Document
-  property :name, String
-  many :addresses
-  many :friends, :class_name => "Person"
-  one :account
-end
-
-# Account and Address are embeddable documents
-class Account
-  include Ripple::EmbeddedDocument
-  property :paid_until, Time
-  embedded_in :person # Adds "person" method to get parent document
-end
-
-class Address
-  include Ripple::EmbeddedDocument
-  property :street, String
-  property :city, String
-  property :state, String
-  property :zip, String
-end
-
-person = Person.find("adamhunter")
-person.friends << Person.find("seancribbs") # Links to people/seancribbs with tag "friend"
-person.addresses << Address.new(:street => "100 Main Street") # Adds an embedded address
-person.account.paid_until = 3.months.from_now
-```
-
-
-## Configuration Example
-
-When using Ripple with Rails 3, add ripple to your Gemfile and then run the `ripple` generator.  This will generate a test harness, some MapReduce functions and a configuration file. Example:
-
-```
-$ rails g ripple
-      create  config/ripple.yml
-      create  app/mapreduce
-      create  app/mapreduce/contrib.js
-      create  app/mapreduce/ripple.js
-      create  test/ripple_test_helper.rb
-      insert  test/test_helper.rb
-      insert  test/test_helper.rb
-```
-
-`config/ripple.yml` should contain your Riak connection information, and settings for the test server. Example:
-
-``` yaml
-# Configure Riak connections for the Ripple library.
-development:
-  http_port: 8098
-  pb_port: 8087
-  host: localhost
-
-# The test environment has additional keys for configuring the
-# Riak::TestServer for your test/spec suite:
-#
-# * bin_dir specifies the path to the "riak" script that you use to
-#           start Riak (just the directory)
-# * js_source_dir specifies where your custom Javascript functions for
-#           MapReduce should be loaded from. Usually app/mapreduce.
-test:
-  http_port: 9000
-  pb_port: 9002
-  host: localhost
-  bin_dir: /usr/local/bin   # Default for Homebrew.
-  js_source_dir: <%%= Rails.root + "app/mapreduce" %>
-
-production:
-  http_port: 8098
-  pb_port: 8087
-  host: localhost
-```
-
-`require 'ripple/railtie'` from your `config/application.rb` file to complete the integration.
-
-
 ## How to Contribute
 
-* Fork the project on [Github](http://github.com/seancribbs/ripple).  If you have already forked, use `git pull --rebase` to reapply your changes on top of the mainline. Example:
+* Fork the project on [Github](http://github.com/basho/riak-ruby-client).  If you have already forked, use `git pull --rebase` to reapply your changes on top of the mainline. Example:
 
     ``` bash
     $ git checkout master
-    $ git pull --rebase seancribbs master
+    $ git pull --rebase basho master
     ```
 * Create a topic branch. If you've already created a topic branch, rebase it on top of changes from the mainline "master" branch. Examples:
   * New branch:
@@ -275,13 +158,13 @@ production:
 * Write an RSpec example or set of examples that demonstrate the necessity and validity of your changes. **Patches without specs will most often be ignored. Just do it, you'll thank me later.** Documentation patches need no specs, of course.
 * Make your feature addition or bug fix. Make your specs and stories pass (green).
 * Run the suite using multiruby or rvm to ensure cross-version compatibility.
-* Cleanup any trailing whitespace in your code (try @whitespace-mode@ in Emacs, or "Remove Trailing Spaces in Document" in the "Text" bundle in Textmate).
-* Commit, do not mess with Rakefile or VERSION.  If related to an existing issue in the [tracker](http://github.com/seancribbs/ripple/issues), include "Closes #X" in the commit message (where X is the issue number).
-* Send me a pull request.
+* Cleanup any trailing whitespace in your code (try @whitespace-mode@ in Emacs, or "Remove Trailing Spaces in Document" in the "Text" bundle in Textmate). You can use the `clean_whitespace` Rake task if you like.
+* Commit, do not mess with Rakefile. If related to an existing issue in the [tracker](http://github.com/basho/ruby-riak-client/issues), include "Closes #X" in the commit message (where X is the issue number).
+* Send a pull request to the Basho repository.
 
 ## License & Copyright
 
-Copyright &copy;2010 Sean Cribbs, Sonian Inc., and Basho Technologies, Inc.
+Copyright &copy;2010-2012 Sean Cribbs and Basho Technologies, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
@@ -293,5 +176,3 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 The included photo (spec/fixtures/cat.jpg) is Copyright &copy;2009 [Sean Cribbs](http://seancribbs.com/), and is licensed under the [Creative Commons Attribution Non-Commercial 3.0](http://creativecommons.org/licenses/by-nc/3.0) license. 
 !["Creative Commons"](http://i.creativecommons.org/l/by-nc/3.0/88x31.png)
-
-The "Poor Man's Fibers" implementation (lib/riak/util/fiber1.8.rb) is Copyright &copy;2008 Aman Gupta.
