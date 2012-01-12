@@ -31,7 +31,7 @@ else
 
     after :each do
       if @_mock_set
-        $mock_server.satisfied.should be_true("Expected #{@_mock_set.inspect}, failed")
+        $mock_server.satisfied.should be_true #("Expected #{@_mock_set.inspect}, failed")
       end
     end
 
