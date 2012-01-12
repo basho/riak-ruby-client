@@ -12,7 +12,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::ObjectMethods do
 
   describe "loading object data from the response" do
     it "should load the key" do
-      content = stub(:value => '', :vtag => nil, :content_type => nil, :links => nil, :usermeta => nil, :last_mod => nil, :indexes => nil)
+      content = stub(:value => '', :vtag => nil, :content_type => nil, :links => nil, :usermeta => nil, :last_mod => nil, :indexes => nil, :charset => nil)
       pbuf = stub(:vclock => nil, :content => [content], :value => nil, :key => 'akey')
       o = @backend.load_object(pbuf, @object)
       o.should == @object
