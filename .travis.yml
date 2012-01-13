@@ -4,7 +4,7 @@ rvm:
   - 1.9.3
   - jruby
 before_script:
-  - ! 'echo "root: /tmp/.riaktest" > spec/support/test_server.yml'
+  - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
   - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
   - "ulimit -n 2048"
 notifications:
