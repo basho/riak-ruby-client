@@ -18,12 +18,16 @@ RSpec.configure do |config|
         $test_server.start
       end
     rescue SocketError => e
+      crash_log = $test_server.log + 'crash.log'
       warn "Couldn't connect to Riak TestServer! #{$test_server.inspect}"
       warn "Skipping remaining integration tests."
+      warn crash_log.read if crash_log.exist?
       $test_server_fatal = e
     rescue => e
+      crash_log = $test_server.log + 'crash.log'
       warn "Can't run integration specs without the test server. Please create spec/support/test_server.yml."
       warn e.inspect
+      warn crash_log.read if crash_log.exist?
       $test_server_fatal = e
     end
   end
