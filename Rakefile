@@ -58,6 +58,11 @@ namespace :spec do
   RSpec::Core::RakeTask.new(:all) do |spec|
     spec.rspec_opts = %w[--profile --tag '~slow']
   end
+
+  desc "Run Slow Specs Only"
+  RSpec::Core::RakeTask.new(:slow) do |spec|
+    spec.rspec_opts = %w[--profile --tag slow]
+  end
 end
 
 desc "Run All Specs (including slow specs)"

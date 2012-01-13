@@ -3,7 +3,7 @@
 gemset = ENV['RVM_GEMSET'] || 'ripple'
 gemset = "@#{gemset}" unless gemset.to_s == ''
 
-rvms = %w[ 1.8.7 1.9.2 jruby ].map do |version|
+rvms = %w[ 1.8.7 1.9.2 1.9.3 ].map do |version|
   "#{version}@#{gemset}"
 end
 
