@@ -73,7 +73,7 @@ describe Riak::Serializers do
         end
 
         def o.load(string)
-          string.sub!(/^The string is: /, '')
+          string.sub(/^The string is: /, '')
         end
       end
     end
@@ -81,11 +81,19 @@ describe Riak::Serializers do
     it 'can be registered' do
       described_class['application/custom-type-1'] = custom_serializer
       described_class['application/custom-type-1'].should be(custom_serializer)
+      # fail
     end
 
     it_behaves_like "a serializer", "application/custom-type-a", "foo", "The string is: foo" do
       before(:each) do
         described_class['application/custom-type-a'] = custom_serializer
+      end      
+    end
+
+    after(:each) do
+      # Make sure to clean up the registered serializer
+      %w{application/custom-type-1 application/custom-type-a}.each do |ctype|
+        described_class.send(:serializers).delete(ctype)
       end
     end
   end
