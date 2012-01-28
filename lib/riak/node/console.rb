@@ -34,16 +34,13 @@ module Riak
         @prompt = /\(#{Regexp.escape(nodename)}\)\d+>\s*/
         pipedir = Pathname(pipedir)
         pipedir.children.each do |path|
-          if path.pipe?
-            if path.fnmatch("*.r") # Read pipe
-              # debug "Found read pipe: #{path}"
-              @rfile ||= path
-            elsif path.fnmatch("*.w") # Write pipe
-              # debug "Found write pipe: #{path}"
-              @wfile ||= path
-            end
-          else
-            debug "Non-pipe found! #{path}"
+          debug "Non-pipe found! #{path}" unless path.pipe?
+          if path.fnmatch("*.r") # Read pipe
+            # debug "Found read pipe: #{path}"
+            @rfile ||= path
+          elsif path.fnmatch("*.w") # Write pipe
+            # debug "Found write pipe: #{path}"
+            @wfile ||= path
           end
         end
         raise ArgumentError, t('no_pipes', :path => pipedir.to_s) if [@rfile, @wfile].any? {|p| p.nil? }

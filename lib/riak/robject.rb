@@ -142,9 +142,7 @@ module Riak
     # @param [Object] unmarshaled form of the data to be stored in riak. Object will be serialized using {#serialize} if a known content_type is used. Setting this overrides values stored with {#raw_data=}
     # @return [Object] the object stored
     def data=(new_data)
-      if new_data.respond_to?(:read)
-        raise ArgumentError.new(t("invalid_io_object"))
-      end
+      raise ArgumentError.new(t("invalid_io_object")) if new_data.respond_to?(:read)
 
       @raw_data = nil
       @data = new_data
@@ -200,7 +198,7 @@ module Riak
     # exists in the Riak database.
     # @see Bucket#delete
     def delete(options={})
-      return if key.blank?
+      return false if key.blank?
       options[:vclock] = vclock if vclock
       @bucket.delete(key, options)
       freeze

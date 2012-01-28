@@ -109,9 +109,7 @@ module Riak
       nodes.map do |n|
         begin
           n.attach
-        rescue ArgumentError, SystemCallError
-          nil
-        end
+        rescue ArgumentError, SystemCallError; end
       end
     end
 
@@ -145,6 +143,7 @@ module Riak
     def join
       claimant = nodes.first.name # Not really the claimant, just a
                                   # node to join to
+      #fixme
       nodes[1..-1].each {|n| n.join(claimant) unless n.peers.include?(claimant) }
     end
   end

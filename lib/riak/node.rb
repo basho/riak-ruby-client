@@ -18,9 +18,7 @@ module Riak
     # followed by {#create}.
     # @see #new
     def self.create(configuration={})
-      new(configuration).tap do |node|
-        node.create
-      end
+      new(configuration).tap { |node| node.create }
     end
 
     # Creates the template for a Riak node. To generate the node after

@@ -14,9 +14,7 @@ module Riak
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
           Client::NETWORK_ERRORS.uniq!
           Excon::VERSION >= "0.5.7" && patch_excon
-        rescue LoadError
-          false
-        end
+        rescue LoadError; end
       end
 
       # Adjusts Excon's connection collection to allow multiple

@@ -59,23 +59,22 @@ module Riak
       end
     end
 
-    def write_entry(key, value, options={})
+    def write_entry(key, value)
       object = bucket.get_or_new(key)
       object.content_type = 'application/yaml'
       object.data = value
       object.store
     end
 
-    def read_entry(key, options={})
+    def read_entry(key)
       begin
         bucket.get(key).data
       rescue Riak::FailedRequest => fr
         raise fr unless fr.not_found?
-        nil
       end
     end
 
-    def delete_entry(key, options={})
+    def delete_entry(key)
       bucket.delete(key)
     end
   end

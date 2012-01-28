@@ -28,7 +28,7 @@ module Riak
 
         # Is this element locked/claimed?
         def locked?
-          not owner.nil?
+          !owner.nil?
         end
 
         # Releases this element of the pool from the current Thread.
@@ -60,9 +60,7 @@ module Riak
       # On each element of the pool, calls close(element) and removes it.
       # @private
       def clear
-        each_element do |e|
-          delete_element e
-        end
+        each_element { |e| delete_element e }
       end
       alias :close :clear
 
@@ -70,9 +68,7 @@ module Riak
       # Not intendend for external use.
       def delete_element(e)
         @close.call(e.object)
-        @lock.synchronize do
-          @pool.delete e
-        end
+        @lock.synchronize { @pool.delete e }
       end
 
       # Locks each element in turn and closes/deletes elements for which the
@@ -99,13 +95,10 @@ module Riak
       #   instead of calling #open.
       # @private
       def take(opts = {})
-        unless block_given?
-          raise ArgumentError, "block required"
-        end
+        raise ArgumentError, "block required" unless block_given?
 
-        r = nil
+        r, e = nil
         begin
-          e = nil
           @lock.synchronize do
             # Find an existing element.
             if f = opts[:filter]
@@ -167,9 +160,7 @@ module Riak
 
       # As each_element, but yields objects, not wrapper elements.
       def each
-        each_element do |e|
-          yield e.object
-        end
+        each_element { |e| yield e.object }
       end
 
       def size

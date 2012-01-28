@@ -55,7 +55,7 @@ module Riak
       FILTERS.each do |f,arity|
         arities = [arity].flatten
 
-        define_method(f) { |*args|
+        define_method(f) do |*args|
           unless arities.include?(-1) or arities.include?(args.size)
             raise ArgumentError.new t("filter_arity_mismatch",
               :filter => f,
@@ -65,7 +65,7 @@ module Riak
           end
 
           @filters << [f, *args]
-        }
+        end
       end
 
       LOGICAL_OPERATIONS.each do |op|

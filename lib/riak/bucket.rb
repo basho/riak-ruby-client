@@ -37,11 +37,7 @@ module Riak
     #    should not be used in production applications.
     def keys(&block)
       warn(t('list_keys', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-      if block_given?
-        @client.list_keys(self, &block)
-      else
-        @client.list_keys(self)
-      end
+      block_given? ? @client.list_keys(self, &block) : @client.list_keys(self)
     end
 
     # Sets internal properties on the bucket
@@ -105,11 +101,7 @@ module Riak
       begin
         get(key, options)
       rescue Riak::FailedRequest => fr
-        if fr.not_found?
-          new(key)
-        else
-          raise fr
-        end
+        fr.not_found? ? new(key) : raise(fr)
       end
     end
 
@@ -121,9 +113,7 @@ module Riak
     def exists?(key, options={})
       begin
         get(key, options)
-        true
       rescue Riak::FailedRequest
-        false
       end
     end
     alias :exist? :exists?
@@ -179,10 +169,10 @@ module Riak
 
     %w(r w dw rw).each do |q|
       define_method(q) { props[q] }
-      define_method("#{q}=") { |value|
+      define_method("#{q}=") do |value|
         self.props = { q => value }
         value
-      }
+      end
     end
 
     # (Riak Search) Installs a precommit hook that automatically indexes objects

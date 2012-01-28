@@ -62,9 +62,7 @@ module Riak
       begin
         JSON.parse(original_message)
         true
-      rescue
-        false
-      end
+      rescue; end
     end
 
     # @return [true,false] whether the error represents a "not found" response

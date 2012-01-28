@@ -35,7 +35,7 @@ module Riak
         when WalkSpec
           specs << param
         else
-          if params.length >= 2
+          if params.size >= 2
             specs << new(param, params.shift, params.shift)
           else
             raise ArgumentError, t("too_few_arguments", :params => params.inspect)

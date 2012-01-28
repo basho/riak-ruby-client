@@ -12,9 +12,7 @@ module Riak
           require 'net/http'
           require 'openssl'
           true
-        rescue LoadError, NameError
-          false
-        end
+        rescue LoadError, NameError; end
       end
 
       # Sets the read_timeout applied to Net::HTTP connections
@@ -55,14 +53,11 @@ module Riak
 
         {}.tap do |result|
           http.request(request) do |response|
-            if valid_response?(expect, response.code)
-              result.merge!({:headers => response.to_hash, :code => response.code.to_i})
-              response.read_body {|chunk| yield chunk } if block_given?
-              if return_body?(method, response.code, block_given?)
-                result[:body] = response.body
-              end
-            else
-              raise Riak::HTTPFailedRequest.new(method, expect, response.code.to_i, response.to_hash, response.body)
+            raise Riak::HTTPFailedRequest.new(method, expect, response.code.to_i, response.to_hash, response.body) unless valid_response?(expect, response.code)
+            result.merge!({:headers => response.to_hash, :code => response.code.to_i})
+            response.read_body {|chunk| yield chunk } if block_given?
+            if return_body?(method, response.code, block_given?)
+              result[:body] = response.body
             end
           end
         end
