@@ -121,6 +121,7 @@ module Riak
     # {#protocol}.
     # @yield [HTTPBackend,ProtobuffsBackend] an appropriate client backend
     def backend(&block)
+      #maybe
       case @protocol.to_s
       when /https?/i
         http &block
@@ -131,10 +132,7 @@ module Riak
 
     # Sets basic HTTP auth on all nodes.
     def basic_auth=(auth)
-      @nodes.each do |node|
-        node.basic_auth = auth
-      end
-      auth
+      @nodes.each { |node| node.basic_auth = auth }
     end
 
     # Retrieves a bucket from Riak.
@@ -168,19 +166,11 @@ module Riak
     # Choose a node from a set.
     def choose_node(nodes = self.nodes)
       # Prefer nodes which have gone a reasonable time without errors.
-      s = nodes.select do |node|
-        node.error_rate.value < 0.1
-      end
+      s = nodes.select { |node| node.error_rate.value < 0.1 }
 
-      if s.empty?
-        # Fall back to minimally broken node.
-        nodes.min_by do |node|
-          node.error_rate.value
-        end
-      else
-        s[rand(s.size)]
-      end
+      fall_back_to_minimally_broken_node(s)
     end
+
 
     # Set the client ID for this client. Must be a string or Fixnum value 0 =<
     # value < MAX_CLIENT_ID.
@@ -204,45 +194,32 @@ module Riak
 
     def client_id
       @client_id ||= backend do |b|
-        if b.respond_to?(:get_client_id)
-          b.get_client_id
-        else
-          make_client_id
-        end
+        b.respond_to?(:get_client_id) ? b.get_client_id : make_client_id
       end
     end
 
     # Deletes a file stored via the "Luwak" interface
     # @param [String] filename the key/filename to delete
     def delete_file(filename)
-      http do |h|
-        h.delete_file(filename)
-      end
-      true
+      http { |h| h.delete_file(filename) }
     end
 
     # Delete an object. See Bucket#delete
     def delete_object(bucket, key, options = {})
-      backend do |b|
-        b.delete_object(bucket, key, options)
-      end
+      backend { |b| b.delete_object(bucket, key, options) }
     end
 
     # Checks whether a file exists in "Luwak".
     # @param [String] key the key to check
     # @return [true, false] whether the key exists in "Luwak"
     def file_exists?(key)
-      http do |h|
-        h.file_exists?(key)
-      end
+      http { |h| h.file_exists?(key) }
     end
     alias :file_exist? :file_exists?
 
     # Bucket properties. See Bucket#props
     def get_bucket_props(bucket)
-      backend do |b|
-        b.get_bucket_props bucket
-      end
+      backend { |b| b.get_bucket_props bucket }
     end
 
     # Retrieves a large file/IO object from Riak via the "Luwak"
@@ -257,23 +234,17 @@ module Riak
     #     from the method.
     # @yieldparam [String] chunk a single chunk of the object's data
     def get_file(filename, &block)
-      http do |h|
-        h.get_file(filename, &block)
-      end
+      http { |h| h.get_file(filename, &block) }
     end
 
     # Queries a secondary index on a bucket. See Bucket#get_index
     def get_index(bucket, index, query)
-      backend do |b|
-        b.get_index bucket, index, query
-      end
+      backend { |b| b.get_index bucket, index, query }
     end
 
     # Get an object. See Bucket#get
     def get_object(bucket, key, options = {})
-      backend do |b|
-        b.fetch_object(bucket, key, options)
-      end
+      backend { |b| b.fetch_object(bucket, key, options) }
     end
 
     # Yields an HTTPBackend.
@@ -296,29 +267,21 @@ module Riak
 
     # Link-walk.
     def link_walk(object, specs)
-      http do |h|
-        h.link_walk object, specs
-      end
+      http { |h| h.link_walk object, specs }
     end
 
     # Retrieves a list of keys in the given bucket. See Bucket#keys
     def list_keys(bucket, &block)
       if block_given?
-        backend do |b|
-          b.list_keys bucket, &block
-        end
+        backend { |b| b.list_keys bucket, &block }
       else
-        backend do |b|
-          b.list_keys bucket
-        end
+        backend { |b| b.list_keys bucket }
       end
     end
 
     # Executes a mapreduce request. See MapReduce#run
     def mapred(mr, &block)
-      backend do |b|
-        b.mapred(mr, &block)
-      end
+      backend { |b| b.mapred(mr, &block) }
     end
 
     # Creates a new HTTP backend.
@@ -327,9 +290,7 @@ module Riak
       klass = self.class.const_get("#{@http_backend}Backend")
       if klass.configured?
         node = choose_node(
-          @nodes.select do |n|
-            n.http?
-          end
+          @nodes.select { |n| n.http? }
         )
 
         klass.new(self, node)
@@ -345,11 +306,8 @@ module Riak
       klass = self.class.const_get("#{@protobuffs_backend}ProtobuffsBackend")
       if klass.configured?
         node = choose_node(
-          @nodes.select do |n|
-            n.protobuffs?
-          end
+          @nodes.select { |n| n.protobuffs? }
         )
-
         klass.new(self, node)
       else
         raise t('protobuffs_configuration', :backend => @protobuffs_backend)
@@ -534,6 +492,12 @@ module Riak
         super(Tempfile.new(fn))
         @original_filename = fn
       end
+    end
+
+    # Fall back to minimally broken node.
+    def fall_back_to_minimally_broken_node(s)
+      return s[rand(s.size)] unless s.empty?
+      nodes.min_by { |node| node.error_rate.value }
     end
   end
 end

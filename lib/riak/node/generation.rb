@@ -36,7 +36,7 @@ module Riak
           item.delete
         end
       end
-      start if was_started
+      start if was_started #this will not work
     end
 
     # Removes the node from disk and freezes the object.
@@ -47,7 +47,7 @@ module Riak
 
     protected
     def delete
-      stop unless stopped?
+      stop unless stopped? # this will not work
       root.rmtree if root.exist?
     end
 

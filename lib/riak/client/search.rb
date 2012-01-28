@@ -51,7 +51,6 @@ module Riak
       http do |h|
         h.update_search_index(index, xml.target!)
       end
-      true
     end
     alias :add_doc :index
 
@@ -83,7 +82,6 @@ module Riak
       http do |h|
         h.update_search_index(index, xml.target!)
       end
-      true
     end
     alias :delete_doc :remove
     alias :deindex :remove

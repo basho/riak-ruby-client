@@ -43,6 +43,7 @@ module Riak
     #   @param [String] key the key of the related resource
     #   @param [String] tag the tag for the related resource
     def initialize(*args)
+      #fixme
       raise ArgumentError unless (2..3).include?(args.size)
       if args.size == 2
         self.url, @tag = args
@@ -53,14 +54,12 @@ module Riak
 
     # @return [String] the URL (relative or absolute) of the related resource
     def url(new_scheme=false)
-      if @bucket
-        if new_scheme
-          "/buckets/#{escape(bucket)}" + (key.blank? ? "" : "/keys/#{escape(key)}")
-        else
-          "/riak/#{escape(bucket)}" + (key.blank? ? "" : "/#{escape(key)}")
-        end
+      return @url unless @bucket
+
+      if new_scheme
+        "/buckets/#{escape(bucket)}" + (key.blank? ? "" : "/keys/#{escape(key)}")
       else
-        @url
+        "/riak/#{escape(bucket)}" + (key.blank? ? "" : "/#{escape(key)}")
       end
     end
 

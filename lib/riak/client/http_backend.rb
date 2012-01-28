@@ -46,10 +46,7 @@ module Riak
       # @return [true,false] whether the server is available
       def ping
         get(200, ping_path)
-        true
-      rescue
-        false
-      end
+      rescue; end
 
       # Fetches an object by bucket/key
       # @param [Bucket, String] bucket the bucket where the object is
@@ -168,7 +165,6 @@ module Riak
             yield result['phase'], result['data']
           end
           post(200, mapred_path({:chunked => true}), mr.to_json, {"Content-Type" => "application/json", "Accept" => "application/json"}, &parser)
-          nil
         else
           response = post(200, mapred_path, mr.to_json, {"Content-Type" => "application/json", "Accept" => "application/json"})
           begin

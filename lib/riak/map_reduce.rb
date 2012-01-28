@@ -63,6 +63,7 @@ module Riak
       params = params.dup
       params = params.first if Array === params.first
       case params.size
+       #fixme use hashes and a bit of meta
       when 1
         p = params.first
         case p
