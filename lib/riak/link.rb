@@ -53,14 +53,12 @@ module Riak
 
     # @return [String] the URL (relative or absolute) of the related resource
     def url(new_scheme=false)
-      if @bucket
-        if new_scheme
-          "/buckets/#{escape(bucket)}" + (key.blank? ? "" : "/keys/#{escape(key)}")
-        else
-          "/riak/#{escape(bucket)}" + (key.blank? ? "" : "/#{escape(key)}")
-        end
+      return @url unless @bucket
+
+      if new_scheme
+        "/buckets/#{escape(bucket)}" + (key.blank? ? "" : "/keys/#{escape(key)}")
       else
-        @url
+        "/riak/#{escape(bucket)}" + (key.blank? ? "" : "/#{escape(key)}")
       end
     end
 

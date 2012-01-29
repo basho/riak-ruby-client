@@ -55,14 +55,14 @@ module Riak
 
         {}.tap do |result|
           http.request(request) do |response|
-            if valid_response?(expect, response.code)
-              result.merge!({:headers => response.to_hash, :code => response.code.to_i})
-              response.read_body {|chunk| yield chunk } if block_given?
-              if return_body?(method, response.code, block_given?)
-                result[:body] = response.body
-              end
-            else
+            unless valid_response?(expect, response.code)
               raise Riak::HTTPFailedRequest.new(method, expect, response.code.to_i, response.to_hash, response.body)
+            end
+
+            result.merge!({:headers => response.to_hash, :code => response.code.to_i})
+            response.read_body {|chunk| yield chunk } if block_given?
+            if return_body?(method, response.code, block_given?)
+              result[:body] = response.body
             end
           end
         end
