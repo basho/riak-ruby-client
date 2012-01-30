@@ -159,6 +159,7 @@ describe "Multithreaded client", :test_server => true do
         # verifying function validity.
         test_server.with_console do |console|
           console.command 'code:load(riak_kv_pipe_get).'
+          console.command 'code:load(riak_kv_mrc_map).'
         end
 
         count = 10
