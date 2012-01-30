@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'rexml/document'
 
 describe "Search features" do
   describe Riak::Client do
@@ -28,20 +29,40 @@ describe "Search features" do
     describe "indexing documents" do
       it "should update the default index" do
         doc = {'field' => "value", 'id' => 1}
-        if doc.to_a.first.first == 'field'
-          expect_update_body('<add><doc><field name="field">value</field><field name="id">1</field></doc></add>')
-        else # 1.8.7, I hate you.
-          expect_update_body('<add><doc><field name="id">1</field><field name="field">value</field></doc></add>')
+        expect_update_body do |body|
+          root = REXML::Document.new(body).root
+          root.name.should == 'add'
+          root.elements.should have(1).item
+          root.elements[1].each_element do |el|
+            case el.attributes['name']
+            when 'field'
+              el.text.should == 'value'
+            when 'id'
+              el.text.should == '1'
+            else
+              fail "Spurious element in #{root.elements[1]}! #{el}"
+            end
+          end
         end
         @client.index(doc)
       end
 
       it "should update the specified index" do
         doc = {'field' => "value", 'id' => 1}
-        if doc.to_a.first.first == 'field'
-          expect_update_body('<add><doc><field name="field">value</field><field name="id">1</field></doc></add>', 'foo')
-        else # 1.8.7, I hate you.
-          expect_update_body('<add><doc><field name="id">1</field><field name="field">value</field></doc></add>', 'foo')
+        expect_update_body(nil, "foo") do |body|
+          root = REXML::Document.new(body).root
+          root.name.should == 'add'
+          root.elements.should have(1).item
+          root.elements[1].each_element do |el|
+            case el.attributes['name']
+            when 'field'
+              el.text.should == 'value'
+            when 'id'
+              el.text.should == '1'
+            else
+              fail "Spurious element in #{root.elements[1]}! #{el}"
+            end
+          end
         end
         @client.index("foo", doc)
       end
@@ -54,10 +75,34 @@ describe "Search features" do
 
       it "should include multiple documents in the <add> request" do
         docs = {'field' => "value", 'id' => 1}, {'foo' => "bar", 'id' => 2}
-        if docs.first.to_a.first.first == 'field'
-          expect_update_body('<add><doc><field name="field">value</field><field name="id">1</field></doc><doc><field name="foo">bar</field><field name="id">2</field></doc></add>')
-        else # 1.8.7, I hate you
-          expect_update_body('<add><doc><field name="id">1</field><field name="field">value</field></doc><doc><field name="id">2</field><field name="foo">bar</field></doc></add>')
+        expect_update_body do |body|
+          root = REXML::Document.new(body).root
+          root.name.should == 'add'
+          docs = root.elements
+          docs.each do |d|
+            d.name.should == 'doc'
+            d.elements.size.should == 2
+          end
+          docs[1].each_element do |el|
+            case el.attributes['name']
+            when 'field'
+              el.text.should == 'value'
+            when 'id'
+              el.text.should == '1'
+            else
+              fail "Spurious element in #{docs[0]}! #{el}"
+            end
+          end
+          docs[2].each_element do |el|
+            case el.attributes['name']
+            when 'foo'
+              el.text.should == 'bar'
+            when 'id'
+              el.text.should == '2'
+            else
+              fail "Spurious element in #{docs[1]}! #{el}"
+            end
+          end
         end
         @client.index(*docs)
       end
@@ -93,8 +138,14 @@ describe "Search features" do
       end
     end
 
-    def expect_update_body(body, index=nil)
-      @http.should_receive(:update_search_index).with(index, body)
+    def expect_update_body(body=nil, index=nil)
+      if block_given?
+        @http.should_receive(:update_search_index).with(index, kind_of(String)) do |i, b|
+          yield b
+        end
+      else
+        @http.should_receive(:update_search_index).with(index, body)
+      end
     end
   end
 
