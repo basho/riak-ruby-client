@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe "Multithreaded client", :test_server => true do
+  before(:all) do
+  end
+  
   class Synchronizer
     def initialize(n)
       @mutex = Mutex.new
@@ -55,18 +58,18 @@ describe "Multithreaded client", :test_server => true do
   end
 
   [
-    {:protocol => 'pbc', :protobuffs_backend => :Beefcake},
-    {:protocol => 'http', :http_backend => :NetHTTP},
-    {:protocol => 'http', :http_backend => :Excon}
+   {:protocol => 'pbc', :protobuffs_backend => :Beefcake},
+   {:protocol => 'http', :http_backend => :NetHTTP},
+   {:protocol => 'http', :http_backend => :Excon}
   ].each do |opts|
     describe opts.inspect do
       before do
         @pb_port ||= $test_server.pb_port
         @http_port ||= $test_server.http_port
         @client = Riak::Client.new({
-          :pb_port => @pb_port,
-          :http_port => @http_port
-        }.merge(opts))
+                                     :pb_port => @pb_port,
+                                     :http_port => @http_port
+                                   }.merge(opts))
       end
 
       it 'should get in parallel' do
@@ -151,6 +154,13 @@ describe "Multithreaded client", :test_server => true do
       end
 
       it 'should mapreduce in parallel' do
+        # On a fresh node, this module might not have been loaded yet and
+        # the mapred test exposes a race condition in riak_pipe_v when
+        # verifying function validity.
+        test_server.with_console do |console|
+          console.command 'code:load(riak_kv_pipe_get).'
+        end
+
         count = 10
         threads = 10
 
