@@ -2,7 +2,7 @@ require 'riak/core_ext/deep_dup'
 
 module Riak
   class Node
-    # Settings based on Riak master/1.0.
+    # Settings based on Riak 1.1.
     ENV_DEFAULTS = {
       :riak_core => {
         :ring_creation_size => 64
@@ -16,11 +16,13 @@ module Riak
         :js_max_vm_mem => 8,
         :js_thread_stack => 16,
         :riak_kv_stat => true,
-        :legacy_stats => false,
+        :legacy_stats => true,
         :vnode_vclocks => true,
         :http_url_encoding => :on,
         :legacy_keylisting => false,
         :mapred_system => :pipe,
+        :mapred_2i_pipe => true,
+        :listkeys_backpressure => true,
         :add_paths => []
       },
       :riak_search => {
@@ -36,21 +38,32 @@ module Riak
       :eleveldb => {},
       :bitcask => {},
       :lager => {
-        :crash_log_size => 65536,
+        :crash_log_size => 10485760,
+        :crash_log_msg_size => 65536,
+        :crash_log_date => "$D0",
+        :crash_log_count => 5,
         :error_logger_redirect => true
       },
       :riak_sysmon => {
         :process_limit => 30,
         :port_limit => 30,
-        :gc_ms_limit => 50,
-        :heap_word_limit => 10485760
+        :gc_ms_limit => 100,
+        :heap_word_limit => 40111000,
+        :busy_port => true,
+        :busy_dist_port => true
       },
       :sasl => {
         :sasl_error_logger => false
+      },
+      :riak_control => {
+        :enabled => false,
+        :auth => :userlist,
+        :userlist => {"user" => "pass"},
+        :admin => true
       }
     }.freeze
 
-    # Based on Riak master/1.0.
+    # Based on Riak 1.1.
     VM_DEFAULTS = {
       "+K" => true,
       "+A" => 64,
