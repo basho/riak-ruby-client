@@ -8,7 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary = %Q{riak-client is a rich client for Riak, the distributed database by Basho.}
   gem.description = %Q{riak-client is a rich client for Riak, the distributed database by Basho. It supports the full HTTP and Protocol Buffers interfaces including storage operations, bucket configuration, link-walking, secondary indexes and map-reduce.}
   gem.email = ["sean@basho.com"]
-  gem.homepage = "http://seancribbs.github.com/ripple"
+  gem.homepage = "http://github.com/basho/riak-ruby-client"
   gem.authors = ["Sean Cribbs"]
 
   # Deps
