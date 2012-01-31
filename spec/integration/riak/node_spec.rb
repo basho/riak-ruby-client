@@ -4,33 +4,25 @@ require 'yaml'
 
 describe Riak::Node, :test_server => false, :slow => true do
   let(:test_server_config){ YAML.load_file("spec/support/test_server.yml") }
-  subject { described_class.new(:root => ".ripplenode", :source => test_server_config['source']) }
-  after { subject.stop if subject.started? }
-  after(:all) { subject.destroy }
+  let(:node){ described_class.new(:root => ".ripplenode", :source => test_server_config['source']) }
+  subject { node }
+  after { node.stop if node.started? }
+  after(:all) { node.destroy }
+
+  context "finding the base_dir and version" do
+    its(:base_dir) { should be_directory }
+    its(:version) { should match /^\d+.\d+.\d+$/ }
+
+    context "when the base directory is missing" do
+      before { Pathname.any_instance.stub(:each_line).and_return([]) }
+      its(:base_dir) { should be_nil }
+      its(:version)  { should be_nil }
+    end
+  end
 
   context "creation" do
     before { subject.create }
     after { subject.destroy }
-
-    describe "finding the base_dir and version" do
-      it "should return a valid directory for base_dir" do
-        subject.base_dir.should be_exist
-      end
-
-      it "should read a version from the releases directory" do
-        subject.version.should match /\d+.\d+.\d+/
-      end
-
-      it "should return nil for base_dir if RUNNER_BASE_DIR is not found" do
-        Pathname.any_instance.stub(:readlines).and_return([])
-        subject.base_dir.should be_nil
-      end
-
-      it "should return nil for version if base_dir is nil" do
-        Pathname.any_instance.stub(:readlines).and_return([])
-        subject.version.should be_nil
-      end
-    end
 
     describe "generating the manifest" do
       it "should store the configuration manifest in the node directory" do
