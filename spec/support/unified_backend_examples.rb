@@ -45,9 +45,8 @@ shared_examples_for "Unified backend API" do
     end
 
     it "should marshal indexes properly", :version => "1.0.0" do
-      # This really tests both storing and fetching indexes, given the setup
       @robject.indexes['test_bin'] << 'pass'
-      @backend.store_object(@robject)
+      @backend.store_object(@robject, :w => :all, :dw => :all)
 
       robj = @backend.fetch_object('test', 'fetch')
       robj.indexes['test_bin'].should be

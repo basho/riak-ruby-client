@@ -154,12 +154,15 @@ describe "Multithreaded client", :test_server => true do
       end
 
       it 'should mapreduce in parallel' do
-        # On a fresh node, this module might not have been loaded yet and
-        # the mapred test exposes a race condition in riak_pipe_v when
-        # verifying function validity.
-        test_server.with_console do |console|
-          console.command 'code:load(riak_kv_pipe_get).'
-          console.command 'code:load(riak_kv_mrc_map).'
+        if ("1.0.0"..."1.1.0").include?(test_server.version)
+          # On a fresh node, this module might not have been loaded yet
+          # and the mapred test exposes a race condition in riak_pipe_v
+          # when verifying function validity. This race condition is
+          # fixed in 1.1.
+          test_server.with_console do |console|
+            console.command 'code:load(riak_kv_pipe_get), ok.'
+            console.command 'code:load(riak_kv_mrc_map), ok.'
+          end
         end
 
         count = 10
