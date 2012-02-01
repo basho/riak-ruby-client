@@ -10,6 +10,7 @@ require 'fakeweb'
 Riak.disable_list_keys_warnings = true
 
 %w[integration_setup
+   version_filter
    http_backend_implementation_examples
    unified_backend_examples
    mocks

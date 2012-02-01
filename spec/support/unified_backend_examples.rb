@@ -9,7 +9,6 @@ shared_examples_for "Unified backend API" do
   context "fetching an object" do
     before do
       @robject = Riak::RObject.new(@client.bucket("test"), "fetch")
-      @robject.indexes['test_bin'] << 'pass'
       @robject.content_type = "application/json"
       @robject.data = { "test" => "pass" }
       @backend.store_object(@robject)
@@ -38,15 +37,18 @@ shared_examples_for "Unified backend API" do
         robj.data.should == { "test" => "pass" }
       end
 
-      it "should accept a PR value of #{q.inspect} for the request" do
+      it "should accept a PR value of #{q.inspect} for the request", :version => "1.0.0" do
         robj = @backend.fetch_object("test", "fetch", :pr => q)
         robj.should be_kind_of(Riak::RObject)
         robj.data.should == { "test" => "pass" }
       end
     end
 
-    it "should marshal indexes properly" do
+    it "should marshal indexes properly", :version => "1.0.0" do
       # This really tests both storing and fetching indexes, given the setup
+      @robject.indexes['test_bin'] << 'pass'
+      @backend.store_object(@robject)
+
       robj = @backend.fetch_object('test', 'fetch')
       robj.indexes['test_bin'].should be
       robj.indexes['test_bin'].should include('pass')
@@ -74,14 +76,16 @@ shared_examples_for "Unified backend API" do
         @backend.reload_object(@robject, :r => q)
       end
 
-      it "should accept a valid PR value of #{q.inspect} for the request" do
+      it "should accept a valid PR value of #{q.inspect} for the request", :version => "1.0.0" do
         @backend.reload_object(@robject, :pr => q)
       end
     end
 
     after do
-      @robject.vclock.should == @robject2.vclock
-      @robject.data['test'].should == "second"
+      unless example.pending?
+        @robject.vclock.should == @robject2.vclock
+        @robject.data['test'].should == "second"
+      end
     end
   end
 
@@ -112,7 +116,7 @@ shared_examples_for "Unified backend API" do
         @backend.store_object(@robject, :returnbody => false, :w => :all, :dw => q)
       end
 
-      it "should accept a PW value of #{q.inspect} for the request" do
+      it "should accept a PW value of #{q.inspect} for the request", :version => "1.0.0" do
         @backend.store_object(@robject, :returnbody => false, :pw => q)
       end
     end
