@@ -3,7 +3,7 @@ source :rubygems
 gemspec
 gem 'bundler'
 
-unless ENV['TRAVIS']
+group :guard
   gem 'guard-rspec'
   gem 'rb-fsevent'
   gem 'growl'
@@ -15,14 +15,6 @@ end
 
 platforms :jruby do
   gem 'jruby-openssl'
-end
-
-group :integration do
-  if ENV['RAILS31']
-    gem 'activesupport', '~> 3.1.0'
-  else
-    gem 'activesupport', '~> 3.0.10'
-  end
 end
 
 # platforms :mri_18, :jruby do

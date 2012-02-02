@@ -5,6 +5,7 @@ rvm:
 #  - jruby
 #  - rbx-18mode
 #  - rbx-19mode
+bundler_args: --without=guard
 before_script:
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
   - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
