@@ -11,21 +11,26 @@ module TestServerSupport
                                          :min_port => config['min_port'] || 15000)
         $test_server = server
       rescue SocketError => e
-        crash_log = $test_server.log + 'crash.log'
         warn "Couldn't connect to Riak TestServer! #{$test_server.inspect}"
         warn "Skipping remaining integration tests."
-        warn crash_log.read if crash_log.exist?
+        warn_crash_log
         $test_server_fatal = e
       rescue => e
-        crash_log = $test_server.log + 'crash.log'
         warn "Can't run integration specs without the test server. Please create/verify spec/support/test_server.yml."
         warn "Skipping remaining integration tests."
         warn e.inspect
-        warn crash_log.read if crash_log.exist?
+        warn_crash_log
         $test_server_fatal = e
       end
     end
     $test_server
+  end
+
+  def warn_crash_log
+    if $test_server
+      crash_log = $test_server.log + 'crash.log'
+      warn crash_log.read if crash_log.exist?
+    end
   end
 
   def test_server_fatal
