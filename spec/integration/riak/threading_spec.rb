@@ -1,9 +1,6 @@
 require 'spec_helper'
 
 describe "Multithreaded client", :test_server => true do
-  before(:all) do
-  end
-  
   class Synchronizer
     def initialize(n)
       @mutex = Mutex.new
@@ -104,7 +101,10 @@ describe "Multithreaded client", :test_server => true do
         end
       end
 
-      it 'should put conflicts in parallel' do
+      # This is a 1.0+ spec because putting with the same client ID
+      # will not create siblings on 0.14 in the same way. This will
+      # also likely fail for nodes with vnode_vclocks = false.
+      it 'should put conflicts in parallel', :version => "1.0.0" do
         @client['test'].allow_mult = true
         @client['test'].allow_mult.should == true
 
@@ -153,13 +153,16 @@ describe "Multithreaded client", :test_server => true do
         end
       end
 
-      it 'should mapreduce in parallel' do
-        # On a fresh node, this module might not have been loaded yet and
-        # the mapred test exposes a race condition in riak_pipe_v when
-        # verifying function validity.
-        test_server.with_console do |console|
-          console.command 'code:load(riak_kv_pipe_get).'
-          console.command 'code:load(riak_kv_mrc_map).'
+      sometimes 'should mapreduce in parallel' do
+        if ("1.0.0"..."1.1.0").include?(test_server.version)
+          # On a fresh node, this module might not have been loaded yet
+          # and the mapred test exposes a race condition in riak_pipe_v
+          # when verifying function validity. This race condition is
+          # fixed in 1.1.
+          test_server.with_console do |console|
+            console.command 'code:load(riak_kv_pipe_get), ok.'
+            console.command 'code:load(riak_kv_mrc_map), ok.'
+          end
         end
 
         count = 10

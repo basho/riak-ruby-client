@@ -17,7 +17,6 @@ module Riak
       configuration[:env] ||= {}
       configuration[:env][:riak_kv] ||= {}
       (configuration[:env][:riak_kv][:add_paths] ||= []) << File.expand_path("../../../erl_src", __FILE__)
-      configuration[:env][:riak_kv][:storage_backend] = :riak_kv_test_backend
       configuration[:env][:riak_search] ||= {}
       configuration[:env][:riak_search][:search_backend] = :riak_search_test_backend
       super configuration
@@ -52,7 +51,7 @@ module Riak
     def drop
       begin
         maybe_attach
-        @console.command "riak_kv_test_backend:reset()."
+        @console.command "#{kv_backend}:reset()."
         @console.command "riak_search_test_backend:reset()."
       rescue IOError
         retry
@@ -70,6 +69,15 @@ module Riak
 
     def open?
       @console && @console.open?
+    end
+
+    def configure_data
+      super
+      if version < "1.0.0"
+        env[:riak_kv][:storage_backend] = :riak_kv_test014_backend
+      else
+        env[:riak_kv][:storage_backend] = :riak_kv_test_backend
+      end
     end
   end
 end

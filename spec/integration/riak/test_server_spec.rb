@@ -12,9 +12,10 @@ describe Riak::TestServer do
   end
 
   it "should use the KV test backend" do
-    subject.kv_backend.should == :riak_kv_test_backend
-    subject.env[:riak_kv][:storage_backend].should == :riak_kv_test_backend
-    app_config.should include("{storage_backend, riak_kv_test_backend}")
+    backend = subject.version < "1.0.0" ? :riak_kv_test014_backend : :riak_kv_test_backend
+    subject.kv_backend.should == backend
+    subject.env[:riak_kv][:storage_backend].should == backend
+    app_config.should include("{storage_backend, #{backend}}")
   end
 
   it "should use the Search test backend" do

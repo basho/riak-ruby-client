@@ -198,7 +198,7 @@ shared_examples_for "HTTP backend" do
   end
 
   describe "HTTP Basic Authentication", :basic_auth => true do
-    it "should add the http basic auth header" do
+    sometimes "should add the http basic auth header" do
       @client.basic_auth = "ripple:rocks"
       if @client.http_backend == :NetHTTP
         setup_http_mock(:get, "http://ripple:rocks@127.0.0.1:8098/riak/auth", :body => 'Success!')
