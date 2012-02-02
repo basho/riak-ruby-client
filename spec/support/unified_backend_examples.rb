@@ -11,6 +11,7 @@ shared_examples_for "Unified backend API" do
       @robject = Riak::RObject.new(@client.bucket("test"), "fetch")
       @robject.content_type = "application/json"
       @robject.data = { "test" => "pass" }
+      @robject.indexes['test_bin'] << 'pass' if test_server.version >= "1.0.0"
       @backend.store_object(@robject)
     end
 
@@ -44,10 +45,7 @@ shared_examples_for "Unified backend API" do
       end
     end
 
-    it "should marshal indexes properly", :version => "1.0.0" do
-      @robject.indexes['test_bin'] << 'pass'
-      @backend.store_object(@robject, :w => :all, :dw => :all)
-
+    sometimes "should marshal indexes properly", :version => "1.0.0", :retries => 5 do
       robj = @backend.fetch_object('test', 'fetch')
       robj.indexes['test_bin'].should be
       robj.indexes['test_bin'].should include('pass')

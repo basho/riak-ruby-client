@@ -153,7 +153,7 @@ describe "Multithreaded client", :test_server => true do
         end
       end
 
-      it 'should mapreduce in parallel' do
+      sometimes 'should mapreduce in parallel' do
         if ("1.0.0"..."1.1.0").include?(test_server.version)
           # On a fresh node, this module might not have been loaded yet
           # and the mapred test exposes a race condition in riak_pipe_v
