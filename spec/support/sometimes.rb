@@ -30,7 +30,7 @@ RSpec.configure do |config|
   config.after(:suite) do
     formatter = RSpec.configuration.formatters.first
     color = lambda {|tint, msg| formatter.send(tint, msg) }
-    retried_examples = RSpec.world.example_groups.flat_map do |g|
+    retried_examples = RSpec.world.example_groups.map do |g|
       g.descendants.map do |d|
         d.filtered_examples.select {|e| e.metadata[:sometimes] && e.metadata[:retried] > 1 }
       end
