@@ -3,7 +3,7 @@ source :rubygems
 gemspec
 gem 'bundler'
 
-group :guard
+group :guard do
   gem 'guard-rspec'
   gem 'rb-fsevent'
   gem 'growl'
