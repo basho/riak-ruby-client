@@ -87,7 +87,7 @@ describe Riak::Serializers do
     it_behaves_like "a serializer", "application/custom-type-a", "foo", "The string is: foo" do
       before(:each) do
         described_class['application/custom-type-a'] = custom_serializer
-      end      
+      end
     end
 
     after(:each) do
