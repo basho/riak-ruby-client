@@ -1,3 +1,5 @@
 require 'i18n'
 
-I18n.load_path << File.expand_path("../locale/en.yml", __FILE__)
+Dir.glob(File.expand_path("../locale/*.yml", __FILE__)).each do |locale_file|
+  I18n.load_path << locale_file
+end
