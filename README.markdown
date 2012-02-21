@@ -66,7 +66,7 @@ client['doc']['index.html']   # the Riak::RObject
 
 # Create a new object
 new_one = Riak::RObject.new(bucket, "application.js")
-new_one.content_type = "application/javascript" # You must set the content type.
+new_one.content_type = "application/json" # You must set the content type.
 new_one.data = "alert('Hello, World!')"
 new_one.store
 ```
