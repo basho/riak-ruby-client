@@ -96,7 +96,7 @@ module Riak
 
 
       def ssl_enable
-        @client.protocol = 'https' unless @client.protocol === 'https'
+        @client.protocol = 'https' unless @client.protocol == 'https'
         @ssl_options[:pem] = File.read(@ssl_options[:pem_file]) if @ssl_options[:pem_file]
         @ssl_options[:verify_mode] ||= "peer" if @ssl_options.stringify_keys.any? {|k,v| %w[pem ca_file ca_path].include?(k)}
         @ssl_options[:verify_mode] ||= "none"
@@ -106,7 +106,7 @@ module Riak
       end
 
       def ssl_disable
-        @client.protocol = 'http' unless @client.protocol === 'http'
+        @client.protocol = 'http' unless @client.protocol == 'http'
         @ssl_options  = nil
       end
 
