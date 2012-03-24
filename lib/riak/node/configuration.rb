@@ -208,7 +208,7 @@ module Riak
 
     # Sets the source directory and root directory of the generated node.
     def configure_paths
-      @source = Pathname.new(configuration[:source]).expand_path
+      @source = Pathname.new(configuration[:source] + '/riak').realpath.parent
       @root = Pathname.new(configuration[:root]).expand_path
     end
 
