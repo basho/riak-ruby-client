@@ -13,7 +13,7 @@ module Riak
           require 'excon'
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
           Client::NETWORK_ERRORS.uniq!
-          Excon::VERSION >= "0.5.7" && patch_excon
+          Gem::Version.new(Excon::VERSION) >= Gem::Version.new("0.5.7") && patch_excon
         rescue LoadError
           false
         end
