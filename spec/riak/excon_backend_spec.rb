@@ -60,6 +60,31 @@ else
         $mock_server.satisfied.should be_true
       end.should_not raise_error
     end
-  end
 
+    context "excon gem's version check" do
+      #no good way to redefine a constant to do ensure versions are properly compared
+      module Kernel
+        def suppress_warnings
+          original_verbosity = $VERBOSE
+          $VERBOSE = nil
+          result =  yield
+          $VERBOSE = original_verbosity
+          return result
+        end
+      end
+
+      before do
+        @original_version = Excon::VERSION
+        Kernel.suppress_warnings { Excon.const_set(:VERSION, "0.13.2") }
+      end
+
+      it "should properly compare versions" do
+        Gem::Version.new(Excon::VERSION).should >= Gem::Version.new("0.5.7")
+      end
+
+      after do
+        Kernel.suppress_warnings {Excon.const_set(:VERSION, @original_version)}
+      end
+    end
+  end
 end
