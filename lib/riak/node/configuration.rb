@@ -221,6 +221,13 @@ module Riak
         min_port += 1
       end
       env[:riak_core][:http] = env[:riak_core][:http].map {|pair| Tuple[*pair] }
+      
+      unless env[:riak_core][:https] || !env[:riak_control][:enabled]
+        env[:riak_core][:https] = [Tuple[interface, min_port]]
+        min_port += 1
+      end
+      env[:riak_core][:https] = env[:riak_core][:https].map {|pair| Tuple[*pair] }
+      
       env[:riak_kv][:pb_ip] = interface unless env[:riak_kv][:pb_ip]
       unless env[:riak_kv][:pb_port]
         env[:riak_kv][:pb_port] = min_port
