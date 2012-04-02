@@ -1,5 +1,10 @@
 # Riak Ruby Client Release Notes
 
+## 1.0.2 Repackaging - 2012-04-02
+
+Release 1.0.2 relaxes the multi_json dependency so that the client
+will function with Rails 3.2. Version 1.0.1 was yanked.
+
 ## 1.0.1 Patch/Bugfix Release - 2012-04-02
 
 Release 1.0.1 is a minor bugfix/patch release. Included in this
