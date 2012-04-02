@@ -39,7 +39,7 @@ describe Riak::TestServer do
 
   it "should not clobber user-specified paths in riak_kv/add_paths [seancribbs/ripple #256]", :test_server => false do
     # clean up the existing directory so the config is not overwritten
-    test_server.send(:delete) 
+    test_server.send(:delete)
     config = {
       :root => subject.root,
       :source => subject.source,
