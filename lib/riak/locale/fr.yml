@@ -27,7 +27,7 @@ fr:
     invalid_ssl_verify_mode: "%{invalid} n'est pas une option :verify_mode valide pour SSL. Les options valides sont 'peer' and 'none'."
     invalid_index_query: "%{value} n'est pas un term de requête valide. Seules les String, Integer et Range de ces types sont autorisés"
     indexes_unsupported: "Le serveur Riak ne supporte pas les index secondaires."
-    loading_bucket: "pendant le chargement du bucket '%{name}'"    
+    loading_bucket: "pendant le chargement du bucket '%{name}'"
     list_buckets: "Riak::Client#buckets est une opération coûteuse et ne doit pas être utilisée en production.\n    %{backtrace}"
     list_keys: "Riak::Bucket#keys est une opération coûteuse et ne doit pas être utilisée en production.\n    %{backtrace}"
     luwak_unsupported: "Le serveur Riak ne supporte pas Luwak. Activez-le dans app.config avant de l'utiliser"
