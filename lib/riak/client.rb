@@ -76,6 +76,7 @@ module Riak
     #   If no nodes are given, a single node is constructed from the remaining
     #   options given to Client.new.
     # @option options [String] :host ('127.0.0.1') The host or IP address for the Riak endpoint
+    # @option options [String] :protocol ('http') The protocol to use for connecting to a node backend
     # @option options [Fixnum] :http_port (8098) The port of the Riak HTTP endpoint
     # @option options [Fixnum] :pb_port (8087) The port of the Riak Protocol Buffers endpoint
     # @option options [String] :prefix ('/riak/') The URL path prefix to the main HTTP endpoint
@@ -83,6 +84,7 @@ module Riak
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
     # @option options [String, Symbol] :http_backend (:NetHTTP) which  HTTP backend to use
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
+    # @option options [Boolean, Hash]  :ssl (nil) The SSL options to pass to each node or true for default options
     # @raise [ArgumentError] raised if any invalid options are given
     def initialize(options={})
       if options.include? :port
@@ -114,6 +116,7 @@ module Riak
       self.http_backend       = options[:http_backend]       || :NetHTTP
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
+      self.ssl                = options[:ssl]                if options[:ssl]
     end
 
     # Yields a backend for operations that are protocol-independent.
@@ -391,20 +394,22 @@ module Riak
         raise ArgumentError, t("protocol_invalid", :invalid => value, :valid => PROTOCOLS.join(', '))
       end
 
-      case value
-      when 'https'
-        nodes.each do |node|
-          node.ssl_options ||= {}
-        end
-      when 'http'
-        nodes.each do |node|
-          node.ssl_options = nil
-        end
-      end
-
       #TODO
       @backend = nil
       @protocol = value
+
+      case value
+      when 'https'
+        nodes.each do |node|
+          node.ssl = true unless node.ssl_enabled?
+        end
+      when 'http'
+        nodes.each do |node|
+          node.ssl = false
+        end
+      end
+
+      @protocol
     end
 
     # Takes a pool. Acquires a backend from the pool and yields it with
@@ -466,12 +471,6 @@ module Riak
     def ssl=(value)
       @nodes.each do |node|
         node.ssl = value
-      end
-
-      if value
-        @protocol = 'https'
-      else
-        @protocol = 'http'
       end
       value
     end

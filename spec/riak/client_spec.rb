@@ -299,17 +299,38 @@ describe Riak::Client do
       @client = Riak::Client.new
     end
 
+    it "should enable ssl when passed to the initializer" do
+      client = Riak::Client.new(:ssl => true)
+      client.nodes.first.ssl_options.should be_a(Hash)
+      client.nodes.first.ssl_options.should_not be_empty
+    end
+
     it "should allow passing ssl options into the initializer" do
-      lambda { client = Riak::Client.new(:ssl => {:verify_mode => "peer"}) }.should_not raise_error
+      client = Riak::Client.new(:ssl => {:verify_mode => "peer"})
+      client.nodes.first.ssl_options.should be_a(Hash)
+      client.nodes.first.ssl_options[:verify_mode].should eq("peer")
+    end
+
+    it "should enable ssl options when initializing the client with https but not setting any ssl options" do
+      client = Riak::Client.new(:protocol => 'https')
+      client.nodes.first.ssl_options.should be_a(Hash)
+      client.nodes.first.ssl_options.should_not be_empty
+    end
+
+    it "should allow setting ssl options and specifying the https protocol" do
+      client = Riak::Client.new(:protocol => 'https', :ssl => {:verify_mode => 'peer'})
+      client.nodes.first.ssl_options.should be_a(Hash)
+      client.nodes.first.ssl_options[:verify_mode].should eq("peer")
+    end
+
+    it "should enable ssl options when setting the protocol to https but not setting any ssl options" do
+      @client.protocol = 'https'
+      @client.nodes.first.ssl_options.should be_a(Hash)
+      @client.nodes.first.ssl_options.should_not be_empty
     end
 
     it "should not have ssl options by default" do
       @client.nodes.first.ssl_options.should be_nil
-    end
-
-    it "should have a blank hash for ssl options if the protocol is set to https" do
-      @client.protocol = 'https'
-      @client.nodes.first.ssl_options.should be_a(Hash)
     end
 
     # The api should have an ssl= method for setting up all of the ssl

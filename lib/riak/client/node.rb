@@ -85,11 +85,18 @@ module Riak
 
       # Checks if SSL is enabled for HTTP
       def ssl_enabled?
-        @client.protocol == 'https' || @ssl_options.present?
+        @client.protocol == 'https' && @ssl_options.present?
       end
 
+      def inspect
+        "<#Node #{@host}:#{@http_port}:#{@pb_port}>"
+      end
+
+      protected
+
+
       def ssl_enable
-        @client.protocol = 'https'
+        @client.protocol = 'https' unless @client.protocol == 'https'
         @ssl_options[:pem] = File.read(@ssl_options[:pem_file]) if @ssl_options[:pem_file]
         @ssl_options[:verify_mode] ||= "peer" if @ssl_options.stringify_keys.any? {|k,v| %w[pem ca_file ca_path].include?(k)}
         @ssl_options[:verify_mode] ||= "none"
@@ -99,13 +106,10 @@ module Riak
       end
 
       def ssl_disable
-        @client.protocol = 'http'
+        @client.protocol = 'http' unless @client.protocol == 'http'
         @ssl_options  = nil
       end
 
-      def inspect
-        "<#Node #{@host}:#{@http_port}:#{@pb_port}>"
-      end
     end
   end
 end

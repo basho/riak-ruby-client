@@ -25,7 +25,7 @@ else
     before :each do
       @client = Riak::Client.new(:http_port => $mock_server.port, :http_backend => :Excon) # Point to our mock
       @node = @client.node
-      @backend = @client.new_http_backend
+      @backend = @client.new_http_backend if described_class.configured?
       @_mock_set = false
     end
 
@@ -60,6 +60,38 @@ else
         $mock_server.satisfied.should be_true
       end.should_not raise_error
     end
-  end
 
+    context "checking the Excon Gem version" do
+      subject { described_class }
+
+      def suppress_warnings
+        original_verbosity = $VERBOSE
+        $VERBOSE = nil
+        result =  yield
+        $VERBOSE = original_verbosity
+        return result
+      end
+
+      def set_excon_version(v)
+        original_version = Excon::VERSION
+        suppress_warnings { Excon.const_set(:VERSION, v) }
+        yield
+        suppress_warnings {Excon.const_set(:VERSION, original_version)}
+      end
+
+      context "when it meets the minimum requirement" do
+        it { should be_configured }
+
+        context "and has a version number that is not *lexically* greater than the minimum version" do
+          around {|ex| set_excon_version("0.13.2", &ex) }
+          it { should be_configured }
+        end
+      end
+
+      context "when it does not meet the minimum requirement" do
+        around {|ex| set_excon_version("0.5.6", &ex) }
+        it { should_not be_configured }
+      end
+    end
+  end
 end
