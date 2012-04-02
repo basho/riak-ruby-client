@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'riak/test_server'
 
 describe Riak::TestServer do
-  subject { $test_server }
+  subject { test_server }
   let(:app_config) { (subject.etc + 'app.config').read }
 
   it "should add the test backends to the code path" do
@@ -35,5 +35,17 @@ describe Riak::TestServer do
     expect {
       client['test_bucket']['test_item']
     }.to raise_error(Riak::FailedRequest)
+  end
+
+  it "should not clobber user-specified paths in riak_kv/add_paths [seancribbs/ripple #256]", :test_server => false do
+    # clean up the existing directory so the config is not overwritten
+    test_server.send(:delete) 
+    config = {
+      :root => subject.root,
+      :source => subject.source,
+      :env => {:riak_kv => {:add_paths => ["app/mapreduce/erlang"]}}
+    }
+    ts = described_class.new(config)
+    ts.env[:riak_kv][:add_paths].should include("app/mapreduce/erlang")
   end
 end
