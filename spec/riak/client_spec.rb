@@ -317,7 +317,7 @@ describe Riak::Client do
       client.nodes.first.ssl_options.should_not be_empty
     end
 
-    it "should allow setting ssl options and specifying the https protocol" do 
+    it "should allow setting ssl options and specifying the https protocol" do
       client = Riak::Client.new(:protocol => 'https', :ssl => {:verify_mode => 'peer'})
       client.nodes.first.ssl_options.should be_a(Hash)
       client.nodes.first.ssl_options[:verify_mode].should eq("peer")

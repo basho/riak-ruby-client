@@ -1,5 +1,23 @@
 # Riak Ruby Client Release Notes
 
+## 1.0.2 Repackaging - 2012-04-02
+
+Release 1.0.2 relaxes the multi_json dependency so that the client
+will function with Rails 3.2. Version 1.0.1 was yanked.
+
+## 1.0.1 Patch/Bugfix Release - 2012-04-02
+
+Release 1.0.1 is a minor bugfix/patch release. Included in this
+release are:
+
+* I18n messages now include the French locale. [Eric Cestari]
+* SSL configuration should work again. [Adam Hunter]
+* The version comparison when checking Excon compatibility should now
+  handle large version numbers correctly. [Srdjan Pejic]
+* There is now a spec to verify that the `riak_kv` `add_paths` setting
+  is not clobbered by the `Riak::TestServer` when adding the location
+  of the test backend code.
+
 ## 1.0.0 Feature Release - 2012-02-03
 
 Release 1.0.0 is a major feature release and is the first where
