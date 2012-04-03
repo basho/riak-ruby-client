@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Riak::Node do
+describe Riak::Client::Node do
   before :each do
     @client = Riak::Client.new
     @node = Riak::Client::Node.new @client

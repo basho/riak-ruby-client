@@ -20,6 +20,22 @@ describe Riak::Node, :test_server => false, :slow => true do
     end
   end
 
+  context "when the source control script is a symlink" do
+    let(:symdir) { Pathname.new(".symlinkriak") }
+    let(:sourcedir) { Pathname.new(test_server_config['source']) }
+    let(:control_script){ (sourcedir + 'riaksearch').exist? ? 'riaksearch' : 'riak' }
+
+    subject { described_class.new(:root => ".ripplenode", :source => symdir) }
+
+    before do
+      symdir.mkpath
+      (symdir + control_script).make_symlink(sourcedir + control_script)
+    end
+    after { symdir.rmtree }
+
+    its(:source){ should == sourcedir }
+  end
+
   context "creation" do
     before { subject.create }
     after { subject.destroy }

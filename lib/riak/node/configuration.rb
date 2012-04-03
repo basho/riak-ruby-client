@@ -210,6 +210,11 @@ module Riak
     def configure_paths
       @source = Pathname.new(configuration[:source]).expand_path
       @root = Pathname.new(configuration[:root]).expand_path
+      # Systems like Homebrew and Stow symlink the scripts into $PATH,
+      # but RUNNER_BASE_DIR is not relative to the symlink.
+      if (@source + control_script_name).symlink?
+        @source = (@source + control_script_name).realpath.parent
+      end
     end
 
     # Sets ports and interfaces for http, protocol buffers, and handoff.
