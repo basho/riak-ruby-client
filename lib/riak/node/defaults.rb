@@ -7,10 +7,8 @@ module Riak
     ENV_DEFAULTS = {
       :riak_core => {
         :ring_creation_size => 64,
-        :ssl => [
-          [Tuple[:certfile, "./etc/cert.pem"]],
-          [Tuple[:keyfile, "./etc/key.pem"]]
-        ]
+        :ssl => [Tuple[:certfile, "./etc/cert.pem"],
+                 Tuple[:keyfile, "./etc/key.pem"]]
       },
       :riak_kv => {
         :storage_backend => :riak_kv_bitcask_backend,
