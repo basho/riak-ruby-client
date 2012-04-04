@@ -103,8 +103,15 @@ module Riak
     def initialize(bucket, key=nil)
       @bucket, @key = bucket, key
       @links, @meta = Set.new, {}
-      @indexes = Hash.new {|h,k| h[k] = Set.new }
+      @indexes = new_index_hash
       yield self if block_given?
+    end
+
+    def indexes=(hash)
+      @indexes = hash.inject(new_index_hash) do |h, (k,v)|
+        h[k].merge([*v])
+        h
+      end
     end
 
     # Load object data from a map/reduce response item.
@@ -311,6 +318,10 @@ module Riak
         value = block_given? ? yield(hash[key]) : hash[key]
         send("#{attribute}=", value)
       end
+    end
+
+    def new_index_hash
+      Hash.new {|h,k| h[k] = Set.new }
     end
   end
 end

@@ -258,6 +258,14 @@ describe Riak::RObject do
     @object.links.length.should == 1
   end
 
+  it "should allow mass-overwriting indexes while preserving default behavior" do
+    @object = described_class.new(@bucket, 'foo')
+    @object.indexes = {"ts_int" => [12345], "foo_bin" => "bar"}
+    @object.indexes['ts_int'].should == Set.new([12345])
+    @object.indexes['foo_bin'].should == Set.new(["bar"])
+    @object.indexes['unset_bin'].should == Set.new
+  end
+
   describe "when storing the object normally" do
     before :each do
       @backend = mock("Backend")

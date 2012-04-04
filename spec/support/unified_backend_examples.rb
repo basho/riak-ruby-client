@@ -118,6 +118,13 @@ shared_examples_for "Unified backend API" do
       end
     end
 
+    it "should store an object with indexes", :version => "1.0.0" do
+      @robject.indexes['foo_bin'] << 'bar'
+      @backend.store_object(@robject, :returnbody => true)
+      @robject.indexes.should include('foo_bin')
+      @robject.indexes['foo_bin'].should include('bar')
+    end
+
     after do
       expect { @backend.fetch_object("test", "store") }.should_not raise_error(Riak::FailedRequest)
     end
