@@ -12,8 +12,9 @@ module Riak
         begin
           require 'excon'
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
+          Client::NETWORK_ERRORS << Excon::Errors::TimeoutError if defined? Excon::Errors::TimeoutError
           Client::NETWORK_ERRORS.uniq!
-          minimum_version?("0.5.7") && patch_excon
+          minimum_version?("0.5.7") && handle_deprecations && patch_excon
         rescue LoadError
           false
         end
@@ -32,6 +33,36 @@ module Riak
           end
         end
         @@patched = true
+      end
+
+      # Defines instance methods that handle changes in the Excon API
+      # across different versions.
+      def self.handle_deprecations
+        # Define #make_request
+        if minimum_version?("0.10.2")
+          def make_request(params, block)
+            params[:response_block] = block if block
+            connection.request(params)
+          end
+        else
+          def make_request(params, block)
+            response = connection.request(params, &block)
+          end
+        end
+
+        # Define #configure_ssl
+        if minimum_version?("0.9.6")
+          def configure_ssl
+            Excon.defaults[:ssl_verify_peer] = (@node.ssl_options[:verify_mode].to_s === "peer")
+            Excon.defaults[:ssl_ca_path]     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+          end
+        else
+          def configure_ssl
+            Excon.ssl_verify_peer = (@node.ssl_options[:verify_mode].to_s === "peer")
+            Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+          end
+        end
+        private :make_request, :configure_ssl
       end
 
       # Returns true if the Excon library is at least the given
@@ -61,12 +92,7 @@ module Riak
         # Later versions of Excon pass multiple arguments to the block
         block = lambda {|*args| yield args.first } if block_given?
 
-        if self.class.minimum_version?("0.10.2")
-          params[:response_block] = block if block
-          response = connection.request(params)
-        else
-          response = connection.request(params, &block)
-        end
+        response = make_request(params, block)
         response_headers.initialize_http_header(response.headers)
 
         if valid_response?(expect, response.status)
@@ -82,16 +108,6 @@ module Riak
 
       def connection
         @connection ||= Excon::Connection.new(root_uri.to_s)
-      end
-
-      def configure_ssl
-        if self.class.minimum_version?("0.9.6")
-          Excon.defaults[:ssl_verify_peer] = (@node.ssl_options[:verify_mode].to_s === "peer")
-          Excon.defaults[:ssl_ca_path]     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
-        else
-          Excon.ssl_verify_peer = @node.ssl_options[:verify_mode].to_s === "peer"
-          Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
-        end
       end
     end
   end
