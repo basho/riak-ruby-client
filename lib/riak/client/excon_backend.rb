@@ -13,7 +13,7 @@ module Riak
           require 'excon'
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
           Client::NETWORK_ERRORS.uniq!
-          Gem::Version.new(Excon::VERSION) >= Gem::Version.new("0.5.7") && patch_excon
+          minimum_version?("0.5.7") && patch_excon
         rescue LoadError
           false
         end
@@ -32,6 +32,13 @@ module Riak
           end
         end
         @@patched = true
+      end
+
+      # Returns true if the Excon library is at least the given
+      # version. This is used inside the backend to check how to
+      # provide certain request and configuration options.
+      def self.minimum_version?(version)
+        Gem::Version.new(Excon::VERSION) >= Gem::Version.new(version)
       end
 
       def teardown
@@ -54,7 +61,12 @@ module Riak
         # Later versions of Excon pass multiple arguments to the block
         block = lambda {|*args| yield args.first } if block_given?
 
-        response = connection.request(params, &block)
+        if self.class.minimum_version?("0.10.2")
+          params[:response_block] = block if block
+          response = connection.request(params)
+        else
+          response = connection.request(params, &block)
+        end
         response_headers.initialize_http_header(response.headers)
 
         if valid_response?(expect, response.status)
@@ -73,8 +85,13 @@ module Riak
       end
 
       def configure_ssl
-        Excon.ssl_verify_peer = @node.ssl_options[:verify_mode].to_s === "peer"
-        Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+        if self.class.minimum_version?("0.9.6")
+          Excon.defaults[:ssl_verify_peer] = (@node.ssl_options[:verify_mode].to_s === "peer")
+          Excon.defaults[:ssl_ca_path]     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+        else
+          Excon.ssl_verify_peer = @node.ssl_options[:verify_mode].to_s === "peer"
+          Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+        end
       end
     end
   end
