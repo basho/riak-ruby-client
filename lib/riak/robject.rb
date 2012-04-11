@@ -277,15 +277,6 @@ module Riak
       Link.new(@bucket.name, @key, tag)
     end
 
-    # Generates a URL representing the object according to the client, bucket and key.
-    # If the key is blank, the bucket URL will be returned (where the object will be
-    # submitted to when stored).
-    def url
-      segments = [ @bucket.client.http_paths[:prefix], escape(@bucket.name)]
-      segments << escape(@key) if @key
-      @bucket.client.http.path(*segments).to_s
-    end
-
     alias :vector_clock :vclock
     alias :vector_clock= :vclock=
 
