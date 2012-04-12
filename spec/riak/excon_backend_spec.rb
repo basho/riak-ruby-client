@@ -46,19 +46,24 @@ else
       end.should_not raise_error
     end
 
-    it "should support IO objects as the request body" do
-      file = File.open(File.expand_path("../../fixtures/cat.jpg", __FILE__), 'rb')
-      lambda do
-        setup_http_mock(:put, @backend.path("/riak/","foo").to_s, :body => "ok")
-        @backend.put(200, @backend.path("/riak/","foo"), file)
-        $mock_server.satisfied.should be_true
-      end.should_not raise_error
-      file.rewind # Have to rewind the file or we hang
-      lambda do
-        setup_http_mock(:post, @backend.path("/riak/","foo").to_s, :body => "ok")
-        @backend.post(200, @backend.path("/riak/", "foo"), file)
-        $mock_server.satisfied.should be_true
-      end.should_not raise_error
+    it "should support IO objects as the request body on PUT" do
+      File.open(File.expand_path("../../fixtures/cat.jpg", __FILE__), 'rb') do |file|
+        lambda do
+          setup_http_mock(:put, @backend.path("/riak/","foo").to_s, :body => "ok")
+          @backend.put(200, @backend.path("/riak/","foo"), file)
+          $mock_server.satisfied.should be_true
+        end.should_not raise_error
+      end
+    end
+
+    it "should support IO objects as the request body on POST" do
+      File.open(File.expand_path("../../fixtures/cat.jpg", __FILE__), 'rb') do |file|
+        lambda do
+          setup_http_mock(:post, @backend.path("/riak/","foo").to_s, :body => "ok")
+          @backend.post(200, @backend.path("/riak/", "foo"), file)
+          $mock_server.satisfied.should be_true
+        end.should_not raise_error
+      end
     end
 
     context "checking the Excon Gem version" do
