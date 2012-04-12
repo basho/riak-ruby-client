@@ -167,6 +167,7 @@ module Riak
     def configure_logging
       if env[:lager]
         env[:lager][:handlers] = {
+          :lager_console_backend => :info,
           :lager_file_backend => [
                                   Tuple[(log+"error.log").expand_path.to_s, :error],
                                   Tuple[(log+"console.log").expand_path.to_s, :info]
