@@ -103,8 +103,15 @@ module Riak
     def initialize(bucket, key=nil)
       @bucket, @key = bucket, key
       @links, @meta = Set.new, {}
-      @indexes = Hash.new {|h,k| h[k] = Set.new }
+      @indexes = new_index_hash
       yield self if block_given?
+    end
+
+    def indexes=(hash)
+      @indexes = hash.inject(new_index_hash) do |h, (k,v)|
+        h[k].merge([*v])
+        h
+      end
     end
 
     # Load object data from a map/reduce response item.
@@ -270,15 +277,6 @@ module Riak
       Link.new(@bucket.name, @key, tag)
     end
 
-    # Generates a URL representing the object according to the client, bucket and key.
-    # If the key is blank, the bucket URL will be returned (where the object will be
-    # submitted to when stored).
-    def url
-      segments = [ @bucket.client.http_paths[:prefix], escape(@bucket.name)]
-      segments << escape(@key) if @key
-      @bucket.client.http.path(*segments).to_s
-    end
-
     alias :vector_clock :vclock
     alias :vector_clock= :vclock=
 
@@ -311,6 +309,10 @@ module Riak
         value = block_given? ? yield(hash[key]) : hash[key]
         send("#{attribute}=", value)
       end
+    end
+
+    def new_index_hash
+      Hash.new {|h,k| h[k] = Set.new }
     end
   end
 end
