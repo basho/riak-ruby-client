@@ -38,10 +38,9 @@ module Riak
         configure_ssl(http) if @node.ssl_enabled?
 
         request = Net::HTTP.const_get(method.to_s.capitalize).new(uri.request_uri, headers)
-        case data
-        when String
+        if String === data
           request.body = data
-        when data.respond_to?(:read)
+        elsif data.respond_to?(:read)
           case
           when data.respond_to?(:stat) # IO#stat
             request.content_length = data.stat.size
