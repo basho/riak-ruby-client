@@ -114,6 +114,9 @@ capabilities(_, _) ->
 
 %% @doc Start the memory backend
 -spec start(integer(), config()) -> {ok, state()}.
+%% Bug in riak_kv_vnode in 1.0
+start(Partition, [{async_folds,_}=AFolds, Rest]) when is_list(Rest) ->
+    start(Partition, [AFolds|Rest]);
 start(Partition, Config) ->
     TTL = app_helper:get_prop_or_env(ttl, Config, memory_backend),
     MemoryMB = app_helper:get_prop_or_env(max_memory, Config, memory_backend),
@@ -283,7 +286,7 @@ fold_keys(FoldKeysFun, Acc, Opts, #state{data_ref=DataRef,
                      get_index_folder(FoldFun, Acc, Index, DataRef, IndexRef);
                  Bucket /= false ->
                      FoldFun = fold_keys_fun(FoldKeysFun, Bucket),
-                     get_index_folder(FoldFun, Acc, {index, Bucket, {eq, <<"$bucket">>, Bucket}}, DataRef, IndexRef);
+                     get_folder(FoldFun, Acc, DataRef);
                  true ->
                      FoldFun = fold_keys_fun(FoldKeysFun, undefined),
                      get_folder(FoldFun, Acc, DataRef)
@@ -361,21 +364,16 @@ callback(_Ref, _Msg, State) ->
 %% contain the `test' property, set to `true' for this to work.
 -spec reset() -> ok | {error, reset_disabled}.
 reset() ->
-    reset(app_helper:get_env(riak_kv, memory_backend), app_helper:get_env(riak_kv, storage_backend)).
+    reset(app_helper:get_env(memory_backend, test, app_helper:get_env(riak_kv, test)), app_helper:get_env(riak_kv, storage_backend)).
 
-reset([_|_]=Props, ?MODULE) ->
-    case proplists:get_value(test, Props) of
-        true ->
-            {ok, Ring} = riak_core_ring_manager:get_my_ring(),
-            [ begin
-                  catch ets:delete_all_objects(?TNAME(I)),
-                  catch ets:delete_all_objects(?INAME(I)),
-                  catch ets:delete_all_objects(?DNAME(I))
-              end || I <- riak_core_ring:my_indices(Ring) ],
-            ok;
-        _ ->
-            {error, reset_disabled}
-    end;
+reset(true, ?MODULE) ->
+    {ok, Ring} = riak_core_ring_manager:get_my_ring(),
+    [ begin
+          catch ets:delete_all_objects(?DNAME(I)),
+          catch ets:delete_all_objects(?INAME(I)),
+          catch ets:delete_all_objects(?TNAME(I))
+      end || I <- riak_core_ring:my_indices(Ring) ],
+    ok;
 reset(_, _) ->
     {error, reset_disabled}.
 
@@ -454,7 +452,7 @@ get_index_folder(Folder, Acc0, {index, Bucket, {eq, <<"$bucket">>, _}}, DataRef,
     %% For the special $bucket index, turn it into a fold over the
     %% data table.
     fun() ->
-            key_range_folder(Folder, Acc0, DataRef, {Bucket, undefined}, Bucket)
+            key_range_folder(Folder, Acc0, DataRef, {Bucket, <<>>}, Bucket)
     end;
 get_index_folder(Folder, Acc0, {index, Bucket, {range, <<"$key">>, Min, Max}}, DataRef, _) ->
     %% For the special range lookup on the $key index, turn it into a

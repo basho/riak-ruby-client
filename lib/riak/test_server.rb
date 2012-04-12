@@ -17,7 +17,9 @@ module Riak
       configuration[:env] ||= {}
       configuration[:env][:riak_kv] ||= {}
       (configuration[:env][:riak_kv][:add_paths] ||= []) << File.expand_path("../../../erl_src", __FILE__)
-      (configuration[:env][:riak_kv][:memory_backend] ||={}).merge!(:test => true)
+      configuration[:env][:riak_kv][:test] = true
+      configuration[:env][:memory_backend] ||={}
+      configuration[:env][:memory_backend][:test] = true
       configuration[:env][:riak_search] ||= {}
       configuration[:env][:riak_search][:search_backend] = :riak_search_test_backend
       super configuration
