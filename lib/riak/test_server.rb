@@ -17,6 +17,9 @@ module Riak
       configuration[:env] ||= {}
       configuration[:env][:riak_kv] ||= {}
       (configuration[:env][:riak_kv][:add_paths] ||= []) << File.expand_path("../../../erl_src", __FILE__)
+      configuration[:env][:riak_kv][:test] = true
+      configuration[:env][:memory_backend] ||={}
+      configuration[:env][:memory_backend][:test] = true
       configuration[:env][:riak_search] ||= {}
       configuration[:env][:riak_search][:search_backend] = :riak_search_test_backend
       super configuration
@@ -75,8 +78,11 @@ module Riak
       super
       if version < "1.0.0"
         env[:riak_kv][:storage_backend] = :riak_kv_test014_backend
-      else
+      elsif version =~ /^1\.[01]\.\d+$/ # 1.0 and 1.1 series
         env[:riak_kv][:storage_backend] = :riak_kv_test_backend
+      else
+        # TODO: change this when 1.2+ is released, if it includes riak_kv#314
+        env[:riak_kv][:storage_backend] = :riak_kv_memory_backend
       end
     end
   end

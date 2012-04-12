@@ -30,7 +30,6 @@ module Riak
       def initialize(pipedir, nodename)
         @nodename = nodename
         @mutex = Mutex.new
-        @winch = Signal.trap("WINCH", &method(:handle_winch))
         @prompt = /\(#{Regexp.escape(nodename)}\)\d+>\s*/
         pipedir = Pathname(pipedir)
         pipedir.children.each do |path|
@@ -108,12 +107,6 @@ module Riak
       end
 
       protected
-      # Handles the "window change" signal by faking it.
-      def handle_winch
-        debug "WINCHED!"
-        @w.print "\033_winsize=80,26\033\\"
-        Signal.trap("WINCH", &method(:handle_winch))
-      end
 
       def debug(msg)
         $stderr.puts msg if ENV["DEBUG_RIAK_CONSOLE"]
