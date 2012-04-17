@@ -1,5 +1,34 @@
 # Riak Ruby Client Release Notes
 
+## 1.0.3 Patch/Bugfix Release - 2012-04-17
+
+Release 1.0.3 fixes some bugs and adds support for secondary indexes
+when using `Riak::TestServer`.
+
+* Added tests for secondary index features to the unified backend
+  examples.
+* Added secondary index support to `riak_kv_test_backend`. Full
+  support for this feature will be available via
+  `riak_kv_memory_backend` in the next major Riak release. See
+  [riak_kv #314](https://github.com/basho/riak_kv/pull/314).
+* The console log (`lager_console_backend`) is now enabled on
+  generated nodes.
+* `Riak::Node::Console` no longer overrides the `SIGWINCH` signal
+  handler.
+* [Excon](http://rubygems.org/gems/excon) versions >= 0.7.0 are now
+  supported.
+* IO-style objects will now be emitted properly when using the
+  `NetHTTPBackend`. [#1](https://github.com/basho/riak-ruby-client/issues/1)
+* The Riak version filter for integration specs is now more correct.
+* `Riak::RObject#url` has been removed because its accuracy cannot be
+  maintained when connected to multiple Riak nodes or to Riak via
+  PBC. [#3](https://github.com/basho/riak-ruby-client/issues/3)
+* Index entries on `Riak::RObject` can be mass-overwritten using
+  `Riak::RObject#indexes=` while maintaining the proper internal
+  semantics. [#17](https://github.com/basho/riak-ruby-client/issues/17)
+* Nodes should now generate properly when the `riak` script is a
+  symlink (e.g. Homebrew). [#26](https://github.com/basho/riak-ruby-client/issues/26)
+
 ## 1.0.2 Repackaging - 2012-04-02
 
 Release 1.0.2 relaxes the multi_json dependency so that the client
@@ -97,16 +126,16 @@ The new gem and repository locations are below:
 * [`ripple`](http://rubygems.org/gems/ripple) &mdash;
   [seancribbs/ripple](https://github.com/seancribbs/ripple)
 * [`riak-sessions`](http://rubygems.org/gems/riak-sessions) &mdash;
-  [seancribbs/riak-sessions](https://github.com/seancribbs/riak-sessions) 
+  [seancribbs/riak-sessions](https://github.com/seancribbs/riak-sessions)
 * [`riak-cache`](http://rubygems.org/gems/riak-cache) &mdash;
-  [seancribbs/riak-cache](https://github.com/seancribbs/riak-cache) 
+  [seancribbs/riak-cache](https://github.com/seancribbs/riak-cache)
 
 ### Significant Known Issues
 
 Attempting to use the Protocol Buffers transport with a 0.14.x cluster
 may cause the connection to dump because of incompatibilities in
 certain protocol messages. This will be addressed in a future
-patch/bugfix release.  
+patch/bugfix release.
 
 The new node generation and test server intermittently fails on JRuby,
 specifically from deadlocks related to blocking opens for the console
