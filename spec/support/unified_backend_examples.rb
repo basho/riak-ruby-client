@@ -241,6 +241,27 @@ shared_examples_for "Unified backend API" do
     end
   end
 
+  # get_index
+  context "querying secondary indexes" do
+    before do
+      50.times do |i|
+        @client.bucket('test').new(i.to_s).tap do |obj|
+          obj.indexes["index_int"] << i
+          obj.data = [i]
+          @backend.store_object(obj)
+        end
+      end
+    end
+
+    it "should find keys for an equality query" do
+      @backend.get_index('test', 'index_int', 20).should == ["20"]
+    end
+
+    it "should find keys for a range query" do
+      @backend.get_index('test', 'index_int', 19..21).should =~ ["19","20", "21"]
+    end
+  end
+
   # mapred
   context "performing MapReduce" do
     before do
