@@ -17,6 +17,9 @@ platforms :jruby do
   gem 'jruby-openssl'
 end
 
+platforms :jruby, :rbx do
+  gem 'json'
+end
 # platforms :mri_18, :jruby do
 #   gem 'ruby-debug'
 # end

@@ -1,5 +1,9 @@
 require 'multi_json'
-MultiJson.engine # Force loading of an engine
+if MultiJson.respond_to?(:adapter)
+  MultiJson.adapter
+else
+  MultiJson.engine # Force loading of an engine
+end
 require 'riak/core_ext/json'
 
 module Riak
@@ -13,14 +17,34 @@ module Riak
   # JSON module for internal use inside riak-client
   module JSON
     class << self
-      # Parse a JSON string
-      def parse(str)
-        MultiJson.decode(str, Riak.json_options)
-      end
+      if MultiJson.respond_to?(:dump) # MultiJson 1.2 or later
+        # Parse a JSON string
+        # @param [String] str a JSON payload
+        # @return [Array,Hash] a Ruby object decoded from the JSON payload
+        def parse(str)
+          MultiJson.load(str, Riak.json_options)
+        end
 
-      # Generate a JSON string
-      def encode(obj)
-        MultiJson.encode(obj)
+        # Generate a JSON string
+        # @param [Array, Hash] obj an object to JSON-encode
+        # @return [String] a JSON payload
+        def encode(obj)
+          MultiJson.dump(obj)
+        end
+      else
+        # Parse a JSON string
+        # @param [String] str a JSON payload
+        # @return [Array,Hash] a Ruby object decoded from the JSON payload
+        def parse(str)
+          MultiJson.decode(str, Riak.json_options)
+        end
+
+        # Generate a JSON string
+        # @param [Array, Hash] obj an object to JSON-encode
+        # @return [String] a JSON payload
+        def encode(obj)
+          MultiJson.encode(obj)
+        end
       end
       alias :dump :encode
     end
