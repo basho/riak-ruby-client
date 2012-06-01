@@ -103,38 +103,34 @@ module Riak
           raise ArgumentError, "block required"
         end
 
-        r = nil
-        begin
-          e = nil
-          @lock.synchronize do
-            # Find an existing element.
-            if f = opts[:filter]
-              e = pool.find { |e| e.unlocked? and f.call(e.object) }
-            else
-              e = pool.find { |e| e.unlocked? }
-            end
-
-            unless e
-              # No objects were acceptable
-              resource = opts[:default] || @open.call
-              e = Element.new(resource)
-              pool << e
-            end
-            e.lock
+        e = nil
+        @lock.synchronize do
+          # Find an existing element.
+          if f = opts[:filter]
+            e = pool.find { |e| e.unlocked? and f.call(e.object) }
+          else
+            e = pool.find { |e| e.unlocked? }
           end
 
-          r = yield e.object
-        rescue BadResource
-          delete_element e
-          raise
-        ensure
-          # Unlock
-          if e
-            e.unlock
-            @element_released.signal
+          unless e
+            # No objects were acceptable
+            resource = opts[:default] || @open.call
+            e = Element.new(resource)
+            pool << e
           end
+          e.lock
         end
-        r
+
+        yield e.object
+      rescue BadResource
+        delete_element e
+        raise
+      ensure
+        # Unlock
+        if e
+          e.unlock
+          @element_released.signal
+        end
       end
       alias >> take
 
