@@ -377,4 +377,26 @@ shared_examples_for "Unified backend API" do
       expect(found).to be_truthy
     end
   end
+
+  # gzip
+  context "using gzip" do
+    before do
+      @robject = Riak::RObject.new(@bucket, "fetch")
+      @robject.content_type = "application/json"
+      @robject.content_encoding = "gzip"
+      @robject.data = { "test" => "pass" }
+      @backend.store_object(@robject)
+    end
+
+    it "stores a compressed object" do
+      expected_data = @robject.deserialize(@robject.decompress(@robject.raw_data))
+      expect(expected_data).to eq(@robject.data)
+    end
+
+    it "loads a compressed object" do
+      robj = @backend.fetch_object(@bucket.name, "fetch")
+      expect(robj).to be_kind_of(Riak::RObject)
+      expect(robj.data).to eq(@robject.data)
+    end
+  end
 end

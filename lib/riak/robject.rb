@@ -56,6 +56,7 @@ module Riak
     end
 
     def_delegators :content, :content_type, :content_type=,
+              :content_encoding, :content_encoding=,
               :links, :links=,
               :etag, :etag=,
               :last_modified, :last_modified=,
@@ -63,7 +64,8 @@ module Riak
               :indexes, :indexes=,
               :data, :data=,
               :raw_data, :raw_data=,
-              :deserialize, :serialize
+              :deserialize, :serialize,
+              :decompress, :compress
 
     # Attempts to resolve conflict using the registered conflict callbacks.
     #
