@@ -113,16 +113,19 @@ module Riak
             else
               e = pool.find { |e| e.unlocked? }
             end
-
-            unless e
-              # No objects were acceptable
-              resource = opts[:default] || @open.call
-              e = Element.new(resource)
-              pool << e
-            end
-            e.lock
+            e.lock if e
           end
 
+          unless e
+            # No objects were acceptable
+            resource = opts[:default] || @open.call
+            e = Element.new(resource)
+            e.lock
+            @lock.synchronize do
+              pool << e
+            end
+          end
+          
           r = yield e.object
         rescue BadResource
           delete_element e
