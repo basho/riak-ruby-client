@@ -51,7 +51,11 @@ module Riak
       # @param [String] bucket_or_key the bucket or key name
       # @return [String] the escaped path segment
       def escape(bucket_or_key)
-        Riak.escaper.escape(bucket_or_key.to_s).gsub("+", "%20").gsub('/', "%2F")
+        if Riak.escaper == URI
+          Riak.escaper.escape(bucket_or_key.to_s).gsub(" ", "%20").gsub("+", "%2B").gsub('/', "%2F")
+        else #CGI
+          Riak.escaper.escape(bucket_or_key.to_s).gsub("+", "%20").gsub('/', "%2F")
+        end
       end
 
       # Conditionally unescapes buckets and keys depending on whether

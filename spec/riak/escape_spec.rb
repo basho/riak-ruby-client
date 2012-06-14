@@ -44,6 +44,7 @@ describe Riak::Util::Escape do
     it "should escape standard non-safe characters" do
       @object.escape("some string").should == "some%20string"
       @object.escape("another^one").should == "another%5Eone"
+      @object.escape("--one+two--").should == "--one%2Btwo--"
     end
 
     it "should allow URI-safe characters" do
@@ -64,6 +65,8 @@ describe Riak::Util::Escape do
       @object.unescape("another%5Eone").should == "another^one"
       @object.unescape("bracket%5Bone").should == "bracket[one"
       @object.unescape("some%2Finner%2Fpath").should == "some/inner/path"
+      @object.unescape("--one%2Btwo--").should == "--one+two--"
+      @object.unescape("me%40basho.co").should == "me@basho.co"
     end
   end
 end
