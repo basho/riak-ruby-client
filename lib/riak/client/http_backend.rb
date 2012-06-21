@@ -164,6 +164,7 @@ module Riak
       # @return [Array<Object>] the list of results, if no block was
       #        given
       def mapred(mr)
+        raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         if block_given?
           parser = Riak::Util::Multipart::StreamParser.new do |response|
             result = JSON.parse(response[:body])

@@ -102,6 +102,7 @@ module Riak
       end
 
       def mapred(mr, &block)
+        raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
         write_protobuff(:MapRedReq, req)
         results = []

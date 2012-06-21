@@ -67,9 +67,11 @@ module Riak
       #   range query to perform
       # @return [Array<String>] a list of keys matching the query
       def get_index(bucket, index, query)
-        mapred(Riak::MapReduce.new(client).
-               index(bucket, index, query).
-               reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)).map {|p| p.last }
+        mr = Riak::MapReduce.new(client).index(bucket, index, query)
+        unless mapred_phaseless?
+          mr.reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)
+        end
+        mapred(mr).map {|p| p.last }
       end
 
       # Gracefully shuts down this connection.

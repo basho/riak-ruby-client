@@ -330,11 +330,6 @@ describe Riak::MapReduce do
       @mr.map("Riak.mapValues",:keep => true)
     end
 
-    it "should raise an exception when no phases are defined" do
-      @mr.query.clear
-      lambda { @mr.run }.should raise_error(Riak::MapReduceError)
-    end
-
     it "should submit the query to the backend" do
       @backend.should_receive(:mapred).with(@mr).and_return([])
       @mr.run.should == []
