@@ -3,12 +3,14 @@ require 'socket'
 require 'base64'
 require 'digest/sha1'
 require 'riak/util/translation'
+require 'riak/client/feature_detection'
 
 module Riak
   class Client
     class ProtobuffsBackend
       include Util::Translation
       include Util::Escape
+      include FeatureDetection
 
       # Message Codes Enum
       MESSAGE_CODES = %W[
@@ -76,6 +78,10 @@ module Riak
       end
 
       private
+      def get_server_version
+        server_info[:server_version]
+      end
+
       # Implemented by subclasses
       def decode_response
         raise NotImplementedError

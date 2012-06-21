@@ -10,6 +10,7 @@ require 'riak/client/http_backend/transport_methods'
 require 'riak/client/http_backend/object_methods'
 require 'riak/client/http_backend/configuration'
 require 'riak/client/http_backend/key_streamer'
+require 'riak/client/feature_detection'
 
 module Riak
   class Client
@@ -21,6 +22,7 @@ module Riak
     class HTTPBackend
       include Util::Escape
       include Util::Translation
+      include FeatureDetection
 
       include TransportMethods
       include ObjectMethods
