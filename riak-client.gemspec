@@ -23,9 +23,9 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "multi_json", "~>1.0"
 
   # Files
-  ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten
-  gem.files = (Dir['**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
-  gem.test_files = (Dir['spec/**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
-  # gem.executables   = Dir['bin/*'].map { |f| File.basename(f) }
+  gem.files         = `git ls-files`.split("\n")
+  gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
+  # gem.executables   = `git ls-files -- bin/*`.split("\n")
+
   gem.require_paths = ['lib']
 end
