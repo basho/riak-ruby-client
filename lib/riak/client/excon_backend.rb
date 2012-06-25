@@ -13,6 +13,7 @@ module Riak
           require 'excon'
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
           Client::NETWORK_ERRORS << Excon::Errors::TimeoutError if defined? Excon::Errors::TimeoutError
+          Client::NETWORK_ERRORS << Excon::Errors::Timeout if defined? Excon::Errors::Timeout
           Client::NETWORK_ERRORS.uniq!
           minimum_version?("0.5.7") && handle_deprecations && patch_excon
         rescue LoadError
@@ -72,6 +73,36 @@ module Riak
         Gem::Version.new(Excon::VERSION) >= Gem::Version.new(version)
       end
 
+      # Sets the connect timeout applied to the Excon connection
+      # Increase this if you have very long request times.
+      def self.connect_timeout=(timeout)
+        @connect_timeout = timeout
+      end
+
+      def self.connect_timeout
+        @connect_timeout ||= 4096
+      end
+
+      # Sets the read_timeout applied to the Excon connection
+      # Increase this if you have very long request times.
+      def self.read_timeout=(timeout)
+        @read_timeout = timeout
+      end
+
+      def self.read_timeout
+        @read_timeout ||= 4096
+      end
+
+      # Sets the write_timeout applied to the Excon connection
+      # Increase this if you have very long request times.
+      def self.write_timeout=(timeout)
+        @write_timeout = timeout
+      end
+
+      def self.write_timeout
+        @write_timeout ||= 4096
+      end
+
       def teardown
         connection.reset
       end
@@ -107,7 +138,12 @@ module Riak
       end
 
       def connection
-        @connection ||= Excon::Connection.new(root_uri.to_s)
+        @connection ||= Excon::Connection.new(
+          root_uri.to_s,
+          :read_timeout => self.class.read_timeout,
+          :write_timeout => self.class.write_timeout,
+          :connect_timeout => self.class.connect_timeout
+        )
       end
     end
   end
