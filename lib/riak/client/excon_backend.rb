@@ -12,7 +12,6 @@ module Riak
         begin
           require 'excon'
           Client::NETWORK_ERRORS << Excon::Errors::SocketError
-          Client::NETWORK_ERRORS << Excon::Errors::TimeoutError if defined? Excon::Errors::TimeoutError
           Client::NETWORK_ERRORS << Excon::Errors::Timeout if defined? Excon::Errors::Timeout
           Client::NETWORK_ERRORS.uniq!
           minimum_version?("0.5.7") && handle_deprecations && patch_excon
