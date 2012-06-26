@@ -11,20 +11,27 @@ module Riak
       def self.configured?
         begin
           require 'excon'
-          Client::NETWORK_ERRORS << Excon::Errors::SocketError
-          Client::NETWORK_ERRORS << Excon::Errors::Timeout if defined? Excon::Errors::Timeout
-          Client::NETWORK_ERRORS.uniq!
-          minimum_version?("0.5.7") && handle_deprecations && patch_excon
+          minimum_version?("0.5.7") && register_exceptions && handle_deprecations && patch_sockets
         rescue LoadError
           false
         end
+      end
+
+      # Adds Excon's relevant internal exceptions to the rescuable
+      # network-related errors.
+      def self.register_exceptions
+        unless Client::NETWORK_ERRORS.include?(Excon::Errors::SocketError)
+          Client::NETWORK_ERRORS << Excon::Errors::SocketError
+          Client::NETWORK_ERRORS << Excon::Errors::Timeout if defined? Excon::Errors::Timeout
+        end
+        true
       end
 
       # Adjusts Excon's connection collection to allow multiple
       # connections to the same host from the same Thread. Instead we
       # use the Riak::Client::Pool to segregate connections.
       # @note This can be changed when Excon has a proper pool of its own.
-      def self.patch_excon
+      def self.patch_sockets
         unless defined? @@patched
           ::Excon::Connection.class_eval do
             def sockets
@@ -39,30 +46,36 @@ module Riak
       # across different versions.
       def self.handle_deprecations
         # Define #make_request
-        if minimum_version?("0.10.2")
-          def make_request(params, block)
-            params[:response_block] = block if block
-            connection.request(params)
+        unless method_defined?(:make_request)
+          if minimum_version?("0.10.2")
+            def make_request(params, block)
+              params[:response_block] = block if block
+              connection.request(params)
+            end
+          else
+            def make_request(params, block)
+              response = connection.request(params, &block)
+            end
           end
-        else
-          def make_request(params, block)
-            response = connection.request(params, &block)
-          end
+          private :make_request
         end
 
         # Define #configure_ssl
-        if minimum_version?("0.9.6")
-          def configure_ssl
-            Excon.defaults[:ssl_verify_peer] = (@node.ssl_options[:verify_mode].to_s === "peer")
-            Excon.defaults[:ssl_ca_path]     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+        unless method_defined?(:configure_ssl)
+          if minimum_version?("0.9.6")
+            def configure_ssl
+              Excon.defaults[:ssl_verify_peer] = (@node.ssl_options[:verify_mode].to_s === "peer")
+              Excon.defaults[:ssl_ca_path]     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+            end
+          else
+            def configure_ssl
+              Excon.ssl_verify_peer = (@node.ssl_options[:verify_mode].to_s === "peer")
+              Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
+            end
           end
-        else
-          def configure_ssl
-            Excon.ssl_verify_peer = (@node.ssl_options[:verify_mode].to_s === "peer")
-            Excon.ssl_ca_path     = @node.ssl_options[:ca_path] if @node.ssl_options[:ca_path]
-          end
+          private :configure_ssl
         end
-        private :make_request, :configure_ssl
+        true
       end
 
       # Returns true if the Excon library is at least the given
