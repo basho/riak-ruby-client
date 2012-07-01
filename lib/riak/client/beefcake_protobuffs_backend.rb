@@ -118,6 +118,33 @@ module Riak
         block_given? || results.compact.size == 1 ? results.last : results
       end
 
+      def get_index(bucket, index, query)
+        return super if $mapredemu
+        if Range === query
+          options = {
+            :qtype => RpbIndexReq::IndexQueryType::RANGE,
+            :range_min => query.begin.to_s,
+            :range_max => query.end.to_s
+          }
+        else
+          options = {
+            :qtype => RpbIndexReq::IndexQueryType::EQ,
+            :key => query.to_s
+          }
+        end
+        req = RpbIndexReq.new(options.merge(:bucket => bucket, :index => index))
+        write_protobuff(:IndexReq, req)
+        decode_response
+      end
+
+      def search(index, query, options)
+        options = options.symbolize_keys
+        options[:op] = options.delete(:'q.op') if options[:'q.op']
+        req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
+        write_protobuff(:SearchQueryReq, req)
+        decode_response
+      end
+
       private
       def write_protobuff(code, message)
         encoded = message.encode
@@ -168,12 +195,24 @@ module Riak
             {'n_val' => res.props.n_val, 'allow_mult' => res.props.allow_mult}
           when :MapRedResp
             RpbMapRedResp.decode(message)
+          when :IndexResp
+            res = RpbIndexResp.decode(message)
+            res.keys
+          when :SearchQueryResp
+            res = RpbSearchQueryResp.decode(message)
+            { :docs => res.docs.map {|d| decode_doc(d) },
+              :max_score => res.max_score,
+              :num_found => res.num_found }
           end
         end
       rescue SystemCallError, SocketError => e
         reset_socket
         raise
         #raise Riak::ProtobuffsFailedRequest.new(:server_error, e.message)
+      end
+
+      def decode_doc(doc)
+        Hash[doc.properties.map {|p| [ p.key, p.value ] }]
       end
     end
   end

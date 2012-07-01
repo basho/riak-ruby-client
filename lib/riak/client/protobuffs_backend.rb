@@ -39,6 +39,10 @@ module Riak
           SetBucketResp
           MapRedReq
           MapRedResp
+          IndexReq
+          IndexResp
+          SearchQueryReq
+          SearchQueryResp
        ].map {|s| s.intern }.freeze
 
       def self.simple(method, code)
