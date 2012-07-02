@@ -19,9 +19,5 @@ before_script:
   - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
   - "ulimit -n 2048"
 notifications:
-  webhooks: 
-    urls: 
-      - http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
-    on_success: change
-    on_failure: always
+  webhooks: http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
   email: sean@basho.com
