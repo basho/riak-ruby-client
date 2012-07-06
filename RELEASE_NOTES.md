@@ -1,5 +1,35 @@
 # Riak Ruby Client Release Notes
 
+## 1.0.4 Patch/Bugfix Release - 2012-07-06
+
+Release 1.0.4 fixes some bugs and adds configurable timeouts to the
+Excon HTTP backend.
+
+**NOTE** This will likely be the last release in the 1.0.x series. The
+planned changes for 1.1.x are:
+
+* `Riak::Client::Pool` will be replaced by the `innertube` gem, which
+  is its extraction.
+* Riak 1.2 will be fully supported, including the new native 2I and
+  Search features over PBC.
+* A richer exception hierarchy so that applications can deal more
+  intelligently with request failures.
+
+Changes in 1.0.4:
+
+* A function in the `app_helper` module that does not exist on Riak
+  1.1 and earlier was copied into the KV test backend.
+* Excon's configuration logic was made more idempotent.
+* Added timeout support to the Excon HTTP backend. [Mat Brown] 
+* Corrected an misnamed constant in Excon which would cause timeouts
+  not to be recognized as network errors.
+* The `Riak::TestServer` is now compatible with Riak 1.2.
+* A documentation error around `RObject#data` in the README was
+  fixed. [dn@wortbit.de]
+* Fixed an ETS table leak in the testing backend.
+* Deprecation warnings for later versions of MultiJson are now
+  resolved.
+
 ## 1.0.3 Patch/Bugfix Release - 2012-04-17
 
 Release 1.0.3 fixes some bugs and adds support for secondary indexes
