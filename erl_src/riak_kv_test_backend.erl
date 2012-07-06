@@ -118,9 +118,9 @@ capabilities(_, _) ->
 start(Partition, [{async_folds,_}=AFolds, Rest]) when is_list(Rest) ->
     start(Partition, [AFolds|Rest]);
 start(Partition, Config) ->
-    TTL = app_helper:get_prop_or_env(ttl, Config, memory_backend),
-    MemoryMB = app_helper:get_prop_or_env(max_memory, Config, memory_backend),
-    TableOpts = case app_helper:get_prop_or_env(test, Config, memory_backend) of
+    TTL = get_prop_or_env(ttl, Config, memory_backend),
+    MemoryMB = get_prop_or_env(max_memory, Config, memory_backend),
+    TableOpts = case get_prop_or_env(test, Config, memory_backend) of
                     true ->
                         [ordered_set, public, named_table];
                     _ ->
@@ -590,6 +590,26 @@ object_size(Object) ->
             ok
     end,
     size(Bucket) + size(Key) + size(Val).
+
+%% Copied from riak_core 1.2 app_helper module
+%% @private
+%% @doc Retrieve value for Key from Properties if it exists, otherwise
+%%      return from the application's env.
+-spec get_prop_or_env(atom(), [{atom(), term()}], atom()) -> term().
+get_prop_or_env(Key, Properties, App) ->
+    get_prop_or_env(Key, Properties, App, undefined).
+
+%% @private
+%% @doc Return the value for Key in Properties if it exists, otherwise return
+%%      the value from the application's env, or Default.
+-spec get_prop_or_env(atom(), [{atom(), term()}], atom(), term()) -> term().
+get_prop_or_env(Key, Properties, App, Default) ->
+    case proplists:get_value(Key, Properties) of
+        undefined ->
+            app_helper:get_env(App, Key, Default);
+        Value ->
+            Value
+    end.
 
 %% ===================================================================
 %% EUnit tests
