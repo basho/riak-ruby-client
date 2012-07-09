@@ -271,6 +271,16 @@ shared_examples_for "Unified backend API" do
       @mapred = Riak::MapReduce.new(@client).add("test").map("Riak.mapValuesJson", :keep => true)
     end
 
+    it "should raise an error without phases", :version => "< 1.1.0" do
+      @mapred.query.clear
+      expect { @backend.mapred(@mapred) }.to raise_error(Riak::MapReduceError)
+    end
+
+    it "should not raise an error without phases", :version => ">= 1.1.0" do
+      @mapred.query.clear
+      @backend.mapred(@mapred)
+    end
+
     it "should perform a simple MapReduce request" do
       @backend.mapred(@mapred).should == [{"value" => "1"}]
     end
