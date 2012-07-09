@@ -322,13 +322,15 @@ module Riak
       private
       def normalize_search_response(json)
         {}.tap do |result|
-          result['num_found'] = json['response']['numFound']
-          result['max_score'] = json['response']['maxScore'].to_f
-          result['docs'] = json['response']['docs'].map do |d|
-            if d['fields']
-              d['fields'].merge('id' => d['id'])
-            else
-              d
+          if json['response']
+            result['num_found'] = json['response']['numFound']
+            result['max_score'] = json['response']['maxScore'].to_f
+            result['docs'] = json['response']['docs'].map do |d|
+              if d['fields']
+                d['fields'].merge('id' => d['id'])
+              else
+                d
+              end
             end
           end
         end

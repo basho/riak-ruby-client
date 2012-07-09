@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.authors = ["Sean Cribbs"]
 
   # Deps
-  gem.add_development_dependency "rspec", "~>2.8.0"
+  gem.add_development_dependency "rspec", "~>2.10.0"
   gem.add_development_dependency "fakeweb", ">=1.2"
   gem.add_development_dependency "rack", ">=1.0"
   gem.add_development_dependency "excon", ">=0.6.1"

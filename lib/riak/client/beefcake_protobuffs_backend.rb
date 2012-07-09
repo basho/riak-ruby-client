@@ -119,7 +119,7 @@ module Riak
       end
 
       def get_index(bucket, index, query)
-        return super if $mapredemu
+        return super unless pb_indexes?
         if Range === query
           options = {
             :qtype => RpbIndexReq::IndexQueryType::RANGE,
@@ -137,7 +137,8 @@ module Riak
         decode_response
       end
 
-      def search(index, query, options)
+      def search(index, query, options={})
+        return super unless pb_search?
         options = options.symbolize_keys
         options[:op] = options.delete(:'q.op') if options[:'q.op']
         req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
@@ -200,9 +201,9 @@ module Riak
             res.keys
           when :SearchQueryResp
             res = RpbSearchQueryResp.decode(message)
-            { :docs => res.docs.map {|d| decode_doc(d) },
-              :max_score => res.max_score,
-              :num_found => res.num_found }
+            { 'docs' => res.docs.map {|d| decode_doc(d) },
+              'max_score' => res.max_score,
+              'num_found' => res.num_found }
           end
         end
       rescue SystemCallError, SocketError => e

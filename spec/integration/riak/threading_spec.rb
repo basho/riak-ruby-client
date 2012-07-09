@@ -104,7 +104,7 @@ describe "Multithreaded client", :test_server => true do
       # This is a 1.0+ spec because putting with the same client ID
       # will not create siblings on 0.14 in the same way. This will
       # also likely fail for nodes with vnode_vclocks = false.
-      it 'should put conflicts in parallel', :version => "1.0.0" do
+      it 'should put conflicts in parallel', :version => ">= 1.0.0" do
         @client['test'].allow_mult = true
         @client['test'].allow_mult.should == true
 

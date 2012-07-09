@@ -78,6 +78,27 @@ module Riak
         mapred(mr).map {|p| p.last }
       end
 
+      # Performs search query via emulation through MapReduce. This
+      # has more limited capabilites than native queries. Essentially,
+      # only the 'id' field of matched documents will ever be
+      # returned, the 'fl' and other options have no effect.
+      # @param [String] index the index to query
+      # @param [String] query the Lucene-style search query
+      # @param [Hash] options ignored in MapReduce emulation
+      # @return [Hash] the search results
+      def search(index, query, options={})
+        mr = Riak::MapReduce.new(client).search(index || 'search', query)
+        unless mapred_phaseless?
+          mr.reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)
+        end
+        docs = mapred(mr).map {|d| {'id' => d[1] } }
+        # Since we don't get this information back from the MapReduce,
+        # we have to fake the max_score and num_found.
+        { 'docs' => docs,
+          'num_found' => docs.size,
+          'max_score' => 0.0 }
+      end
+
       # Gracefully shuts down this connection.
       def teardown
         reset_socket

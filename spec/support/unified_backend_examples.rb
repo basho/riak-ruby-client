@@ -37,14 +37,14 @@ shared_examples_for "Unified backend API" do
         robj.data.should == { "test" => "pass" }
       end
 
-      it "should accept a PR value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         robj = @backend.fetch_object("test", "fetch", :pr => q)
         robj.should be_kind_of(Riak::RObject)
         robj.data.should == { "test" => "pass" }
       end
     end
 
-    sometimes "should marshal indexes properly", :version => "1.0.0", :retries => 5 do
+    sometimes "should marshal indexes properly", :version => ">= 1.0.0", :retries => 5 do
       robj = @backend.fetch_object('test', 'fetch')
       robj.indexes['test_bin'].should be
       robj.indexes['test_bin'].should include('pass')
@@ -72,7 +72,7 @@ shared_examples_for "Unified backend API" do
         @backend.reload_object(@robject, :r => q)
       end
 
-      it "should accept a valid PR value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a valid PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         @backend.reload_object(@robject, :pr => q)
       end
     end
@@ -112,12 +112,12 @@ shared_examples_for "Unified backend API" do
         @backend.store_object(@robject, :returnbody => false, :w => :all, :dw => q)
       end
 
-      it "should accept a PW value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a PW value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         @backend.store_object(@robject, :returnbody => false, :pw => q)
       end
     end
 
-    it "should store an object with indexes", :version => "1.0.0" do
+    it "should store an object with indexes", :version => ">= 1.0.0" do
       @robject.indexes['foo_bin'] << 'bar'
       @backend.store_object(@robject, :returnbody => true)
       @robject.indexes.should include('foo_bin')
@@ -304,23 +304,13 @@ shared_examples_for "Unified backend API" do
   end
 
   # search
-  context "searching fulltext indexes", :focus => true do
-    before do
-      @bucket = @client.bucket('search_test')
-      orig_proto, @client.protocol = @client.protocol, :http
-      @bucket.enable_index!
-      @client.protocol = orig_proto      
-      idx = 0
-      IO.foreach("spec/fixtures/munchausen.txt") do |para|
-        next if para =~ /^\s*$|introduction|chapter/i
-        idx += 1
-        Riak::RObject.new(@bucket, "munchausen-#{idx}") do |obj|
-          obj.content_type = 'text/plain'
-          obj.raw_data = para
-          @backend.store_object(obj)
-        end
-      end
-    end
+  context "searching fulltext indexes", :version => ">= 1.2.0" do
+    # Search functionality existed since Riak 0.13, but PBC only
+    # entered into the picture in 1.2. PBC can support searches
+    # against 1.1 and earlier nodes using MapReduce emulation, but has
+    # limited functionality. We'll enter separate tests for the
+    # pre-1.2 functionality.
+    include_context "search corpus setup"
 
     it 'should find indexed documents, returning ids' do
       results = @backend.search 'search_test', 'fearless elephant rushed', :fl => 'id'
