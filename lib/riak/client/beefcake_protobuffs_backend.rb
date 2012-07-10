@@ -49,11 +49,14 @@ module Riak
       end
 
       def store_object(robject, options={})
-        if robject.prevent_stale_writes
-          other = fetch_object(robject.bucket, robject.key)
-          raise Riak::ProtobuffsFailedRequest(:stale_object, t("stale_write_prevented")) unless other.vclock == robject.vclock
-        end
         options = normalize_quorums(options)
+        if robject.prevent_stale_writes
+          if robject.vclock
+            options[:if_not_modified] = true
+          else
+            options[:if_none_match] = true
+          end
+        end
         req = dump_object(robject, options)
         write_protobuff(:PutReq, req)
         decode_response(robject)

@@ -89,7 +89,7 @@ module Riak
         required :content,         RpbContent, 4
         optional :w,               :uint32,    5
         optional :dw,              :uint32,    6
-        optional :returnbody,     :bool,      7
+        optional :returnbody,      :bool,      7
         optional :pw,              :uint32,    8
         optional :if_not_modified, :bool,      9
         optional :if_none_match,   :bool,      10
