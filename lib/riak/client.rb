@@ -1,10 +1,10 @@
 require 'tempfile'
 require 'delegate'
+require 'innertube'
 require 'riak'
 require 'riak/util/translation'
 require 'riak/util/escape'
 require 'riak/failed_request'
-require 'riak/client/pool'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
@@ -46,6 +46,8 @@ module Riak
       SocketError,
       SystemCallError,
     ]
+
+    Pool = ::Innertube::Pool
 
     # @return [String] The protocol to use for the Riak endpoint
     attr_reader :protocol
