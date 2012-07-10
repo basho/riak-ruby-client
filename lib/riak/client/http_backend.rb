@@ -10,6 +10,7 @@ require 'riak/client/http_backend/transport_methods'
 require 'riak/client/http_backend/object_methods'
 require 'riak/client/http_backend/configuration'
 require 'riak/client/http_backend/key_streamer'
+require 'riak/client/feature_detection'
 
 module Riak
   class Client
@@ -21,6 +22,7 @@ module Riak
     class HTTPBackend
       include Util::Escape
       include Util::Translation
+      include FeatureDetection
 
       include TransportMethods
       include ObjectMethods
@@ -162,6 +164,7 @@ module Riak
       # @return [Array<Object>] the list of results, if no block was
       #        given
       def mapred(mr)
+        raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         if block_given?
           parser = Riak::Util::Multipart::StreamParser.new do |response|
             result = JSON.parse(response[:body])
@@ -238,7 +241,7 @@ module Riak
       def search(index, query, options={})
         response = get(200, solr_select_path(index, query, options.stringify_keys))
         if response[:headers]['content-type'].include?("application/json")
-          JSON.parse(response[:body])
+          normalize_search_response JSON.parse(response[:body])
         else
           response[:body]
         end
@@ -313,6 +316,23 @@ module Riak
         else
           response = post(201, luwak_path(nil), data, {"Content-Type" => content_type})
           response[:headers]["location"].first.split("/").last
+        end
+      end
+
+      private
+      def normalize_search_response(json)
+        {}.tap do |result|
+          if json['response']
+            result['num_found'] = json['response']['numFound']
+            result['max_score'] = json['response']['maxScore'].to_f
+            result['docs'] = json['response']['docs'].map do |d|
+              if d['fields']
+                d['fields'].merge('id' => d['id'])
+              else
+                d
+              end
+            end
+          end
         end
       end
     end

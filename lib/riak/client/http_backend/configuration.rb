@@ -157,6 +157,25 @@ module Riak
           !riak_kv_wm_buckets.nil?
         end
 
+        def get_server_version
+          begin
+            # Attempt to grab the server version from the stats resource
+            stats = send(:stats)
+            kv_version = stats['riak_kv_version']
+            if stats['riak_api_version']
+              # TODO: Remove this after Riak 1.2.0 release
+              kv_version > "1.2.0" ? kv_version : "1.2.0"
+            else
+              kv_version
+            end
+          rescue FailedRequest
+            # If stats is disabled, we can't assume the Riak version
+            # is >= 1.1. However, we can assume the new URL scheme is
+            # at least version 1.0.
+            new_scheme? ? "1.0.0" : "0.14.0"
+          end
+        end
+
         def riak_kv_wm_buckets
           server_config[:riak_kv_wm_buckets]
         end

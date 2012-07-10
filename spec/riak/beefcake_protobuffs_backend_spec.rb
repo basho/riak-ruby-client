@@ -1,19 +1,17 @@
 require 'spec_helper'
-require 'riak/client/beefcake/messages'
 
 describe Riak::Client::BeefcakeProtobuffsBackend do
-  before :each do
-    @client = Riak::Client.new
-    @node = @client.nodes.first
-    @backend = Riak::Client::BeefcakeProtobuffsBackend.new(@client, @node)
-    @backend.instance_variable_set(:@server_config, {})
-  end
+  before(:all) { described_class.should be_configured }
+  before(:each) { backend.stub(:get_server_version => "1.2.0") }
+  let(:client) { Riak::Client.new }
+  let(:node) { client.nodes.first }
+  let(:backend) { Riak::Client::BeefcakeProtobuffsBackend.new(client, node) }
 
   it "should only write to the socket one time per request" do
     exp_bucket, exp_keys = 'foo', ['bar']
     mock_socket = mock("mock TCP socket")
 
-    @backend.stub!(:socket).and_return(mock_socket)
+    backend.stub!(:socket).and_return(mock_socket)
     mock_socket.should_receive(:write).exactly(1).with do |param|
       len, code = param[0,5].unpack("NC")
       req = Riak::Client::BeefcakeProtobuffsBackend::RpbListKeysReq.decode(param[5..-1])
@@ -36,27 +34,62 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       mock_socket.should_receive(:read).exactly(1).with(encoded_response.length).and_return(encoded_response)
     end
 
-    @backend.list_keys(exp_bucket).should == exp_keys
-  end
-end
-
-describe Riak::Client::BeefcakeProtobuffsBackend, '#mapred' do
-  before(:each) do
-    @client = Riak::Client.new
-    @node = @client.nodes.first
-    @backend = Riak::Client::BeefcakeProtobuffsBackend.new(@client, @node)
-    @backend.instance_variable_set(:@server_config, {})
+    backend.list_keys(exp_bucket).should == exp_keys
   end
 
-  it "should not return nil for previous phases that don't return anything" do
-    socket = stub(:socket).as_null_object
-    socket.stub(:read).and_return(stub(:socket_header, :unpack => [2, 24]), stub(:socket_message), stub(:socket_header_2, :unpack => [0, 1]))
-    message = stub(:message, :phase => 1, :response => [{}].to_json)
-    message.stub(:done).and_return(false, true)
-    Riak::Client::BeefcakeProtobuffsBackend::RpbMapRedResp.stub(:decode => message)
-    TCPSocket.stub(:new => socket)
-    @backend.send(:reset_socket)
+  context "#mapred" do
+    let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}") }
 
-    @backend.mapred('').should == [{}]
+    it "should not return nil for previous phases that don't return anything" do
+      socket = stub(:socket).as_null_object
+      socket.stub(:read).and_return(stub(:socket_header, :unpack => [2, 24]), stub(:socket_message), stub(:socket_header_2, :unpack => [0, 1]))
+      message = stub(:message, :phase => 1, :response => [{}].to_json)
+      message.stub(:done).and_return(false, true)
+      Riak::Client::BeefcakeProtobuffsBackend::RpbMapRedResp.stub(:decode => message)
+      TCPSocket.stub(:new => socket)
+      backend.send(:reset_socket)
+
+      backend.mapred(mapred).should == [{}]
+    end
+  end
+
+  context "preventing stale writes" do
+    before { backend.stub(:decode_response => nil, :get_server_version => "1.0.3") }
+
+    let(:robject) do
+      Riak::RObject.new(client['stale'], 'prevent').tap do |obj|
+        obj.prevent_stale_writes = true
+        obj.raw_data = "stale"
+        obj.content_type = "text/plain"
+      end
+    end
+
+    it "should set the if_none_match field when the object is new" do
+      backend.should_receive(:write_protobuff) do |msg, req|
+        msg.should == :PutReq
+        req.if_none_match.should be_true
+      end
+      backend.store_object(robject)
+    end
+
+    it "should set the if_not_modified field when the object has a vclock" do
+      robject.vclock = Base64.encode64("foo")
+      backend.should_receive(:write_protobuff) do |msg, req|
+        msg.should == :PutReq
+        req.if_not_modified.should be_true
+      end
+      backend.store_object(robject)
+    end
+
+    context "when conditional requests are not supported" do
+      before { backend.stub(:get_server_version => "0.14.2") }
+      let(:other) { robject.dup.tap {|o| o.vclock = 'bar' } }
+
+      it "should fetch the original object and raise if not equivalent" do
+        robject.vclock = Base64.encode64("foo")
+        backend.should_receive(:fetch_object).and_return(other)
+        expect { backend.store_object(robject) }.to raise_error(Riak::FailedRequest)
+      end
+    end
   end
 end

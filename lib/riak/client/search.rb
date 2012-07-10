@@ -20,8 +20,8 @@ module Riak
     def search(*args)
       options = args.extract_options!
       index, query = args[-2], args[-1]  # Allows nil index, while keeping it as firstargument
-      http do |h|
-        h.search(index, query, options)
+      backend do |b|
+        b.search(index, query, options)
       end
     end
     alias :select :search

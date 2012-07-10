@@ -272,9 +272,9 @@ describe Riak::Client::HTTPBackend do
       @backend.search(nil, 'foo')
     end
 
-    it "should vivify JSON responses" do
-      @backend.should_receive(:get).and_return({:code => 200, :headers => {"content-type"=>["application/json"]}, :body => '{"response":{"docs":["foo"]}}'})
-      @backend.search(nil, "foo").should == {"response" => {"docs" => ["foo"]}}
+    it "should vivify and normalize JSON responses" do
+      @backend.should_receive(:get).and_return({:code => 200, :headers => {"content-type"=>["application/json"]}, :body => '{"response":{"docs":[{"id":"foo","fields":{},"props":{}}],"maxScore":"0.0345","numFound":1}}'})
+      @backend.search(nil, "foo").should == {"docs" => [{"id" => "foo"}], "max_score" => 0.0345, "num_found" => 1}
     end
 
     it "should return non-JSON responses raw" do

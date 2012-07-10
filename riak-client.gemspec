@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.authors = ["Sean Cribbs"]
 
   # Deps
-  gem.add_development_dependency "rspec", "~>2.8.0"
+  gem.add_development_dependency "rspec", "~>2.10.0"
   gem.add_development_dependency "fakeweb", ">=1.2"
   gem.add_development_dependency "rack", ">=1.0"
   gem.add_development_dependency "excon", ">=0.6.1"
@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "builder", ">= 2.1.2"
   gem.add_runtime_dependency "beefcake", "~>0.3.7"
   gem.add_runtime_dependency "multi_json", "~>1.0"
+  gem.add_runtime_dependency "innertube", "~>1.0.2"
 
   # Files
   ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten

@@ -89,7 +89,7 @@ module Riak
         required :content,         RpbContent, 4
         optional :w,               :uint32,    5
         optional :dw,              :uint32,    6
-        optional :returnbody,     :bool,      7
+        optional :returnbody,      :bool,      7
         optional :pw,              :uint32,    8
         optional :if_not_modified, :bool,      9
         optional :if_none_match,   :bool,      10
@@ -159,6 +159,54 @@ module Riak
         optional :phase,    :uint32, 1
         optional :response, :bytes,  2
         optional :done,     :bool,   3
+      end
+
+      class RpbIndexReq
+        include Beefcake::Message
+        module IndexQueryType
+          EQ = 0
+          RANGE = 1
+        end
+
+        required :bucket,    :bytes,         1
+        required :index,     :bytes,         2
+        required :qtype,     IndexQueryType, 3
+        optional :key,       :bytes,         4
+        optional :range_min, :bytes,         5
+        optional :range_max, :bytes,         6
+      end
+
+      class RpbIndexResp
+        include Beefcake::Message
+        repeated :keys, :bytes, 1
+      end
+
+      class RpbSearchDoc
+        include Beefcake::Message
+        # We have to name this differently than the .proto file does
+        # because Beefcake uses 'fields' as an instance method.
+        repeated :properties, RpbPair, 1
+      end
+
+      class RpbSearchQueryReq
+        include Beefcake::Message
+        required :q,       :bytes,  1
+        required :index,   :bytes,  2
+        optional :rows,    :uint32, 3
+        optional :start,   :uint32, 4
+        optional :sort,    :bytes,  5
+        optional :filter,  :bytes,  6
+        optional :df,      :bytes,  7
+        optional :op,      :bytes,  8
+        repeated :fl,      :bytes,  9
+        optional :presort, :bytes, 10
+      end
+
+      class RpbSearchQueryResp
+        include Beefcake::Message
+        repeated :docs, RpbSearchDoc, 1, :default => []
+        optional :max_score, :float,  2
+        optional :num_found, :uint32, 3
       end
     end
   end

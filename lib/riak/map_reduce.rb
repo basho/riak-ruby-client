@@ -213,7 +213,6 @@ module Riak
     #   @yieldparam [Array] data a list of results from the phase
     #   @return [nil] nothing
     def run(&block)
-      raise MapReduceError.new(t("empty_map_reduce_query")) if @query.empty?
       @client.mapred(self, &block)
     rescue FailedRequest => fr
       if fr.server_error? && fr.is_json?

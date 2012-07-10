@@ -13,6 +13,7 @@ Riak.disable_list_keys_warnings = true
    version_filter
    sometimes
    http_backend_implementation_examples
+   search_corpus_setup
    unified_backend_examples
    mocks
    mock_server
