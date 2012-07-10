@@ -127,6 +127,7 @@ module Riak
       end
 
       def reset_socket
+        reset_server_version
         @socket.close if @socket && !@socket.closed?
         @socket = nil
       end
@@ -138,6 +139,23 @@ module Riak
         "all" => UINTMAX - 3,
         "default" => UINTMAX - 4
       }.freeze
+
+      def prune_unsupported_options(req,options={})
+        unless quorum_controls?
+          [:notfound_ok, :basic_quorum, :pr, :pw].each {|k| options.delete k }
+        end
+        unless pb_head?
+          [:head, :return_head].each {|k| options.delete k }
+        end
+        unless tombstone_vclocks?
+          options.delete :deletedvclock
+          options.delete :vclock if req == :DelReq
+        end
+        unless pb_conditionals?
+          [:if_not_modified, :if_none_match, :if_modified].each {|k| options.delete k }
+        end
+        options
+      end
 
       def normalize_quorums(options={})
         options.dup.tap do |o|

@@ -20,6 +20,10 @@ describe Riak::Client::FeatureDetection do
     it { should_not be_mapred_phaseless }
     it { should_not be_pb_indexes }
     it { should_not be_pb_search }
+    it { should_not be_pb_conditionals }
+    it { should_not be_quorum_controls }
+    it { should_not be_tombstone_vclocks }
+    it { should_not be_pb_head }
   end
 
   context "when the Riak version is 1.0.x" do
@@ -27,6 +31,10 @@ describe Riak::Client::FeatureDetection do
     it { should_not be_mapred_phaseless }
     it { should_not be_pb_indexes }
     it { should_not be_pb_search }
+    it { should be_pb_conditionals }
+    it { should be_quorum_controls }
+    it { should be_tombstone_vclocks }
+    it { should be_pb_head }
   end
 
   context "when the Riak version is 1.1.x" do
@@ -34,6 +42,10 @@ describe Riak::Client::FeatureDetection do
     it { should be_mapred_phaseless }
     it { should_not be_pb_indexes }
     it { should_not be_pb_search }
+    it { should be_pb_conditionals }
+    it { should be_quorum_controls }
+    it { should be_tombstone_vclocks }
+    it { should be_pb_head }
   end
 
   context "when the Riak version is 1.2.x" do
@@ -41,5 +53,9 @@ describe Riak::Client::FeatureDetection do
     it { should be_mapred_phaseless }
     it { should be_pb_indexes }
     it { should be_pb_search }
+    it { should be_pb_conditionals }
+    it { should be_quorum_controls }
+    it { should be_tombstone_vclocks }
+    it { should be_pb_head }
   end
 end

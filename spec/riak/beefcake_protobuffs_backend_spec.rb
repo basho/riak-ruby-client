@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Riak::Client::BeefcakeProtobuffsBackend do
   before(:all) { described_class.should be_configured }
+  before(:each) { backend.stub(:get_server_version => "1.2.0") }
   let(:client) { Riak::Client.new }
   let(:node) { client.nodes.first }
   let(:backend) { Riak::Client::BeefcakeProtobuffsBackend.new(client, node) }
@@ -53,7 +54,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
   end
 
   context "preventing stale writes" do
-    before { backend.stub!(:decode_response) }
+    before { backend.stub(:decode_response => nil, :get_server_version => "1.0.3") }
 
     let(:robject) do
       Riak::RObject.new(client['stale'], 'prevent').tap do |obj|
@@ -78,6 +79,17 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         req.if_not_modified.should be_true
       end
       backend.store_object(robject)
+    end
+
+    context "when conditional requests are not supported" do
+      before { backend.stub(:get_server_version => "0.14.2") }
+      let(:other) { robject.dup.tap {|o| o.vclock = 'bar' } }
+
+      it "should fetch the original object and raise if not equivalent" do
+        robject.vclock = Base64.encode64("foo")
+        backend.should_receive(:fetch_object).and_return(other)
+        expect { backend.store_object(robject) }.to raise_error(Riak::FailedRequest)
+      end
     end
   end
 end
