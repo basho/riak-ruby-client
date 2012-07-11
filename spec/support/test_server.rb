@@ -50,7 +50,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each, :integration => true) do
-    if test_server && !test_server_fatal && example.metadata[:test_server] != false
+    if test_server && !test_server_fatal && test_server.started? && example.metadata[:test_server] != false
       test_server.drop
     end
   end

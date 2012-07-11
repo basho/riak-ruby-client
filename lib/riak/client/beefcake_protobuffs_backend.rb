@@ -31,7 +31,7 @@ module Riak
       end
 
       def fetch_object(bucket, key, options={})
-        options = normalize_quorums(options)
+        options = prune_unsupported_options(:GetReq, normalize_quorums(options))
         bucket = Bucket === bucket ? bucket.name : bucket
         req = RpbGetReq.new(options.merge(:bucket => maybe_encode(bucket), :key => maybe_encode(key)))
         write_protobuff(:GetReq, req)
@@ -43,18 +43,25 @@ module Riak
         options[:bucket] = maybe_encode(robject.bucket.name)
         options[:key] = maybe_encode(robject.key)
         options[:if_modified] = maybe_encode Base64.decode64(robject.vclock) if robject.vclock
-        req = RpbGetReq.new(options)
+        req = RpbGetReq.new(prune_unsupported_options(:GetReq, options))
         write_protobuff(:GetReq, req)
         decode_response(robject)
       end
 
       def store_object(robject, options={})
-        if robject.prevent_stale_writes
-          other = fetch_object(robject.bucket, robject.key)
-          raise Riak::ProtobuffsFailedRequest(:stale_object, t("stale_write_prevented")) unless other.vclock == robject.vclock
-        end
         options = normalize_quorums(options)
-        req = dump_object(robject, options)
+        if robject.prevent_stale_writes
+          unless pb_conditionals?
+            other = fetch_object(robject.bucket, robject.key)
+            raise Riak::ProtobuffsFailedRequest.new(:stale_object, t("stale_write_prevented")) unless other.vclock == robject.vclock
+          end
+          if robject.vclock
+            options[:if_not_modified] = true
+          else
+            options[:if_none_match] = true
+          end
+        end
+        req = dump_object(robject, prune_unsupported_options(:PutReq, options))
         write_protobuff(:PutReq, req)
         decode_response(robject)
       end
@@ -65,7 +72,7 @@ module Riak
         options[:bucket] = maybe_encode(bucket)
         options[:key] = maybe_encode(key)
         options[:vclock] = Base64.decode64(options[:vclock]) if options[:vclock]
-        req = RpbDelReq.new(options)
+        req = RpbDelReq.new(prune_unsupported_options(:DelReq, options))
         write_protobuff(:DelReq, req)
         decode_response
       end
@@ -102,6 +109,7 @@ module Riak
       end
 
       def mapred(mr, &block)
+        raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
         write_protobuff(:MapRedReq, req)
         results = []
@@ -115,6 +123,34 @@ module Riak
           end
         end
         block_given? || results.compact.size == 1 ? results.last : results
+      end
+
+      def get_index(bucket, index, query)
+        return super unless pb_indexes?
+        if Range === query
+          options = {
+            :qtype => RpbIndexReq::IndexQueryType::RANGE,
+            :range_min => query.begin.to_s,
+            :range_max => query.end.to_s
+          }
+        else
+          options = {
+            :qtype => RpbIndexReq::IndexQueryType::EQ,
+            :key => query.to_s
+          }
+        end
+        req = RpbIndexReq.new(options.merge(:bucket => bucket, :index => index))
+        write_protobuff(:IndexReq, req)
+        decode_response
+      end
+
+      def search(index, query, options={})
+        return super unless pb_search?
+        options = options.symbolize_keys
+        options[:op] = options.delete(:'q.op') if options[:'q.op']
+        req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
+        write_protobuff(:SearchQueryReq, req)
+        decode_response
       end
 
       private
@@ -167,12 +203,23 @@ module Riak
             {'n_val' => res.props.n_val, 'allow_mult' => res.props.allow_mult}
           when :MapRedResp
             RpbMapRedResp.decode(message)
+          when :IndexResp
+            res = RpbIndexResp.decode(message)
+            res.keys
+          when :SearchQueryResp
+            res = RpbSearchQueryResp.decode(message)
+            { 'docs' => res.docs.map {|d| decode_doc(d) },
+              'max_score' => res.max_score,
+              'num_found' => res.num_found }
           end
         end
       rescue SystemCallError, SocketError => e
         reset_socket
         raise
-        #raise Riak::ProtobuffsFailedRequest.new(:server_error, e.message)
+      end
+
+      def decode_doc(doc)
+        Hash[doc.properties.map {|p| [ p.key, p.value ] }]
       end
     end
   end

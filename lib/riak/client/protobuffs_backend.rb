@@ -3,12 +3,14 @@ require 'socket'
 require 'base64'
 require 'digest/sha1'
 require 'riak/util/translation'
+require 'riak/client/feature_detection'
 
 module Riak
   class Client
     class ProtobuffsBackend
       include Util::Translation
       include Util::Escape
+      include FeatureDetection
 
       # Message Codes Enum
       MESSAGE_CODES = %W[
@@ -37,6 +39,10 @@ module Riak
           SetBucketResp
           MapRedReq
           MapRedResp
+          IndexReq
+          IndexResp
+          SearchQueryReq
+          SearchQueryResp
        ].map {|s| s.intern }.freeze
 
       def self.simple(method, code)
@@ -65,9 +71,32 @@ module Riak
       #   range query to perform
       # @return [Array<String>] a list of keys matching the query
       def get_index(bucket, index, query)
-        mapred(Riak::MapReduce.new(client).
-               index(bucket, index, query).
-               reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)).map {|p| p.last }
+        mr = Riak::MapReduce.new(client).index(bucket, index, query)
+        unless mapred_phaseless?
+          mr.reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)
+        end
+        mapred(mr).map {|p| p.last }
+      end
+
+      # Performs search query via emulation through MapReduce. This
+      # has more limited capabilites than native queries. Essentially,
+      # only the 'id' field of matched documents will ever be
+      # returned, the 'fl' and other options have no effect.
+      # @param [String] index the index to query
+      # @param [String] query the Lucene-style search query
+      # @param [Hash] options ignored in MapReduce emulation
+      # @return [Hash] the search results
+      def search(index, query, options={})
+        mr = Riak::MapReduce.new(client).search(index || 'search', query)
+        unless mapred_phaseless?
+          mr.reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)
+        end
+        docs = mapred(mr).map {|d| {'id' => d[1] } }
+        # Since we don't get this information back from the MapReduce,
+        # we have to fake the max_score and num_found.
+        { 'docs' => docs,
+          'num_found' => docs.size,
+          'max_score' => 0.0 }
       end
 
       # Gracefully shuts down this connection.
@@ -76,6 +105,10 @@ module Riak
       end
 
       private
+      def get_server_version
+        server_info[:server_version]
+      end
+
       # Implemented by subclasses
       def decode_response
         raise NotImplementedError
@@ -94,6 +127,7 @@ module Riak
       end
 
       def reset_socket
+        reset_server_version
         @socket.close if @socket && !@socket.closed?
         @socket = nil
       end
@@ -105,6 +139,23 @@ module Riak
         "all" => UINTMAX - 3,
         "default" => UINTMAX - 4
       }.freeze
+
+      def prune_unsupported_options(req,options={})
+        unless quorum_controls?
+          [:notfound_ok, :basic_quorum, :pr, :pw].each {|k| options.delete k }
+        end
+        unless pb_head?
+          [:head, :return_head].each {|k| options.delete k }
+        end
+        unless tombstone_vclocks?
+          options.delete :deletedvclock
+          options.delete :vclock if req == :DelReq
+        end
+        unless pb_conditionals?
+          [:if_not_modified, :if_none_match, :if_modified].each {|k| options.delete k }
+        end
+        options
+      end
 
       def normalize_quorums(options={})
         options.dup.tap do |o|

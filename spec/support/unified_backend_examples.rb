@@ -1,4 +1,3 @@
-
 shared_examples_for "Unified backend API" do
   # ping
   it "should ping the server" do
@@ -38,14 +37,14 @@ shared_examples_for "Unified backend API" do
         robj.data.should == { "test" => "pass" }
       end
 
-      it "should accept a PR value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         robj = @backend.fetch_object("test", "fetch", :pr => q)
         robj.should be_kind_of(Riak::RObject)
         robj.data.should == { "test" => "pass" }
       end
     end
 
-    sometimes "should marshal indexes properly", :version => "1.0.0", :retries => 5 do
+    sometimes "should marshal indexes properly", :version => ">= 1.0.0", :retries => 5 do
       robj = @backend.fetch_object('test', 'fetch')
       robj.indexes['test_bin'].should be
       robj.indexes['test_bin'].should include('pass')
@@ -73,7 +72,7 @@ shared_examples_for "Unified backend API" do
         @backend.reload_object(@robject, :r => q)
       end
 
-      it "should accept a valid PR value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a valid PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         @backend.reload_object(@robject, :pr => q)
       end
     end
@@ -113,12 +112,12 @@ shared_examples_for "Unified backend API" do
         @backend.store_object(@robject, :returnbody => false, :w => :all, :dw => q)
       end
 
-      it "should accept a PW value of #{q.inspect} for the request", :version => "1.0.0" do
+      it "should accept a PW value of #{q.inspect} for the request", :version => ">= 1.0.0" do
         @backend.store_object(@robject, :returnbody => false, :pw => q)
       end
     end
 
-    it "should store an object with indexes", :version => "1.0.0" do
+    it "should store an object with indexes", :version => ">= 1.0.0" do
       @robject.indexes['foo_bin'] << 'bar'
       @backend.store_object(@robject, :returnbody => true)
       @robject.indexes.should include('foo_bin')
@@ -272,6 +271,16 @@ shared_examples_for "Unified backend API" do
       @mapred = Riak::MapReduce.new(@client).add("test").map("Riak.mapValuesJson", :keep => true)
     end
 
+    it "should raise an error without phases", :version => "< 1.1.0" do
+      @mapred.query.clear
+      expect { @backend.mapred(@mapred) }.to raise_error(Riak::MapReduceError)
+    end
+
+    it "should not raise an error without phases", :version => ">= 1.1.0" do
+      @mapred.query.clear
+      @backend.mapred(@mapred)
+    end
+
     it "should perform a simple MapReduce request" do
       @backend.mapred(@mapred).should == [{"value" => "1"}]
     end
@@ -301,6 +310,33 @@ shared_examples_for "Unified backend API" do
         end
         errors.should be_empty
       end
+    end
+  end
+
+  # search
+  context "searching fulltext indexes", :version => ">= 1.2.0" do
+    # Search functionality existed since Riak 0.13, but PBC only
+    # entered into the picture in 1.2. PBC can support searches
+    # against 1.1 and earlier nodes using MapReduce emulation, but has
+    # limited functionality. We'll enter separate tests for the
+    # pre-1.2 functionality.
+    include_context "search corpus setup"
+
+    it 'should find indexed documents, returning ids' do
+      results = @backend.search 'search_test', 'fearless elephant rushed', :fl => 'id'
+      results.should have_key 'docs'
+      results.should have_key 'max_score'
+      results.should have_key 'num_found'
+      results['docs'].should include({"id" => "munchausen-605"})
+    end
+
+    it 'should find indexed documents, returning documents' do
+      # For now use '*' until #122 is merged into riak_search
+      results = @backend.search 'search_test', 'fearless elephant rushed', :fl => '*'
+      results.should have_key 'docs'
+      results.should have_key 'max_score'
+      results.should have_key 'num_found'
+      results['docs'].should include({"id" => "munchausen-605", "value" => "Fearless I advanced against the elephant, desirous to take alive the haughty Tippoo Sahib; but he drew a pistol from his belt, and discharged it full in my face as I rushed upon him, which did me no further harm than wound my cheek-bone, which disfigures me somewhat under my left eye. I could not withstand the rage and impulse of that moment, and with one blow of my sword separated his head from his body.\n"})
     end
   end
 end

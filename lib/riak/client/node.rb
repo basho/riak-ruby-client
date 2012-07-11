@@ -89,7 +89,7 @@ module Riak
       end
 
       def inspect
-        "<#Node #{@host}:#{@http_port}:#{@pb_port}>"
+        "#<Node #{@host}:#{@http_port}:#{@pb_port}>"
       end
 
       protected
