@@ -161,13 +161,7 @@ module Riak
           begin
             # Attempt to grab the server version from the stats resource
             stats = send(:stats)
-            kv_version = stats['riak_kv_version']
-            if stats['riak_api_version']
-              # TODO: Remove this after Riak 1.2.0 release
-              kv_version > "1.2.0" ? kv_version : "1.2.0"
-            else
-              kv_version
-            end
+            stats['riak_kv_version']
           rescue FailedRequest
             # If stats is disabled, we can't assume the Riak version
             # is >= 1.1. However, we can assume the new URL scheme is
