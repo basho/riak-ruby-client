@@ -46,15 +46,25 @@ module Riak
           end
         end
         raise ArgumentError, t('no_pipes', :path => pipedir.to_s) if [@rfile, @wfile].any? {|p| p.nil? }
-        # We have to open the read pipe AFTER we have sent some data
-        # to the write pipe, otherwise JRuby hangs.
+
         begin
           debug "Opening write pipe."
           @w = open_write_pipe
           @w.sync = true
-          debug "Opening read pipe."
-          @r = open_read_pipe
-          command 'ok.'
+          read_ready = false
+          # Using threads, we get around JRuby's blocking-open
+          # behavior. The main thread pumps the write pipe full of
+          # data so that run_erl will start echoing it into the read
+          # pipe once we have started the open. On non-JVM rubies,
+          # O_NONBLOCK works and we proceed as expected.
+          Thread.new do
+            debug "Opening read pipe."
+            @r = open_read_pipe
+            read_ready = true
+          end
+          Thread.pass
+          @w.print "\n" until read_ready
+          command "ok."
           debug "Initialized console: #{@r.inspect} #{@w.inspect}"
         rescue => e
           debug e.message
@@ -102,7 +112,6 @@ module Riak
       def close
         @r.close if @r && !@r.closed?
         @w.close if @w && !@w.closed?
-        Signal.trap("WINCH", @winch)
         freeze
       end
 
@@ -113,19 +122,11 @@ module Riak
       end
 
       def open_write_pipe
-        if defined?(::Java)
-          java.io.FileOutputStream.new(@wfile.to_s).to_io
-        else
-          @wfile.open(File::WRONLY|File::NONBLOCK)
-        end
+        @wfile.open(File::WRONLY|File::NONBLOCK)
       end
 
       def open_read_pipe
-        if defined?(::Java)
-          IO.popen("cat #{@rfile}", "rb")
-        else
-          @rfile.open(File::RDONLY|File::NONBLOCK)
-        end
+        @rfile.open(File::RDONLY|File::NONBLOCK)
       end
     end
   end
