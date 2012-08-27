@@ -21,3 +21,5 @@ before_script:
 notifications:
   webhooks: http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
   email: sean@basho.com
+services:
+  - riak
