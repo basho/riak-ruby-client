@@ -9,7 +9,7 @@ def generate_gemspec
   development_groups=[:development, :guard, :test]
   runtime_groups=Bundler.definition.groups - development_groups
 
-  require_relative './lib/riak/version'
+  require File.join(File.dirname(__FILE__), 'lib/riak/version')
 
   spec = Gem::Specification.new do |gem|
     # Meta
