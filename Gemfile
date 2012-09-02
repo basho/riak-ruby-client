@@ -1,23 +1,35 @@
 source :rubygems
 
-gemspec
+gem 'i18n', '>=0.4.0'
+gem 'builder', '>= 2.1.2'
+gem 'beefcake', '~>0.3.7'
+gem 'multi_json', '~>1.0'
+gem 'innertube', '~>1.0.2'
+
+group :development do
+  gem 'rspec', '~>2.10.0'
+  gem 'fakeweb', '>=1.2'
+  gem 'rack', '>=1.0'
+  gem 'excon', '>=0.6.1'
+  gem 'rake'
+end
 
 group :guard do
   gem 'guard-rspec'
   gem 'rb-fsevent'
   gem 'growl'
 end
-  
+
 platforms :mri do
-  gem 'yajl-ruby'
+  gem 'yajl-ruby', :groups => [:development, :guard]
 end
 
 platforms :jruby do
-  gem 'jruby-openssl'
+  gem 'jruby-openssl', :groups => [:development, :guard]
 end
 
 platforms :jruby, :rbx do
-  gem 'json'
+  gem 'json', :groups => [:development, :guard]
 end
 # platforms :mri_18, :jruby do
 #   gem 'ruby-debug'
