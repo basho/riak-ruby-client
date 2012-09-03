@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Sean Cribbs"]
-  s.date = "2012-09-02"
+  s.date = "2012-09-03"
   s.description = "riak-client is a rich client for Riak, the distributed database by Basho. It supports the full HTTP and Protocol Buffers interfaces including storage operations, bucket configuration, link-walking, secondary indexes and map-reduce."
   s.email = ["sean@basho.com"]
   s.files = ["LICENSE", "README.markdown", "RELEASE_NOTES.md", "erl_src/riak_kv_test014_backend.beam", "erl_src/riak_kv_test014_backend.erl", "erl_src/riak_kv_test_backend.beam", "erl_src/riak_kv_test_backend.erl", "erl_src/riak_search_test_backend.beam", "erl_src/riak_search_test_backend.erl", "lib/riak.rb", "lib/riak/bucket.rb", "lib/riak/client.rb", "lib/riak/client/beefcake/messages.rb", "lib/riak/client/beefcake/object_methods.rb", "lib/riak/client/beefcake_protobuffs_backend.rb", "lib/riak/client/decaying.rb", "lib/riak/client/excon_backend.rb", "lib/riak/client/feature_detection.rb", "lib/riak/client/http_backend.rb", "lib/riak/client/http_backend/configuration.rb", "lib/riak/client/http_backend/key_streamer.rb", "lib/riak/client/http_backend/object_methods.rb", "lib/riak/client/http_backend/request_headers.rb", "lib/riak/client/http_backend/transport_methods.rb", "lib/riak/client/net_http_backend.rb", "lib/riak/client/node.rb", "lib/riak/client/protobuffs_backend.rb", "lib/riak/client/search.rb", "lib/riak/cluster.rb", "lib/riak/core_ext.rb", "lib/riak/core_ext/blank.rb", "lib/riak/core_ext/deep_dup.rb", "lib/riak/core_ext/extract_options.rb", "lib/riak/core_ext/json.rb", "lib/riak/core_ext/slice.rb", "lib/riak/core_ext/stringify_keys.rb", "lib/riak/core_ext/symbolize_keys.rb", "lib/riak/core_ext/to_param.rb", "lib/riak/encoding.rb", "lib/riak/failed_request.rb", "lib/riak/i18n.rb", "lib/riak/json.rb", "lib/riak/link.rb", "lib/riak/locale/en.yml", "lib/riak/locale/fr.yml", "lib/riak/map_reduce.rb", "lib/riak/map_reduce/filter_builder.rb", "lib/riak/map_reduce/phase.rb", "lib/riak/map_reduce_error.rb", "lib/riak/node.rb", "lib/riak/node/configuration.rb", "lib/riak/node/console.rb", "lib/riak/node/control.rb", "lib/riak/node/defaults.rb", "lib/riak/node/generation.rb", "lib/riak/node/log.rb", "lib/riak/node/version.rb", "lib/riak/robject.rb", "lib/riak/search.rb", "lib/riak/serializers.rb", "lib/riak/stamp.rb", "lib/riak/test_server.rb", "lib/riak/util/escape.rb", "lib/riak/util/headers.rb", "lib/riak/util/multipart.rb", "lib/riak/util/multipart/stream_parser.rb", "lib/riak/util/tcp_socket_extensions.rb", "lib/riak/util/translation.rb", "lib/riak/version.rb", "lib/riak/walk_spec.rb", "riak-client.gemspec"]
@@ -26,12 +26,24 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<beefcake>, ["~> 0.3.7"])
       s.add_runtime_dependency(%q<multi_json>, ["~> 1.0"])
       s.add_runtime_dependency(%q<innertube>, ["~> 1.0.2"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.10.0"])
+      s.add_development_dependency(%q<fakeweb>, [">= 1.2"])
+      s.add_development_dependency(%q<rack>, [">= 1.0"])
+      s.add_development_dependency(%q<excon>, [">= 0.6.1"])
+      s.add_development_dependency(%q<rake>, [">= 0"])
+      s.add_development_dependency(%q<yajl-ruby>, [">= 0"])
     else
       s.add_dependency(%q<i18n>, [">= 0.4.0"])
       s.add_dependency(%q<builder>, [">= 2.1.2"])
       s.add_dependency(%q<beefcake>, ["~> 0.3.7"])
       s.add_dependency(%q<multi_json>, ["~> 1.0"])
       s.add_dependency(%q<innertube>, ["~> 1.0.2"])
+      s.add_dependency(%q<rspec>, ["~> 2.10.0"])
+      s.add_dependency(%q<fakeweb>, [">= 1.2"])
+      s.add_dependency(%q<rack>, [">= 1.0"])
+      s.add_dependency(%q<excon>, [">= 0.6.1"])
+      s.add_dependency(%q<rake>, [">= 0"])
+      s.add_dependency(%q<yajl-ruby>, [">= 0"])
     end
   else
     s.add_dependency(%q<i18n>, [">= 0.4.0"])
@@ -39,5 +51,11 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<beefcake>, ["~> 0.3.7"])
     s.add_dependency(%q<multi_json>, ["~> 1.0"])
     s.add_dependency(%q<innertube>, ["~> 1.0.2"])
+    s.add_dependency(%q<rspec>, ["~> 2.10.0"])
+    s.add_dependency(%q<fakeweb>, [">= 1.2"])
+    s.add_dependency(%q<rack>, [">= 1.0"])
+    s.add_dependency(%q<excon>, [">= 0.6.1"])
+    s.add_dependency(%q<rake>, [">= 0"])
+    s.add_dependency(%q<yajl-ruby>, [">= 0"])
   end
 end

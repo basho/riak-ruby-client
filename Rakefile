@@ -6,8 +6,9 @@ require 'rspec/core/rake_task'
 def generate_gemspec
   require 'bundler'
 
-  development_groups=[:development, :guard, :test]
-  runtime_groups=Bundler.definition.groups - development_groups
+  local_groups=[:guard]
+  development_groups=[:development, :test]
+  runtime_groups=Bundler.definition.groups - development_groups - local_groups
 
   require File.join(File.dirname(__FILE__), 'lib/riak/version')
 
@@ -22,10 +23,14 @@ def generate_gemspec
     gem.authors = ["Sean Cribbs"]
 
     # Deps
-    Bundler.load.dependencies_for(*runtime_groups).each do |dep|
+    Bundler.load.dependencies_for(*Bundler.definition.groups).each do |dep|
       runtime_resolved = Bundler.definition.specs_for(runtime_groups).select { |spec| spec.name == dep.name }.first
+      development_resolved = Bundler.definition.specs_for(development_groups).select { |spec| spec.name == dep.name }.first
       if(!runtime_resolved.nil?)
         gem.add_dependency(dep.name, dep.requirement)
+      end
+      if(!development_resolved.nil?)
+        gem.add_development_dependency(dep.name, dep.requirement)
       end
     end
 
