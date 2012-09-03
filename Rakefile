@@ -42,6 +42,9 @@ def generate_gemspec
       fn =~ /^\..*$/ ||
       fn =~ /^spec\/.*$/
     end.sort
+    # gem.test_files = `git ls-files -- .`.split("\n").select do |fn|
+    #   fn =~ /^spec\/.*$/
+    # end.sort
     # gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
     gem.require_paths = ['lib']
   end
