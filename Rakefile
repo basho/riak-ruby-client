@@ -36,11 +36,11 @@ def generate_gemspec
 
     # Files
     gem.files = `git ls-files -- .`.split("\n").reject do |fn|
-      fn =~ /^Gemfile.*/ ||
-      fn =~ /^Guardfile/ ||
-      fn =~ /^Rakefile/ ||
+      fn =~ /^Gemfile.*$/ ||
+      fn =~ /^Guardfile$/ ||
+      fn =~ /^Rakefile$/ ||
       fn =~ /^\..*$/ ||
-      fn =~ /^spec/
+      fn =~ /^spec\/.*$/
     end.sort
     # gem.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
     gem.require_paths = ['lib']
