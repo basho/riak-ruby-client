@@ -125,7 +125,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      expect { @backend.fetch_object("test", "store") }.should_not raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object("test", "store") }.to_not raise_error(Riak::FailedRequest)
     end
   end
 
