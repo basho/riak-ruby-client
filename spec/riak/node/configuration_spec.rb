@@ -51,7 +51,6 @@ describe Riak::Node do
       bad_config = {
         :source => '',
         :root => '',
-        :interface => '127.0.0.1',
         :riak_control => {
           :port => 9100,
           :key => '/path/to/key.key',
@@ -61,6 +60,23 @@ describe Riak::Node do
       node = Riak::Node.new(bad_config)
       node.env[:riak_control][:enabled].should be_true
       node.env[:riak_core][:https].should == [['127.0.0.1', 9100]]
+      node.env[:riak_core][:ssl].should == [[:certfile, '/path/to/cert.crt'], [:keyfile, '/path/to/key.key']]
+    end
+
+    it 'should enable riak control, configure ssl, and override default interface ip' do
+      bad_config = {
+        :source => '',
+        :root => '',
+        :interface => '0.0.0.0',
+        :riak_control => {
+          :port => 9700,
+          :key => '/path/to/key.key',
+          :cert => '/path/to/cert.crt'
+        }
+      }
+      node = Riak::Node.new(bad_config)
+      node.env[:riak_control][:enabled].should be_true
+      node.env[:riak_core][:https].should == [['0.0.0.0', 9700]]
       node.env[:riak_core][:ssl].should == [[:certfile, '/path/to/cert.crt'], [:keyfile, '/path/to/key.key']]
     end
   end

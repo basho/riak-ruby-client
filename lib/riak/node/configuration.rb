@@ -7,6 +7,8 @@ module Riak
     # under the generated node.
     NODE_DIRECTORIES = [:bin, :etc, :log, :data, :ring, :pipe]
 
+    DEFAULT_INTERFACE_IP = '127.0.0.1'
+
     NODE_DIRECTORIES.each do |dir|
       # Makes accessor methods for all the node directories that
       # return Pathname objects.
@@ -198,7 +200,7 @@ module Riak
 
     # Sets the node name and cookie for distributed Erlang.
     def configure_name(interface)
-      interface ||= "127.0.0.1"
+      interface ||= DEFAULT_INTERFACE_IP
       vm["-name"] ||= configuration[:name] || "riak#{rand(1000000).to_s}@#{interface}"
       vm["-setcookie"] ||= configuration[:cookie] || "#{rand(100000).to_s}_#{rand(1000000).to_s}"
     end
@@ -209,8 +211,9 @@ module Riak
         raise ArgumentError, t('riak_control_configuration_not_complete') if @configuration[:riak_control][required].nil?
       end
 
+      interface ||= DEFAULT_INTERFACE_IP
       env[:riak_control][:enabled] = true
-      env[:riak_core][:https] = [Tuple[interface, 9100]]
+      env[:riak_core][:https] = [Tuple[interface, @configuration[:riak_control][:port]]]
       env[:riak_core][:ssl] = [
                                Tuple[:certfile, @configuration[:riak_control][:cert]],
                                Tuple[:keyfile, @configuration[:riak_control][:key]]
@@ -240,7 +243,7 @@ module Riak
 
     # Sets ports and interfaces for http, protocol buffers, and handoff.
     def configure_ports(interface, min_port)
-      interface ||= "127.0.0.1"
+      interface ||= DEFAULT_INTERFACE_IP
       min_port ||= 8080
       unless env[:riak_core][:http]
         env[:riak_core][:http] = [Tuple[interface, min_port]]
