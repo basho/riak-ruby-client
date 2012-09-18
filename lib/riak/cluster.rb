@@ -30,7 +30,7 @@ module Riak
       @configuration = config
       @count = config.delete(:count) || 4
       @min_port = config.delete(:min_port) || 9000
-      @min_control_port = config[:riak_control].delete(:port) || 9100
+      @min_control_port = config[:riak_control][:port] || 9100
       @root = Pathname.new(config.delete(:root))
       @nodes = []
       cookie = "#{rand(100000).to_s}_#{rand(1000000).to_s}"
