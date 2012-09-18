@@ -143,7 +143,7 @@ module Riak
       configure_logging
       configure_data
       configure_ports(hash[:interface], hash[:min_port])
-      configure_riak_control hash[:interface]
+      configure_riak_control hash[:interface], hash[:min_control_port]
       configure_name(hash[:interface])
     end
 
@@ -205,7 +205,7 @@ module Riak
       vm["-setcookie"] ||= configuration[:cookie] || "#{rand(100000).to_s}_#{rand(1000000).to_s}"
     end
 
-    def configure_riak_control(interface)
+    def configure_riak_control(interface, port)
       return if @configuration[:riak_control].nil?
       [:port, :key, :cert].each do |required|
         raise ArgumentError, t('riak_control_configuration_not_complete') if @configuration[:riak_control][required].nil?
@@ -213,7 +213,7 @@ module Riak
 
       interface ||= DEFAULT_INTERFACE_IP
       env[:riak_control][:enabled] = true
-      env[:riak_core][:https] = [Tuple[interface, @configuration[:riak_control][:port]]]
+      env[:riak_core][:https] = [Tuple[interface, port]]
       env[:riak_core][:ssl] = [
                                Tuple[:certfile, @configuration[:riak_control][:cert]],
                                Tuple[:keyfile, @configuration[:riak_control][:key]]
