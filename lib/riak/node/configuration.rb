@@ -141,6 +141,7 @@ module Riak
       configure_logging
       configure_data
       configure_ports(hash[:interface], hash[:min_port])
+      configure_riak_control hash[:interface]
       configure_name(hash[:interface])
     end
 
@@ -200,6 +201,20 @@ module Riak
       interface ||= "127.0.0.1"
       vm["-name"] ||= configuration[:name] || "riak#{rand(1000000).to_s}@#{interface}"
       vm["-setcookie"] ||= configuration[:cookie] || "#{rand(100000).to_s}_#{rand(1000000).to_s}"
+    end
+
+    def configure_riak_control(interface)
+      return if @configuration[:riak_control].nil?
+      [:port, :key, :cert].each do |required|
+        raise ArgumentError, t('riak_control_configuration_not_complete') if @configuration[:riak_control][required].nil?
+      end
+
+      env[:riak_control][:enabled] = true
+      env[:riak_core][:https] = [Tuple[interface, 9100]]
+      env[:riak_core][:ssl] = [
+                               Tuple[:certfile, @configuration[:riak_control][:cert]],
+                               Tuple[:keyfile, @configuration[:riak_control][:key]]
+                              ]
     end
 
     def configure_storage_backend
