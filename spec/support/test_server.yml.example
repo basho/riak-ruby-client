@@ -11,4 +11,4 @@ root: /tmp/riak-client-test-server
 #  Mac OS/X (Homebrew):  /usr/local/bin
 #    Source/Self built:  /path/to/your/install/rel/riak/bin
 #
-source: /Users/sean/Development/riak/rel/riak/bin
+source: /opt/var/local/riak-1.2.0/bin

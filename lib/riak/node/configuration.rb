@@ -134,6 +134,7 @@ module Riak
     def configure(hash)
       raise ArgumentError, t('source_and_root_required') unless hash[:source] && hash[:root]
       @configuration = hash
+      configure_storage_backend
       configure_paths
       configure_manifest
       configure_settings
@@ -199,6 +200,10 @@ module Riak
       interface ||= "127.0.0.1"
       vm["-name"] ||= configuration[:name] || "riak#{rand(1000000).to_s}@#{interface}"
       vm["-setcookie"] ||= configuration[:cookie] || "#{rand(100000).to_s}_#{rand(1000000).to_s}"
+    end
+
+    def configure_storage_backend
+      env[:riak_kv][:storage_backend] = @configuration[:storage_backend].to_sym if @configuration[:storage_backend]
     end
 
     # Merges input configuration with the defaults.
