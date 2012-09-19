@@ -143,7 +143,6 @@ module Riak
       configure_logging
       configure_data
       configure_ports(hash[:interface], hash[:min_port])
-      configure_riak_control hash[:interface], hash[:min_control_port]
       configure_name(hash[:interface])
     end
 
@@ -207,11 +206,9 @@ module Riak
 
     def configure_riak_control(interface, port)
       return if @configuration[:riak_control].nil?
-      [:port, :key, :cert].each do |required|
+      [:key, :cert].each do |required|
         raise ArgumentError, t('riak_control_configuration_not_complete') if @configuration[:riak_control][required].nil?
       end
-
-      interface ||= DEFAULT_INTERFACE_IP
       env[:riak_control][:enabled] = true
       env[:riak_core][:https] = [Tuple[interface, port]]
       env[:riak_core][:ssl] = [
@@ -250,15 +247,19 @@ module Riak
         min_port += 1
       end
       env[:riak_core][:http] = env[:riak_core][:http].map {|pair| Tuple[*pair] }
+
       env[:riak_kv][:pb_ip] = interface unless env[:riak_kv][:pb_ip]
       unless env[:riak_kv][:pb_port]
         env[:riak_kv][:pb_port] = min_port
         min_port += 1
       end
+
       unless env[:riak_core][:handoff_port]
         env[:riak_core][:handoff_port] = min_port
         min_port += 1
       end
+
+      configure_riak_control(interface, min_port)
     end
 
     # Implements a deep-merge of two {Hash} instances.

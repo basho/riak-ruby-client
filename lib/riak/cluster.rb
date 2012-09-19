@@ -35,8 +35,7 @@ module Riak
       @nodes = []
       cookie = "#{rand(100000).to_s}_#{rand(1000000).to_s}"
       @count.times do |i|
-        nodes << Riak::Node.new(config.merge(:min_port => @min_port + (i * 3),
-                                             :min_control_port => @min_control_port + (i * 3),
+        nodes << Riak::Node.new(config.merge(:min_port => @min_port + (i * 4),
                                              :root => @root + (i+1).to_s,
                                              :cookie => cookie))
       end

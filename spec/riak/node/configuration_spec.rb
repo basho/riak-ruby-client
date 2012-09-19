@@ -51,16 +51,15 @@ describe Riak::Node do
       bad_config = {
         :source => '',
         :root => '',
-        :min_control_port => 9107,
+        :min_port => 9107,
         :riak_control => {
-          :port => 9100,
           :key => '/path/to/key.key',
           :cert => '/path/to/cert.crt'
         }
       }
       node = Riak::Node.new(bad_config)
       node.env[:riak_control][:enabled].should be_true
-      node.env[:riak_core][:https].should == [['127.0.0.1', 9107]]
+      node.env[:riak_core][:https].should == [['127.0.0.1', 9110]]
       node.env[:riak_core][:ssl].should == [[:certfile, '/path/to/cert.crt'], [:keyfile, '/path/to/key.key']]
     end
 
@@ -68,17 +67,16 @@ describe Riak::Node do
       bad_config = {
         :source => '',
         :root => '',
-        :min_control_port => 9703,
+        :min_port => 9703,
         :interface => '0.0.0.0',
         :riak_control => {
-          :port => 9700,
           :key => '/path/to/key.key',
           :cert => '/path/to/cert.crt'
         }
       }
       node = Riak::Node.new(bad_config)
       node.env[:riak_control][:enabled].should be_true
-      node.env[:riak_core][:https].should == [['0.0.0.0', 9703]]
+      node.env[:riak_core][:https].should == [['0.0.0.0', 9706]]
       node.env[:riak_core][:ssl].should == [[:certfile, '/path/to/cert.crt'], [:keyfile, '/path/to/key.key']]
     end
   end
