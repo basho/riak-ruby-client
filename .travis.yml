@@ -13,6 +13,8 @@ matrix:
     - rvm: jruby-19mode
     - rvm: rbx-18mode
     - rvm: rbx-19mode
+services:
+  - riak
 bundler_args: --without=guard
 before_script:
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
