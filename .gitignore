@@ -18,6 +18,9 @@ coverage
 rdoc
 pkg
 
+## This line is for the dirglob only
+pkg/*
+
 ## PROJECT::SPECIFIC
 _notes
 doc
