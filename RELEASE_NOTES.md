@@ -1,5 +1,12 @@
 # Riak Ruby Client Release Notes
 
+## 1.0.5 Packaging Fix Release - 2012-10-12
+
+Release 1.0.5 fixes a bug with the RubyGems packaging that
+inadvertently included the `pkg` directory, which might have included
+old gem versions. No client functionality has changed with this
+release.
+
 ## 1.0.4 Patch/Bugfix Release - 2012-07-06
 
 Release 1.0.4 fixes some bugs and adds configurable timeouts to the
