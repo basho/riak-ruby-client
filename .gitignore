@@ -1,3 +1,7 @@
+## NOTE: This file must be manually kept in sync with the gemspec, but
+## should not normally need to be modified unless new top-level files
+## or directory trees are being added.
+
 ## MAC OS
 .DS_Store
 
@@ -17,9 +21,6 @@ tmtags
 coverage
 rdoc
 pkg
-
-## This line is for the dirglob only
-pkg/*
 
 ## PROJECT::SPECIFIC
 _notes
