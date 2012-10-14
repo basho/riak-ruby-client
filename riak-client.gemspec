@@ -24,6 +24,10 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "innertube", "~>1.0.2"
 
   # Files
+
+  # NOTE: This section must be manually kept in sync with the
+  # .gitignore file, but should not normally need to be modified
+  # unless new top-level files or directory trees are being added.
   includes = %W{
     lib/**/*
     spec/**/*
