@@ -28,14 +28,13 @@ describe Riak::Client::HTTPBackend::ObjectMethods do
     end
 
     it "should deserialize the body data" do
-      @object.should_receive(:deserialize).with("{}").and_return({})
       @backend.load_object(@object, {:headers => {"content-type" => ["application/json"]}, :body => "{}"})
       @object.data.should == {}
     end
 
     it "should leave the object data unchanged if the response body is blank" do
       @object.data = "Original data"
-      @backend.load_object(@object, {:headers => {"content-type" => ["application/json"]}, :body => ""})
+      @backend.load_object(@object, {:headers => {"content-type" => ["application/json"]}, :body => "", :code => 304})
       @object.data.should == "Original data"
     end
 
@@ -84,7 +83,7 @@ describe Riak::Client::HTTPBackend::ObjectMethods do
     end
 
     context "when the response code is 300 and the content-type is multipart/mixed" do
-      let(:http_response) { {:headers => {"content-type" => ["multipart/mixed; boundary=foo"]}, :code => 300 } }
+      let(:http_response) { {:headers => {"content-type" => ["multipart/mixed; boundary=8XZD3w6ttFTHIz6LCmhVxn9Ex0K"]}, :code => 300, :body => File.read("spec/fixtures/multipart-basic-conflict.txt")} }
       let(:other_object) { Riak::RObject.new(@bucket, "bar2") }
 
       it 'marks the object as in conflict' do
@@ -106,22 +105,14 @@ describe Riak::Client::HTTPBackend::ObjectMethods do
 
     describe "extracting siblings" do
       before :each do
-        @backend.load_object(@object, {:headers => {"x-riak-vclock" => ["merged"], "content-type" => ["multipart/mixed; boundary=foo"]}, :code => 300, :body => "\n--foo\nContent-Type: text/plain\n\nbar\n--foo\nContent-Type: text/plain\n\nbaz\n--foo--\n"})
+        @backend.load_object(@object, {:headers => {"x-riak-vclock" => ["merged"], "content-type" => ["multipart/mixed; boundary=8XZD3w6ttFTHIz6LCmhVxn9Ex0K"]}, :code => 300, :body => File.read("spec/fixtures/multipart-basic-conflict.txt")})
       end
 
       it "should extract the siblings" do
         @object.should have(2).siblings
         siblings = @object.siblings
         siblings[0].data.should == "bar"
-        siblings[1].data.should == "baz"
-      end
-
-      it "should set the key on both siblings" do
-        @object.siblings.should be_all {|s| s.key == "bar" }
-      end
-
-      it "should set the vclock on both siblings to the merged vclock" do
-        @object.siblings.should be_all {|s| s.vclock == "merged" }
+        siblings[1].data.should == "foo"
       end
     end
   end

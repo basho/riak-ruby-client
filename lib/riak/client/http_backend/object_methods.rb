@@ -52,28 +52,15 @@ module Riak
         # @param [Hash] response a response from {Riak::Client::HTTPBackend}
         def load_object(robject, response)
           extract_header(robject, response, "location", :key) {|v| URI.unescape(v.match(%r{.*/(.*?)(\?.*)?$})[1]) }
-          extract_header(robject, response, "content-type", :content_type)
           extract_header(robject, response, "x-riak-vclock", :vclock)
-          extract_header(robject, response, "link", :links) {|v| Set.new(Link.parse(v)) }
-          extract_header(robject, response, "etag", :etag)
-          extract_header(robject, response, "last-modified", :last_modified) {|v| Time.httpdate(v) }
-          robject.meta = response[:headers].inject({}) do |h,(k,v)|
-            if k =~ /x-riak-meta-(.*)/i
-              h[$1] = v
-            end
-            h
+          case response[:code] && response[:code].to_i
+          when 304
+            # Resulted from a reload, don't modify anything
+          when 300
+            robject.siblings = extract_siblings(robject, response[:body], response[:headers]['content-type'].first)
+          else
+            robject.siblings = [ load_content(response, RContent.new(robject)) ]
           end
-          robject.indexes = response[:headers].inject(Hash.new {|h,k| h[k] = Set.new }) do |h,(k,v)|
-            if k =~ /x-riak-index-((?:.*)_(?:int|bin))$/i
-              key = $1
-              h[key].merge Array(v).map {|vals| vals.split(/,\s*/).map {|i| key =~ /int$/ ? i.to_i : i } }.flatten
-            end
-            h
-          end
-          robject.conflict = (response[:code] && response[:code].to_i == 300 && robject.content_type =~ /multipart\/mixed/)
-          robject.siblings = robject.conflict? ? extract_siblings(robject, response[:body]) : nil
-          robject.raw_data = response[:body] if response[:body].present? && !robject.conflict?
-
           robject.conflict? ? robject.attempt_conflict_resolution : robject
         end
 
@@ -92,13 +79,34 @@ module Riak
           end
         end
 
-        def extract_siblings(robject, data)
-          Util::Multipart.parse(data, Util::Multipart.extract_boundary(robject.content_type)).map do |part|
-            RObject.new(robject.bucket, robject.key) do |sibling|
-              load_object(sibling, part)
-              sibling.vclock = robject.vclock
+        def extract_siblings(robject, data, content_type)
+          Util::Multipart.parse(data, Util::Multipart.extract_boundary(content_type)).map do |part|
+            RContent.new(robject) do |sibling|
+              load_content(part, sibling)
             end
           end
+        end
+
+        def load_content(response, rcontent)
+          extract_header(rcontent, response, "link", :links) {|v| Set.new(Link.parse(v)) }
+          extract_header(rcontent, response, "etag", :etag)
+          extract_header(rcontent, response, "last-modified", :last_modified) {|v| Time.httpdate(v) }
+          extract_header(rcontent, response, "content-type", :content_type)
+          rcontent.meta = response[:headers].inject({}) do |h,(k,v)|
+            if k =~ /x-riak-meta-(.*)/i
+              h[$1] = v
+            end
+            h
+          end
+          rcontent.indexes = response[:headers].inject(Hash.new {|h,k| h[k] = Set.new }) do |h,(k,v)|
+            if k =~ /x-riak-index-((?:.*)_(?:int|bin))$/i
+              key = $1
+              h[key].merge Array(v).map {|vals| vals.split(/,\s*/).map {|i| key =~ /int$/ ? i.to_i : i } }.flatten
+            end
+            h
+          end
+          rcontent.raw_data = response[:body] if response[:body].present?
+          rcontent
         end
       end
     end

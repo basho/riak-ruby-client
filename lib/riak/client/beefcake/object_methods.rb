@@ -31,40 +31,34 @@ module Riak
           return robject if pbuf.respond_to?(:unchanged) && pbuf.unchanged # Reloading
           robject.vclock = Base64.encode64(pbuf.vclock).chomp if pbuf.vclock
           robject.key = maybe_unescape(pbuf.key) if pbuf.respond_to?(:key) && pbuf.key # Put w/o key
-          if pbuf.content.size > 1
-            robject.conflict = true
-            robject.siblings = pbuf.content.map do |c|
-              sibling = RObject.new(robject.bucket, robject.key)
-              sibling.vclock = robject.vclock
+          robject.siblings.clear
+          robject.siblings = pbuf.content.map do |c|
+            RContent.new(robject) do |sibling|
               load_content(c, sibling)
             end
-
-            return robject.attempt_conflict_resolution
-          else
-            load_content(pbuf.content.first, robject)
           end
-          robject
+          robject.conflict? ? robject.attempt_conflict_resolution : robject
         end
 
         private
-        def load_content(pbuf, robject)
+        def load_content(pbuf, rcontent)
           if ENCODING && pbuf.charset.present?
             pbuf.value.force_encoding(pbuf.charset) if Encoding.find(pbuf.charset)
           end
-          robject.raw_data = pbuf.value
-          robject.etag = pbuf.vtag if pbuf.vtag.present?
-          robject.content_type = pbuf.content_type if pbuf.content_type.present?
-          robject.links = pbuf.links.map(&method(:decode_link)) if pbuf.links.present?
-          pbuf.usermeta.each {|pair| decode_meta(pair, robject.meta) } if pbuf.usermeta.present?
+          rcontent.raw_data = pbuf.value
+          rcontent.etag = pbuf.vtag if pbuf.vtag.present?
+          rcontent.content_type = pbuf.content_type if pbuf.content_type.present?
+          rcontent.links = pbuf.links.map(&method(:decode_link)) if pbuf.links.present?
+          pbuf.usermeta.each {|pair| decode_meta(pair, rcontent.meta) } if pbuf.usermeta.present?
           if pbuf.indexes.present?
-            robject.indexes.clear
-            pbuf.indexes.each {|pair| decode_index(pair, robject.indexes) }
+            rcontent.indexes.clear
+            pbuf.indexes.each {|pair| decode_index(pair, rcontent.indexes) }
           end
           if pbuf.last_mod.present?
-            robject.last_modified = Time.at(pbuf.last_mod)
-            robject.last_modified += pbuf.last_mod_usecs / 1000000 if pbuf.last_mod_usecs.present?
+            rcontent.last_modified = Time.at(pbuf.last_mod)
+            rcontent.last_modified += pbuf.last_mod_usecs / 1000000 if pbuf.last_mod_usecs.present?
           end
-          robject
+          rcontent
         end
 
         def decode_link(pbuf)
