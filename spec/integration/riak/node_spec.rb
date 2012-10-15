@@ -173,7 +173,7 @@ describe Riak::Node, :test_server => false, :slow => true do
       expect {
         console.command "ok."
         console.close
-      }.should_not raise_error
+      }.to_not raise_error
     end
   end
 

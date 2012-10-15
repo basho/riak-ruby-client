@@ -24,9 +24,40 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "innertube", "~>1.0.2"
 
   # Files
-  ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten
-  gem.files = (Dir['**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
-  gem.test_files = (Dir['spec/**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
-  # gem.executables   = Dir['bin/*'].map { |f| File.basename(f) }
+
+  # NOTE: This section must be manually kept in sync with the
+  # .gitignore file, but should not normally need to be modified
+  # unless new top-level files or directory trees are being added.
+  includes = %W{
+    lib/**/*
+    spec/**/*
+    Gemfile
+    Rakefile
+    Guardfile
+    LICENSE*
+    RELEASE_NOTES*
+    README*
+    erl_src/*
+    .gitignore
+    .document
+    .rspec
+    riak-client.gemspec
+  }
+
+  excludes = %W{
+    **/*.swp
+    **/#*
+    **/.#*
+    **/*~
+    **/*.rbc
+    **/.DS_Store
+    spec/support/test_server.yml
+  }
+
+  files = includes.map {|glob| Dir[glob] }.flatten.select {|f| File.file?(f) }.sort
+  files.reject! {|f| excludes.any? {|e| File.fnmatch?(e, f) } }
+
+  gem.files = files
+  gem.test_files = files.grep(/^spec/)
   gem.require_paths = ['lib']
 end
