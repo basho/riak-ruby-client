@@ -46,8 +46,8 @@ module Riak
       #    FilterBuilder.new do
       #      string_to_int
       #      AND do
-      #        seq { greater_than_eq 50 }
-      #        seq { neq 100 }
+      #        greater_than_eq 50
+      #        neq 100 
       #      end
       #    end
       LOGICAL_OPERATIONS = %w{and or not}
