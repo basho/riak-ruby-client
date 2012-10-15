@@ -52,7 +52,7 @@ module Riak
       @on_conflict_hooks ||= []
     end
 
-    delegate [:content_type, :content_type=,
+    def_delegators :content, :content_type, :content_type=,
               :links, :links=,
               :etag, :etag=,
               :last_modified, :last_modified=,
@@ -60,7 +60,7 @@ module Riak
               :indexes, :indexes=,
               :data, :data=,
               :raw_data, :raw_data=,
-              :deserialize, :serialize] => :content
+              :deserialize, :serialize
 
     # Attempts to resolve conflict using the registered conflict callbacks.
     #
