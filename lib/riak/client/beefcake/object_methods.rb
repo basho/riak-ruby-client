@@ -31,7 +31,6 @@ module Riak
           return robject if pbuf.respond_to?(:unchanged) && pbuf.unchanged # Reloading
           robject.vclock = Base64.encode64(pbuf.vclock).chomp if pbuf.vclock
           robject.key = maybe_unescape(pbuf.key) if pbuf.respond_to?(:key) && pbuf.key # Put w/o key
-          robject.siblings.clear
           robject.siblings = pbuf.content.map do |c|
             RContent.new(robject) do |sibling|
               load_content(c, sibling)
