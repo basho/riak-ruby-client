@@ -72,6 +72,6 @@ end
 
 desc "Run integration specs solely for riak_test"
 RSpec::Core::RakeTask.new(:riak_test) do |spec|
-  spec.rspec_opts = %w[--profile --tag integration --tag ~nodegen]
+  spec.rspec_opts = %w[--profile --tag integration --tag ~nodegen --no-color]
 end
 task :default => :ci
