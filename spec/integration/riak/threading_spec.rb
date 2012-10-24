@@ -61,8 +61,8 @@ describe "Multithreaded client", :test_server => true do
   ].each do |opts|
     describe opts.inspect do
       before do
-        @pb_port ||= $test_server.pb_port
-        @http_port ||= $test_server.http_port
+        @pb_port ||= test_server.pb_port
+        @http_port ||= test_server.http_port
         @client = Riak::Client.new({
                                      :pb_port => @pb_port,
                                      :http_port => @http_port
