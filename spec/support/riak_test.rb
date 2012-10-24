@@ -14,10 +14,9 @@ class PrebuiltTestServer
   attr_reader :http_port, :pb_port, :version, :root, :name
 
   def initialize
-    warn "Using existing Riak node for testing!"
     @root = Pathname(ENV['RIAK_ROOT_DIR'])
     @name = ENV['RIAK_NODE_NAME'].dup
-    @version = ENV['RIAK_VERSION'].dup
+    @version = ENV['RIAK_VERSION'].dup[/\d+\.\d+\.\d+/, 0]
     @http_port = ENV['HTTP_PORT'].to_i
     @pb_port = ENV['PB_PORT'].to_i
   end
