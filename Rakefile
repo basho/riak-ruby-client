@@ -69,3 +69,4 @@ desc "Run All Specs (including slow specs)"
 RSpec::Core::RakeTask.new(:ci) do |spec|
   spec.rspec_opts = %w[--profile]
 end
+task :default => :ci
