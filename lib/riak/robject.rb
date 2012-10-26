@@ -1,12 +1,11 @@
-require 'set'
-require 'time'
-require 'yaml'
+require 'forwardable'
+require 'riak/rcontent'
+require 'riak/conflict'
 require 'riak/util/translation'
 require 'riak/util/escape'
 require 'riak/bucket'
 require 'riak/link'
 require 'riak/walk_spec'
-require 'riak/serializers'
 
 module Riak
   # Represents the data and metadata stored in a bucket/key pair in
@@ -16,6 +15,7 @@ module Riak
     extend  Util::Translation
     include Util::Escape
     extend Util::Escape
+    extend Forwardable
 
     # @return [Bucket] the bucket in which this object is contained
     attr_accessor :bucket
@@ -23,28 +23,11 @@ module Riak
     # @return [String] the key of this object within its bucket
     attr_accessor :key
 
-    # @return [String] the MIME content type of the object
-    attr_accessor :content_type
-
     # @return [String] the Riak vector clock for the object
     attr_accessor :vclock
 
-    # @return [Set<Link>] a Set of {Riak::Link} objects for relationships between this object and other resources
-    attr_accessor :links
-
-    # @return [String] the ETag header from the most recent HTTP response, useful for caching and reloading
-    attr_accessor :etag
-
-    # @return [Time] the Last-Modified header from the most recent HTTP response, useful for caching and reloading
-    attr_accessor :last_modified
-
-    # @return [Hash] a hash of any X-Riak-Meta-* headers that were in the HTTP response, keyed on the trailing portion
-    attr_accessor :meta
-
-    # @return [Hash<Set>] a hash of secondary indexes, where the
-    #   key is the index name and the value is a Set of index
-    #   entries for that index
-    attr_accessor :indexes
+    alias :vector_clock :vclock
+    alias :vector_clock= :vclock=
 
     # @return [Boolean] whether to attempt to prevent stale writes using conditional PUT semantics, If-None-Match: * or If-Match: {#etag}
     # @see http://wiki.basho.com/display/RIAK/REST+API#RESTAPI-Storeaneworexistingobjectwithakey Riak Rest API Docs
@@ -68,6 +51,16 @@ module Riak
     def self.on_conflict_hooks
       @on_conflict_hooks ||= []
     end
+
+    def_delegators :content, :content_type, :content_type=,
+              :links, :links=,
+              :etag, :etag=,
+              :last_modified, :last_modified=,
+              :meta, :meta=,
+              :indexes, :indexes=,
+              :data, :data=,
+              :raw_data, :raw_data=,
+              :deserialize, :serialize
 
     # Attempts to resolve conflict using the registered conflict callbacks.
     #
@@ -102,16 +95,8 @@ module Riak
     # @see Bucket#get
     def initialize(bucket, key=nil)
       @bucket, @key = bucket, key
-      @links, @meta = Set.new, {}
-      @indexes = new_index_hash
+      @siblings = [ RContent.new(self) ]
       yield self if block_given?
-    end
-
-    def indexes=(hash)
-      @indexes = hash.inject(new_index_hash) do |h, (k,v)|
-        h[k].merge([*v])
-        h
-      end
     end
 
     # Load object data from a map/reduce response item.
@@ -121,56 +106,12 @@ module Riak
     # @return [RObject] self
     def load_from_mapreduce(response)
       self.vclock = response['vclock']
-      if response['values'].size == 1
-        value = response['values'].first
-        load_map_reduce_value(value)
-      else
-        @conflict = true
-        @siblings = response['values'].map do |v|
-          RObject.new(self.bucket, self.key) do |robj|
-            robj.vclock = self.vclock
-            robj.load_map_reduce_value(v)
-          end
+      @siblings = response['values'].map do |v|
+        RContent.new(self) do |rcontent|
+          rcontent.load_map_reduce_value(v)
         end
       end
       self
-    end
-
-    # @return [Object] the unmarshaled form of {#raw_data} stored in riak at this object's key
-    def data
-      if @raw_data && !@data
-        raw = @raw_data.respond_to?(:read) ? @raw_data.read : @raw_data
-        @data = deserialize(raw)
-        @raw_data = nil
-      end
-      @data
-    end
-
-    # @param [Object] unmarshaled form of the data to be stored in riak. Object will be serialized using {#serialize} if a known content_type is used. Setting this overrides values stored with {#raw_data=}
-    # @return [Object] the object stored
-    def data=(new_data)
-      if new_data.respond_to?(:read)
-        raise ArgumentError.new(t("invalid_io_object"))
-      end
-
-      @raw_data = nil
-      @data = new_data
-    end
-
-    # @return [String] raw data stored in riak for this object's key
-    def raw_data
-      if @data && !@raw_data
-        @raw_data = serialize(@data)
-        @data = nil
-      end
-      @raw_data
-    end
-
-    # @param [String, IO-like] the raw data to be stored in riak at this key, will not be marshaled or manipulated prior to storage. Overrides any data stored by {#data=}
-    # @return [String] the data stored
-    def raw_data=(new_raw_data)
-      @data = nil
-      @raw_data = new_raw_data
     end
 
     # Store the object in Riak
@@ -181,8 +122,10 @@ module Riak
     # @option options [Boolean] :returnbody (true) whether to return the result of a successful write in the body of the response. Set to false for fire-and-forget updates, set to true to immediately have access to the object's stored representation.
     # @return [Riak::RObject] self
     # @raise [ArgumentError] if the content_type is not defined
+    # @raise [Conflict] if the object has siblings
     def store(options={})
-      raise ArgumentError, t("content_type_undefined") unless @content_type.present?
+      raise Conflict, self if conflict?
+      raise ArgumentError, t("content_type_undefined") unless content_type.present?
       @bucket.client.store_object(self, options)
       self
     end
@@ -213,54 +156,29 @@ module Riak
       freeze
     end
 
-    attr_writer :siblings, :conflict
+    # Returns sibling values. If the object is not in conflict, then
+    # only one value will be present in the array.
+    # @return [Array<RContent>] an array of conflicting sibling values
+    #   for this key, possibly containing only one
+    attr_accessor :siblings
 
-    # Returns sibling objects when in conflict.
-    # @return [Array<RObject>] an array of conflicting sibling objects for this key
-    # @return [Array<self>] a single-element array containing object when not
-    # in conflict
-    def siblings
-      return [self] unless conflict?
-      @siblings
+    # Returns the solitary sibling when not in conflict.
+    # @return [RContent] the sole value/sibling on this object
+    # @raise [Conflict] when multiple siblings are present
+    def content
+      raise Conflict, self if conflict?
+      @siblings.first
     end
 
     # @return [true,false] Whether this object has conflicting sibling objects (divergent vclocks)
     def conflict?
-      @conflict.present?
-    end
-
-    # Serializes the internal object data for sending to Riak. Differs based on the content-type.
-    # This method is called internally when storing the object.
-    # Automatically serialized formats:
-    # * JSON (application/json)
-    # * YAML (text/yaml)
-    # * Marshal (application/x-ruby-marshal)
-    # When given an IO-like object (e.g. File), no serialization will
-    # be done.
-    # @param [Object] payload the data to serialize
-    def serialize(payload)
-      Serializers.serialize(@content_type, payload)
-    end
-
-    # Deserializes the internal object data from a Riak response. Differs based on the content-type.
-    # This method is called internally when loading the object.
-    # Automatically deserialized formats:
-    # * JSON (application/json)
-    # * YAML (text/yaml)
-    # * Marshal (application/x-ruby-marshal)
-    # @param [String] body the serialized response body
-    def deserialize(body)
-      Serializers.deserialize(@content_type, body)
+      @siblings.size != 1
     end
 
     # @return [String] A representation suitable for IRB and debugging output
     def inspect
-      body = if @data || Serializers[content_type]
-               data.inspect
-             else
-               @raw_data && "(#{@raw_data.size} bytes)"
-             end
-      "#<#{self.class.name} {#{bucket.name}#{"," + @key if @key}} [#{@content_type}]:#{body}>"
+      body = @siblings.map {|s| s.inspect }.join(", ")
+      "#<#{self.class.name} {#{bucket.name}#{"," + @key if @key}} [#{body}]>"
     end
 
     # Walks links from this object to other objects in Riak.
@@ -275,44 +193,6 @@ module Riak
     # @param [String] tag the tag to apply to the link
     def to_link(tag)
       Link.new(@bucket.name, @key, tag)
-    end
-
-    alias :vector_clock :vclock
-    alias :vector_clock= :vclock=
-
-    protected
-    def load_map_reduce_value(hash)
-      metadata = hash['metadata']
-      extract_if_present(metadata, 'X-Riak-VTag', :etag)
-      extract_if_present(metadata, 'content-type', :content_type)
-      extract_if_present(metadata, 'X-Riak-Last-Modified', :last_modified) { |v| Time.httpdate( v ) }
-      extract_if_present(metadata, 'index', :indexes) do |entries|
-        Hash[ entries.map {|k,v| [k, Set.new(Array(v))] } ]
-      end
-      extract_if_present(metadata, 'Links', :links) do |links|
-        Set.new( links.map { |l| Link.new(*l) } )
-      end
-      extract_if_present(metadata, 'X-Riak-Meta', :meta) do |meta|
-        Hash[
-             meta.map do |k,v|
-               [k.sub(%r{^x-riak-meta-}i, ''), [v]]
-             end
-            ]
-      end
-      extract_if_present(hash, 'data', :data) { |v| deserialize(v) }
-    end
-
-    private
-    def extract_if_present(hash, key, attribute=nil)
-      if hash[key].present?
-        attribute ||= key
-        value = block_given? ? yield(hash[key]) : hash[key]
-        send("#{attribute}=", value)
-      end
-    end
-
-    def new_index_hash
-      Hash.new {|h,k| h[k] = Set.new }
     end
   end
 end

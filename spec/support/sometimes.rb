@@ -39,7 +39,7 @@ RSpec.configure do |config|
     unless retried_examples.empty?
       retried_examples.each do |e|
         formatter.message "  #{e.full_description}"
-        formatter.message(color[:yellow, "  [#{e.metadata[:retried]}/#{e.metadata[:retries]}] "] + formatter.class.relative_path(e.location))
+        formatter.message(color[:yellow, "  [#{e.metadata[:retried]}/#{e.metadata[:retries]}] "] + RSpec::Core::Metadata::relative_path(e.location))
       end
     end
   end

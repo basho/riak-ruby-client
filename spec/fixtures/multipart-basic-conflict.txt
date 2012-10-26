@@ -1,0 +1,15 @@
+--8XZD3w6ttFTHIz6LCmhVxn9Ex0K
+Content-Type: text/plain
+Link: </buckets/test>; rel="up"
+Etag: 2baUwethOoLrVkwnMqzBRW
+Last-Modified: Mon, 15 Oct 2012 19:36:06 GMT
+
+bar
+--8XZD3w6ttFTHIz6LCmhVxn9Ex0K
+Content-Type: text/plain
+Link: </buckets/test>; rel="up"
+Etag: 6NtlHf8Lc3TEcCTKOVqEkl
+Last-Modified: Mon, 15 Oct 2012 19:35:57 GMT
+
+foo
+--8XZD3w6ttFTHIz6LCmhVxn9Ex0K--
