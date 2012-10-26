@@ -109,7 +109,7 @@ module Riak
       # the control script in the source node has to have been run at
       # least once. Running the `chkconfig` command is innocuous
       # enough to accomplish this without other side-effects.
-      %X{#{(source + control_script).to_s} chkconfig}
+      `#{(source + control_script.basename).to_s} chkconfig`
     end
   end
 end
