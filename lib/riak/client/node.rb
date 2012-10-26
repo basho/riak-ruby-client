@@ -79,7 +79,12 @@ module Riak
       # Enables or disables SSL on this node to be utilized by the HTTP
       # Backends
       def ssl=(value)
-        @ssl_options = Hash === value ? value : {}
+        case value
+        when TrueClass
+          @ssl_options ||= {}
+        when Hash
+          (@ssl_options ||= {}).merge!(value)
+        end
         value ? ssl_enable : ssl_disable
       end
 
