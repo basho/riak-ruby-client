@@ -1,6 +1,7 @@
 require 'set'
 require 'time'
 require 'yaml'
+require 'forwardable'
 require 'riak/util/translation'
 require 'riak/serializers'
 
@@ -10,6 +11,7 @@ module Riak
   # metadata.
   # @since 1.1.0
   class RContent
+    extend Forwardable
     include Util::Translation
 
     # @return [String] the MIME content type of the value
@@ -34,6 +36,8 @@ module Riak
 
     # @return [Riak::RObject] the RObject to which this sibling belongs
     attr_accessor :robject
+
+    def_delegators :robject, :bucket, :key, :vclock
 
     # Creates a new object value. This should not normally need to be
     # called by users of the client. Normal, single-value use can rely
