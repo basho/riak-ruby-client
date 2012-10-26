@@ -18,7 +18,8 @@ Riak.disable_list_keys_warnings = true
    mocks
    mock_server
    drb_mock_server
-   test_server].each do |file|
+   test_server
+   riak_test].each do |file|
   require File.join("support", file)
 end
 
