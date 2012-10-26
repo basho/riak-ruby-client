@@ -50,14 +50,14 @@ describe Riak::RObject do
       @object.content_type = 'text/plain'
       Riak::Serializers.should respond_to(:serialize).with(2).arguments
       Riak::Serializers.should_receive(:serialize).with('text/plain', "foo").and_return("serialized foo")
-      @object.serialize("foo").should == "serialized foo"
+      @object.content.serialize("foo").should == "serialized foo"
     end
 
     it 'delegates #deserialize to the appropriate serializer for the content type' do
       @object.content_type = 'text/plain'
       Riak::Serializers.should respond_to(:deserialize).with(2).arguments
       Riak::Serializers.should_receive(:deserialize).with('text/plain', "foo").and_return("deserialized foo")
-      @object.deserialize("foo").should == "deserialized foo"
+      @object.content.deserialize("foo").should == "deserialized foo"
     end
   end
 
@@ -113,7 +113,7 @@ describe Riak::RObject do
           let(:io_object) { stub(:read => 'the io object') }
 
           it 'reads the object before deserializing it' do
-            @object.should_receive(:deserialize).with('the io object').and_return('deserialized')
+            @object.content.should_receive(:deserialize).with('the io object').and_return('deserialized')
             @object.raw_data = io_object
             @object.data.should == 'deserialized'
           end
@@ -214,8 +214,8 @@ describe Riak::RObject do
       @object.conflict?.should be_false
     end
 
-    it 'should return [self] for siblings' do
-      @object.siblings.should == [@object]
+    it 'should return [RContent] for siblings' do
+      @object.siblings.should == [@object.content]
     end
 
     describe "when there are multiple values in an object" do
@@ -241,12 +241,8 @@ describe Riak::RObject do
       end
 
       it "should be in conflict" do
-        @object.data.should_not be_present
+        expect { @object.data }.to raise_error(Riak::Conflict)
         @object.should be_conflict
-      end
-
-      it "should assign the same vclock to all the siblings" do
-        @object.siblings.should be_all {|s| s.vclock == @object.vclock }
       end
     end
   end
@@ -284,6 +280,11 @@ describe Riak::RObject do
     it "should pass along quorum parameters and returnbody to the backend" do
       @backend.should_receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
       @object.store(:returnbody => false, :w => 3, :dw => 2)
+    end
+
+    it "should raise an error if the object is in conflict" do
+      @object.siblings << Riak::RContent.new(@object)
+      expect { @object.store }.to raise_error(Riak::Conflict)
     end
   end
 
@@ -419,7 +420,7 @@ describe Riak::RObject do
   end
 
   describe '#attempt_conflict_resolution' do
-    let(:conflicted_robject) { Riak::RObject.new(@bucket, "conflicted") { |r| r.conflict = true } }
+    let(:conflicted_robject) { Riak::RObject.new(@bucket, "conflicted") { |r| r.siblings = [ Riak::RContent.new(r), Riak::RContent.new(r)] } }
     let(:resolved_robject) { Riak::RObject.new(@bucket, "resolved") }
     let(:invoked_resolvers) { [] }
     let(:resolver_1) { lambda { |r| invoked_resolvers << :resolver_1; nil } }
