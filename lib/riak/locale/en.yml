@@ -36,7 +36,7 @@ en:
     module_function_pair_required: "function must have two elements when an array"
     not_found: "The requested object was not found."
     no_pipes: "Could not find or open pipes for Riak console in %{path}."
-    object_in_conflict: "The object is in conflict (has siblings) and cannot be treated singly or saved: %{object}"
+    object_in_conflict: "The object is in conflict (has siblings) and cannot be treated singly or saved: %{robject}"
     port_invalid: "port must be an integer between 0 and 65535"
     protobuffs_failed_request: "Expected success from Riak but received %{code}. %{body}"
     protobuffs_configuration: "The %{backend} Protobuffs backend cannot be used. Please check its requirements."

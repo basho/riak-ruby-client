@@ -7,7 +7,7 @@ module Riak
     include Util::Translation
 
     def initialize(robject)
-      super t('object_in_conflict', :object => robject.inspect)
+      super t('object_in_conflict', :robject => robject.inspect)
     end
   end
 end
