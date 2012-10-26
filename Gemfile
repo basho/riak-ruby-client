@@ -2,6 +2,7 @@ source :rubygems
 
 gemspec
 gem 'bundler'
+gem 'rake'
 
 group :guard do
   gem 'guard-rspec'
