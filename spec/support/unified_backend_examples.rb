@@ -285,6 +285,16 @@ shared_examples_for "Unified backend API" do
       @backend.mapred(@mapred).should == [{"value" => "1"}]
     end
 
+    it "should return an ordered array of results when multiple phases are kept" do
+      @mapred.reduce("function(objects){ return objects; }", :keep => true)
+      @backend.mapred(@mapred).should == [[{"value" => "1"}], [{"value" => "1"}]]
+    end
+
+    it "should not remove empty phase results when multiple phases are kept" do
+      @mapred.reduce("function(){ return []; }", :keep => true)
+      @backend.mapred(@mapred).should == [[{"value" => "1"}], []]
+    end
+
     context "streaming results through a block" do
       it "should pass phase number and result to the block" do
         @backend.mapred(@mapred) do |phase, result|

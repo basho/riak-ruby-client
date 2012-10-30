@@ -9,6 +9,7 @@ require 'riak/failed_request'
 require 'riak/map_reduce_error'
 require 'riak/map_reduce/phase'
 require 'riak/map_reduce/filter_builder'
+require 'riak/map_reduce/results'
 
 module Riak
   # Class for invoking map-reduce jobs using the HTTP interface.
