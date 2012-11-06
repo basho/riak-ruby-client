@@ -183,16 +183,17 @@ describe Riak::Client::HTTPBackend do
     end
 
     it "should issue POST request to the mapred endpoint" do
-      @backend.should_receive(:post).with(200, @backend.mapred_path, @mr.to_json, hash_including("Content-Type" => "application/json")).and_return({:headers => {'content-type' => ["application/json"]}, :body => "[]"})
+      @backend.should_receive(:post).with(200, @backend.mapred_path(:chunked => true), @mr.to_json, hash_including("Content-Type" => "application/json")).and_yield(%Q|--foo\r\nContent-Type: application/json\r\n\r\n{"phase":0,"data":[]}\r\n--foo--\r\n|)
       @backend.mapred(@mr)
     end
 
     it "should vivify JSON responses" do
-      @backend.stub!(:post).and_return(:headers => {'content-type' => ["application/json"]}, :body => '[{"key":"value"}]')
+      @backend.stub!(:post).and_yield(%Q|--foo\r\nContent-Type: application/json\r\n\r\n{"phase":0,"data":[{"key":"value"}]}\r\n--foo--\r\n|)
       @backend.mapred(@mr).should == [{"key" => "value"}]
     end
 
     it "should return the full response hash for non-JSON responses" do
+      pending "It is not clear when Riak would ever return a non-JSON or non-multipart response for mapred."
       response = {:code => 200, :headers => {'content-type' => ["text/plain"]}, :body => 'This is some text.'}
       @backend.stub!(:post).and_return(response)
       @backend.mapred(@mr).should == response

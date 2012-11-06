@@ -38,7 +38,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
   end
 
   context "#mapred" do
-    let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}") }
+    let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}").map("function(){}") }
 
     it "should not return nil for previous phases that don't return anything" do
       socket = stub(:socket).as_null_object
