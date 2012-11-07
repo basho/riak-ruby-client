@@ -173,12 +173,13 @@ module Riak
           post(200, mapred_path({:chunked => true}), mr.to_json, {"Content-Type" => "application/json", "Accept" => "application/json"}, &parser)
           nil
         else
-          response = post(200, mapred_path, mr.to_json, {"Content-Type" => "application/json", "Accept" => "application/json"})
-          begin
-            JSON.parse(response[:body])
-          rescue
-            response
+          results = MapReduce::Results.new(mr)
+          parser = Riak::Util::Multipart::StreamParser.new do |response|
+            result = JSON.parse(response[:body])
+            results.add result['phase'], result['data']
           end
+          post(200, mapred_path({:chunked => true}), mr.to_json, {"Content-Type" => "application/json", "Accept" => "application/json"}, &parser)
+          results.report
         end
       end
 

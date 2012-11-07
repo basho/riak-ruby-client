@@ -112,17 +112,16 @@ module Riak
         raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
         write_protobuff(:MapRedReq, req)
-        results = []
+        results = MapReduce::Results.new(mr)
         while msg = decode_response
           break if msg.done
           if block_given?
             yield msg.phase, JSON.parse(msg.response)
           else
-            results[msg.phase] ||= []
-            results[msg.phase] += JSON.parse(msg.response)
+            results.add msg.phase, JSON.parse(msg.response)
           end
         end
-        block_given? || results.compact.size == 1 ? results.last : results
+        block_given? || results.report
       end
 
       def get_index(bucket, index, query)
