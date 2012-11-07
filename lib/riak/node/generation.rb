@@ -16,6 +16,7 @@ module Riak
     # Generates the node.
     def create
       unless exist?
+        touch_ssl_distribution_args
         create_directories
         write_scripts
         write_vm_args
@@ -101,6 +102,14 @@ module Riak
       @configuration[:env] = @env
       @configuration[:vm] = @vm
       manifest.open('w') {|f| YAML.dump(@configuration, f) }
+    end
+
+    def touch_ssl_distribution_args
+      # To make sure that the ssl_distribution.args file is present,
+      # the control script in the source node has to have been run at
+      # least once. Running the `chkconfig` command is innocuous
+      # enough to accomplish this without other side-effects.
+      `#{(source + control_script.basename).to_s} chkconfig`
     end
   end
 end
