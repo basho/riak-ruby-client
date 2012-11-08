@@ -1,5 +1,52 @@
 # Riak Ruby Client Release Notes
 
+## 1.1.0 Feature Release - 2012-11-07
+
+Release 1.1.0 includes full Riak 1.2 compatibility, and includes
+improvements to the handling of siblings, the node generation
+tools, and resolves a number of important bugs.
+
+Features:
+
+* Client features are enabled or disabled based on the detected Riak
+  version.
+* Riak 1.2 compatibility, including search and 2I over Protocol
+  Buffers.
+* Phaseless MapReduce (which was available in 1.1) is allowed, using
+  feature detection to determine whether an exception is raised.
+* Conditional store_object operations on Protocol Buffers use the
+  message features available since Riak 1.0.
+* The integration test-suite can be run without generating a test
+  node, which lets us support riak_test.
+
+Bugfixes:
+
+* URL-escaping now allows some normally URI-safe characters to be
+  escaped.
+* JRuby should be more reliable when attaching to a generated node's
+  console.
+* The client backend pool has been extracted to the Innertube gem,
+  which is now a dependency.
+* Fix a documentation issue around key-filters.
+* Fix RSpec formatter and deprecation errors.
+* Object siblings are now a separate class (RContent) rather than
+  being unclean copies of the parent RObject. If only one sibling
+  exists, the original accessors (e.g. `content_type`, `data`) will
+  behave as expected. When more than one sibling exists, they will
+  raise `Riak::Conflict`. This should prevent unintentional storing of
+  unresolved objects back into Riak as `multipart/mixed` values.
+* `Riak::Client#ssl=` won't blow away existing `ssl_options` if set to
+  `true`.
+* Generated nodes will ensure that the source's
+  `ssl_distribution.args_file` exists by invoking `riak chkconfig`.
+* Copy fixes for the `$key` index on the memory/test backend from
+  riak_kv.
+* The shape of MapReduce results will no longer be changed by the
+  Protocol Buffers backend, which manifested as kept phases without
+  results being removed from the return value. Implementing this
+  required all HTTP requests to use streaming, even if invoked without
+  a block.
+
 ## 1.0.5 Packaging Fix Release - 2012-10-12
 
 Release 1.0.5 fixes a bug with the RubyGems packaging that
