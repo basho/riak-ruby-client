@@ -53,7 +53,7 @@ module Riak
           raise ArgumentError, t("stored_function_invalid") unless type == :link || value.has_key?(:bucket) && value.has_key?(:key)
           @language = "javascript"
         when String
-          @language = "javascript"
+          @language = (value =~ /\s*fun\s*\(.*\)\s*->/) ? "erlang" : "javascript"
         when WalkSpec
           raise ArgumentError, t("walk_spec_invalid_unless_link") unless type == :link
         else
@@ -78,7 +78,7 @@ module Riak
                 when Hash
                   defaults.merge(function)
                 when String
-                  if function =~ /\s*function/
+                  if function =~ /\s*function\s*\(/ || function =~ /\s*fun\s*\(.*\)\s*->/
                     defaults.merge("source" => function)
                   else
                     defaults.merge("name" => function)

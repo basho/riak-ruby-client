@@ -2,13 +2,14 @@ require 'spec_helper'
 
 describe Riak::MapReduce::Phase do
   before :each do
-    @fun = "function(v,_,_){ return v['values'][0]['data']; }"
+    @js_fun = "function(v,_,_){ return v['values'][0]['data']; }"
+    @erl_fun = "fun(Obj, _KeyData, _Arg) -> [{riak_object:key(Obj), riak_object:get_value(Obj)}] end."
   end
 
   it "should initialize with a type and a function" do
-    phase = Riak::MapReduce::Phase.new(:type => :map, :function => @fun, :language => "javascript")
+    phase = Riak::MapReduce::Phase.new(:type => :map, :function => @js_fun, :language => "javascript")
     phase.type.should == :map
-    phase.function.should == @fun
+    phase.function.should == @js_fun
     phase.language.should == "javascript"
   end
 
@@ -31,9 +32,14 @@ describe Riak::MapReduce::Phase do
     phase.language.should == "erlang"
   end
 
-  it "should assume the language is javascript when the function is a string" do
-    phase = Riak::MapReduce::Phase.new(:type => :map, :function => @fun)
+  it "should assume the language is javascript when the function is a string and starts with function" do
+    phase = Riak::MapReduce::Phase.new(:type => :map, :function => @js_fun)
     phase.language.should == "javascript"
+  end
+
+  it "should assume the language is erlang when the function is a string and starts with anon fun" do
+    phase = Riak::MapReduce::Phase.new(:type => :map, :function => @erl_fun)
+    phase.language.should == "erlang"
   end
 
   it "should assume the language is javascript when the function is a hash" do
