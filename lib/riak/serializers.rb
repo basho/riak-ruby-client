@@ -43,6 +43,18 @@ module Riak
       end
     end
 
+    module ApplicationXML
+      extend self
+
+      def dump(object)
+        object.to_s
+      end
+
+      def load(string)
+        string
+      end
+    end
+   
     module ApplicationJSON
       extend self
 
@@ -56,6 +68,7 @@ module Riak
     end
 
     Serializers['text/plain'] = TextPlain
+    Serializers['application/xml'] = ApplicationXML
     Serializers['application/json'] = ApplicationJSON
     Serializers['application/x-ruby-marshal'] = ::Marshal
 
