@@ -1,5 +1,11 @@
 # Riak Ruby Client Release Notes
 
+## 1.1.1 Patch/Bugfix Release - 2013-01-10
+
+Release 1.1.1 fixes a minor bug with Net::HTTP on Ruby 1.8.7 with
+patch level less than 315, where an exception would cause closing the
+socket before it was opened.
+
 ## 1.1.0 Feature Release - 2012-11-07
 
 Release 1.1.0 includes full Riak 1.2 compatibility, and includes
