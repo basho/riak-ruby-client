@@ -1,4 +1,3 @@
-
 require 'riak/client/http_backend'
 require 'riak/failed_request'
 
@@ -53,6 +52,7 @@ module Riak
         end
 
         {}.tap do |result|
+          http.start # Fixes Ruby < 1.8.7p315
           http.request(request) do |response|
             unless valid_response?(expect, response.code)
               raise Riak::HTTPFailedRequest.new(method, expect, response.code.to_i, response.to_hash, response.body)
