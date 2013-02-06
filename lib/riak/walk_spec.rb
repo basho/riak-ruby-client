@@ -12,6 +12,7 @@ module Riak
   #   Riak::WalkSpec.new({:bucket => 'tracks', :result => true})
   class WalkSpec
     include Util::Translation
+    extend Util::Translation
     include Util::Escape
 
     # @return [String] The bucket followed links should be restricted to. "_" represents all buckets.
