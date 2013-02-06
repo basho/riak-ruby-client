@@ -101,6 +101,10 @@ describe Riak::WalkSpec do
       specs.should be_all {|s| s.kind_of?(Riak::WalkSpec) }
       specs.join("/").should == "_,next,_/foo,_,_/_,child,1"
     end
+
+    it "should raise an error when given invalid number of parameters" do
+      expect { Riak::WalkSpec.normalize("foo") }.to raise_error(ArgumentError)
+    end
   end
 
   describe "matching other objects with ===" do
