@@ -126,6 +126,7 @@ module Riak
 
       def get_index(bucket, index, query)
         return super unless pb_indexes?
+        bucket = bucket.name if Bucket === bucket
         if Range === query
           options = {
             :qtype => RpbIndexReq::IndexQueryType::RANGE,
