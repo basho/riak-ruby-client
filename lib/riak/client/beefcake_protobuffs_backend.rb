@@ -219,7 +219,12 @@ module Riak
       end
 
       def decode_doc(doc)
-        Hash[doc.properties.map {|p| [ p.key, p.value ] }]
+        Hash[doc.properties.map {|p| [ force_utf8(p.key), force_utf8(p.value) ] }]
+      end
+
+      def force_utf8(str)
+        # Search returns strings that should always be valid UTF-8
+        ObjectMethods::ENCODING ? str.force_encoding('UTF-8') : str
       end
     end
   end

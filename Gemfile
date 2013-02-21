@@ -1,4 +1,4 @@
-source :rubygems
+source "https://rubygems.org"
 
 gemspec
 gem 'bundler'
@@ -9,7 +9,7 @@ group :guard do
   gem 'rb-fsevent'
   gem 'growl'
 end
-  
+
 platforms :mri do
   gem 'yajl-ruby'
 end
