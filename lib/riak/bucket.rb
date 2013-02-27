@@ -78,6 +78,15 @@ module Riak
     end
     alias :properties :props
 
+    # Clears bucket properties, reverting them to the defaults.
+    # @return [true, false] whether the properties were cleared
+    # @since Riak 1.3
+    def clear_props
+      @props = nil
+      @client.clear_bucket_props(self)
+    end
+    alias :clear_properties :clear_props
+
     # Retrieve an object from within the bucket.
     # @param [String] key the key of the object to retrieve
     # @param [Hash] options query parameters for the request

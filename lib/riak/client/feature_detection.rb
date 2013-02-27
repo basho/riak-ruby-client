@@ -13,7 +13,8 @@ module Riak
       VERSION = {
         1 => Gem::Version.new("1.0.0"),
         1.1 => Gem::Version.new("1.1.0"),
-        1.2 => Gem::Version.new("1.2.0")
+        1.2 => Gem::Version.new("1.2.0"),
+        1.3 => Gem::Version.new("1.3.0")
       }.freeze
 
       # @return [String] the version of the Riak node
@@ -69,6 +70,12 @@ module Riak
       #   metadata only) are supported over Protocol Buffers
       def pb_head?
         at_least? VERSION[1]
+      end
+
+      # @return [true,false] whether bucket properties can be cleared
+      #   (reset to defaults) over HTTP
+      def http_props_clearable?
+        at_least? VERSION[1.3]
       end
 
       protected

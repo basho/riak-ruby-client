@@ -133,6 +133,22 @@ module Riak
         put(204, bucket_properties_path(bucket), body, {"Content-Type" => "application/json"})
       end
 
+      # Clears bucket properties
+      # @param [Bucket, String] bucket the bucket to clear properties
+      #   on
+      # @return [true, false] whether the operation succeeded
+      # @note false will be returned if the operation is not supported
+      #   on the connected node
+      def clear_bucket_props(bucket)
+        if http_props_clearable?
+          bucket = bucket.name if Bucket === bucket
+          delete(204, bucket_properties_path(bucket))
+          true
+        else
+          false
+        end
+      end
+
       # List keys in a bucket
       # @param [Bucket, String] bucket the bucket to fetch the keys
       #        for

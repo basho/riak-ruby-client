@@ -37,6 +37,21 @@ describe "HTTP" do
           end
         end
 
+        context "clearing bucket properties" do
+          it "should return false when unsupported", :version => "< 1.3.0" do
+            @backend.clear_bucket_props('foo').should be_false
+          end
+
+          it "should reset a previously set property to the default", :version => ">= 1.3.0" do
+            bucket = @client['bucketpropscleartest']
+            original_n = @backend.get_bucket_props(bucket)['n_val']
+            @backend.set_bucket_props(bucket, {'n_val' => 2})
+            @backend.get_bucket_props(bucket)['n_val'].should == 2
+            @backend.clear_bucket_props(bucket)
+            @backend.get_bucket_props(bucket)['n_val'].should == original_n
+          end
+        end
+
         context "using Luwak", :version => "< 1.1.0" do
           let(:file) { File.open(__FILE__) }
           let(:key) { "spec.rb" }
