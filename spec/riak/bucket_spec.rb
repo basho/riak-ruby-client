@@ -86,6 +86,14 @@ describe Riak::Bucket do
     end
   end
 
+  describe "clearing the bucket properties" do
+    it "should make the request and delete the internal properties cache" do
+      @client.should_receive(:clear_bucket_props).with(@bucket).and_return(true)
+      @bucket.clear_props.should be_true
+      @bucket.instance_variable_get(:@props).should be_nil
+    end
+  end
+
   describe "fetching an object" do
     it "should fetch the object via the backend" do
       @backend.should_receive(:fetch_object).with(@bucket, "db", {}).and_return(nil)

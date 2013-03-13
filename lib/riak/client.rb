@@ -469,6 +469,13 @@ module Riak
       end
     end
 
+    # Clears the properties on a bucket. See Bucket#clear_props
+    def clear_bucket_props(bucket)
+      http do |b|
+        b.clear_bucket_props(bucket)
+      end
+    end
+
     # Enables or disables SSL on all nodes, for HTTP backends.
     def ssl=(value)
       @nodes.each do |node|

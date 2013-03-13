@@ -24,6 +24,7 @@ describe Riak::Client::FeatureDetection do
     it { should_not be_quorum_controls }
     it { should_not be_tombstone_vclocks }
     it { should_not be_pb_head }
+    it { should_not be_http_props_clearable }
   end
 
   context "when the Riak version is 1.0.x" do
@@ -35,6 +36,7 @@ describe Riak::Client::FeatureDetection do
     it { should be_quorum_controls }
     it { should be_tombstone_vclocks }
     it { should be_pb_head }
+    it { should_not be_http_props_clearable }
   end
 
   context "when the Riak version is 1.1.x" do
@@ -46,10 +48,11 @@ describe Riak::Client::FeatureDetection do
     it { should be_quorum_controls }
     it { should be_tombstone_vclocks }
     it { should be_pb_head }
+    it { should_not be_http_props_clearable }
   end
 
   context "when the Riak version is 1.2.x" do
-    before { subject.stub!(:get_server_version).and_return("1.2.0") }
+    before { subject.stub!(:get_server_version).and_return("1.2.1") }
     it { should be_mapred_phaseless }
     it { should be_pb_indexes }
     it { should be_pb_search }
@@ -57,5 +60,18 @@ describe Riak::Client::FeatureDetection do
     it { should be_quorum_controls }
     it { should be_tombstone_vclocks }
     it { should be_pb_head }
+    it { should_not be_http_props_clearable }
+  end
+
+  context "when the Riak version is 1.3.x" do
+    before { subject.stub!(:get_server_version).and_return("1.3.0") }
+    it { should be_mapred_phaseless }
+    it { should be_pb_indexes }
+    it { should be_pb_search }
+    it { should be_pb_conditionals }
+    it { should be_quorum_controls }
+    it { should be_tombstone_vclocks }
+    it { should be_pb_head }
+    it { should be_http_props_clearable }
   end
 end
