@@ -276,6 +276,7 @@ module Riak
 
     # Get an object. See Bucket#get
     def get_object(bucket, key, options = {})
+      raise ArgumentError, t("zero_length_key") if key == ''
       backend do |b|
         b.fetch_object(bucket, key, options)
       end

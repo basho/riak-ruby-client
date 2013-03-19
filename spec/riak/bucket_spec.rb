@@ -104,6 +104,12 @@ describe Riak::Bucket do
       @backend.should_receive(:fetch_object).with(@bucket, "db", {:r => 2}).and_return(nil)
       @bucket.get("db", :r => 2)
     end
+
+    it "should disallow fetching an object with a zero-length key" do
+      ## TODO: This actually tests the Client object, but there is no suite
+      ## of tests for its generic interface.
+      expect { @bucket.get('') }.to raise_error(ArgumentError)
+    end
   end
 
   describe "creating a new blank object" do
