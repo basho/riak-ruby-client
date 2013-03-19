@@ -52,3 +52,4 @@ en:
     too_few_arguments: "too few arguments: %{params}"
     walk_spec_invalid_unless_link: "WalkSpec is only valid for a function when the type is :link"
     wrong_argument_count_walk_spec: "wrong number of arguments (one Hash or bucket,tag,keep required)"
+    zero_length_key: "key cannot be a String of zero length"

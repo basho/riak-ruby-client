@@ -277,6 +277,10 @@ describe Riak::RObject do
       lambda { @object.content_type = "   "; @object.store }.should raise_error(ArgumentError)
     end
 
+    it "should raise an error when given an empty string as key" do
+      lambda { @object.key = ''; @object.store }.should raise_error(ArgumentError)
+    end
+
     it "should pass along quorum parameters and returnbody to the backend" do
       @backend.should_receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
       @object.store(:returnbody => false, :w => 3, :dw => 2)
@@ -461,4 +465,3 @@ describe Riak::RObject do
     end
   end
 end
-
