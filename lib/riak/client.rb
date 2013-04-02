@@ -148,6 +148,7 @@ module Riak
     # @option options [Boolean] :props (false) whether to retreive the bucket properties
     # @return [Bucket] the requested bucket
     def bucket(name, options={})
+      raise ArgumentError, t('zero_length_bucket') if name == ''
       unless (options.keys - [:props]).empty?
         raise ArgumentError, "invalid options"
       end

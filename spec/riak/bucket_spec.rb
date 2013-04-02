@@ -16,6 +16,7 @@ describe Riak::Bucket do
       lambda { Riak::Bucket.new("foo") }.should raise_error
       lambda { Riak::Bucket.new("foo", @client) }.should raise_error
       lambda { Riak::Bucket.new(@client, "foo") }.should_not raise_error
+      expect { Riak::Bucket.new(@client, '') }.to raise_error(ArgumentError)
     end
 
     it "should set the client and name attributes" do
