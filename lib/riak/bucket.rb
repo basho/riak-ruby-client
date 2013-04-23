@@ -214,7 +214,7 @@ module Riak
     # riak_search.
     # @return [true,false] whether the bucket includes the search indexing hook
     def is_indexed?
-      props['search'] == true || props['precommit'].include?(SEARCH_PRECOMMIT_HOOK)
+      props['search'] == true || (props.has_key?('precommit') && props['precommit'].include?(SEARCH_PRECOMMIT_HOOK))
     end
 
     # @return [String] a representation suitable for IRB and debugging output
