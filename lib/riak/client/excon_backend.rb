@@ -150,12 +150,22 @@ module Riak
       end
 
       def connection
-        @connection ||= Excon::Connection.new(
-          root_uri.to_s,
-          :read_timeout => self.class.read_timeout,
+        @connection ||= new_connection
+      end
+
+      def new_connection
+        params = { :read_timeout => self.class.read_timeout,
           :write_timeout => self.class.write_timeout,
-          :connect_timeout => self.class.connect_timeout
-        )
+          :connect_timeout => self.class.connect_timeout }
+        args = [ params ]
+        if self.class.minimum_version?("0.19.0")
+          params.merge!(:scheme => root_uri.scheme,
+                        :host => root_uri.host,
+                        :port => root_uri.port)
+        else
+          args.unshift root_uri.to_s
+        end
+        Excon::Connection.new(*args)
       end
     end
   end
