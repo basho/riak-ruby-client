@@ -1,5 +1,27 @@
 # Riak Ruby Client Release Notes
 
+## 1.2.0 Feature Release - 2013-05-15
+
+Release 1.2.0 adds support for Riak 1.3 and fixes a number of bugs.
+
+Features:
+
+* The "clear bucket properties" feature has been added. This resets
+  modified bucket properties to the defaults on Riak 1.3+ clusters.
+* Anonymous "strfun" MapReduce functions written in Erlang can now be
+  sent from the client, if they are enabled on the server-side.
+
+Bugfixes:
+
+* The WalkSpec class now properly includes the Translation module.
+* The Protocol Buffers transport now extracts the bucket name before
+  submitting secondary index queries.
+* Search query results returned over PBC are assumed to be UTF-8
+  encoded.
+* The newer Excon API is now supported (>= 0.19.0).
+* When enabling the search commit hook, the 'precommit' property will
+  now be checked more safely.
+
 ## 1.1.1 Patch/Bugfix Release - 2013-01-10
 
 Release 1.1.1 fixes a minor bug with Net::HTTP on Ruby 1.8.7 with
