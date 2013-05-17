@@ -14,6 +14,7 @@ require 'riak/client/excon_backend'
 require 'riak/client/protobuffs_backend'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
+require 'riak/multiget'
 require 'riak/stamp'
 
 module Riak
@@ -272,6 +273,11 @@ module Riak
       backend do |b|
         b.get_index bucket, index, query
       end
+    end
+
+    # Get multiple objects in parallel.
+    def get_many(pairs)
+
     end
 
     # Get an object. See Bucket#get
