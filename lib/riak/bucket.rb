@@ -156,7 +156,11 @@ module Riak
     # @return [Array<String>] a list of keys that match the index
     #   query
     def get_index(index, query)
-      client.get_index(self, index, query)
+      if index.downcase.include? "_inv"
+        InvertedIndex.new(client, index).get_index(query).members.to_a
+      else
+        client.get_index(self, index, query)
+      end
     end
 
     # @return [true, false] whether the bucket allows divergent siblings

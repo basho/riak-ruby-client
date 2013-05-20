@@ -53,14 +53,14 @@ module Riak
     end
 
     def_delegators :content, :content_type, :content_type=,
-              :links, :links=,
-              :etag, :etag=,
-              :last_modified, :last_modified=,
-              :meta, :meta=,
-              :indexes, :indexes=,
-              :data, :data=,
-              :raw_data, :raw_data=,
-              :deserialize, :serialize
+                   :links, :links=,
+                   :etag, :etag=,
+                   :last_modified, :last_modified=,
+                   :meta, :meta=,
+                   :indexes, :indexes=,
+                   :data, :data=,
+                   :raw_data, :raw_data=,
+                   :deserialize, :serialize
 
     # Attempts to resolve conflict using the registered conflict callbacks.
     #
@@ -137,20 +137,23 @@ module Riak
     end
 
     def extract_additional_indexes()
-      inverted_keys = []
+      inverted_indexes = {}
 
       for index in self.indexes.keys
         if index.downcase.include? "_inv"
-          inverted_keys << index
+          inverted_indexes[index] = self.indexes[index]
         end
       end
 
-      self.indexes.extract!(inverted_keys)
+      self.indexes.delete_if {|key, value| inverted_indexes.keys.include?(key) }
+      inverted_indexes
     end
 
     def store_additional_indexes(additional_indexes)
-      for index in additional_indexes
-        InvertedIndex.new(@bucket.client, @bucket.name).put_index(index, self.key)
+      for index in additional_indexes.keys
+        for value in additional_indexes[index]
+          InvertedIndex.new(@bucket.client, index).put_index(value, self.key)
+        end
       end
     end
 

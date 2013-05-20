@@ -4,7 +4,7 @@ class InvertedIndex
 
   def initialize(client, bucket_name)
     self.client = client
-    self.bucket_name = "#{bucket_name}_inverted_indices"
+    self.bucket_name = "#{bucket_name}"
     self.bucket = client.bucket(self.bucket_name)
     self.bucket.allow_mult = true
   end
@@ -15,7 +15,6 @@ class InvertedIndex
 
     object = self.bucket.new(index_name)
     object.content_type = 'text/plain'
-    #object.data = index.to_json
     object.raw_data = index.to_marshal
 
     object.store
@@ -30,18 +29,17 @@ class InvertedIndex
       if !obj.raw_data.nil?
         index.merge_marshal obj.raw_data
       end
-      #if !obj.data.nil?
-      #  index.merge_json obj.data
-      #end
     }
 
     # If resolving siblings...
     if index_obj.siblings.length > 1
+      resolved_obj = self.bucket.new(index_name)
+      resolved_obj.vclock = index_obj.vclock
+
       # previous content type was mulitpart/mixed, reset to something more innocuous
-      index_obj.content_type = 'text/plain'
-      index_obj.raw_data = index.to_marshal
-      #index_obj.data = index.to_json
-      index_obj.store
+      resolved_obj.content_type = 'text/plain'
+      resolved_obj.raw_data = index.to_marshal
+      resolved_obj.store
     end
 
     return index
