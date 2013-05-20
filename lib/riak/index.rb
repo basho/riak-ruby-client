@@ -1,0 +1,1 @@
+require 'riak/index/inverted_index'

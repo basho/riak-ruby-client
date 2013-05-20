@@ -126,8 +126,32 @@ module Riak
     def store(options={})
       raise Conflict, self if conflict?
       raise ArgumentError, t("content_type_undefined") unless content_type.present?
+
+      additional_indexes = extract_additional_indexes()
+
       @bucket.client.store_object(self, options)
+
+      store_additional_indexes(additional_indexes)
+
       self
+    end
+
+    def extract_additional_indexes()
+      inverted_keys = []
+
+      for index in self.indexes.keys
+        if index.downcase.include? "_inv"
+          inverted_keys << index
+        end
+      end
+
+      self.indexes.extract!(inverted_keys)
+    end
+
+    def store_additional_indexes(additional_indexes)
+      for index in additional_indexes
+        InvertedIndex.new(@bucket.client, @bucket.name).put_index(index, self.key)
+      end
     end
 
     # Reload the object from Riak.  Will use conditional GETs when possible.

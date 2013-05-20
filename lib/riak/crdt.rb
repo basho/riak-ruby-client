@@ -1,0 +1,1 @@
+require 'riak/crdt/gset'
