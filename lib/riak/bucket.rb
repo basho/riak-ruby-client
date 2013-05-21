@@ -98,6 +98,17 @@ module Riak
     end
     alias :[] :get
 
+    # Retrieve multiple keys from this bucket.
+    # @param [Array<String>] array of keys to fetch
+    # @return [Hash<String, Riak::RObject>] hash of keys to objects
+    def get_many(keys)
+      pairs = keys.map{|k| [self, k]}
+      multi = Multiget.new @client, pairs
+      multi.fetch
+      results = multi.results
+      results.keys.inject(Hash.new) { |mem, var| mem[var[1]] = results[var]; mem }
+    end
+
     # Create a new blank object
     # @param [String] key the key of the new object
     # @return [RObject] the new, unsaved object
