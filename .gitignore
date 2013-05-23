@@ -37,3 +37,6 @@ Gemfile.lock
 **/.riaktest
 vendor/erlang
 vendor/riak
+
+## IDEA RubyMine
+.idea
