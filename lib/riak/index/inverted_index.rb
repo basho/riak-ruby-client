@@ -17,7 +17,7 @@ class InvertedIndex
 
     object = self.bucket.new(index_name)
     object.content_type = 'text/plain'
-    object.raw_data = index.to_json
+    object.data = index.to_json
 
     object.store(options={:returnbody => false})
   end
@@ -30,8 +30,8 @@ class InvertedIndex
     # If resolving siblings...
     if index_obj.siblings.length > 1
       index_obj.siblings.each { | obj |
-        if !obj.raw_data.nil?
-          index.merge_json obj.raw_data
+        if !obj.data.nil?
+          index.merge_json obj.data
         end
       }
 
@@ -40,10 +40,10 @@ class InvertedIndex
 
       # previous content type was mulitpart/mixed, reset to something more innocuous
       resolved_obj.content_type = 'text/plain'
-      resolved_obj.raw_data = index.to_json
-      resolved_obj.store
-    else
-      index.merge_json(index_obj.raw_data)
+      resolved_obj.data = index.to_json
+      resolved_obj.store(options={:returnbody => false})
+    elsif !index_object.data.nil?
+      index.merge_json(index_obj.data)
     end
 
     return index
