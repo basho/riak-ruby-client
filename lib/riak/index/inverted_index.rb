@@ -42,7 +42,7 @@ class InvertedIndex
       resolved_obj.content_type = 'text/plain'
       resolved_obj.data = index.to_json
       resolved_obj.store(options={:returnbody => false})
-    elsif !index_object.data.nil?
+    elsif !index_obj.data.nil?
       index.merge_json(index_obj.data)
     end
 
