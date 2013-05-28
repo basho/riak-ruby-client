@@ -19,6 +19,16 @@ module Riak
     # @return Boolean finished if the fetch operation has completed
     attr_reader :finished
 
+    # Perform a Riak Multiget operation.
+    # @param [Client] client the {Riak::Client} that will perform the multiget
+    # @param [Array<Bucket, String>] fetch_list an {Array} of {Bucket} and {String} keys to fetch
+    # @return [Hash<fetch_list_entry, RObject] result_hash a {Hash} of {Bucket} and {String} key pairs to {Robject} instances
+    def self.get_all(client, fetch_list)
+      multi = new client, fetch_list
+      multi.fetch
+      multi.results
+    end
+
     # Create a Riak Multiget operation.
     # @param [Client] client the {Riak::Client} that will perform the multiget
     # @param [Array<Bucket, String>] fetch_list an {Array} of {Bucket} and {String} keys to fetch
