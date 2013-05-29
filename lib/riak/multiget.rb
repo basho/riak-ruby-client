@@ -44,12 +44,20 @@ module Riak
 
     # Starts the parallelized fetch operation
     def fetch
-      slice_size = (fetch_list.size / client.nodes.size).ceil
+      queue = fetch_list.dup
+      mutex = Mutex.new
 
-      @threads = fetch_list.each_slice(slice_size).map do |slice|
+      @threads = client.nodes.map do |_node|
         Thread.new do
-          slice.each do |pair|
+          loop do
+            pair = mutex.synchronize do
+              queue.shift
+            end
+
+            break if pair.nil?
+
             bucket, key = pair
+
             result_hash[pair] = bucket[key]
           end
         end
