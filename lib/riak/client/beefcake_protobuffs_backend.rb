@@ -168,7 +168,7 @@ module Riak
           case MESSAGE_CODES[msgcode]
           when :PingResp, :SetClientIdResp, :PutResp, :DelResp, :SetBucketResp
             true
-          when :ListBucketsResp, :ListKeysResp
+          when :ListBucketsResp, :ListKeysResp, :IndexResp
             []
           when :GetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
