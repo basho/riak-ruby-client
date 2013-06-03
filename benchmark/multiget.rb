@@ -11,6 +11,9 @@ puts Time.now.to_s
 count = ENV['MULTIGET_COUNT'].to_i
 puts "Count #{count}"
 
+threads = ENV['MULTIGET_THREADS'].to_i
+puts "Threads #{threads}"
+
 # config = YAML.load_file(File.expand_path("../../spec/support/test_server.yml", __FILE__))
 
 cluster = (1..4).map do |n|
@@ -18,6 +21,7 @@ cluster = (1..4).map do |n|
 end
 
 client = Riak::Client.new nodes: cluster
+client.multiget_threads = threads
 
 bucket = client.bucket 'mooltiget'
 
