@@ -16,8 +16,11 @@ module Riak
     # @return [Hash<fetch_list_entry, RObject] result_hash a {Hash} of {Bucket} and {String} key pairs to {RObject} instances
     attr_accessor :result_hash
 
-    # @return Boolean finished if the fetch operation has completed
+    # @return [Boolean] finished if the fetch operation has completed
     attr_reader :finished
+
+    # @return [Integer] The number of threads to use
+    attr_accessor :thread_count
 
     # Perform a Riak Multiget operation.
     # @param [Client] client the {Riak::Client} that will perform the multiget
@@ -40,14 +43,20 @@ module Riak
       @client, @fetch_list = client, fetch_list.uniq
       self.result_hash = Hash.new
       @finished = false
+      self.thread_count = client.multiget_threads
     end
 
     # Starts the parallelized fetch operation
+    # @raise [ArgumentError] when a non-positive-Integer count is given
     def fetch
       queue = fetch_list.dup
       mutex = Mutex.new
 
-      @threads = client.nodes.map do |_node|
+      unless thread_count.is_a?(Integer) && thread_count > 0
+        raise ArgumentError, t("invalid_multiget_thread_count")
+      end
+
+      @threads = 1.upto(thread_count).map do |_node|
         Thread.new do
           loop do
             pair = mutex.synchronize do
