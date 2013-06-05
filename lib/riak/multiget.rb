@@ -67,7 +67,7 @@ module Riak
 
             bucket, key = pair
 
-            result_hash[pair] = bucket[key]
+            result_hash[pair] = bucket[key] rescue nil
           end
         end
       end
