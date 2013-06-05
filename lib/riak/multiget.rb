@@ -65,9 +65,7 @@ module Riak
 
             break if pair.nil?
 
-            bucket, key = pair
-
-            result_hash[pair] = bucket[key] rescue nil
+            result_hash[pair] = attempt_fetch(*pair)
           end
         end
       end
@@ -90,6 +88,13 @@ module Riak
     end
 
     private
+
+    def attempt_fetch(bucket, key)
+      bucket[key]
+    rescue Riak::FailedRequest => e
+      raise e unless e.not_found?
+      nil
+    end
 
     def set_finished_for_thread_liveness
       return if @finished # already done
