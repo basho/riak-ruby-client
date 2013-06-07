@@ -50,7 +50,8 @@ module Riak
     # @raise [ArgumentError] when a non-positive-Integer count is given
     def fetch
       queue = fetch_list.dup
-      mutex = Mutex.new
+      queue_mutex = Mutex.new
+      result_mutex = Mutex.new
 
       unless thread_count.is_a?(Integer) && thread_count > 0
         raise ArgumentError, t("invalid_multiget_thread_count")
@@ -59,13 +60,16 @@ module Riak
       @threads = 1.upto(thread_count).map do |_node|
         Thread.new do
           loop do
-            pair = mutex.synchronize do
+            pair = queue_mutex.synchronize do
               queue.shift
             end
 
             break if pair.nil?
 
-            result_hash[pair] = attempt_fetch(*pair)
+            found = attempt_fetch(*pair)
+            result_mutex.synchronize do
+              result_hash[pair] = found
+            end
           end
         end
       end
