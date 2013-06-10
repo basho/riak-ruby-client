@@ -137,9 +137,6 @@ describe "HTTP" do
       end
     end
     
-    let(:sized) { Reader.new(["foo", "bar", "baz"]) }
-    let(:sizeless) { SizelessReader.new(["foo", "bar", "baz"]) }
-    
     context "File" do
       include_examples "IO uploads", File.open(__FILE__)
     end
