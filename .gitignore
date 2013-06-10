@@ -37,3 +37,4 @@ Gemfile.lock
 **/.riaktest
 vendor/erlang
 vendor/riak
+.ruby-version
