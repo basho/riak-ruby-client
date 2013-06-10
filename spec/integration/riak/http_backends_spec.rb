@@ -122,13 +122,32 @@ describe "HTTP" do
 
   describe 'NetHTTPBackend' do
     subject { Riak::Client::NetHTTPBackend.new(@client, @client.node) }
-    let(:file) { File.open(__FILE__) }
+    shared_examples "IO uploads" do |io|
+      it "should upload without error" do
+        lambda do
+          Timeout::timeout(2) do
+            subject.put(
+                        204,
+                        subject.object_path('nethttp', 'test-io'),
+                        io,
+                        {'Content-Type' => 'text/plain'}
+                        )
+          end
+        end.should_not raise_error
+      end
+    end
+    
     let(:sized) { Reader.new(["foo", "bar", "baz"]) }
     let(:sizeless) { SizelessReader.new(["foo", "bar", "baz"]) }
-    it "should set the content-length or transfer-encoding properly on IO uploads" do
-      lambda { subject.put(204, subject.object_path('nethttp', 'test-file'), file, {"Content-Type" => "text/plain"}) }.should_not raise_error
-      lambda { subject.put(204, subject.object_path('nethttp', 'test-sized'), sized, {"Content-Type" => "text/plain"}) }.should_not raise_error
-      lambda { subject.put(204, subject.object_path('nethttp', 'test-sizeless'), sizeless, {"Content-Type" => "text/plain"}) }.should_not raise_error
+    
+    context "File" do
+      include_examples "IO uploads", File.open(__FILE__)
+    end
+    context "Sized reader" do
+      include_examples "IO uploads", Reader.new(%w{foo bar baz})
+    end
+    context "Sizeless reader" do
+      include_examples "IO uploads", SizelessReader.new(%w{foo bar baz})
     end
   end
 end
