@@ -141,6 +141,20 @@ describe Riak::Bucket do
     end
   end
 
+  describe "fetching multiple objects" do
+    it 'should get each object individually' do
+      @object1 = mock('obj1')
+      @object2 = mock('obj2')
+      @bucket.should_receive(:[]).with('key1').and_return(@object1)
+      @bucket.should_receive(:[]).with('key2').and_return(@object2)
+
+      @results = @bucket.get_many %w{key1 key2}
+
+      @results['key1'].should == @object1
+      @results['key2'].should == @object2
+    end
+  end
+
   describe "querying an index" do
     it "should list the matching keys" do
       @backend.should_receive(:get_index).with(@bucket, "test_bin", "testing").and_return(["bar"])
