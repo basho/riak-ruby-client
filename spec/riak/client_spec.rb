@@ -196,6 +196,29 @@ describe Riak::Client do
     end
   end
 
+  describe "retrieving many values" do
+    before :each do
+      @client = Riak::Client.new
+      @backend = mock("Backend")
+      @client.stub!(:backend).and_yield(@backend)
+      @bucket = @client.bucket('foo')
+      @pairs = [
+        [@bucket, 'value1'],
+        [@bucket, 'value2']
+      ]
+    end
+
+    it 'should accept an array of bucket and key pairs' do
+      lambda{ @client.get_many(@pairs) }.should_not raise_error
+    end
+
+    it 'should return a hash of bucket/key pairs and robjects' do
+      @results = @client.get_many(@pairs)
+      @results.should be_a Array
+      @results.length.should be(@pairs.length)
+    end
+  end
+
   describe "retrieving a bucket" do
     before :each do
       @client = Riak::Client.new
