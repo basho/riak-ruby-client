@@ -18,6 +18,11 @@ services:
   - riak
 bundler_args: --without=guard
 before_script:
+  - "curl http://apt.basho.com/gpg/basho.apt.key | sudo apt-key add -"
+  - 'sudo bash -c "echo deb http://apt.basho.com $(lsb_release -sc) main > /etc/apt/sources.list.d/basho.list"'
+  - "sudo apt-get update"
+  - "yes n | sudo apt-get install riak"
+  - "sudo service riak start"
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
   - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
   - "ulimit -n 2048"
