@@ -52,6 +52,7 @@ Gem::Specification.new do |gem|
     **/*.rbc
     **/.DS_Store
     spec/support/test_server.yml
+    .ruby-version
   }
 
   files = includes.map {|glob| Dir[glob] }.flatten.select {|f| File.file?(f) }.sort

@@ -14,6 +14,7 @@ require 'riak/client/excon_backend'
 require 'riak/client/protobuffs_backend'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
+require 'riak/multiget'
 require 'riak/stamp'
 
 module Riak
@@ -70,6 +71,9 @@ module Riak
     # @return [Client::Pool] A pool of protobuffs connections
     attr_reader :protobuffs_pool
 
+    # @return [Integer] The number of threads for multiget requests
+    attr_reader :multiget_threads
+
     # Creates a client connection to Riak
     # @param [Hash] options configuration options for the client
     # @option options [Array] :nodes A list of nodes this client connects to.
@@ -119,6 +123,7 @@ module Riak
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
       self.ssl                = options[:ssl]                if options[:ssl]
+      self.multiget_threads   = options[:multiget_threads]
     end
 
     # Yields a backend for operations that are protocol-independent.
@@ -185,6 +190,24 @@ module Riak
       else
         s[rand(s.size)]
       end
+    end
+
+    # Set the number of threads to use for multiget operations.
+    # If set to nil, defaults to twice the number of nodes.
+    # @param [Integer] count The number of threads to use.
+    # @raise [ArgumentError] when a non-nil, non-positive-Integer count is given
+    def multiget_threads=(count)
+      if count.nil?
+        @multiget_threads = nodes.length * 2
+        return
+      end
+
+      if count.is_a?(Integer) && count > 0
+        @multiget_threads = count
+        return
+      end
+
+      raise ArgumentError, t("invalid_multiget_thread_count")
     end
 
     # Set the client ID for this client. Must be a string or Fixnum value 0 =<
@@ -272,6 +295,11 @@ module Riak
       backend do |b|
         b.get_index bucket, index, query
       end
+    end
+
+    # Get multiple objects in parallel.
+    def get_many(pairs)
+      Multiget.get_all self, pairs
     end
 
     # Get an object. See Bucket#get
