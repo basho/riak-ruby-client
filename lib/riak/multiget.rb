@@ -36,8 +36,8 @@ module Riak
     # @param [Client] client the {Riak::Client} that will perform the multiget
     # @param [Array<Bucket, String>] fetch_list an {Array} of {Bucket} and {String} keys to fetch
     def initialize(client, fetch_list)
-      raise ArgumentError, t('client_type', client: client.inspect) unless client.is_a? Riak::Client
-      raise ArgumentError, t('array_type', array: fetch_list.inspect) unless fetch_list.is_a? Array
+      raise ArgumentError, t('client_type', :client => client.inspect) unless client.is_a? Riak::Client
+      raise ArgumentError, t('array_type', :array => fetch_list.inspect) unless fetch_list.is_a? Array
 
       validate_fetch_list fetch_list
       @client, @fetch_list = client, fetch_list.uniq
@@ -117,7 +117,7 @@ module Riak
         next true unless key.is_a? String
       end
 
-      raise ArgumentError, t('fetch_list_type', problem: erroneous)
+      raise ArgumentError, t('fetch_list_type', :problem => erroneous)
     end
   end
 end
