@@ -106,17 +106,11 @@ describe "HTTP" do
     end
   end
 
-  class Reader < Array
+  class SizelessReader < Array
     def read(*args)
       shift
     end
 
-    def size
-      join.size
-    end
-  end
-
-  class SizelessReader < Reader
     undef :size
   end
 
@@ -141,7 +135,7 @@ describe "HTTP" do
       include_examples "IO uploads", File.open(__FILE__)
     end
     context "Sized reader" do
-      include_examples "IO uploads", Reader.new(%w{foo bar baz})
+      include_examples "IO uploads", StringIO.new(%w{foo bar baz}.join)
     end
     context "Sizeless reader" do
       include_examples "IO uploads", SizelessReader.new(%w{foo bar baz})
