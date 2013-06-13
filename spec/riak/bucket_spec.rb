@@ -16,6 +16,7 @@ describe Riak::Bucket do
       lambda { Riak::Bucket.new("foo") }.should raise_error
       lambda { Riak::Bucket.new("foo", @client) }.should raise_error
       lambda { Riak::Bucket.new(@client, "foo") }.should_not raise_error
+      expect { Riak::Bucket.new(@client, '') }.to raise_error(ArgumentError)
     end
 
     it "should set the client and name attributes" do
@@ -103,6 +104,12 @@ describe Riak::Bucket do
     it "should use the specified R quroum" do
       @backend.should_receive(:fetch_object).with(@bucket, "db", {:r => 2}).and_return(nil)
       @bucket.get("db", :r => 2)
+    end
+
+    it "should disallow fetching an object with a zero-length key" do
+      ## TODO: This actually tests the Client object, but there is no suite
+      ## of tests for its generic interface.
+      expect { @bucket.get('') }.to raise_error(ArgumentError)
     end
   end
 

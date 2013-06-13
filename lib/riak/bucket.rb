@@ -24,6 +24,7 @@ module Riak
     def initialize(client, name)
       raise ArgumentError, t("client_type", :client => client.inspect) unless Client === client
       raise ArgumentError, t("string_type", :string => name.inspect) unless String === name
+      raise ArgumentError, t('zero_length_bucket') if name == ''
       @client, @name = client, name
     end
 

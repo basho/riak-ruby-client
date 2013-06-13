@@ -241,6 +241,10 @@ describe Riak::Client do
       @client.bucket("baz").should == @bucket
       @client.bucket("baz").should == @bucket
     end
+
+    it "should reject buckets with zero-length names" do
+      expect { @client.bucket('') }.to raise_error(ArgumentError)
+    end
   end
 
   describe "listing buckets" do
