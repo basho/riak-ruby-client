@@ -259,6 +259,10 @@ shared_examples_for "Unified backend API" do
     it "should find keys for a range query" do
       @backend.get_index('test', 'index_int', 19..21).should =~ ["19","20", "21"]
     end
+
+    it "should return an empty array for a query that does not match any keys" do
+      @backend.get_index('test', 'index_int', 10000).should == []
+    end
   end
 
   # mapred
