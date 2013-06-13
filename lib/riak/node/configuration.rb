@@ -7,6 +7,8 @@ module Riak
     # under the generated node.
     NODE_DIRECTORIES = [:bin, :etc, :log, :data, :ring, :pipe]
 
+    DEFAULT_INTERFACE_IP = '127.0.0.1'
+
     NODE_DIRECTORIES.each do |dir|
       # Makes accessor methods for all the node directories that
       # return Pathname objects.
@@ -134,6 +136,7 @@ module Riak
     def configure(hash)
       raise ArgumentError, t('source_and_root_required') unless hash[:source] && hash[:root]
       @configuration = hash
+      configure_storage_backend
       configure_paths
       configure_manifest
       configure_settings
@@ -196,9 +199,26 @@ module Riak
 
     # Sets the node name and cookie for distributed Erlang.
     def configure_name(interface)
-      interface ||= "127.0.0.1"
+      interface ||= DEFAULT_INTERFACE_IP
       vm["-name"] ||= configuration[:name] || "riak#{rand(1000000).to_s}@#{interface}"
       vm["-setcookie"] ||= configuration[:cookie] || "#{rand(100000).to_s}_#{rand(1000000).to_s}"
+    end
+
+    def configure_riak_control(interface, port)
+      return if @configuration[:riak_control].nil?
+      [:key, :cert].each do |required|
+        raise ArgumentError, t('riak_control_configuration_not_complete') if @configuration[:riak_control][required].nil?
+      end
+      env[:riak_control][:enabled] = true
+      env[:riak_core][:https] = [Tuple[interface, port]]
+      env[:riak_core][:ssl] = [
+                               Tuple[:certfile, @configuration[:riak_control][:cert]],
+                               Tuple[:keyfile, @configuration[:riak_control][:key]]
+                              ]
+    end
+
+    def configure_storage_backend
+      env[:riak_kv][:storage_backend] = @configuration[:storage_backend].to_sym if @configuration[:storage_backend]
     end
 
     # Merges input configuration with the defaults.
@@ -220,22 +240,26 @@ module Riak
 
     # Sets ports and interfaces for http, protocol buffers, and handoff.
     def configure_ports(interface, min_port)
-      interface ||= "127.0.0.1"
+      interface ||= DEFAULT_INTERFACE_IP
       min_port ||= 8080
       unless env[:riak_core][:http]
         env[:riak_core][:http] = [Tuple[interface, min_port]]
         min_port += 1
       end
       env[:riak_core][:http] = env[:riak_core][:http].map {|pair| Tuple[*pair] }
+
       env[:riak_kv][:pb_ip] = interface unless env[:riak_kv][:pb_ip]
       unless env[:riak_kv][:pb_port]
         env[:riak_kv][:pb_port] = min_port
         min_port += 1
       end
+
       unless env[:riak_core][:handoff_port]
         env[:riak_core][:handoff_port] = min_port
         min_port += 1
       end
+
+      configure_riak_control(interface, min_port)
     end
 
     # Implements a deep-merge of two {Hash} instances.

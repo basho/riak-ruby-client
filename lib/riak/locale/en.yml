@@ -42,6 +42,7 @@ en:
     protobuffs_failed_request: "Expected success from Riak but received %{code}. %{body}"
     protobuffs_configuration: "The %{backend} Protobuffs backend cannot be used. Please check its requirements."
     request_body_type: "Request body must be a String or respond to :read."
+    riak_control_configuration_not_complete: "Riak::Node control configuration must include SSL :key and :cert locations."
     search_unsupported: "Riak server does not support search."
     search_docs_require_id: "Search index documents must include the 'id' field."
     search_remove_requires_id_or_query: "Search index documents to be removed must have 'id' or 'query' keys."

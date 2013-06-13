@@ -1,4 +1,5 @@
 require 'riak/core_ext/deep_dup'
+require 'riak/node/configuration'
 
 module Riak
   class Node
@@ -58,7 +59,7 @@ module Riak
       :riak_control => {
         :enabled => false,
         :auth => :userlist,
-        :userlist => {"user" => "pass"},
+        :userlist => [Tuple["user", "pass"]],
         :admin => true
       }
     }.freeze
