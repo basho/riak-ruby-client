@@ -1,11 +1,14 @@
 require 'riak/core_ext/deep_dup'
+require 'riak/node/configuration'
 
 module Riak
   class Node
     # Settings based on Riak 1.1.
     ENV_DEFAULTS = {
       :riak_core => {
-        :ring_creation_size => 64
+        :ring_creation_size => 64,
+        :ssl => [Tuple[:certfile, "./etc/cert.pem"],
+                 Tuple[:keyfile, "./etc/key.pem"]]
       },
       :riak_kv => {
         :storage_backend => :riak_kv_bitcask_backend,
@@ -58,7 +61,7 @@ module Riak
       :riak_control => {
         :enabled => false,
         :auth => :userlist,
-        :userlist => {"user" => "pass"},
+        :userlist => [Tuple["user", "pass"]],
         :admin => true
       }
     }.freeze
