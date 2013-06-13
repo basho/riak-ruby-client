@@ -126,6 +126,7 @@ module Riak
     def store(options={})
       raise Conflict, self if conflict?
       raise ArgumentError, t("content_type_undefined") unless content_type.present?
+      raise ArgumentError, t("zero_length_key") if key == ''
       @bucket.client.store_object(self, options)
       self
     end
