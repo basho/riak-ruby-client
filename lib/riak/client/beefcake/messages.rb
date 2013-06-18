@@ -11,10 +11,64 @@ module Riak
         optional :value, :bytes, 2
       end
 
+      # module-function pair for commit hooks and other properties that take
+      # functions
+      class RpbModFun
+        include Beefcake::Message
+
+        required :module,   :bytes, 1
+        required :function, :bytes, 2
+      end
+
+      class RpbCommitHook
+        include Beefcake::Message
+
+        optional :modfun, RpbModFun, 1
+        optional :name,   :bytes,    2
+      end
+
       class RpbBucketProps
         include Beefcake::Message
-        optional :n_val,      :uint32, 1
-        optional :allow_mult, :bool,   2
+
+        # riak_core_app
+        optional :n_val,           :uint32,       1
+        optional :allow_mult,      :bool,         2
+        optional :last_write_wins, :bool,         3
+        repeated :precommit,       RpbCommitHook, 4
+        optional :has_precommit,   :bool,         5, :default => false
+        repeated :postcommit,      RpbCommitHook, 6
+        optional :has_postcommit,  :bool,         7, :default => false
+        optional :chash_keyfun,    RpbModFun,     8
+
+        # riak_kv_app
+        optional :linkfun,         RpbModFun,     9
+        optional :old_vclock,      :uint32,       10
+        optional :young_vclock,    :uint32,       11
+        optional :big_vclock,      :uint32,       12
+        optional :small_vclock,    :uint32,       13
+        optional :pr,              :uint32,       14
+        optional :r,               :uint32,       15
+        optional :w,               :uint32,       16
+        optional :pw,              :uint32,       17
+        optional :dw,              :uint32,       18
+        optional :rw,              :uint32,       19
+        optional :basic_quorum,    :bool,         20
+        optional :notfound_ok,     :bool,         21
+
+        # riak_kv_multi_backend
+        optional :backend,         :bytes,        22
+
+        # riak_search bucket fixup
+        optional :search,          :bool,         23
+
+        module RpbReplMode
+          FALSE = 0
+          REALTIME = 1
+          FULLSYNC = 2
+          TRUE = 3
+        end
+
+        optional :repl,            RpbReplMode,   24
       end
 
       class RpbLink
