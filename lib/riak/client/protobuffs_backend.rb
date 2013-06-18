@@ -37,6 +37,8 @@ module Riak
           GetBucketResp
           SetBucketReq
           SetBucketResp
+          ResetBucketReq
+          ResetBucketResp
           MapRedReq
           MapRedResp
           IndexReq
