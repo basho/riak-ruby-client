@@ -92,6 +92,13 @@ module Riak
         decode_response
       end
 
+      def reset_bucket_props(bucket)
+        bucket = bucket.name if Bucket === bucket
+        req = RpbResetBucketReq.new(:bucket => maybe_encode(bucket))
+        write_protobuff(:ResetBucketReq)
+        decode_response
+      end
+
       def list_keys(bucket, &block)
         bucket = bucket.name if Bucket === bucket
         req = RpbListKeysReq.new(:bucket => maybe_encode(bucket))
