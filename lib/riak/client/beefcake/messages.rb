@@ -34,10 +34,13 @@ module Riak
         optional :n_val,           :uint32,       1
         optional :allow_mult,      :bool,         2
         optional :last_write_wins, :bool,         3
+
+        # riak_core values with special handling, see below
         repeated :precommit,       RpbCommitHook, 4
         optional :has_precommit,   :bool,         5, :default => false
         repeated :postcommit,      RpbCommitHook, 6
         optional :has_postcommit,  :bool,         7, :default => false
+
         optional :chash_keyfun,    RpbModFun,     8
 
         # riak_kv_app
@@ -69,6 +72,29 @@ module Riak
         end
 
         optional :repl,            RpbReplMode,   24
+
+        # "repeated" elements with zero items are indistinguishable
+        # from a nil, so we have to manage has_precommit/has_postcommit
+        # flags.
+        def precommit=(newval)
+          @precommit = newval
+          @has_precommit = !!newval 
+        end
+
+        def has_precommit=(newval)
+          @has_precommit = newval
+          @precommit ||= [] if newval
+        end
+
+        def postcommit=(newval)
+          @postcommit = newval
+          @has_postcommit = !!newval 
+        end
+
+        def has_postcommit=(newval)
+          @has_postcommit = newval
+          @postcommit ||= [] if newval
+        end
       end
 
       class RpbLink
