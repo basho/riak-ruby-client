@@ -168,12 +168,16 @@ module Riak
           RANGE = 1
         end
 
-        required :bucket,    :bytes,         1
-        required :index,     :bytes,         2
-        required :qtype,     IndexQueryType, 3
-        optional :key,       :bytes,         4
-        optional :range_min, :bytes,         5
-        optional :range_max, :bytes,         6
+        required :bucket,       :bytes,         1
+        required :index,        :bytes,         2
+        required :qtype,        IndexQueryType, 3
+        optional :key,          :bytes,         4
+        optional :range_min,    :bytes,         5
+        optional :range_max,    :bytes,         6
+        optional :return_terms, :bool,          7
+        optional :stream,       :bool,          8
+        optional :max_results,  :uint32,        9
+        optional :continuation, :bytes,         10
       end
 
       class RpbIndexResp
