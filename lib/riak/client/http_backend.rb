@@ -67,7 +67,8 @@ module Riak
       # @return [RObject] the fetched object
       def fetch_object(bucket, key, options={})
         bucket = Bucket.new(client, bucket) if String === bucket
-        response = get([200,300], object_path(bucket.name, key, options))
+        method = options.delete(:head) ? :head : :get
+        response = send(method, [200,300], object_path(bucket.name, key, options))
         load_object(RObject.new(bucket, key), response)
       end
 
