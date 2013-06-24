@@ -21,11 +21,14 @@ module Riak
 
     # Get the array of matched keys
     def keys
+      @client.backend do |b|
+        b.get_index @bucket, @index, @query
+      end
     end
 
     # Get the array of values
     def values
-      @bucket.get_many keys
+      @bucket.get_many(keys).values
     end
   end
 end
