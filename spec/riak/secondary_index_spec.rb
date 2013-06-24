@@ -23,6 +23,15 @@ describe Riak::SecondaryIndex do
   end
 
   describe "streaming" do
-    
+    it "should stream keys into a block"
+  end
+
+  describe "pagination" do
+    it "should support max_results"
+    it "should support continuations"
+  end
+
+  describe "return_terms" do
+    it "should optionally give the index value"
   end
 end
