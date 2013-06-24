@@ -5,6 +5,7 @@ describe Riak::SecondaryIndex do
     @client = Riak::Client.new
     @bucket = Riak::Bucket.new @client, 'foo'
   end
+
   describe "initialization" do
     it "should accept a bucket, index name, and scalar" do
       lambda { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa' }.should_not raise_error
@@ -18,8 +19,29 @@ describe Riak::SecondaryIndex do
   end
 
   describe "operation" do
-    it "should return an array of keys"
-    it "should return an array of values"
+    before(:each) do
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @args = [@bucket, 'asdf', 'aaaa'..'zzzz']
+      @index = Riak::SecondaryIndex.new *@args
+
+      @backend.should_receive(:get_index).with(*@args).and_return(%w{abcd efgh})
+    end
+
+    it "should return an array of keys" do
+      @results = @index.keys
+      @results.should be_a Array
+      @results.first.should be_a String
+    end
+
+    it "should return an array of values" do
+      @backend.should_receive(:fetch_object).with(@bucket, 'abcd', {}).and_return('abcd')
+      @backend.should_receive(:fetch_object).with(@bucket, 'efgh', {}).and_return('efgh')
+
+      @results = @index.values
+      @results.should be_a Array
+      @results.length.should == 2
+    end
   end
 
   describe "streaming" do
