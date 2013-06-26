@@ -1,3 +1,4 @@
+require 'riak/index_collection'
 module Riak
   class SecondaryIndex
     include Util::Translation
@@ -22,13 +23,14 @@ module Riak
     # Get the array of matched keys
     def keys
       @client.backend do |b|
-        b.get_index @bucket, @index, @query
+        b.get_index @bucket, @index, @query, @options
       end
     end
 
     # Get the array of values
     def values
-      @bucket.get_many(keys).values
+      pp k = self.keys
+      @bucket.get_many(k).values
     end
   end
 end

@@ -22,7 +22,7 @@ describe Riak::SecondaryIndex do
     before(:each) do
       @backend = mock 'Backend'
       @client.stub!(:backend).and_yield(@backend)
-      @args = [@bucket, 'asdf', 'aaaa'..'zzzz']
+      @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {}]
       @index = Riak::SecondaryIndex.new *@args
 
       @backend.should_receive(:get_index).with(*@args).and_return(%w{abcd efgh})
@@ -49,7 +49,39 @@ describe Riak::SecondaryIndex do
   end
 
   describe "pagination" do
-    it "should support max_results"
+    it "should support max_results" do
+      @max_results = 5
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket, 
+                                        'asdf', 
+                                        'aaaa'..'zzzz',
+                                        :max_results => @max_results
+                                        )
+
+
+      @expected_collection = Riak::IndexCollection.new({
+        'keys' => %w{aaaa bbbb cccc dddd eeee},
+        'continuation' => 'examplecontinuation'
+      }.to_json)
+
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @backend.
+        should_receive(:get_index).
+        with(
+             @bucket,
+             'asdf',
+             ('aaaa'..'zzzz'),
+             :max_results => @max_results
+             ).
+        and_return(@expected_collection)
+
+
+      @results = @index.keys
+      @results.should be_an Array
+      @results.should == @expected_collection
+      @results.length.should == @max_results
+    end
     it "should support continuations"
   end
 
