@@ -139,6 +139,7 @@ module Riak
             :key => query.to_s
           }
         end
+
         options.merge!(:bucket => bucket, :index => index)
         options.merge!(query_options)
 
@@ -208,7 +209,7 @@ module Riak
             RpbMapRedResp.decode(message)
           when :IndexResp
             res = RpbIndexResp.decode(message)
-            res.keys
+            IndexCollection.new_from_protobuf res
           when :SearchQueryResp
             res = RpbSearchQueryResp.decode(message)
             { 'docs' => res.docs.map {|d| decode_doc(d) },
