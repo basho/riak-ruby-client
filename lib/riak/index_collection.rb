@@ -7,33 +7,61 @@ module Riak
 
     # @return [String] The continuation used to retrieve the next page of a
     # paginated query.
-    attr_reader :continuation
+    attr_accessor :continuation
 
     # @return [Hash<Integer/String, String>] A hash of index keys (String or
     # Integer, depending on whether the query was a binary or integer) to
     # arrays of keys.
-    attr_reader :with_terms
+    attr_accessor :with_terms
 
-    # Create an IndexCollection from a JSON string.
-    def initialize(json)
+    def self.new_from_json(json)
       parsed = JSON.parse json
+      fresh = nil
       if parsed['keys']
-        super parsed['keys'] 
+        fresh = new parsed['keys'] 
       else
-        load_terms(parsed)
-        super @with_terms.values.flatten
+        fresh_terms = load_json_terms(parsed)
+        fresh = new fresh_terms.values.flatten
+        fresh.with_terms = fresh_terms
       end
-      @continuation = parsed['continuation']
+      fresh.continuation = parsed['continuation']
+
+      fresh
+    end
+
+    def self.new_from_protobuf(message)
+      fresh = nil
+      if message.keys
+        fresh = new message.keys
+      else
+        fresh_terms = load_pb_terms(message)
+        fresh = new fresh_terms.values.flatten
+        fresh.with_terms = fresh_terms
+      end
+      fresh.continuation = message.continuation
+
+      fresh
     end
 
     private
-    def load_terms(parsed)
-      @with_terms = Hash.new{Array.new}
+    def self.load_json_terms(parsed)
+      fresh_terms = Hash.new{Array.new}
       parsed['results'].each do |r|
         k = r.keys.first
         v = r[k]
-        @with_terms[k] += [v]
+        fresh_terms[k] += [v]
       end
+
+      fresh_terms
+    end
+
+    def self.load_pb_terms(message)
+      fresh_terms = Hash.new{Array.new}
+      message.results.each do |r|
+        fresh_terms[r.key] += [r.value]
+      end
+
+      fresh_terms
     end
   end
 end

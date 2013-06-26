@@ -246,7 +246,7 @@ module Riak
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect)
                end
         response = get(200, path)
-        Riak::IndexCollection.new response[:body]
+        Riak::IndexCollection.new_from_json response[:body]
       end
 
       # (Riak Search) Performs a search query
