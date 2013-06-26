@@ -86,6 +86,42 @@ describe Riak::SecondaryIndex do
   end
 
   describe "return_terms" do
-    it "should optionally give the index value"
+    it "should optionally give the index value" do
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket,
+                                        'asdf',
+                                        'aaaa'..'zzzz',
+                                        :return_terms => true
+                                        )
+      @expected_collection = Riak::IndexCollection.new({
+        'results' => [
+          {'aaaa' => 'aaaa'},
+          {'bbbb' => 'bbbb'},
+          {'bbbb' => 'bbbb2'}
+        ]
+        }.to_json)
+
+
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @backend.
+        should_receive(:get_index).
+        with(
+             @bucket,
+             'asdf',
+             ('aaaa'..'zzzz'),
+             :return_terms => true
+             ).
+        and_return(@expected_collection)
+
+
+      @results = @index.keys
+      @results.should be_an Array
+      @results.should == @expected_collection
+      @results.with_terms.should == {
+        'aaaa' => %w{aaaa},
+        'bbbb' => %w{bbbb bbbb2}
+      }
+    end
   end
 end
