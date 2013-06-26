@@ -124,7 +124,7 @@ module Riak
         block_given? || results.report
       end
 
-      def get_index(bucket, index, query)
+      def get_index(bucket, index, query, query_options={})
         return super unless pb_indexes?
         bucket = bucket.name if Bucket === bucket
         if Range === query
@@ -139,7 +139,10 @@ module Riak
             :key => query.to_s
           }
         end
-        req = RpbIndexReq.new(options.merge(:bucket => bucket, :index => index))
+        options.merge!(:bucket => bucket, :index => index)
+        options.merge!(query_options)
+
+        req = RpbIndexReq.new(options)
         write_protobuff(:IndexReq, req)
         decode_response
       end
