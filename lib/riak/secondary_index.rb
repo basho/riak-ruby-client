@@ -22,15 +22,26 @@ module Riak
 
     # Get the array of matched keys
     def keys
-      @client.backend do |b|
-        b.get_index @bucket, @index, @query, @options
-      end
+      @collection ||=
+        @client.backend do |b|
+          b.get_index @bucket, @index, @query, @options
+        end
     end
 
     # Get the array of values
     def values
       pp k = self.keys
       @bucket.get_many(k).values
+    end
+
+    # Get a new SecondaryIndex fetch for the next page
+    def next_page
+      raise t('no_pagination_data') unless keys.continuation
+
+      self.class.new(@bucket, 
+                     @index, 
+                     @query, 
+                     @options.merge(:continuation => keys.continuation))
     end
   end
 end
