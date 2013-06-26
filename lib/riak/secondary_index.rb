@@ -30,8 +30,7 @@ module Riak
 
     # Get the array of values
     def values
-      pp k = self.keys
-      @bucket.get_many(k).values
+      @values ||= @bucket.get_many(self.keys).values
     end
 
     # Get a new SecondaryIndex fetch for the next page
