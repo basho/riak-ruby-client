@@ -19,6 +19,10 @@ module Riak
       validate_options
     end
 
+    def get_server_version
+      @client.backend{|b| b.send :get_server_version }
+    end
+
     # Start the 2i fetch operation
     def fetch
     end

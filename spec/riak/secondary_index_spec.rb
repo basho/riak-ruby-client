@@ -51,13 +51,6 @@ describe Riak::SecondaryIndex do
   describe "pagination" do
     it "should support max_results" do
       @max_results = 5
-      @index = Riak::SecondaryIndex.new(
-                                        @bucket, 
-                                        'asdf', 
-                                        'aaaa'..'zzzz',
-                                        :max_results => @max_results
-                                        )
-
 
       @expected_collection = Riak::IndexCollection.new({
         'keys' => %w{aaaa bbbb cccc dddd eeee},
@@ -75,7 +68,15 @@ describe Riak::SecondaryIndex do
              :max_results => @max_results
              ).
         and_return(@expected_collection)
+      @backend.stub(:get_server_version => '1.4.0')
 
+
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket, 
+                                        'asdf', 
+                                        'aaaa'..'zzzz',
+                                        :max_results => @max_results
+                                        )
 
       @results = @index.keys
       @results.should be_an Array
@@ -87,12 +88,6 @@ describe Riak::SecondaryIndex do
 
   describe "return_terms" do
     it "should optionally give the index value" do
-      @index = Riak::SecondaryIndex.new(
-                                        @bucket,
-                                        'asdf',
-                                        'aaaa'..'zzzz',
-                                        :return_terms => true
-                                        )
       @expected_collection = Riak::IndexCollection.new({
         'results' => [
           {'aaaa' => 'aaaa'},
@@ -113,7 +108,15 @@ describe Riak::SecondaryIndex do
              :return_terms => true
              ).
         and_return(@expected_collection)
+      @backend.stub(:get_server_version => '1.4.0')
 
+
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket,
+                                        'asdf',
+                                        'aaaa'..'zzzz',
+                                        :return_terms => true
+                                        )
 
       @results = @index.keys
       @results.should be_an Array
