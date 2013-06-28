@@ -207,7 +207,7 @@ module Riak
             RpbListKeysResp.decode(message)
           when :GetBucketResp
             res = RpbGetBucketResp.decode(message)
-            {'n_val' => res.props.n_val, 'allow_mult' => res.props.allow_mult}
+            res.props.to_hash.stringify_keys
           when :MapRedResp
             RpbMapRedResp.decode(message)
           when :IndexResp
