@@ -245,8 +245,17 @@ module Riak
                else
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect)
                end
-        response = get(200, path)
-        Riak::IndexCollection.new_from_json response[:body]
+        if block_given?
+          parser = Riak::Util::Multipart::StreamParser.new do |response|
+            result = JSON.parse response[:body]
+
+            yield result['keys']
+          end
+          get(200, path, &parser)
+        else
+          response = get(200, path)
+          Riak::IndexCollection.new_from_json response[:body]
+        end
       end
 
       # (Riak Search) Performs a search query

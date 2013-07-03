@@ -28,10 +28,10 @@ module Riak
     end
 
     # Get the array of matched keys
-    def keys
+    def keys(&block)
       @collection ||=
         @client.backend do |b|
-          b.get_index @bucket, @index, @query, @options
+          b.get_index @bucket, @index, @query, @options, &block
         end
     end
 
@@ -55,8 +55,7 @@ module Riak
       raise t('index.pagination_not_available') if paginated? && !index_pagination?
       raise t('index.return_terms_not_available') if @options[:return_terms] && !index_return_terms?
 
-      # TODO: uncomment that last part when implementing streaming
-      raise t('index.streaming_not_available') if @options[:stream] # && !index_streaming
+      # raise t('index.streaming_not_available') if @options[:stream] && !index_streaming?
     end
 
     def paginated?
