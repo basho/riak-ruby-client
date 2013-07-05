@@ -145,7 +145,7 @@ module Riak
 
         req = RpbIndexReq.new(options)
         write_protobuff(:IndexReq, req)
-        decode_response
+        decode_index_response(query_options[:stream], &block)
       end
 
       def search(index, query, options={})
@@ -220,6 +220,24 @@ module Riak
       rescue SystemCallError, SocketError => e
         reset_socket
         raise
+      end
+
+      def decode_index_response(streaming)
+        loop do
+          header = socket.read(5)
+          raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+
+          raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
+
+          message = RpbIndexResp.decode socket.read msglen - 1
+
+          if block_given?
+            content = message.keys || message.results || []
+            yield content
+          end
+
+          return content if !streaming || message.done
+        end
       end
 
       def decode_doc(doc)
