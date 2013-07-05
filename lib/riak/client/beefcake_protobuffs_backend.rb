@@ -124,7 +124,7 @@ module Riak
         block_given? || results.report
       end
 
-      def get_index(bucket, index, query, query_options={})
+      def get_index(bucket, index, query, query_options={}, &block)
         return super unless pb_indexes?
         bucket = bucket.name if Bucket === bucket
         if Range === query
@@ -226,7 +226,9 @@ module Riak
         loop do
           header = socket.read(5)
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+          msglen, msgcode = header.unpack("NC")
 
+          code = MESSAGE_CODES[msgcode]
           raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
 
           message = RpbIndexResp.decode socket.read msglen - 1
