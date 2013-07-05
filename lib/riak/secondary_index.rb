@@ -54,6 +54,7 @@ module Riak
     def validate_options
       raise t('index.pagination_not_available') if paginated? && !index_pagination?
       raise t('index.return_terms_not_available') if @options[:return_terms] && !index_return_terms?
+      raise t('index.include_terms_is_wrong') if @options[:include_terms]
 
       # raise t('index.streaming_not_available') if @options[:stream] && !index_streaming?
     end
