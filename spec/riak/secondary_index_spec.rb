@@ -91,7 +91,41 @@ describe Riak::SecondaryIndex do
       @results.should == @expected_collection
       @results.length.should == @max_results
     end
-    it "should support continuations"
+
+    it "should support continuations" do
+      @max_results = 5
+
+      @expected_collection = Riak::IndexCollection.new_from_json({
+        'keys' => %w{ffff gggg hhhh}
+      }.to_json)
+
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @backend.
+        should_receive(:get_index).
+        with(
+             @bucket,
+             'asdf',
+             ('aaaa'..'zzzz'),
+             max_results: @max_results,
+             continuation: 'examplecontinuation'
+             ).
+        and_return(@expected_collection)
+      @backend.stub(:get_server_version => '1.4.0')
+
+
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket, 
+                                        'asdf', 
+                                        'aaaa'..'zzzz',
+                                        max_results: @max_results,
+                                        continuation: 'examplecontinuation'
+                                        )
+
+      @results = @index.keys
+      @results.should be_an Array
+      @results.should == @expected_collection
+    end
   end
 
   describe "return_terms" do
