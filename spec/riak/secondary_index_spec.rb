@@ -33,7 +33,6 @@ describe Riak::SecondaryIndex do
       @results.should be_a Array
       @results.first.should be_a String
     end
-
     it "should return an array of values" do
       @backend.should_receive(:fetch_object).with(@bucket, 'abcd', {}).and_return('abcd')
       @backend.should_receive(:fetch_object).with(@bucket, 'efgh', {}).and_return('efgh')
@@ -45,14 +44,23 @@ describe Riak::SecondaryIndex do
   end
 
   describe "streaming" do
-    it "should stream keys into a block"
+    it "should stream keys into a block" do
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {stream: true}]
+      @index = Riak::SecondaryIndex.new *@args
+
+      @backend.should_receive(:get_index).with(*@args).and_yield([%w{abcd efgh}])
+
+      @index.keys {|b| :block }
+    end
   end
 
   describe "pagination" do
     it "should support max_results" do
       @max_results = 5
 
-      @expected_collection = Riak::IndexCollection.new({
+      @expected_collection = Riak::IndexCollection.new_from_json({
         'keys' => %w{aaaa bbbb cccc dddd eeee},
         'continuation' => 'examplecontinuation'
       }.to_json)
@@ -88,7 +96,7 @@ describe Riak::SecondaryIndex do
 
   describe "return_terms" do
     it "should optionally give the index value" do
-      @expected_collection = Riak::IndexCollection.new({
+      @expected_collection = Riak::IndexCollection.new_from_json({
         'results' => [
           {'aaaa' => 'aaaa'},
           {'bbbb' => 'bbbb'},
