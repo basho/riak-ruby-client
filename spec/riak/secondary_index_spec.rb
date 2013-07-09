@@ -126,6 +126,59 @@ describe Riak::SecondaryIndex do
       @results.should be_an Array
       @results.should == @expected_collection
     end
+
+    it "should support a next_page method" do
+      @max_results = 5
+
+      @expected_collection = Riak::IndexCollection.new_from_json({
+        'keys' => %w{aaaa bbbb cccc dddd eeee},
+        'continuation' => 'examplecontinuation'
+      }.to_json)
+
+      @backend = mock 'Backend'
+      @client.stub!(:backend).and_yield(@backend)
+      @backend.
+        should_receive(:get_index).
+        once.
+        with(
+             @bucket,
+             'asdf',
+             ('aaaa'..'zzzz'),
+             :max_results => @max_results
+             ).
+        and_return(@expected_collection)
+      @backend.stub(:get_server_version => '1.4.0')
+
+
+      @index = Riak::SecondaryIndex.new(
+                                        @bucket, 
+                                        'asdf', 
+                                        'aaaa'..'zzzz',
+                                        :max_results => @max_results
+                                        )
+
+      @results = @index.keys
+      @results.should == @expected_collection
+
+      @second_collection = Riak::IndexCollection.new_from_json({
+        'keys' => %w{ffff gggg hhhh}
+      }.to_json)
+      @backend.
+        should_receive(:get_index).
+        once.
+        with(
+             @bucket,
+             'asdf',
+             ('aaaa'..'zzzz'),
+             max_results: @max_results,
+             continuation: 'examplecontinuation'
+             ).
+        and_return(@second_collection)
+
+      @second_page = @index.next_page
+      @second_results = @second_page.keys
+      @second_results.should == @second_collection
+    end
   end
 
   describe "return_terms" do
