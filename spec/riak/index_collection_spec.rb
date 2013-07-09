@@ -6,7 +6,7 @@ describe Riak::IndexCollection do
       @input = {
         'keys' => %w{first second third}
       }.to_json
-      lambda { @coll = Riak::IndexCollection.new @input }.should_not raise_error
+      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
       %w{first second third}.should == @coll
     end
     it "should accept a list of keys and a continuation" do
@@ -14,7 +14,7 @@ describe Riak::IndexCollection do
         'keys' => %w{first second third},
         'continuation' => 'examplecontinuation'
       }.to_json
-      lambda { @coll = Riak::IndexCollection.new @input }.should_not raise_error
+      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
       %w{first second third}.should == @coll
       @coll.continuation.should == 'examplecontinuation'
     end
@@ -27,7 +27,7 @@ describe Riak::IndexCollection do
         ]
       }.to_json
 
-      lambda { @coll = Riak::IndexCollection.new @input }.should_not raise_error
+      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
       %w{first second other}.should == @coll
       {'first' => %w{first}, 'second' => %w{second other}}.should == @coll.with_terms
     end
@@ -41,7 +41,7 @@ describe Riak::IndexCollection do
         'continuation' => 'examplecontinuation'
       }.to_json
 
-      lambda { @coll = Riak::IndexCollection.new @input }.should_not raise_error
+      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
       %w{first second other}.should == @coll
       @coll.continuation.should == 'examplecontinuation'
       {'first' => %w{first}, 'second' => %w{second other}}.should == @coll.with_terms
