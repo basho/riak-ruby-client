@@ -141,7 +141,6 @@ module Riak
         "all" => UINTMAX - 3,
         "default" => UINTMAX - 4
       }.freeze
-      pp QUORUMS
 
       def prune_unsupported_options(req,options={})
         unless quorum_controls?

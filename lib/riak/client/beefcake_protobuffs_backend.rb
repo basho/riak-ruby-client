@@ -83,7 +83,6 @@ module Riak
         write_protobuff(:GetBucketReq, req)
         resp = normalize_quorums decode_response
         normalized = normalize_hooks resp
-        pp normalized
         normalized.stringify_keys
       end
 
