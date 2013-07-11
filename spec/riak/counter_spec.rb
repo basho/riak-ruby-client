@@ -16,5 +16,11 @@ describe Riak::Counter do
     it "should decrement by 1 by default"
     it "should support decrementing by positive numbers"
     it "should support decrementing by negative numbers"
+
+    it "should forbid incrementing by non-integers"
+  end
+
+  describe "failure modes" do
+    it "should not retry on timeout or quorum failure"
   end
 end
