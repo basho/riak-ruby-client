@@ -1,6 +1,7 @@
 require 'riak/util/translation'
 require 'riak/client'
 require 'riak/robject'
+require 'riak/counter'
 require 'riak/failed_request'
 
 module Riak
