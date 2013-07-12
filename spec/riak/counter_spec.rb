@@ -25,6 +25,13 @@ describe Riak::Counter do
   end
   
   describe "incrementing and decrementing" do
+    before :each do
+      @bucket = mock 'bucket'
+      @key = 'key'
+      @bucket.stub allow_mult: true
+      @ctr = Riak::Counter.new @bucket, @key
+    end
+
     it "should increment by 1 by default"
     it "should support incrementing by positive numbers"
     it "should support incrementing by negative numbers"
@@ -33,10 +40,18 @@ describe Riak::Counter do
     it "should support decrementing by positive numbers"
     it "should support decrementing by negative numbers"
 
-    it "should forbid incrementing by non-integers"
+    it "should forbid incrementing by non-integers" do
+      [1.1, nil, :'1', '1', 2.0/2, [1]].each do |candidate|
+        expect do
+          @ctr.increment candidate
+          raise candidate.to_s
+        end.to raise_error(ArgumentError)
+      end
+    end
   end
 
   describe "failure modes" do
-    it "should not retry on timeout or quorum failure"
+    it "should not retry on timeout"
+    it "should not retry on quorum failure"
   end
 end
