@@ -12,11 +12,12 @@ module Riak
       validate_bucket
     end
 
-    def to_i
+    def value(options={})
       client.http do |backend|
-        backend.get_counter bucket, key
+        backend.get_counter bucket, key, options
       end
     end
+    alias :to_i :value
 
     def increment(amount=1)
       validate_amount amount
