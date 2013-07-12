@@ -71,6 +71,19 @@ module Riak
           end
         end
 
+        # @return [URI] a URL path for the "counter" resource
+        # @param [String] bucket the bucket of the counter
+        # @param [String] key the key of the counter
+        def counter_path(bucket, key, options={})
+          path([
+                riak_kv_wm_buckets,
+                escape(bucket),
+                "counters",
+                escape(key),
+                options
+                ].compact)
+        end
+
         # @return [URI] a URL path for the "link-walking" resource
         # @param [String] bucket the bucket of the origin object
         # @param [String] key the key of the origin object
