@@ -218,6 +218,12 @@ module Riak
             { 'docs' => res.docs.map {|d| decode_doc(d) },
               'max_score' => res.max_score,
               'num_found' => res.num_found }
+          when :CSBucketResp
+            res = RpbCSBucketResp.decode message
+          when :CounterUpdateResp
+            res = RpbCounterUpdateResp.decode message
+          when :CounterGetResp
+            res = RpbCounterGetReq
           end
         end
       rescue SystemCallError, SocketError => e
