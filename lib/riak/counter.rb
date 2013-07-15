@@ -13,17 +13,21 @@ module Riak
     end
 
     def value(options={})
-      client.http do |backend|
+      client.backend do |backend|
         backend.get_counter bucket, key, options
       end
     end
     alias :to_i :value
 
-    def increment(amount=1)
+    def increment_and_return(amount=1)
+      increment amount, return_value: true
+    end
+
+    def increment(amount=1, options={})
       validate_amount amount
 
-      client.http do |backend|
-        backend.post_counter bucket, key, amount
+      client.backend do |backend|
+        backend.post_counter bucket, key, amount, options
       end
     end
 
