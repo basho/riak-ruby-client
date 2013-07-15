@@ -77,6 +77,34 @@ module Riak
         decode_response
       end
 
+      def get_counter(bucket, key, options={})
+        bucket = bucket.name if bucket.is_a? Bucket 
+
+        options = normalize_quorums(options)
+        options[:bucket] = bucket
+        options[:key] = key
+        
+        request = RpbCounterGetReq.new options
+        write_protobuff :CounterGetReq, request
+        
+        decode_response
+      end
+
+      def post_counter(bucket, key, amount, options={})
+        bucket = bucket.name if bucket.is_a? Bucket
+
+        options = normalize_quorums(options)
+        options[:bucket] = bucket
+        options[:key] = key
+        # TODO: raise if ammount doesn't fit in sint64
+        options[:amount] = amount
+
+        request = RpbCounterUpdateReq.new options
+        write_protobuff :CounterUpdateReq, request
+
+        decode_response
+      end
+
       def get_bucket_props(bucket)
         bucket = bucket.name if Bucket === bucket
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
@@ -223,7 +251,8 @@ module Riak
           when :CounterUpdateResp
             res = RpbCounterUpdateResp.decode message
           when :CounterGetResp
-            res = RpbCounterGetReq
+            res = RpbCounterGetReq.decode message
+            res.value || 0
           end
         end
       rescue SystemCallError, SocketError => e
