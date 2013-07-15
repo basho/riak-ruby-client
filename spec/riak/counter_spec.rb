@@ -30,7 +30,7 @@ describe Riak::Counter do
       @backend = mock 'backend'
 
       @client = mock 'client'
-      @client.stub(:http).and_yield @backend
+      @client.stub(:backend).and_yield @backend
 
       @bucket = mock 'bucket'
       @bucket.stub allow_mult: true
@@ -40,7 +40,7 @@ describe Riak::Counter do
 
       @ctr = Riak::Counter.new @bucket, @key
 
-      @increment_expectation = proc{|n| @backend.should_receive(:post_counter).with(@bucket, @key, n)}
+      @increment_expectation = proc{|n| @backend.should_receive(:post_counter).with(@bucket, @key, n, {})}
     end
 
     it "should increment by 1 by default" do
