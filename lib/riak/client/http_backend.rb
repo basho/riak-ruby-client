@@ -137,7 +137,13 @@ module Riak
       # @param [Hash] options unused
       def post_counter(bucket, key, amount, options={})
         bucket = bucket.name if bucket.is_a? Bucket
-        post([200, 204], counter_path(bucket, key, options), amount.to_s)
+        response = post([200, 204], counter_path(bucket, key, options), amount.to_s)
+        case response[:code]
+        when 200
+          return response[:body].to_i
+        when 204
+          return nil
+        end
       end
 
       # Fetches bucket properties
