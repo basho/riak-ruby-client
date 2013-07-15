@@ -43,6 +43,14 @@ module Riak
           IndexResp
           SearchQueryReq
           SearchQueryResp
+          ResetBucketReq
+          ResetBucketResp
+          CSBucketReq
+          CSBucketResp
+          CounterUpdateReq
+          CounterUpdateResp
+          CounterGetReq
+          CounterGetResp
        ].map {|s| s.intern }.freeze
 
       def self.simple(method, code)
