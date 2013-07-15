@@ -4,6 +4,7 @@ require 'base64'
 require 'digest/sha1'
 require 'riak/util/translation'
 require 'riak/client/feature_detection'
+require 'riak/client/beefcake/message_codes'
 
 module Riak
   class Client
@@ -12,46 +13,7 @@ module Riak
       include Util::Escape
       include FeatureDetection
 
-      # Message Codes Enum
-      MESSAGE_CODES = %W[
-          ErrorResp
-          PingReq
-          PingResp
-          GetClientIdReq
-          GetClientIdResp
-          SetClientIdReq
-          SetClientIdResp
-          GetServerInfoReq
-          GetServerInfoResp
-          GetReq
-          GetResp
-          PutReq
-          PutResp
-          DelReq
-          DelResp
-          ListBucketsReq
-          ListBucketsResp
-          ListKeysReq
-          ListKeysResp
-          GetBucketReq
-          GetBucketResp
-          SetBucketReq
-          SetBucketResp
-          MapRedReq
-          MapRedResp
-          IndexReq
-          IndexResp
-          SearchQueryReq
-          SearchQueryResp
-          ResetBucketReq
-          ResetBucketResp
-          CSBucketReq
-          CSBucketResp
-          CounterUpdateReq
-          CounterUpdateResp
-          CounterGetReq
-          CounterGetResp
-       ].map {|s| s.intern }.freeze
+      MESSAGE_CODES = BeefcakeMessageCodes
 
       def self.simple(method, code)
         define_method method do

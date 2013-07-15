@@ -224,6 +224,12 @@ module Riak
         optional :continuation, :bytes,  6
         optional :max_results,  :uint32, 7
       end
+      
+      class RpbIndexObject
+        include Beefcake::Message
+        required :key,    :bytes,     1
+        required :object, RpbGetResp, 2
+      end
 
       class RpbCSBucketResp
         include Beefcake::Message

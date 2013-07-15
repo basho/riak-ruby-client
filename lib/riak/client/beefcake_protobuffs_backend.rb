@@ -183,6 +183,9 @@ module Riak
 
       private
       def write_protobuff(code, message)
+        pp code
+        pp MESSAGE_CODES.index(code)
+        pp message
         encoded = message.encode
         header = [encoded.length+1, MESSAGE_CODES.index(code)].pack("NC")
         socket.write(header + encoded)
