@@ -166,9 +166,16 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp, :SetClientIdResp, :PutResp, :DelResp, :SetBucketResp
+          when :PingResp, 
+               :SetClientIdResp, 
+               :PutResp, 
+               :DelResp, 
+               :SetBucketResp, 
+               :ResetBucketResp
             true
-          when :ListBucketsResp, :ListKeysResp, :IndexResp
+          when :ListBucketsResp, 
+               :ListKeysResp, 
+               :IndexResp
             []
           when :GetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
