@@ -13,7 +13,7 @@ module Riak
     end
 
     def value(options={})
-      client.backend do |backend|
+      backend do |backend|
         backend.get_counter bucket, key, options
       end
     end
@@ -26,7 +26,7 @@ module Riak
     def increment(amount=1, options={})
       validate_amount amount
 
-      client.backend do |backend|
+      backend do |backend|
         backend.post_counter bucket, key, amount, options
       end
     end
@@ -42,6 +42,17 @@ module Riak
 
     def validate_amount(amount)
       raise ArgumentError, t("counter.increment_by_integer") unless amount.is_a? Integer
+    end
+
+    def backend(&blk)
+      begin
+        return client.backend &blk
+      rescue Riak::FailedRequest => e
+        raise QuorumError.new e if e.message =~ /unsatisfied/
+      end
+    end
+
+    class QuorumError < Riak::FailedRequest
     end
   end
 end
