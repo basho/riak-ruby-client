@@ -50,9 +50,9 @@ describe Riak::SecondaryIndex do
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {stream: true}]
       @index = Riak::SecondaryIndex.new *@args
 
-      @backend.should_receive(:get_index).with(*@args).and_yield([%w{abcd efgh}])
+      @backend.should_receive(:get_index).with(*@args).and_yield('abcd').and_yield('efgh')
 
-      @index.keys {|b| :block }
+      @index.keys {|b| :noop }
     end
   end
 
