@@ -81,7 +81,9 @@ module Riak
         bucket = bucket.name if Bucket === bucket
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
         write_protobuff(:GetBucketReq, req)
-        decode_response
+        resp = normalize_quorums decode_response
+        normalized = normalize_hooks resp
+        normalized.stringify_keys
       end
 
       def set_bucket_props(bucket, props)
@@ -89,6 +91,13 @@ module Riak
         props = props.slice('n_val', 'allow_mult')
         req = RpbSetBucketReq.new(:bucket => maybe_encode(bucket), :props => RpbBucketProps.new(props))
         write_protobuff(:SetBucketReq, req)
+        decode_response
+      end
+
+      def reset_bucket_props(bucket)
+        bucket = bucket.name if Bucket === bucket
+        req = RpbResetBucketReq.new(:bucket => maybe_encode(bucket))
+        write_protobuff(:ResetBucketReq)
         decode_response
       end
 
@@ -200,7 +209,7 @@ module Riak
             RpbListKeysResp.decode(message)
           when :GetBucketResp
             res = RpbGetBucketResp.decode(message)
-            {'n_val' => res.props.n_val, 'allow_mult' => res.props.allow_mult}
+            res.props.to_hash.stringify_keys
           when :MapRedResp
             RpbMapRedResp.decode(message)
           when :IndexResp
@@ -225,6 +234,24 @@ module Riak
       def force_utf8(str)
         # Search returns strings that should always be valid UTF-8
         ObjectMethods::ENCODING ? str.force_encoding('UTF-8') : str
+      end
+
+      def normalize_hooks(message)
+        message.dup.tap do |o|
+          %w{chash_keyfun linkfun}.each do |k|
+            o[k] = {'mod' => message[k].module, 'fun' => message[k].function}
+          end
+          %w{precommit postcommit}.each do |k|
+            orig = message[k]
+            o[k] = orig.map do |hook|
+              if hook.modfun
+                {'mod' => hook.modfun.module, 'fun' => hook.modfun.function}
+              else
+                hook.name
+              end
+            end
+          end
+        end
       end
     end
   end
