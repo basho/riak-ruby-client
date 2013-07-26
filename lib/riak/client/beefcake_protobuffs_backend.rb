@@ -142,10 +142,11 @@ module Riak
 
         options.merge!(:bucket => bucket, :index => index)
         options.merge!(query_options)
+        options[:stream] = block_given?
 
         req = RpbIndexReq.new(options)
         write_protobuff(:IndexReq, req)
-        decode_index_response(query_options[:stream], &block)
+        decode_index_response(&block)
       end
 
       def search(index, query, options={})
@@ -222,23 +223,23 @@ module Riak
         raise
       end
 
-      def decode_index_response(streaming)
+      def decode_index_response
         loop do
           header = socket.read(5)
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
           msglen, msgcode = header.unpack("NC")
-
           code = MESSAGE_CODES[msgcode]
           raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
 
           message = RpbIndexResp.decode socket.read msglen - 1
 
-          if block_given?
-            content = message.keys || message.results || []
-            yield content
-          end
+          content = message.keys || message.results || []
 
-          return content if !streaming || message.done
+          yield content if block_given?
+
+          return content if !block_given?
+
+          return if block_given? && message.done
         end
       end
 
