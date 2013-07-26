@@ -133,6 +133,14 @@ module Riak
       end
     end
 
+    # Gets a counter object. Counters initially hvae a value of zero, and can be
+    # incremented and decremented by integer values.
+    # @param [String] key the key of the counter to fetch
+    # @return [Counter]
+    def counter(key)
+      Riak::Counter.new self, key
+    end
+
     # Checks whether an object exists in Riak.
     # @param [String] key the key to check
     # @param [Hash] options quorum options
