@@ -249,7 +249,7 @@ module Riak
           parser = Riak::Util::Multipart::StreamParser.new do |response|
             result = JSON.parse response[:body]
 
-            yield result['keys']
+            yield result['keys'] || result['results'] || []
           end
           get(200, path, &parser)
         else
