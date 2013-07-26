@@ -23,6 +23,10 @@ module Riak
       increment amount, return_value: true
     end
 
+    def decrement_and_return(amount=1)
+      increment_and_return -amount
+    end
+
     def increment(amount=1, options={})
       validate_amount amount
 
@@ -49,6 +53,7 @@ module Riak
         return client.backend &blk
       rescue Riak::FailedRequest => e
         raise QuorumError.new e if e.message =~ /unsatisfied/
+        raise e
       end
     end
 
