@@ -3,10 +3,11 @@ require 'spec_helper'
 describe Riak::Counter do
   describe "initialization" do
     before :each do
-      @bucket = mock 'bucket'
+      @bucket = Riak::Bucket.allocate
       @key = 'key'
       @bucket.stub allow_mult: true
       @bucket.stub(client: mock('client'))
+      @bucket.stub('is_a?' => true)
     end
 
     it "should set the bucket and key" do
@@ -16,7 +17,7 @@ describe Riak::Counter do
     end
 
     it "should require allow_mult" do
-      @bad_bucket = mock 'bad bucket'
+      @bad_bucket = Riak::Bucket.allocate
       @bad_bucket.stub allow_mult: false
       @bad_bucket.stub(client: mock('client'))
 
@@ -32,7 +33,7 @@ describe Riak::Counter do
       @client = mock 'client'
       @client.stub(:backend).and_yield @backend
 
-      @bucket = mock 'bucket'
+      @bucket = Riak::Bucket.allocate
       @bucket.stub allow_mult: true
       @bucket.stub client: @client
 
@@ -84,7 +85,38 @@ describe Riak::Counter do
   end
 
   describe "failure modes" do
-    it "should not retry on timeout"
-    it "should not retry on quorum failure"
+    before :each do
+      @nodes = 10.times.map do |n|
+        {pb_port: "100#{n}7"}
+      end
+
+      @fake_pool = mock 'pool'
+      @backend = mock 'backend'
+        
+      @client = Riak::Client.new nodes: @nodes, protocol: 'pbc'
+      @client.instance_variable_set :@protobuffs_pool, @fake_pool
+
+      @fake_pool.stub(:take).and_yield(@backend)
+
+      @bucket = Riak::Bucket.allocate
+      @bucket.stub allow_mult: true
+      @bucket.stub client: @client
+
+      @key = 'key'
+
+      @expect_post = @backend.should_receive(:post_counter).with(@bucket, @key, 1, {})
+
+      @ctr = Riak::Counter.new @bucket, @key
+    end
+
+    it "should not retry on timeout" do
+      @expect_post.once.and_raise('timeout')
+      expect(proc { @ctr.increment }).to raise_error
+    end
+    
+    it "should not retry on quorum failure" do
+      @expect_post.once.and_raise('quorum not satisfied')
+      expect(proc { @ctr.increment }).to raise_error
+    end
   end
 end
