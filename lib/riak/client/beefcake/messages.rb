@@ -125,6 +125,7 @@ module Riak
       class RpbListBucketsResp
         include Beefcake::Message
         repeated :buckets, :bytes, 1
+        optional :done, :bool, 2
       end
 
       class RpbListKeysReq
