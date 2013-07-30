@@ -236,13 +236,12 @@ module Riak
           header = socket.read 5
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
           len, code = header.unpack 'NC'
-          if code != MESSAGE_CODES[:ListBucketsResp]
+          if MESSAGE_CODES[code] != :ListBucketsResp
             raise SocketError, "Unexpected non-ListBucketsResp during streaming list buckets"
           end
 
           message = socket.read(len - 1)
           section = RpbListBucketsResp.decode message
-          pp section
           yield section.buckets
 
           return if section.done

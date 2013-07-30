@@ -15,9 +15,12 @@ module Riak
     private
 
     def wrapped_block
-      proc do |bucket_name|
-        bucket = @client.bucket bucket_name
-        @block.call[bucket]
+      proc do |bucket_names|
+        next if bucket_names.nil?
+        bucket_names.each do |bucket_name|
+          bucket = @client.bucket bucket_name
+          @block.call bucket
+        end
       end
     end
   end
