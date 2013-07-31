@@ -231,7 +231,6 @@ module Riak
       def streaming_list_buckets
         request = RpbListBucketsReq.new stream: true
         write_protobuff :ListBucketsReq, request
-        pp request
         loop do
           header = socket.read 5
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
