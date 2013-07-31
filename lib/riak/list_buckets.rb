@@ -8,6 +8,7 @@ module Riak
 
     def perform_request
       @client.backend do |be|
+pp be.inspect
         be.list_buckets &wrapped_block
       end
     end

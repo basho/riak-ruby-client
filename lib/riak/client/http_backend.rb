@@ -169,6 +169,17 @@ module Riak
       # Lists known buckets
       # @return [Array<String>] the list of buckets
       def list_buckets
+        if block_given?
+          parser = Riak::Util::Multipart::StreamParser.new do |response|
+            pp response
+            pp response[:body]
+            result = JSON.parse response[:body]
+            yield result
+          end
+          pp get(200, bucket_list_path(stream: true), &parser)
+          return
+        end
+
         response = get(200, bucket_list_path)
         JSON.parse(response[:body])['buckets']
       end
