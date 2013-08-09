@@ -233,13 +233,14 @@ module Riak
 
           message = RpbIndexResp.decode socket.read msglen - 1
 
+          if !block_given?
+            return IndexCollection.new_from_protobuf(message)
+          end
+          
           content = message.keys || message.results || []
-
-          yield content if block_given?
-
-          return content if !block_given?
-
-          return if block_given? && message.done
+          yield content
+          
+          return if message.done
         end
       end
 
