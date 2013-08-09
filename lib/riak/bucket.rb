@@ -165,8 +165,9 @@ module Riak
     #   Range of values to query
     # @return [Array<String>] a list of keys that match the index
     #   query
-    def get_index(index, query)
-      client.get_index(self, index, query)
+    def get_index(index, query, options={})
+      pp options
+      client.get_index(self, index, query, options)
     end
 
     # @return [true, false] whether the bucket allows divergent siblings
