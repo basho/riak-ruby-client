@@ -73,8 +73,8 @@ module Riak
     # symbolic)
     # @option options [Fixnum] :w the "w" parameter (Write quorum)
     # @option options [Fixnum] :dw the "dw" parameter (Durable-write quorum)
-    def decrement(amount=1)
-      increment(-amount)
+    def decrement(amount=1, options={})
+      increment(-amount, options)
     end
 
     private
