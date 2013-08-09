@@ -1,3 +1,5 @@
+require 'riak/failed_request'
+
 module Riak
 
   # A distributed counter that supports incrementing by positive and negative
