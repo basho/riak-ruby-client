@@ -166,6 +166,7 @@ module Riak
       env[:eleveldb][:data_root] ||= (data + 'leveldb').expand_path.to_s
       env[:merge_index][:data_root] ||= (data + 'merge_index').expand_path.to_s
       env[:riak_core][:slide_private_dir] ||= (data + 'slide-data').expand_path.to_s
+      env[:riak_core][:ring_state_dir] ||= (data + 'ring').expand_path.to_s
 
       NODE_DIRECTORIES.each do |dir|
         env[:riak_core][:"platform_#{dir}_dir"] ||= send(dir).to_s
