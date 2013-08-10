@@ -3,16 +3,20 @@ require 'yaml'
 
 module Riak
   class Node
+
+    # do not copy these directories to the test node
+    NODE_DIR_SKIP_LIST = [:data]
+
     # The directories (and accessor methods) that will be created
     # under the generated node.
-    NODE_DIRECTORIES = [:bin, :etc, :log, :data, :ring, :pipe]
+    NODE_DIRECTORIES = [:bin, :etc, :log, :data]
 
+    # Makes accessor methods for all the node directories that
+    # return Pathname objects.
     NODE_DIRECTORIES.each do |dir|
-      # Makes accessor methods for all the node directories that
-      # return Pathname objects.
       class_eval %Q{
         def #{dir}
-          root + '#{dir}'
+          root + '#{dir}/'
         end
       }
     end
@@ -28,6 +32,10 @@ module Riak
     # @return [Hash] the configuration that was passed to the Node
     #   when initialized
     attr_reader :configuration
+
+    # @return String the path to the unix pipe erlang will use to lend
+    #   itself for control via the Console class.
+    attr_accessor :pipe
 
     # @return [Array<Pathname>] where user Erlang code will be loaded from
     def erlang_sources
@@ -93,8 +101,7 @@ module Riak
     end
 
     # The source of the Riak installation from where the {Node} will
-    # be generated. This should point to the directory that contains
-    # the 'riak[search]' and 'riak[search]-admin' scripts.
+    # be generated.
     # @return [Pathname] the source Riak installation
     attr_reader :source
 
@@ -103,16 +110,19 @@ module Riak
     # @return [Pathname] the root directory of the node
     attr_reader :root
 
+    def env_script
+      @env_script ||= root + 'lib' + 'env.sh'
+    end
+
     # The script for starting, stopping and pinging the Node.
     # @return [Pathname] the path to the control script
     def control_script
       @control_script ||= root + 'bin' + control_script_name
     end
 
-    # The name of the 'riak' or 'riaksearch' control script.
-    # @return [String] 'riak' or 'riaksearch'
+    # The name of the 'riak' control script.
     def control_script_name
-      @control_script_name ||= (source + 'riaksearch').exist? ? 'riaksearch' : 'riak'
+      @control_script_name ||= 'riak'
     end
 
     # The script for controlling non-lifecycle features of Riak like
@@ -155,10 +165,9 @@ module Riak
       env[:bitcask][:data_root] ||= (data + 'bitcask').expand_path.to_s
       env[:eleveldb][:data_root] ||= (data + 'leveldb').expand_path.to_s
       env[:merge_index][:data_root] ||= (data + 'merge_index').expand_path.to_s
-      env[:riak_core][:ring_state_dir] ||= ring.expand_path.to_s
       env[:riak_core][:slide_private_dir] ||= (data + 'slide-data').expand_path.to_s
+
       NODE_DIRECTORIES.each do |dir|
-        next if [:ring, :pipe].include?(dir)
         env[:riak_core][:"platform_#{dir}_dir"] ||= send(dir).to_s
       end
     end
@@ -169,11 +178,11 @@ module Riak
         env[:lager][:handlers] = {
           :lager_console_backend => :info,
           :lager_file_backend => [
-                                  Tuple[(log+"error.log").expand_path.to_s, :error],
-                                  Tuple[(log+"console.log").expand_path.to_s, :info]
+                                  Tuple[(log + "error.log").expand_path.to_s, :error],
+                                  Tuple[(log + "console.log").expand_path.to_s, :info]
                                  ]
         }
-        env[:lager][:crash_log] = (log+"crash.log").to_s
+        env[:lager][:crash_log] = (log + "crash.log").to_s
       else
         # TODO: Need a better way to detect this, the defaults point
         # to 1.0-style configs. Maybe there should be some kind of
@@ -184,9 +193,9 @@ module Riak
           :fmt_max_bytes => 65536
         }
         env[:sasl] = {
-          :sasl_error_logger => Tuple[:file, (log+"sasl-error.log").expand_path.to_s],
+          :sasl_error_logger => Tuple[:file, (log + "sasl-error.log").expand_path.to_s],
           :errlog_type => :error,
-          :error_logger_mf_dir => (log+"sasl").expand_path.to_s,
+          :error_logger_mf_dir => (log + "sasl").expand_path.to_s,
           :error_logger_mf_maxbytes => 10485760,
           :error_logger_mf_maxfiles => 5
         }
