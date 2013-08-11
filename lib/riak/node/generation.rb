@@ -56,9 +56,6 @@ module Riak
       root.mkpath
       raise 'Source is not a directory!' unless base_dir.directory?
 
-      pipe_dir = Pathname.new("#{root.to_s}/pipe")
-      pipe_dir.mkpath
-
       base_dir.each_child do |dir|
         basename = dir.basename.to_s
         next if NODE_DIR_SKIP_LIST.include? basename.to_sym
@@ -84,16 +81,14 @@ module Riak
 
     def write_scripts
       if version >= '1.4.0'
-        [env_script].each {|s| write_script(s, s) }
+        [env_script].each {|s| write_script(s) }
       else
-        [control_script, admin_script].each {|s| write_script(s, s) }
+        [control_script, admin_script].each {|s| write_script(s) }
       end
     end
 
-    def write_script(name, target)
-      @pipe = root + 'pipe/' # PIPE_DIR must have a trailing slash
-
-      source_script = source.parent + name.relative_path_from(name.parent.parent)
+    def write_script(target)
+      source_script = source.parent + target.relative_path_from(target.parent.parent)
       target.open('wb') do |f|
         source_script.readlines.each do |line|
           line.sub!(/(RUNNER_SCRIPT_DIR=)(.*)/, '\1' + bin.to_s)

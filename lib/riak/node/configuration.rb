@@ -5,11 +5,11 @@ module Riak
   class Node
 
     # do not copy these directories to the test node
-    NODE_DIR_SKIP_LIST = [:data]
+    NODE_DIR_SKIP_LIST = [:data, :pipe]
 
     # The directories (and accessor methods) that will be created
     # under the generated node.
-    NODE_DIRECTORIES = [:bin, :etc, :log, :data]
+    NODE_DIRECTORIES = [:bin, :etc, :log, :data, :pipe]
 
     # Makes accessor methods for all the node directories that
     # return Pathname objects.
@@ -32,10 +32,6 @@ module Riak
     # @return [Hash] the configuration that was passed to the Node
     #   when initialized
     attr_reader :configuration
-
-    # @return String the path to the unix pipe erlang will use to lend
-    #   itself for control via the Console class.
-    attr_accessor :pipe
 
     # @return [Array<Pathname>] where user Erlang code will be loaded from
     def erlang_sources
