@@ -166,7 +166,6 @@ module Riak
     # @return [Array<String>] a list of keys that match the index
     #   query
     def get_index(index, query, options={})
-      pp options
       client.get_index(self, index, query, options)
     end
 
