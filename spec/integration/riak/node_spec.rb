@@ -12,28 +12,6 @@ describe Riak::Node, :test_server => false, :slow => true, :nodegen => true do
   context "finding the base_dir and version" do
     its(:base_dir) { should be_directory }
     its(:version) { should match /^\d+.\d+.\d+$/ }
-
-    context "when the base directory is missing" do
-      before { Pathname.any_instance.stub(:each_line).and_return([]) }
-      its(:base_dir) { should be_nil }
-      its(:version)  { should be_nil }
-    end
-  end
-
-  context "when the source control script is a symlink" do
-    let(:symdir) { Pathname.new(".symlinkriak") }
-    let(:sourcedir) { Pathname.new(test_server_config['source']) }
-    let(:control_script){ (sourcedir + 'riaksearch').exist? ? 'riaksearch' : 'riak' }
-
-    subject { described_class.new(:root => ".ripplenode", :source => symdir) }
-
-    before do
-      symdir.mkpath
-      (symdir + control_script).make_symlink(sourcedir + control_script)
-    end
-    after { symdir.rmtree }
-
-    its(:source){ should == sourcedir }
   end
 
   context "creation" do
@@ -64,8 +42,8 @@ describe Riak::Node, :test_server => false, :slow => true, :nodegen => true do
         contents.should include('{handoff_port, 8082}')
       end
 
-      it "should set the ring directory to point to the node directory" do
-        contents.should include("{ring_state_dir, \"#{subject.root + 'ring'}\"}")
+      it "should set the ring directory to point to the node data directory" do
+        contents.should include("{ring_state_dir, \"#{subject.root + 'data/ring'}\"}")
       end
     end
 
@@ -86,8 +64,8 @@ describe Riak::Node, :test_server => false, :slow => true, :nodegen => true do
       end
     end
 
-    describe "generating the start script" do
-      let(:file) { subject.control_script }
+    describe "generating the environment script" do
+      let(:file) { (subject.version >= '1.4.0') ? subject.env_script : subject.control_script }
       let(:contents) { file.read }
 
       it "should create the script in the node directory" do
@@ -148,8 +126,8 @@ describe Riak::Node, :test_server => false, :slow => true, :nodegen => true do
       (subject.root + 'data').children.map {|dir| dir.children }.flatten.should be_empty
     end
 
-    it "should not remove the ring" do
-      (subject.root + 'ring').children.should_not be_empty
+    it "should remove the ring" do
+      (subject.root + 'data/ring').children.should be_empty
     end
   end
 
