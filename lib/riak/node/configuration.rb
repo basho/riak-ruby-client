@@ -59,9 +59,14 @@ module Riak
       env[:riak_core][:http][0][1]
     end
 
+    def pb_config_section
+      return :riak_kv if version < '1.4.0'
+      return :riak_api
+    end
+
     # @return [Fixnum] the port to which the Protocol Buffers API is connected.
     def pb_port
-      env[:riak_kv][:pb_port]
+      env[pb_config_section][:pb_port]
     end
 
     # @return [String] the interface to which the HTTP API is connected
@@ -71,7 +76,7 @@ module Riak
 
     # @return [String] the interface to which the Protocol Buffers API is connected
     def pb_ip
-      env[:riak_kv][:pb_ip]
+      env[pb_config_section][:pb_ip]
     end
 
     # @return [Symbol] the storage backend for Riak Search.
@@ -233,9 +238,9 @@ module Riak
         min_port += 1
       end
       env[:riak_core][:http] = env[:riak_core][:http].map {|pair| Tuple[*pair] }
-      env[:riak_kv][:pb_ip] = interface unless env[:riak_kv][:pb_ip]
-      unless env[:riak_kv][:pb_port]
-        env[:riak_kv][:pb_port] = min_port
+      env[pb_config_section][:pb_ip] = interface unless env[pb_config_section][:pb_ip]
+      unless env[pb_config_section][:pb_port]
+        env[pb_config_section][:pb_port] = min_port
         min_port += 1
       end
       unless env[:riak_core][:handoff_port]
