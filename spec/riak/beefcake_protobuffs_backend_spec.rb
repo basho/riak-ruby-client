@@ -37,6 +37,66 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     backend.list_keys(exp_bucket).should == exp_keys
   end
 
+  context "secondary index" do
+    before :each do
+      @socket = mock(:socket).as_null_object
+      TCPSocket.stub(:new => @socket)
+    end
+    context 'when streaming' do
+      it "should stream when a block is given" do 
+        backend.should_receive(:write_protobuff) do |msg, req|
+          msg.should == :IndexReq
+          req[:stream].should == true
+        end
+        backend.should_receive(:decode_index_response)
+
+        blk = proc{:asdf}
+        
+        backend.get_index('bucket', 'words', 'asdf'..'hjkl', &blk)
+      end
+      it "should send batches of results to the block" do
+        backend.should_receive(:write_protobuff)
+        
+        response_sets = [%w{asdf asdg asdh}, %w{gggg gggh gggi}]
+        response_messages = response_sets.map do |s| 
+          Riak::Client::BeefcakeProtobuffsBackend::RpbIndexResp.new keys: s
+        end
+        response_messages.last.done = true
+
+        response_chunks = response_messages.map do |m|
+          encoded = m.encode
+          header = [encoded.length + 1, 26].pack 'NC'
+          [header, encoded]
+        end.flatten
+
+        @socket.should_receive(:read).and_return(*response_chunks)
+
+        block_body = mock 'block'
+        block_body.should_receive(:check).with(response_sets.first).once
+        block_body.should_receive(:check).with(response_sets.last).once
+        
+        blk = proc {|m| block_body.check m }
+
+        backend.get_index 'bucket', 'words', 'asdf'..'hjkl', &blk
+      end
+    end
+    it "should return a full batch of results when not streaming" do
+      backend.should_receive(:write_protobuff) do |msg, req|
+        msg.should == :IndexReq
+        req[:stream].should_not be
+      end
+      response_message = Riak::Client::BeefcakeProtobuffsBackend::
+        RpbIndexResp.new(
+                         keys: %w{asdf asdg asdh}
+                         ).encode
+      header = [response_message.length + 1, 26].pack 'NC'
+      @socket.should_receive(:read).and_return(header, response_message)
+      
+      results = backend.get_index 'bucket', 'words', 'asdf'..'hjkl'
+      results.should == %w{asdf asdg asdh}
+    end
+  end
+
   context "#mapred" do
     let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}").map("function(){}") }
 

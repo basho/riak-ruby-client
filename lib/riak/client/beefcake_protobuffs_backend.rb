@@ -134,7 +134,7 @@ module Riak
         block_given? || results.report
       end
 
-      def get_index(bucket, index, query)
+      def get_index(bucket, index, query, query_options={}, &block)
         return super unless pb_indexes?
         bucket = bucket.name if Bucket === bucket
         if Range === query
@@ -149,9 +149,14 @@ module Riak
             :key => query.to_s
           }
         end
-        req = RpbIndexReq.new(options.merge(:bucket => bucket, :index => index))
+
+        options.merge!(:bucket => bucket, :index => index)
+        options.merge!(query_options)
+        options[:stream] = block_given?
+
+        req = RpbIndexReq.new(options)
         write_protobuff(:IndexReq, req)
-        decode_response
+        decode_index_response(&block)
       end
 
       def search(index, query, options={})
@@ -215,7 +220,7 @@ module Riak
             RpbMapRedResp.decode(message)
           when :IndexResp
             res = RpbIndexResp.decode(message)
-            res.keys
+            IndexCollection.new_from_protobuf res
           when :SearchQueryResp
             res = RpbSearchQueryResp.decode(message)
             { 'docs' => res.docs.map {|d| decode_doc(d) },
@@ -244,6 +249,27 @@ module Riak
           yield section.buckets
 
           return if section.done
+        end
+      end
+
+      def decode_index_response
+        loop do
+          header = socket.read(5)
+          raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+          msglen, msgcode = header.unpack("NC")
+          code = MESSAGE_CODES[msgcode]
+          raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
+
+          message = RpbIndexResp.decode socket.read msglen - 1
+
+          if !block_given?
+            return IndexCollection.new_from_protobuf(message)
+          end
+          
+          content = message.keys || message.results || []
+          yield content
+          
+          return if message.done
         end
       end
 

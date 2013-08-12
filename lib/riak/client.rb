@@ -15,6 +15,7 @@ require 'riak/client/protobuffs_backend'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
 require 'riak/multiget'
+require 'riak/secondary_index'
 require 'riak/stamp'
 require 'riak/list_buckets'
 
@@ -296,9 +297,9 @@ module Riak
     end
 
     # Queries a secondary index on a bucket. See Bucket#get_index
-    def get_index(bucket, index, query)
+    def get_index(bucket, index, query, options={})
       backend do |b|
-        b.get_index bucket, index, query
+        b.get_index bucket, index, query, options
       end
     end
 
