@@ -31,7 +31,6 @@ module Riak
         def bucket_list_path(options={})
           if options[:stream] && new_scheme?
             options.delete :stream
-            pp path(riak_kv_wm_buckets, options.merge(buckets: 'stream'))
             path(riak_kv_wm_buckets, options.merge(buckets: 'stream'))
           elsif new_scheme?
             path(riak_kv_wm_buckets, options.merge(:buckets => true))

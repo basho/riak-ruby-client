@@ -171,7 +171,7 @@ module Riak
       # @return [Array<String>] the list of buckets
       def list_buckets(&block)
         if block_given?
-          pp get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
+          get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
           return
         end
 
