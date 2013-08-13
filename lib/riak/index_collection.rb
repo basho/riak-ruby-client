@@ -19,10 +19,12 @@ module Riak
       fresh = nil
       if parsed['keys']
         fresh = new parsed['keys'] 
-      else
+      elsif parsed['results']
         fresh_terms = load_json_terms(parsed)
         fresh = new fresh_terms.values.flatten
         fresh.with_terms = fresh_terms
+      else
+        fresh = new []
       end
       fresh.continuation = parsed['continuation']
 
@@ -33,10 +35,12 @@ module Riak
       fresh = nil
       if message.keys
         fresh = new message.keys
-      else
+      elsif message.results
         fresh_terms = load_pb_terms(message)
         fresh = new fresh_terms.values.flatten
         fresh.with_terms = fresh_terms
+      else
+        fresh = new
       end
       fresh.continuation = message.continuation
 
