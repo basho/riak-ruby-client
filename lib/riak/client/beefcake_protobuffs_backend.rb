@@ -111,10 +111,15 @@ module Riak
       # override the simple list_buckets
       def list_buckets(options={}, &blk)
         if block_given? 
-          return streaming_list_buckets &blk
+          return streaming_list_buckets options, &blk
         end
-        header = [1, MESSAGE_CODES.index(:ListBucketsReq)].pack 'NC'
-        socket.write header
+        
+        raise t("streaming_bucket_list_without_block") if options[:stream]
+        
+        request = RpbListBucketsReq.new options
+
+        write_protobuff :ListBucketsReq, request
+
         decode_response
       end
 
@@ -233,8 +238,8 @@ module Riak
         raise
       end
 
-      def streaming_list_buckets
-        request = RpbListBucketsReq.new stream: true
+      def streaming_list_buckets(options = {})
+        request = RpbListBucketsReq.new(options.merge(stream: true))
         write_protobuff :ListBucketsReq, request
         loop do
           header = socket.read 5
