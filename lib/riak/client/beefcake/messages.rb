@@ -183,7 +183,7 @@ module Riak
       class RpbIndexResp
         include Beefcake::Message
         repeated :keys,         :bytes,  1
-        repeated :results,       RpbPair, 2
+        repeated :results,      RpbPair, 2
         optional :continuation, :bytes,  3
         optional :done,         :bool,   4
       end
