@@ -50,6 +50,11 @@ module Riak
                      @options.merge(:continuation => keys.continuation))
     end
 
+    # Determine whether a SecondaryIndex fetch has a next page available
+    def has_next_page?
+      !!keys.continuation
+    end
+
     private
     def validate_options
       raise t('index.pagination_not_available') if paginated? && !index_pagination?
