@@ -54,6 +54,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         
         backend.get_index('bucket', 'words', 'asdf'..'hjkl', &blk)
       end
+
       it "should send batches of results to the block" do
         backend.should_receive(:write_protobuff)
         
@@ -80,11 +81,13 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         backend.get_index 'bucket', 'words', 'asdf'..'hjkl', &blk
       end
     end
+
     it "should return a full batch of results when not streaming" do
       backend.should_receive(:write_protobuff) do |msg, req|
         msg.should == :IndexReq
         req[:stream].should_not be
       end
+
       response_message = Riak::Client::BeefcakeProtobuffsBackend::
         RpbIndexResp.new(
                          keys: %w{asdf asdg asdh}
@@ -94,6 +97,27 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       
       results = backend.get_index 'bucket', 'words', 'asdf'..'hjkl'
       results.should == %w{asdf asdg asdh}
+    end
+
+    it "should not crash out when no keys or terms are released" do
+      backend.should_receive(:write_protobuff) do |msg, req|
+        msg.should == :IndexReq
+        req[:stream].should_not be
+      end
+
+      response_message = Riak::Client::BeefcakeProtobuffsBackend::
+        RpbIndexResp.new().encode
+      
+      header = [response_message.length + 1, 26].pack 'NC'
+      @socket.should_receive(:read).and_return(header, response_message)
+
+      results = nil
+      fetch = proc do
+        results = backend.get_index 'bucket', 'words', 'asdf'
+      end
+
+      fetch.should_not raise_error
+      results.should == []
     end
   end
 
