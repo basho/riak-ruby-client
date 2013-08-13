@@ -130,13 +130,19 @@ module Riak
       def normalize_quorums(options={})
         options.dup.tap do |o|
           [:r, :pr, :w, :pw, :dw, :rw].each do |k|
-            o[k] = normalize_quorum_value(o[k]) if o[k]
+            next o[k] = normalize_quorum_value(o[k]) if o[k]
+            s = k.to_s
+            o[k] = o[s] = denormalize_quorum_value(o[s]) if o[s]
           end
         end
       end
 
       def normalize_quorum_value(q)
         QUORUMS[q.to_s] || q.to_i
+      end
+
+      def denormalize_quorum_value(q)
+        QUORUMS.invert[q] || q.to_i
       end
     end
   end
