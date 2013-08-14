@@ -1,13 +1,19 @@
 require 'spec_helper'
 require 'riak'
 
-describe Riak::Counter, test_server: true, slow: true do
+describe Riak::Counter, test_server: true, integration: true do
   before :all do
-    @client = Riak::Client.new(http_port: test_server.http_port,
-                               pb_port: test_server.pb_port
-                               )
+    opts = {
+      http_port: test_server.http_port,
+      pb_port: test_server.pb_port,
+      protocol: 'pbc'
+    }
+    test_server.start
+    @client = Riak::Client.new opts
+    @bucket = @client['counter_spec']
+    @bucket.allow_mult = true
 
-    @counter = Riak::Counter.new @client['counter_spec'], 'counter_spec'
+    @counter = Riak::Counter.new @bucket, 'counter_spec'
   end
 
 
