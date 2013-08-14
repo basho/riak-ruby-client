@@ -174,8 +174,19 @@ describe Riak::Bucket do
 
   describe "querying an index" do
     it "should list the matching keys" do
-      @backend.should_receive(:get_index).with(@bucket, "test_bin", "testing").and_return(["bar"])
-      @bucket.get_index("test_bin", "testing").should == ["bar"]
+      @backend.
+        should_receive(:get_index).
+        with(@bucket, "test_bin", "testing", {return_terms: true}).
+        and_return(Riak::IndexCollection.new_from_json({
+                     'results' => [
+                       {'testing' => 'asdf'},
+                       {'testing' => 'hjkl'}]
+                   }.to_json))
+      result = @bucket.get_index("test_bin", "testing", return_terms: true)
+
+      result.should be_a Riak::IndexCollection
+      result.to_a.should == %w{asdf hjkl}
+      result.with_terms.should == {'testing' => %w{asdf hjkl}}
     end
   end
 

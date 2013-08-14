@@ -14,7 +14,8 @@ module Riak
         1 => Gem::Version.new("1.0.0"),
         1.1 => Gem::Version.new("1.1.0"),
         1.2 => Gem::Version.new("1.2.0"),
-        1.3 => Gem::Version.new("1.3.0")
+        1.3 => Gem::Version.new("1.3.0"),
+        1.4 => Gem::Version.new("1.4.0")
       }.freeze
 
       # @return [String] the version of the Riak node
@@ -76,6 +77,24 @@ module Riak
       #   (reset to defaults) over HTTP
       def http_props_clearable?
         at_least? VERSION[1.3]
+      end
+
+      # @return [true,false] whether secondary indexes support
+      #   pagination
+      def index_pagination?
+        at_least? VERSION[1.4]
+      end
+
+      # @return [true,false] whether secondary indexes support
+      #   return_terms
+      def index_return_terms?
+        at_least? VERSION[1.4]
+      end
+
+      # @return [true,false] whether secondary indexes support
+      #   streaming
+      def index_streaming?
+        at_least? VERSION[1.4]
       end
 
       protected

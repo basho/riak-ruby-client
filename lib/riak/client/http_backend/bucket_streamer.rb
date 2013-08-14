@@ -4,9 +4,9 @@ module Riak
    class Client
      class HTTPBackend
        # @private
-       class KeyStreamer < ChunkedJsonStreamer
+       class BucketStreamer < ChunkedJsonStreamer
          def get_values(obj)
-           obj['keys']
+           obj['buckets']
          end
        end
      end

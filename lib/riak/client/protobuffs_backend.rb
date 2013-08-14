@@ -32,7 +32,6 @@ module Riak
       simple :ping,          :PingReq
       simple :get_client_id, :GetClientIdReq
       simple :server_info,   :GetServerInfoReq
-      simple :list_buckets,  :ListBucketsReq
 
       # Performs a secondary-index query via emulation through MapReduce.
       # @param [String, Bucket] bucket the bucket to query

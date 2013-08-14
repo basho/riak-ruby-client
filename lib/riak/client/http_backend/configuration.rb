@@ -29,7 +29,10 @@ module Riak
 
         # @return [URI] a URL path for the "buckets list" resource
         def bucket_list_path(options={})
-          if new_scheme?
+          if options[:stream] && new_scheme?
+            options.delete :stream
+            path(riak_kv_wm_buckets, options.merge(buckets: 'stream'))
+          elsif new_scheme?
             path(riak_kv_wm_buckets, options.merge(:buckets => true))
           else
             path(riak_kv_wm_raw, options.merge(:buckets => true))

@@ -10,6 +10,7 @@ require 'riak/client/http_backend/transport_methods'
 require 'riak/client/http_backend/object_methods'
 require 'riak/client/http_backend/configuration'
 require 'riak/client/http_backend/key_streamer'
+require 'riak/client/http_backend/bucket_streamer'
 require 'riak/client/feature_detection'
 
 module Riak
@@ -200,7 +201,12 @@ module Riak
 
       # Lists known buckets
       # @return [Array<String>] the list of buckets
-      def list_buckets
+      def list_buckets(&block)
+        if block_given?
+          get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
+          return
+        end
+
         response = get(200, bucket_list_path)
         JSON.parse(response[:body])['buckets']
       end
@@ -266,19 +272,28 @@ module Riak
       # @param [String, Integer, Range] query the equality query or
       #   range query to perform
       # @return [Array<String>] a list of keys matching the query
-      def get_index(bucket, index, query)
+      def get_index(bucket, index, query, options={})
         bucket = bucket.name if Bucket === bucket
         path = case query
                when Range
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect) unless String === query.begin || Integer === query.end
-                 index_range_path(bucket, index, query.begin, query.end)
+                 index_range_path(bucket, index, query.begin, query.end, options)
                when String, Integer
-                 index_eq_path(bucket, index, query)
+                 index_eq_path(bucket, index, query, options)
                else
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect)
                end
-        response = get(200, path)
-        JSON.parse(response[:body])['keys']
+        if block_given?
+          parser = Riak::Util::Multipart::StreamParser.new do |response|
+            result = JSON.parse response[:body]
+
+            yield result['keys'] || result['results'] || []
+          end
+          get(200, path, &parser)
+        else
+          response = get(200, path)
+          Riak::IndexCollection.new_from_json response[:body]
+        end
       end
 
       # (Riak Search) Performs a search query
