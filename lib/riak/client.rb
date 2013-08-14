@@ -342,14 +342,14 @@ module Riak
     end
 
     # Retrieves a list of keys in the given bucket. See Bucket#keys
-    def list_keys(bucket, &block)
+    def list_keys(bucket, options={}, &block)
       if block_given?
         backend do |b|
-          b.list_keys bucket, &block
+          b.list_keys bucket, options, &block
         end
       else
         backend do |b|
-          b.list_keys bucket
+          b.list_keys bucket, options
         end
       end
     end
