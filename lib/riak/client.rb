@@ -170,13 +170,13 @@ module Riak
     # @note This is an expensive operation and should be used only
     #       in development.
     # @return [Array<Bucket>] a list of buckets
-    def buckets(&block)
+    def buckets(options={}, &block)
       warn(t('list_buckets', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
       
-      return ListBuckets.new self, block if block_given?
+      return ListBuckets.new self, options, block if block_given?
       
       backend do |b|
-        b.list_buckets.map {|name| Bucket.new(self, name) }
+        b.list_buckets(options).map {|name| Bucket.new(self, name) }
       end
     end
     alias :list_buckets :buckets
