@@ -216,6 +216,9 @@ module Riak
             []
           when :GetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+          when :CounterGetResp,
+               :CounterUpdateResp
+            0
           else
             false
           end
@@ -259,6 +262,7 @@ module Riak
             res = RpbCSBucketResp.decode message
           when :CounterUpdateResp
             res = RpbCounterUpdateResp.decode message
+            res.value || nil
           when :CounterGetResp
             res = RpbCounterGetResp.decode message
             res.value || 0

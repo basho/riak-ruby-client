@@ -142,6 +142,7 @@ module Riak
         when 200
           return response[:body].to_i
         when 204
+          return 0 if options[:return_value]
           return nil
         end
       end
