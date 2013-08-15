@@ -129,9 +129,9 @@ module Riak
         decode_response
       end
 
-      def list_keys(bucket, &block)
+      def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
-        req = RpbListKeysReq.new(:bucket => maybe_encode(bucket))
+        req = RpbListKeysReq.new(options.merge(:bucket => maybe_encode(bucket)))
         write_protobuff(:ListKeysReq, req)
         keys = []
         while msg = decode_response
