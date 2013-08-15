@@ -234,19 +234,28 @@ module Riak
       # @param [String, Integer, Range] query the equality query or
       #   range query to perform
       # @return [Array<String>] a list of keys matching the query
-      def get_index(bucket, index, query)
+      def get_index(bucket, index, query, options={})
         bucket = bucket.name if Bucket === bucket
         path = case query
                when Range
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect) unless String === query.begin || Integer === query.end
-                 index_range_path(bucket, index, query.begin, query.end)
+                 index_range_path(bucket, index, query.begin, query.end, options)
                when String, Integer
-                 index_eq_path(bucket, index, query)
+                 index_eq_path(bucket, index, query, options)
                else
                  raise ArgumentError, t('invalid_index_query', :value => query.inspect)
                end
-        response = get(200, path)
-        JSON.parse(response[:body])['keys']
+        if block_given?
+          parser = Riak::Util::Multipart::StreamParser.new do |response|
+            result = JSON.parse response[:body]
+
+            yield result['keys'] || result['results'] || []
+          end
+          get(200, path, &parser)
+        else
+          response = get(200, path)
+          Riak::IndexCollection.new_from_json response[:body]
+        end
       end
 
       # (Riak Search) Performs a search query
