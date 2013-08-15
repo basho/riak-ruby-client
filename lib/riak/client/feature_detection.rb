@@ -97,6 +97,12 @@ module Riak
         at_least? VERSION[1.4]
       end
 
+      # @return [true,false] whether timeouts are accepted for
+      #   object CRUD, key listing, and bucket listing
+      def key_object_bucket_timeouts?
+        at_least? VERSION[1.4]
+      end
+
       protected
       # @return [true,false] whether the server version is the same or
       #  newer than the requested version
