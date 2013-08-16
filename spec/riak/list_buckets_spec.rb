@@ -7,14 +7,14 @@ describe Riak::ListBuckets do
     @fake_pool = mock 'connection pool'
     @fake_pool.stub(:take).and_yield(@backend)
 
-    @expect_list = @backend.should_receive(:list_buckets) 
-    
+    @expect_list = @backend.should_receive(:list_buckets)
+
     @client.instance_variable_set :@protobuffs_pool, @fake_pool
   end
-  
+
   describe "non-streaming" do
     it 'should call the backend without a block' do
-      @expect_list.with().and_return(%w{a b c d})
+      @expect_list.with({}).and_return(%w{a b c d})
 
       @client.list_buckets
     end

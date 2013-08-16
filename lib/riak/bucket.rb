@@ -37,12 +37,12 @@ module Riak
     # @return [Array<String>] Keys in this bucket
     # @note This operation has serious performance implications and
     #    should not be used in production applications.
-    def keys(&block)
+    def keys(options={}, &block)
       warn(t('list_keys', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
       if block_given?
-        @client.list_keys(self, &block)
+        @client.list_keys(self, options, &block)
       else
-        @client.list_keys(self)
+        @client.list_keys(self, options)
       end
     end
 

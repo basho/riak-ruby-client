@@ -28,12 +28,12 @@ describe Riak::Bucket do
 
   describe "accessing keys" do
     it "should list the keys" do
-      @backend.should_receive(:list_keys).with(@bucket).and_return(["bar"])
+      @backend.should_receive(:list_keys).with(@bucket, {}).and_return(["bar"])
       @bucket.keys.should == ["bar"]
     end
 
     it "should allow streaming keys through block" do
-      @backend.should_receive(:list_keys).with(@bucket).and_yield([]).and_yield(["bar"]).and_yield(["baz"])
+      @backend.should_receive(:list_keys).with(@bucket, {}).and_yield([]).and_yield(["bar"]).and_yield(["baz"])
       all_keys = []
       @bucket.keys do |list|
         all_keys.concat(list)
@@ -42,7 +42,7 @@ describe Riak::Bucket do
     end
 
     it "should not cache the list of keys" do
-      @backend.should_receive(:list_keys).with(@bucket).twice.and_return(["bar"])
+      @backend.should_receive(:list_keys).with(@bucket, {}).twice.and_return(["bar"])
       2.times { @bucket.keys.should == ['bar'] }
     end
 
@@ -52,6 +52,14 @@ describe Riak::Bucket do
       @bucket.should_receive(:warn)
       @bucket.keys
       Riak.disable_list_keys_warnings = true
+    end
+
+    it "should allow a specified timeout when listing keys" do
+      @backend.should_receive(:list_keys).with(@bucket, timeout: 1234).and_return(%w{bar})
+
+      keys = @bucket.keys timeout: 1234
+
+      keys.should == %w{bar}
     end
   end
 

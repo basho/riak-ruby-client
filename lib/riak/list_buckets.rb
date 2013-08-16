@@ -1,14 +1,15 @@
 module Riak
   class ListBuckets
-    def initialize(client, block)
+    def initialize(client, options, block)
       @client = client
       @block = block
+      @options = options
       perform_request
     end
 
     def perform_request
       @client.backend do |be|
-        be.list_buckets &wrapped_block
+        be.list_buckets @options, &wrapped_block
       end
     end
 

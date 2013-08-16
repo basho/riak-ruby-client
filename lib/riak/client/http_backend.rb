@@ -188,12 +188,14 @@ module Riak
       # @yield [Array<String>] a list of keys from the current
       #        streamed chunk
       # @return [Array<String>] the list of keys, if no block was given
-      def list_keys(bucket, &block)
+      def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
         if block_given?
-          get(200, key_list_path(bucket, :keys => 'stream'), {}, &KeyStreamer.new(block))
+          stream_opts = options.merge keys: 'stream'
+          get(200, key_list_path(bucket, stream_opts), {}, &KeyStreamer.new(block))
         else
-          response = get(200, key_list_path(bucket))
+          list_opts = options.merge keys: true
+          response = get(200, key_list_path(bucket, list_opts))
           obj = JSON.parse(response[:body])
           obj && obj['keys'].map {|k| unescape(k) }
         end
