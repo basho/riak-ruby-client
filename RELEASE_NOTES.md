@@ -1,5 +1,32 @@
 # Riak Ruby Client Release Notes
 
+## 1.4.0 Feature Release - 2013-08-16
+
+Release 1.4.0 adds support for Riak 1.4 and fixes a few bugs.
+
+Features for all Riak versions:
+
+* Multi-get parallelizes fetching multiple objects from one or more
+  buckets.
+  
+Features for Riak 1.4 and newer:
+
+* Bucket properties are settable and resettable over Protocol Buffers.
+* Distributed counters are implemented by the `Riak::Counter` class.
+* The full set of improvements to Secondary Indexes
+  are available, including pagination, streaming, and return_terms.
+  These features are available through the existing `Bucket#get_index`
+  interface as well as the new `Riak::SecondaryIndex` interface.
+* The new streaming bucket list is available in the Ruby client.
+* Setting timeout values for object CRUD, key listing, and bucket
+  listing is now possible.
+
+Bugfixes:
+
+* Tests pass and don't stall in Ruby 2.0.
+* Zero-length key and bucket names are forbidden in the client.
+* Test server works with Riak 1.4.
+
 ## 1.2.0 Feature Release - 2013-05-15
 
 Release 1.2.0 adds support for Riak 1.3 and fixes a number of bugs.
