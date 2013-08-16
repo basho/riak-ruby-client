@@ -136,6 +136,72 @@ client['users'].enable_index!
 client['users'].disable_index!
 ```
 
+## Secondary Index Examples
+
+Riak supports secondary indexes. Secondary indexing, or "2i," gives you the 
+ability to tag objects with multiple queryable values at write time, and then
+query them later.
+
+* [Using Secondary Indexes](http://docs.basho.com/riak/latest/dev/using/2i/)
+* [Secondary Index implementation notes](http://docs.basho.com/riak/latest/dev/advanced/2i/)
+
+### Tagging Objects
+
+Objects are tagged with a hash kept behind the `indexes` method. Secondary index
+storage logic is in `lib/riak/rcontent.rb`.
+
+```ruby
+object = bucket.get_or_new 'cobb.salad'
+
+# Indexes end with the "_bin" suffix to indicate they're binary or string 
+# indexes. They can have multiple values.
+object.indexes[:ingredients_bin] = %w{lettuce tomato bacon egg chives}
+
+# Indexes ending with the "_int" suffix are indexed as integers. They can
+# have multiple values too.
+object.indexes[:calories_int] = [220]
+
+# You must re-save the object to store indexes.
+object.store
+```
+
+### Finding Objects
+
+Secondary index queries return a list of keys exactly matching a scalar or 
+within a range.
+
+```ruby
+# The Bucket#get_index method allows querying by scalar...
+bucket.get_index 'calories_int', 220 # => ['cobb.salad']
+
+# or range.
+bucket.get_index 'calories_int', 100..300 # => ['cobb.salad']
+
+# Binary indexes also support both ranges and scalars.
+bucket.get_index 'ingredients_bin', 'tomata'..'tomatz' # => ['cobb.salad']
+
+# The collection from #get_index also provides a continuation for pagination:
+c = bucket.get_index 'ingredients_bin', 'lettuce', max_results: 5
+c.length # => 5
+c.continuation # => "g2gCbQAAA="
+
+# You can use that continuation to get the next page of results:
+c2 = bucket.get_index 'ingredients_bin', 'lettuce', max_results: 5, continuation: c.continuation
+
+# More complicated operations may benefit by using the `SecondaryIndex` object:
+q = Riak::SecondaryIndex.new bucket, 'ingredients_bin', 'lettuce', max_results: 5
+
+# SecondaryIndex objects give you access to the keys...
+q.keys # => ['cobb.salad', 'wedge.salad', 'buffalo_chicken.wrap', ...]
+
+# but can also fetch values for you in parallel.
+q.values # => [<RObject {recipes,cobb.salad} ...>, <RObject {recipes,wedge...
+
+# They also provide simpler pagination:
+q.has_next_page? # => true
+q2 = q.next_page
+```
+
 ## How to Contribute
 
 * Fork the project on [Github](http://github.com/basho/riak-ruby-client).  If you have already forked, use `git pull --rebase` to reapply your changes on top of the mainline. Example:
