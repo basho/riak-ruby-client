@@ -172,9 +172,9 @@ module Riak
     # @return [Array<Bucket>] a list of buckets
     def buckets(options={}, &block)
       warn(t('list_buckets', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-      
+
       return ListBuckets.new self, options, block if block_given?
-      
+
       backend do |b|
         b.list_buckets(options).map {|name| Bucket.new(self, name) }
       end
