@@ -271,6 +271,13 @@ describe Riak::Client do
       @client.should_receive(:warn)
       @client.buckets
     end
+
+    it "should support a timeout option" do
+      @backend.should_receive(:list_buckets).with(timeout: 1234).and_return(%w{test test2})
+
+      buckets = @client.buckets timeout: 1234
+      buckets.should have(2).items
+    end
   end
 
   describe "Luwak (large-files) support" do

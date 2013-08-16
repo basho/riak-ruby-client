@@ -113,6 +113,9 @@ module Riak
         unless quorum_controls?
           [:notfound_ok, :basic_quorum, :pr, :pw].each {|k| options.delete k }
         end
+        unless key_object_bucket_timeouts?
+          options.delete :timeout
+        end
         unless pb_head?
           [:head, :return_head].each {|k| options.delete k }
         end

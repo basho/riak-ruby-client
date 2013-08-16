@@ -152,6 +152,9 @@ module Riak
         optional :if_modified,   :bytes,  7
         optional :head,          :bool,   8
         optional :deletedvclock, :bool,   9
+        optional :timeout,       :uint32, 10
+        optional :sloppy_quorum, :bool,   11
+        optional :n_val,         :uint32, 12
       end
 
       class RpbGetResp
@@ -174,6 +177,10 @@ module Riak
         optional :if_not_modified, :bool,      9
         optional :if_none_match,   :bool,      10
         optional :return_head,     :bool,      11
+        optional :timeout,         :uint32,    12
+        optional :asis,            :bool,      13
+        optional :sloppy_quorum,   :bool,      14
+        optional :n_val,           :uint32,    15
       end
 
       class RpbPutResp
@@ -185,15 +192,18 @@ module Riak
 
       class RpbDelReq
         include Beefcake::Message
-        required :bucket, :bytes,  1
-        required :key,    :bytes,  2
-        optional :rw,     :uint32, 3
-        optional :vclock, :bytes,  4
-        optional :r,      :uint32, 5
-        optional :w,      :uint32, 6
-        optional :pr,     :uint32, 7
-        optional :pw,     :uint32, 8
-        optional :dw,     :uint32, 9
+        required :bucket,        :bytes,  1
+        required :key,           :bytes,  2
+        optional :rw,            :uint32, 3
+        optional :vclock,        :bytes,  4
+        optional :r,             :uint32, 5
+        optional :w,             :uint32, 6
+        optional :pr,            :uint32, 7
+        optional :pw,            :uint32, 8
+        optional :dw,            :uint32, 9
+        optional :timeout,       :uint32, 10
+        optional :sloppy_quorum, :bool,   11
+        optional :n_val,         :uint32, 12
       end
 
       class RpbListBucketsReq
@@ -211,6 +221,7 @@ module Riak
       class RpbListKeysReq
         include Beefcake::Message
         required :bucket, :bytes, 1
+        optional :timeout, :uint32, 2
       end
 
       class RpbListKeysResp
@@ -270,6 +281,7 @@ module Riak
         optional :stream,       :bool,          8
         optional :max_results,  :uint32,        9
         optional :continuation, :bytes,         10
+        optional :timeout,      :uint32,        11
       end
 
       class RpbIndexResp
@@ -322,6 +334,7 @@ module Riak
         optional :end_incl,     :bool,   5, default: false
         optional :continuation, :bytes,  6
         optional :max_results,  :uint32, 7
+        optional :timeout,      :uint32, 8
       end
       
       class RpbIndexObject
