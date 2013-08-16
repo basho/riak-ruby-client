@@ -23,10 +23,6 @@ module Riak
       @client.backend{|b| b.send :get_server_version }
     end
 
-    # Start the 2i fetch operation
-    def fetch
-    end
-
     # Get the array of matched keys
     def keys(&block)
       @collection ||=
