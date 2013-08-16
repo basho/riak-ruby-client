@@ -35,11 +35,11 @@ RSpec.configure do |config|
         d.filtered_examples.select {|e| e.metadata[:sometimes] && e.metadata[:retried] > 1 }
       end
     end.flatten
-    formatter.message color[retried_examples.empty? ? :green : :yellow, "\n\nRetried examples: #{retried_examples.count}"]
+    formatter.message color[retried_examples.empty? ? :success_color : :pending_color, "\n\nRetried examples: #{retried_examples.count}"]
     unless retried_examples.empty?
       retried_examples.each do |e|
         formatter.message "  #{e.full_description}"
-        formatter.message(color[:yellow, "  [#{e.metadata[:retried]}/#{e.metadata[:retries]}] "] + RSpec::Core::Metadata::relative_path(e.location))
+        formatter.message(color[:pending_color, "  [#{e.metadata[:retried]}/#{e.metadata[:retries]}] "] + RSpec::Core::Metadata::relative_path(e.location))
       end
     end
   end

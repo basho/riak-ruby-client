@@ -17,7 +17,7 @@ module Riak
     def create
       unless exist?
         touch_ssl_distribution_args
-        create_directories
+        copy_directories
         write_scripts
         write_vm_args
         write_app_config
@@ -52,9 +52,17 @@ module Riak
       root.rmtree if root.exist?
     end
 
-    def create_directories
+    def copy_directories
       root.mkpath
-      NODE_DIRECTORIES.each {|d| send(d).mkpath }
+      raise 'Source is not a directory!' unless base_dir.directory?
+
+      base_dir.each_child do |dir|
+        basename = dir.basename.to_s
+        next if NODE_DIR_SKIP_LIST.include? basename.to_sym
+        target = Pathname.new("#{root.to_s}")
+        target.mkpath
+        FileUtils.cp_r(dir.to_s,target)
+      end
     end
 
     def write_vm_args
@@ -72,18 +80,22 @@ module Riak
     end
 
     def write_scripts
-      [control_script, admin_script].each {|s| write_script(s.basename, s) }
+      if version >= '1.4.0'
+        [env_script].each {|s| write_script(s) }
+      else
+        [control_script, admin_script].each {|s| write_script(s) }
+      end
     end
 
-    def write_script(name, target)
-      source_script = source + name
+    def write_script(target)
+      source_script = source.parent + target.relative_path_from(target.parent.parent)
       target.open('wb') do |f|
         source_script.readlines.each do |line|
           line.sub!(/(RUNNER_SCRIPT_DIR=)(.*)/, '\1' + bin.to_s)
           line.sub!(/(RUNNER_ETC_DIR=)(.*)/, '\1' + etc.to_s)
           line.sub!(/(RUNNER_USER=)(.*)/, '\1')
           line.sub!(/(RUNNER_LOG_DIR=)(.*)/, '\1' + log.to_s)
-          line.sub!(/(PIPE_DIR=)(.*)/, '\1' + pipe.to_s + "/") # PIPE_DIR must have a trailing slash
+          line.sub!(/(PIPE_DIR=)(.*)/, '\1' + pipe.to_s)
           line.sub!(/(PLATFORM_DATA_DIR=)(.*)/, '\1' + data.to_s)
           line.sub!('grep "$RUNNER_BASE_DIR/.*/[b]eam"', 'grep "$RUNNER_ETC_DIR/app.config"')
           if line.strip == "RUNNER_BASE_DIR=${RUNNER_SCRIPT_DIR%/*}"

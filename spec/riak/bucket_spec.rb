@@ -55,6 +55,16 @@ describe Riak::Bucket do
     end
   end
 
+  describe "accessing a counter" do
+    it "should return a counter object" do
+      Riak::Counter.should_receive(:new).with(@bucket, 'asdf').and_return('example counter')
+      
+      new_counter = @bucket.counter 'asdf'
+
+      new_counter.should == 'example counter'
+    end
+  end
+
   describe "setting the bucket properties" do
     it "should prefetch the properties when they are not present" do
       @backend.stub!(:set_bucket_props)

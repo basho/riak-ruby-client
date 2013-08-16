@@ -1,6 +1,7 @@
 require 'riak/util/translation'
 require 'riak/client'
 require 'riak/robject'
+require 'riak/counter'
 require 'riak/failed_request'
 
 module Riak
@@ -130,6 +131,14 @@ module Riak
           raise fr
         end
       end
+    end
+
+    # Gets a counter object. Counters initially hvae a value of zero, and can be
+    # incremented and decremented by integer values.
+    # @param [String] key the key of the counter to fetch
+    # @return [Counter]
+    def counter(key)
+      Riak::Counter.new self, key
     end
 
     # Checks whether an object exists in Riak.
