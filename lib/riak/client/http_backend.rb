@@ -10,6 +10,7 @@ require 'riak/client/http_backend/transport_methods'
 require 'riak/client/http_backend/object_methods'
 require 'riak/client/http_backend/configuration'
 require 'riak/client/http_backend/key_streamer'
+require 'riak/client/http_backend/bucket_streamer'
 require 'riak/client/feature_detection'
 
 module Riak
@@ -200,7 +201,12 @@ module Riak
 
       # Lists known buckets
       # @return [Array<String>] the list of buckets
-      def list_buckets
+      def list_buckets(&block)
+        if block_given?
+          get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
+          return
+        end
+
         response = get(200, bucket_list_path)
         JSON.parse(response[:body])['buckets']
       end

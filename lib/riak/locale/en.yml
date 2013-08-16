@@ -59,6 +59,7 @@ en:
     source_and_root_required: "Riak::Node configuration must include :source and :root keys."
     stale_write_prevented: "Stale write prevented by client."
     stored_function_invalid: "function must have :bucket and :key when a hash"
+    streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."
     string_type: "invalid_argument %{string} is not a String"
     too_few_arguments: "too few arguments: %{params}"
     walk_spec_invalid_unless_link: "WalkSpec is only valid for a function when the type is :link"
