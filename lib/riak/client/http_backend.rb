@@ -115,6 +115,38 @@ module Riak
         delete([204, 404], object_path(bucket, key, options), headers)
       end
 
+      # Fetches a counter
+      # @param [Bucket, String] bucket the bucket where the counter exists
+      # @param [String] key the key for the counter
+      # @param [Hash] options unused
+      def get_counter(bucket, key, options={})
+        bucket = bucket.name if bucket.is_a? Bucket
+        response = get([200, 404], counter_path(bucket, key, options))
+        case response[:code]
+        when 200
+          return response[:body].to_i
+        when 404
+          return 0
+        end
+      end
+
+      # Updates a counter
+      # @param [Bucket, String] bucket the bucket where the counter exists
+      # @param [String] key the key for the counter
+      # @param [Integer] amount how much to increment the counter
+      # @param [Hash] options unused
+      def post_counter(bucket, key, amount, options={})
+        bucket = bucket.name if bucket.is_a? Bucket
+        response = post([200, 204], counter_path(bucket, key, options), amount.to_s)
+        case response[:code]
+        when 200
+          return response[:body].to_i
+        when 204
+          return 0 if options[:return_value]
+          return nil
+        end
+      end
+
       # Fetches bucket properties
       # @param [Bucket, String] bucket the bucket properties to fetch
       # @return [Hash] bucket properties

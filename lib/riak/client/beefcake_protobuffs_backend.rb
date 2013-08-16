@@ -77,6 +77,34 @@ module Riak
         decode_response
       end
 
+      def get_counter(bucket, key, options={})
+        bucket = bucket.name if bucket.is_a? Bucket 
+
+        options = normalize_quorums(options)
+        options[:bucket] = bucket
+        options[:key] = key
+        
+        request = RpbCounterGetReq.new options
+        write_protobuff :CounterGetReq, request
+        
+        decode_response
+      end
+
+      def post_counter(bucket, key, amount, options={})
+        bucket = bucket.name if bucket.is_a? Bucket
+
+        options = normalize_quorums(options)
+        options[:bucket] = bucket
+        options[:key] = key
+        # TODO: raise if ammount doesn't fit in sint64
+        options[:amount] = amount
+
+        request = RpbCounterUpdateReq.new options
+        write_protobuff :CounterUpdateReq, request
+
+        decode_response
+      end
+
       def get_bucket_props(bucket)
         bucket = bucket.name if Bucket === bucket
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
@@ -180,12 +208,22 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp, :SetClientIdResp, :PutResp, :DelResp, :SetBucketResp
+          when :PingResp, 
+               :SetClientIdResp, 
+               :PutResp, 
+               :DelResp, 
+               :SetBucketResp, 
+               :ResetBucketResp
             true
-          when :ListBucketsResp, :ListKeysResp, :IndexResp
+          when :ListBucketsResp, 
+               :ListKeysResp, 
+               :IndexResp
             []
           when :GetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+          when :CounterGetResp,
+               :CounterUpdateResp
+            0
           else
             false
           end
@@ -225,6 +263,14 @@ module Riak
             { 'docs' => res.docs.map {|d| decode_doc(d) },
               'max_score' => res.max_score,
               'num_found' => res.num_found }
+          when :CSBucketResp
+            res = RpbCSBucketResp.decode message
+          when :CounterUpdateResp
+            res = RpbCounterUpdateResp.decode message
+            res.value || nil
+          when :CounterGetResp
+            res = RpbCounterGetResp.decode message
+            res.value || 0
           end
         end
       rescue SystemCallError, SocketError => e

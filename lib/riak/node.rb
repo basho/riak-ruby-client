@@ -1,3 +1,5 @@
+require 'fileutils'
+
 require 'riak/util/translation'
 require 'riak/node/defaults'
 require 'riak/node/configuration'

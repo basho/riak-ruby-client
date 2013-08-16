@@ -4,6 +4,8 @@ module Riak
   class Node
     # Settings based on Riak 1.1.
     ENV_DEFAULTS = {
+      :riak_api => {
+      },
       :riak_core => {
         :ring_creation_size => 64
       },

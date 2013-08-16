@@ -300,6 +300,66 @@ module Riak
         optional :max_score, :float,  2
         optional :num_found, :uint32, 3
       end
+
+      class RpbResetBucketReq
+        include Beefcake::Message
+        required :bucket, :bytes, 1
+      end
+
+      class RpbCSBucketReq
+        include Beefcake::Message
+        required :bucket,       :bytes,  1
+        required :start_key,    :bytes,  2
+        optional :end_key,      :bytes,  3
+        optional :start_incl,   :bool,   4, default: true
+        optional :end_incl,     :bool,   5, default: false
+        optional :continuation, :bytes,  6
+        optional :max_results,  :uint32, 7
+      end
+      
+      class RpbIndexObject
+        include Beefcake::Message
+        required :key,    :bytes,     1
+        required :object, RpbGetResp, 2
+      end
+
+      class RpbCSBucketResp
+        include Beefcake::Message
+        repeated :objects,      RpbIndexObject, 1
+        optional :continuation, :bytes,         2
+        optional :done,         :bool,          3
+      end
+
+      class RpbCounterUpdateReq
+        include Beefcake::Message
+        required :bucket,      :bytes,  1
+        required :key,         :bytes,  2
+        required :amount,      :sint64, 3
+        optional :w,           :uint32, 4
+        optional :dw,          :uint32, 5
+        optional :pw,          :uint32, 6
+        optional :returnvalue, :bool,   7
+      end
+
+      class RpbCounterUpdateResp
+        include Beefcake::Message
+        optional :value, :sint64, 1
+      end
+
+      class RpbCounterGetReq
+        include Beefcake::Message
+        required :bucket,       :bytes,  1
+        required :key,          :bytes,  2
+        optional :r,            :uint32, 3
+        optional :pr,           :uint32, 4
+        optional :basic_quorum, :bool,   5
+        optional :notfound_ok,  :bool,   6
+      end
+
+      class RpbCounterGetResp
+        include Beefcake::Message
+        optional :value, :sint64, 1
+      end
     end
   end
 end
