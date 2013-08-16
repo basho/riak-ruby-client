@@ -196,9 +196,16 @@ module Riak
         optional :dw,     :uint32, 9
       end
 
+      class RpbListBucketsReq
+        include Beefcake::Message
+        optional :timeout, :uint32, 1
+        optional :stream, :bool, 2
+      end
+
       class RpbListBucketsResp
         include Beefcake::Message
         repeated :buckets, :bytes, 1
+        optional :done, :bool, 2
       end
 
       class RpbListKeysReq

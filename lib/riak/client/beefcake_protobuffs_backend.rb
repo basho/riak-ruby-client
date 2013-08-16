@@ -145,6 +145,21 @@ module Riak
         block_given? || keys
       end
 
+      # override the simple list_buckets
+      def list_buckets(options={}, &blk)
+        if block_given? 
+          return streaming_list_buckets options, &blk
+        end
+        
+        raise t("streaming_bucket_list_without_block") if options[:stream]
+        
+        request = RpbListBucketsReq.new options
+
+        write_protobuff :ListBucketsReq, request
+
+        decode_response
+      end
+
       def mapred(mr, &block)
         raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
@@ -276,6 +291,25 @@ module Riak
       rescue SystemCallError, SocketError => e
         reset_socket
         raise
+      end
+
+      def streaming_list_buckets(options = {})
+        request = RpbListBucketsReq.new(options.merge(stream: true))
+        write_protobuff :ListBucketsReq, request
+        loop do
+          header = socket.read 5
+          raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+          len, code = header.unpack 'NC'
+          if MESSAGE_CODES[code] != :ListBucketsResp
+            raise SocketError, "Unexpected non-ListBucketsResp during streaming list buckets"
+          end
+
+          message = socket.read(len - 1)
+          section = RpbListBucketsResp.decode message
+          yield section.buckets
+
+          return if section.done
+        end
       end
 
       def decode_index_response
