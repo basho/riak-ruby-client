@@ -191,10 +191,10 @@ module Riak
       def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
         if block_given?
-          stream_opts = options.merge keys: 'stream'
+          stream_opts = options.merge :keys => 'stream'
           get(200, key_list_path(bucket, stream_opts), {}, &KeyStreamer.new(block))
         else
-          list_opts = options.merge keys: true
+          list_opts = options.merge :keys => true
           response = get(200, key_list_path(bucket, list_opts))
           obj = JSON.parse(response[:body])
           obj && obj['keys'].map {|k| unescape(k) }
@@ -205,7 +205,7 @@ module Riak
       # @return [Array<String>] the list of buckets
       def list_buckets(&block)
         if block_given?
-          get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
+          get(200, bucket_list_path(:stream => true), &BucketStreamer.new(block))
           return
         end
 
