@@ -78,15 +78,15 @@ module Riak
       end
 
       def get_counter(bucket, key, options={})
-        bucket = bucket.name if bucket.is_a? Bucket 
+        bucket = bucket.name if bucket.is_a? Bucket
 
         options = normalize_quorums(options)
         options[:bucket] = bucket
         options[:key] = key
-        
+
         request = RpbCounterGetReq.new options
         write_protobuff :CounterGetReq, request
-        
+
         decode_response
       end
 
@@ -147,12 +147,12 @@ module Riak
 
       # override the simple list_buckets
       def list_buckets(options={}, &blk)
-        if block_given? 
+        if block_given?
           return streaming_list_buckets options, &blk
         end
-        
+
         raise t("streaming_bucket_list_without_block") if options[:stream]
-        
+
         request = RpbListBucketsReq.new options
 
         write_protobuff :ListBucketsReq, request
@@ -223,15 +223,15 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp, 
-               :SetClientIdResp, 
-               :PutResp, 
-               :DelResp, 
-               :SetBucketResp, 
+          when :PingResp,
+               :SetClientIdResp,
+               :PutResp,
+               :DelResp,
+               :SetBucketResp,
                :ResetBucketResp
             true
-          when :ListBucketsResp, 
-               :ListKeysResp, 
+          when :ListBucketsResp,
+               :ListKeysResp,
                :IndexResp
             []
           when :GetResp
@@ -294,7 +294,7 @@ module Riak
       end
 
       def streaming_list_buckets(options = {})
-        request = RpbListBucketsReq.new(options.merge(stream: true))
+        request = RpbListBucketsReq.new(options.merge(:stream => true))
         write_protobuff :ListBucketsReq, request
         loop do
           header = socket.read 5
@@ -325,10 +325,10 @@ module Riak
           if !block_given?
             return IndexCollection.new_from_protobuf(message)
           end
-          
+
           content = message.keys || message.results || []
           yield content
-          
+
           return if message.done
         end
       end

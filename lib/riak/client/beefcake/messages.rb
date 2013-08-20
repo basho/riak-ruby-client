@@ -78,7 +78,7 @@ module Riak
         # flags.
         def precommit=(newval)
           @precommit = newval
-          @has_precommit = !!newval 
+          @has_precommit = !!newval
         end
 
         def has_precommit=(newval)
@@ -88,7 +88,7 @@ module Riak
 
         def postcommit=(newval)
           @postcommit = newval
-          @has_postcommit = !!newval 
+          @has_postcommit = !!newval
         end
 
         def has_postcommit=(newval)
@@ -330,13 +330,13 @@ module Riak
         required :bucket,       :bytes,  1
         required :start_key,    :bytes,  2
         optional :end_key,      :bytes,  3
-        optional :start_incl,   :bool,   4, default: true
-        optional :end_incl,     :bool,   5, default: false
+        optional :start_incl,   :bool,   4, :default => true
+        optional :end_incl,     :bool,   5, :default => false
         optional :continuation, :bytes,  6
         optional :max_results,  :uint32, 7
         optional :timeout,      :uint32, 8
       end
-      
+
       class RpbIndexObject
         include Beefcake::Message
         required :key,    :bytes,     1
