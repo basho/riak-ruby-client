@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.email = ["sean@basho.com", 'bryce@basho.com']
   gem.homepage = "http://github.com/basho/riak-ruby-client"
   gem.authors = ["Sean Cribbs", 'Bryce Kerley']
+  gem.license = 'Apache 2.0'
 
   # Deps
   gem.add_development_dependency "rspec", "~>2.13.0"
