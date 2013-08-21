@@ -479,12 +479,12 @@ module Riak
             skip_nodes << backend.node
 
             # And delete this connection.
-            raise Pool::BadResource, e
+            raise
           end
         end
-      rescue Pool::BadResource => e
+      rescue *NETWORK_ERRORS => e
         retry if tries > 0
-        raise e.message
+        raise
       end
     end
 
