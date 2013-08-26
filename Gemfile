@@ -12,7 +12,6 @@ end
 
 platforms :mri do
   gem 'yajl-ruby'
-  gem 'debugger'
 end
 
 platforms :jruby do
