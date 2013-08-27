@@ -39,6 +39,13 @@ module Riak
         :CounterUpdateResp => 51,
         :CounterGetReq => 52,
         :CounterGetResp => 53,
+        :YokozunaIndexGetReq => 54,
+        :YokozunaIndexGetResp => 55,
+        :YokozunaIndexPutReq => 56,
+        :YokozunaIndexDeleteReq => 57,
+        :YokozunaSchemaGetReq => 58,
+        :YokozunaSchemaGetResp => 59,
+        :YokozunaSchemaPutReq => 60,
       }
 
       CODE_TO_MESSAGE = MESSAGE_TO_CODE.invert
