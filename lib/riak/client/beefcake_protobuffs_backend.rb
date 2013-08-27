@@ -11,6 +11,7 @@ module Riak
         begin
           require 'beefcake'
           require 'riak/client/beefcake/messages'
+          require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
           true
         rescue LoadError, NameError
