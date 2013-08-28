@@ -78,12 +78,21 @@ task :pb_defs => 'beefcake:pb_defs'
 namespace :beefcake do
   task :pb_defs => 'lib/riak/client/beefcake/messages.rb'
 
-  file 'lib/riak/client/beefcake/messages.rb' => %w{tmp/riak_kv.pb.rb tmp/riak_yokozuna.pb.rb} do |t|
+  task :clean do
+    sh "rm -rf tmp/riak_pb"
+    sh "rm -rf tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb"
+  end
+
+  file 'lib/riak/client/beefcake/messages.rb' => %w{tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb} do |t|
     sh "cat lib/riak/client/beefcake/header tmp/riak.pb.rb #{t.prerequisites.join ' '} lib/riak/client/beefcake/footer > #{t.name}"
   end
 
   file 'tmp/riak_kv.pb.rb' => 'tmp/riak_pb' do |t|
     sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_kv.proto"
+  end
+
+  file 'tmp/riak_search.pb.rb' => 'tmp/riak_pb' do |t|
+    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_search.proto"
   end
 
   file 'tmp/riak_yokozuna.pb.rb' => 'tmp/riak_pb' do |t|
