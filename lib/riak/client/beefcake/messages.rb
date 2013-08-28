@@ -449,6 +449,47 @@ end
 class RpbCounterGetResp
   optional :value, :sint64, 1
 end
+## Generated from riak_search.proto for 
+require "beefcake"
+
+
+class RpbSearchDoc
+  include Beefcake::Message
+end
+
+
+class RpbSearchQueryReq
+  include Beefcake::Message
+end
+
+
+class RpbSearchQueryResp
+  include Beefcake::Message
+end
+
+
+class RpbSearchDoc
+  repeated :fields, RpbPair, 1
+end
+
+class RpbSearchQueryReq
+  required :q, :bytes, 1
+  required :index, :bytes, 2
+  optional :rows, :uint32, 3
+  optional :start, :uint32, 4
+  optional :sort, :bytes, 5
+  optional :filter, :bytes, 6
+  optional :df, :bytes, 7
+  optional :op, :bytes, 8
+  repeated :fl, :bytes, 9
+  optional :presort, :bytes, 10
+end
+
+class RpbSearchQueryResp
+  repeated :docs, RpbSearchDoc, 1
+  optional :max_score, :float, 2
+  optional :num_found, :uint32, 3
+end
 ## Generated from riak_yokozuna.proto for 
 require "beefcake"
 
