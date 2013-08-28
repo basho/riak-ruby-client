@@ -211,6 +211,44 @@ module Riak
         decode_response
       end
 
+      def create_search_index(name, schema=nil)
+        index = RpbYokozunaIndex.new(:name => name, :schema => schema)
+        req = RpbYokozunaIndexPutReq.new(:index => index)
+        write_protobuff(:YokozunaIndexPutReq, req)
+        decode_response
+      end
+
+      def get_search_index(name)
+        req = RpbYokozunaIndexGetReq.new(:name => name)
+        write_protobuff(:YokozunaIndexGetReq, req)
+        resp = decode_response
+        if resp.index && Array === resp
+          resp.index.map{|index| {:name => index.name, :schema => index.schema} }
+        else
+          resp
+        end
+      end
+
+      def delete_search_index(name)
+        req = RpbYokozunaIndexDeleteReq.new(:name => name)
+        write_protobuff(:YokozunaIndexDeleteReq, req)
+        decode_response
+      end
+
+      def create_search_schema(name, content)
+        schema = RpbYokozunaSchema.new(:name => name, :content => content)
+        req = RpbYokozunaSchemaPutReq.new(:schema => schema)
+        write_protobuff(:YokozunaSchemaPutReq, req)
+        decode_response
+      end
+
+      def get_search_schema(name)
+        req = RpbYokozunaSchemaGetReq.new(:name => name)
+        write_protobuff(:YokozunaSchemaGetReq, req)
+        resp = decode_response
+        resp.schema ? resp.schema : resp
+      end
+
       private
       def write_protobuff(code, message)
         encoded = message.encode
@@ -235,7 +273,9 @@ module Riak
                :ListKeysResp, 
                :IndexResp
             []
-          when :GetResp
+          when :GetResp,
+               :YokozunaIndexGetResp,
+               :YokozunaSchemaGetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
           when :CounterGetResp,
                :CounterUpdateResp
@@ -287,6 +327,10 @@ module Riak
           when :CounterGetResp
             res = RpbCounterGetResp.decode message
             res.value || 0
+          when :YokozunaIndexGetResp
+            res = RpbYokozunaIndexGetResp.decode message
+          when :YokozunaSchemaGetResp
+            res = RpbYokozunaSchemaGetResp.decode message
           end
         end
       rescue SystemCallError, SocketError => e
