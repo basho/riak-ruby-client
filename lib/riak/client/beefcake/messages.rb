@@ -469,7 +469,7 @@ end
 
 
 class RpbSearchDoc
-  repeated :properties, RpbPair, 1
+  repeated :fields, RpbPair, 1
 end
 
 class RpbSearchQueryReq
