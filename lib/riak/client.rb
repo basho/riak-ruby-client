@@ -8,9 +8,6 @@ require 'riak/failed_request'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
-require 'riak/client/http_backend'
-require 'riak/client/net_http_backend'
-require 'riak/client/excon_backend'
 require 'riak/client/protobuffs_backend'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
@@ -29,13 +26,13 @@ module Riak
     MAX_CLIENT_ID = 4294967296
 
     # Array of valid protocols
-    PROTOCOLS = %w[http https pbc]
+    PROTOCOLS = %w[pbc]
 
     # Regexp for validating hostnames, lifted from uri.rb in Ruby 1.8.6
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:protocol, :nodes, :client_id, :http_backend, :protobuffs_backend] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:protocol, :nodes, :client_id, :protobuffs_backend] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -61,12 +58,6 @@ module Riak
     # @return [String] The internal client ID used by Riak to route responses
     attr_reader :client_id
 
-    # @return [Symbol] The HTTP backend/client to use
-    attr_accessor :http_backend
-
-    # @return [Client::Pool] A pool of HTTP connections
-    attr_reader :http_pool
-
     # @return [Symbol] The Protocol Buffers backend/client to use
     attr_accessor :protobuffs_backend
 
@@ -84,15 +75,10 @@ module Riak
     #   If no nodes are given, a single node is constructed from the remaining
     #   options given to Client.new.
     # @option options [String] :host ('127.0.0.1') The host or IP address for the Riak endpoint
-    # @option options [String] :protocol ('http') The protocol to use for connecting to a node backend
-    # @option options [Fixnum] :http_port (8098) The port of the Riak HTTP endpoint
+    # @option options [String] :protocol ('pbc') The protocol to use for connecting to a node backend
     # @option options [Fixnum] :pb_port (8087) The port of the Riak Protocol Buffers endpoint
-    # @option options [String] :prefix ('/riak/') The URL path prefix to the main HTTP endpoint
-    # @option options [String] :mapred ('/mapred') The path to the map-reduce HTTP endpoint
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
-    # @option options [String, Symbol] :http_backend (:NetHTTP) which  HTTP backend to use
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
-    # @option options [Boolean, Hash]  :ssl (nil) The SSL options to pass to each node or true for default options
     # @raise [ArgumentError] raised if any invalid options are given
     def initialize(options={})
       if options.include? :port
@@ -106,7 +92,7 @@ module Riak
       @nodes = (options[:nodes] || []).map do |n|
         Client::Node.new self, n
       end
-      if @nodes.empty? or options[:host] or options[:http_port] or options[:pb_port]
+      if @nodes.empty? or options[:host] or options[:pb_port]
         @nodes |= [Client::Node.new(self, options)]
       end
 
@@ -115,16 +101,10 @@ module Riak
                                   lambda { |b| b.teardown }
                                   )
 
-      @http_pool = Pool.new(
-                            method(:new_http_backend),
-                            lambda { |b| b.teardown }
-                            )
 
-      self.protocol           = options[:protocol]           || "http"
-      self.http_backend       = options[:http_backend]       || :NetHTTP
+      self.protocol           = options[:protocol]           || "pbc"
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
-      self.ssl                = options[:ssl]                if options[:ssl]
       self.multiget_threads   = options[:multiget_threads]
     end
 
@@ -134,19 +114,9 @@ module Riak
     # @yield [HTTPBackend,ProtobuffsBackend] an appropriate client backend
     def backend(&block)
       case @protocol.to_s
-      when /https?/i
-        http &block
       when /pbc/i
         protobuffs &block
       end
-    end
-
-    # Sets basic HTTP auth on all nodes.
-    def basic_auth=(auth)
-      @nodes.each do |node|
-        node.basic_auth = auth
-      end
-      auth
     end
 
     # Retrieves a bucket from Riak.
@@ -278,19 +248,6 @@ module Riak
       backend do |b|
         b.fetch_object(bucket, key, options)
       end
-    end
-
-    # Yields an HTTPBackend.
-    def http(&block)
-      recover_from @http_pool, &block
-    end
-
-    # Sets the desired HTTP backend
-    def http_backend=(value)
-      @http_backend = value
-      # Shut down existing connections using the old backend
-      @http_pool.clear
-      @http_backend
     end
 
     # @return [String] A representation suitable for IRB and debugging output.
