@@ -7,8 +7,7 @@ and map-reduce.
 
 ## Dependencies
 
-`riak-client` requires i18n, builder, beefcake, and multi_json. For
-higher performance on HTTP requests, install the 'excon' gem. The
+`riak-client` requires i18n, builder, beefcake, and multi_json. The
 cache store implementation requires ActiveSupport 3 or later.
 
 Development dependencies are handled with bundler. Install bundler
@@ -33,9 +32,6 @@ require 'riak'
 # Create a client interface
 client = Riak::Client.new
 
-# Create a client interface that uses Excon
-client = Riak::Client.new(:http_backend => :Excon)
-
 # Create a client that uses Protocol Buffers
 client = Riak::Client.new(:protocol => "pbc")
 
@@ -43,7 +39,7 @@ client = Riak::Client.new(:protocol => "pbc")
 client = Riak::Client.new(:nodes => [
   {:host => '10.0.0.1'},
   {:host => '10.0.0.2', :pb_port => 1234},
-  {:host => '10.0.0.3', :http_port => 5678}
+  {:host => '10.0.0.3', :pb_port => 5678}
 ])
 
 # Retrieve a bucket
