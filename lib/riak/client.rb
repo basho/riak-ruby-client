@@ -246,15 +246,6 @@ module Riak
       end
     end
 
-    # Deletes a file stored via the "Luwak" interface
-    # @param [String] filename the key/filename to delete
-    def delete_file(filename)
-      http do |h|
-        h.delete_file(filename)
-      end
-      true
-    end
-
     # Delete an object. See Bucket#delete
     def delete_object(bucket, key, options = {})
       backend do |b|
@@ -262,37 +253,10 @@ module Riak
       end
     end
 
-    # Checks whether a file exists in "Luwak".
-    # @param [String] key the key to check
-    # @return [true, false] whether the key exists in "Luwak"
-    def file_exists?(key)
-      http do |h|
-        h.file_exists?(key)
-      end
-    end
-    alias :file_exist? :file_exists?
-
     # Bucket properties. See Bucket#props
     def get_bucket_props(bucket)
       backend do |b|
         b.get_bucket_props bucket
-      end
-    end
-
-    # Retrieves a large file/IO object from Riak via the "Luwak"
-    # interface. Streams the data to a temporary file unless a block
-    # is given.
-    # @param [String] filename the key/filename for the object
-    # @return [IO, nil] the file (also having content_type and
-    #   original_filename accessors). The file will need to be
-    #   reopened to be read. nil will be returned if a block is given.
-    # @yield [chunk] stream contents of the file through the
-    #     block. Passing the block will result in nil being returned
-    #     from the method.
-    # @yieldparam [String] chunk a single chunk of the object's data
-    def get_file(filename, &block)
-      http do |h|
-        h.get_file(filename, &block)
       end
     end
 
@@ -527,22 +491,6 @@ module Riak
       @stamp ||= Riak::Stamp.new(self)
     end
 
-    # Stores a large file/IO-like object in Riak via the "Luwak" interface.
-    # @overload store_file(filename, content_type, data)
-    #   Stores the file at the given key/filename
-    #   @param [String] filename the key/filename for the object
-    #   @param [String] content_type the MIME Content-Type for the data
-    #   @param [IO, String] data the contents of the file
-    # @overload store_file(content_type, data)
-    #   Stores the file with a server-determined key/filename
-    #   @param [String] content_type the MIME Content-Type for the data
-    #   @param [String, #read] data the contents of the file
-    # @return [String] the key/filename where the object was stored
-    def store_file(*args)
-      http do |h|
-        h.store_file(*args)
-      end
-    end
 
     # Stores an object in Riak.
     def store_object(object, options = {})
@@ -566,16 +514,6 @@ module Riak
     def ssl_disable
       @nodes.each do |n|
         n.ssl_disable
-      end
-    end
-
-    # @private
-    class LuwakFile < DelegateClass(Tempfile)
-      attr_accessor :original_filename, :content_type
-      alias :key :original_filename
-      def initialize(fn)
-        super(Tempfile.new(fn))
-        @original_filename = fn
       end
     end
   end

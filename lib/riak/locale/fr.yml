@@ -30,7 +30,6 @@ fr:
     loading_bucket: "pendant le chargement du bucket '%{name}'"
     list_buckets: "Riak::Client#buckets est une opération coûteuse et ne doit pas être utilisée en production.\n    %{backtrace}"
     list_keys: "Riak::Bucket#keys est une opération coûteuse et ne doit pas être utilisée en production.\n    %{backtrace}"
-    luwak_unsupported: "Le serveur Riak ne supporte pas Luwak. Activez-le dans app.config avant de l'utiliser"
     missing_block: "Un bloc doit être fourni."
     missing_host_and_port: "Vous devez spécifier un hôte et un port, utiliser la valeur par défaut : 127.0.0.1:8098"
     module_function_pair_required: "la fonction doit avoir deux élément lorsqu'elle est définie par un tableau"

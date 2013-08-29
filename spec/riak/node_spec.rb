@@ -60,15 +60,6 @@ describe Riak::Client::Node do
     it "default solr path should be /solr" do
       @node.http_paths[:solr].should == "/solr"
     end
-
-    it 'should accept a luwak path' do
-      node = Riak::Client::Node.new @client, :luwak => "/mr"
-      node.http_paths[:luwak].should == "/mr"
-    end
-
-    it "default luwak path should be /luwak" do
-      @node.http_paths[:luwak].should == "/luwak"
-    end
   end
 
   describe "setting http auth" do
