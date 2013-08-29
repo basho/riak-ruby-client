@@ -30,9 +30,6 @@ module Riak
       :riak_search => {
         :enabled => true
       },
-      :luwak => {
-        :enabled => true
-      },
       :merge_index => {
         :buffer_rollover_size => 1048576,
         :max_compact_segments => 20

@@ -1,4 +1,3 @@
-
 require 'riak/failed_request'
 require 'riak/client/http_backend'
 require 'riak/link'
@@ -148,16 +147,6 @@ module Riak
           end
         end
 
-        # @return [URI] a URL path for the Luwak interface
-        def luwak_path(key)
-          raise t('luwak_unsupported') unless luwak_wm_file
-          if key
-            path(luwak_wm_file, escape(key))
-          else
-            path(luwak_wm_file)
-          end
-        end
-
         private
         def server_config
           @server_config ||= {}.tap do |hash|
@@ -216,10 +205,6 @@ module Riak
 
         def riak_solr_indexer_wm
           server_config[:riak_solr_indexer_wm]
-        end
-
-        def luwak_wm_file
-          server_config[:luwak_wm_file]
         end
       end
     end
