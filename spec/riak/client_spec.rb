@@ -62,11 +62,6 @@ describe Riak::Client do
       client.nodes.first.http_paths[:mapred].should == "/mr"
     end
 
-    it "should accept a luwak path" do
-      client = Riak::Client.new(:luwak => "/beans")
-      client.nodes.first.http_paths[:luwak].should == "/beans"
-    end
-
     it "should accept a solr path" do
       client = Riak::Client.new(:solr => "/solar")
       client.nodes.first.http_paths[:solr].should == "/solar"
@@ -277,54 +272,6 @@ describe Riak::Client do
 
       buckets = @client.buckets timeout: 1234
       buckets.should have(2).items
-    end
-  end
-
-  describe "Luwak (large-files) support" do
-    describe "storing a file" do
-      before :each do
-        @client = Riak::Client.new
-        @http = mock(Riak::Client::HTTPBackend)
-        @http.stub!(:node).and_return(@client.node)
-        @client.stub!(:http).and_yield(@http)
-      end
-
-      it "should store the file via the HTTP interface" do
-        @http.should_receive(:store_file).with("text/plain", "Hello, world").and_return("123456789")
-        @client.store_file("text/plain", "Hello, world").should == "123456789"
-      end
-    end
-
-    describe "retrieving a file" do
-      before :each do
-        @client = Riak::Client.new
-        @http = mock(Riak::Client::HTTPBackend)
-        @http.stub!(:node).and_return(@client.node)
-        @client.stub!(:http).and_yield(@http)
-      end
-
-      it "should fetch via HTTP" do
-        @http.should_receive(:get_file).with("greeting.txt")
-        @client.get_file("greeting.txt")
-      end
-    end
-
-    it "should delete a file" do
-      @client = Riak::Client.new
-      @http = mock(Riak::Client::HTTPBackend)
-      @http.stub!(:node).and_return(@client.nodes.first)
-      @client.stub!(:http).and_yield(@http)
-      @http.should_receive(:delete_file).with("greeting.txt")
-      @client.delete_file("greeting.txt")
-    end
-
-    it "should detect if file exists via HTTP" do
-      @client = Riak::Client.new
-      @http = mock(Riak::Client::HTTPBackend)
-      @http.stub!(:node).and_return(@client.nodes.first)
-      @client.stub!(:http).and_yield(@http)
-      @http.should_receive(:file_exists?).and_return(true)
-      @client.file_exists?("foo").should be_true
     end
   end
 
