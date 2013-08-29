@@ -7,7 +7,7 @@ module Riak
       include Util::Escape
 
       VALID_OPTIONS = [:host, :http_port, :pb_port, :http_paths, :prefix,
-        :mapred, :luwak, :solr, :port, :basic_auth, :ssl_options, :ssl]
+        :mapred, :solr, :port, :basic_auth, :ssl_options, :ssl]
 
       # For a score which halves in 10 seconds, choose
       # ln(1/2)/10
@@ -37,7 +37,6 @@ module Riak
         @http_paths = {
           :prefix => opts[:prefix] || "/riak/",
           :mapred => opts[:mapred] || "/mapred",
-          :luwak =>  opts[:luwak]  || "/luwak",
           :solr =>   opts[:solr]   || "/solr" # Unused?
         }.merge(opts[:http_paths] || {})
         self.basic_auth = opts[:basic_auth]
