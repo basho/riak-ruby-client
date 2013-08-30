@@ -5,23 +5,23 @@ describe "Search features" do
   describe Riak::Client do
     before :each do
       @client = Riak::Client.new
-      @http = mock(Riak::Client::HTTPBackend)
-      @client.stub!(:http).and_yield(@http)
+      @pb = mock(Riak::Client::BeefcakeProtobuffsBackend)
+      @client.stub!(:backend).and_yield(@pb)
     end
 
     describe "searching" do
       it "should search the default index" do
-        @http.should_receive(:search).with(nil, "foo", {}).and_return({})
+        @pb.should_receive(:search).with(nil, "foo", {}).and_return({})
         @client.search("foo")
       end
 
       it "should search the default index with additional options" do
-        @http.should_receive(:search).with(nil, 'foo', 'rows' => 30).and_return({})
+        @pb.should_receive(:search).with(nil, 'foo', 'rows' => 30).and_return({})
         @client.search("foo", 'rows' => 30)
       end
 
       it "should search the specified index" do
-        @http.should_receive(:search).with('search', 'foo', {}).and_return({})
+        @pb.should_receive(:search).with('search', 'foo', {}).and_return({})
         @client.search("search", "foo")
       end
     end
@@ -68,7 +68,7 @@ describe "Search features" do
       end
 
       it "should raise an error when documents do not contain an id" do
-        @http.stub!(:update_search_index).and_return(true)
+        @pb.stub!(:update_search_index).and_return(true)
         lambda { @client.index({:field => "value"}) }.should raise_error(ArgumentError)
         lambda { @client.index({:id => 1, :field => "value"}) }.should_not raise_error(ArgumentError)
       end
@@ -120,7 +120,7 @@ describe "Search features" do
       end
 
       it "should raise an error when document specifications don't include an id or query" do
-        @http.stub!(:update_search_index).and_return({:code => 200})
+        @pb.stub!(:update_search_index).and_return({:code => 200})
         lambda { @client.remove({:foo => "bar"}) }.should raise_error(ArgumentError)
         lambda { @client.remove({:id => 1}) }.should_not raise_error
       end
@@ -140,11 +140,11 @@ describe "Search features" do
 
     def expect_update_body(body=nil, index=nil)
       if block_given?
-        @http.should_receive(:update_search_index).with(index, kind_of(String)) do |i, b|
+        @pb.should_receive(:update_search_index).with(index, kind_of(String)) do |i, b|
           yield b
         end
       else
-        @http.should_receive(:update_search_index).with(index, body)
+        @pb.should_receive(:update_search_index).with(index, body)
       end
     end
   end
