@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'riak/stamp'
 
 describe Riak::Stamp do
-  subject { described_class.new(Riak::Client.new) }
+  subject { described_class.new(Riak::Client.new pb_port: 10017) }
   it "should generate always increasing integer identifiers" do
     1000.times do
       one = subject.next
