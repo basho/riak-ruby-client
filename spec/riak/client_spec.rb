@@ -7,11 +7,6 @@ describe Riak::Client do
       client.nodes.should == [Riak::Client::Node.new(client)]
     end
 
-    it "should accept a protocol" do
-      client = Riak::Client.new :protocol => 'pbc'
-      client.protocol.should eq('pbc')
-    end
-
     it "should accept a host" do
       client = Riak::Client.new :host => "riak.basho.com"
       client.nodes.size.should == 1
@@ -44,19 +39,6 @@ describe Riak::Client do
       @client = Riak::Client.new
     end
 
-    describe "setting the protocol" do
-      it "should allow setting the protocol" do
-        @client.should respond_to(:protocol=)
-        @client.protocol = "pbc"
-        @client.protocol.should eq("pbc")
-      end
-
-      it "should require a valid protocol to be set" do
-        lambda { @client.protocol = 'http' }.should(
-                                                    raise_error(ArgumentError, /^'http' is not a valid protocol/))
-      end
-    end
-
     describe "setting the client id" do
       it "should accept a string unmodified" do
         @client.client_id = "foo"
@@ -75,7 +57,7 @@ describe Riak::Client do
 
   describe "choosing a Protobuffs backend" do
     before :each do
-      @client = Riak::Client.new(:protocol => "pbc")
+      @client = Riak::Client.new
     end
 
     it "should choose the selected backend" do
@@ -102,7 +84,6 @@ describe Riak::Client do
     end
 
     it "should use Protobuffs when the protocol is pbc" do
-      @client.protocol = "pbc"
       @client.backend do |b|
         b.should be_kind_of(Riak::Client::ProtobuffsBackend)
       end

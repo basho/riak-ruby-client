@@ -25,14 +25,11 @@ module Riak
     # When using integer client IDs, the exclusive upper-bound of valid values.
     MAX_CLIENT_ID = 4294967296
 
-    # Array of valid protocols
-    PROTOCOLS = %w[pbc]
-
     # Regexp for validating hostnames, lifted from uri.rb in Ruby 1.8.6
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:protocol, :nodes, :client_id, :protobuffs_backend] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -48,9 +45,6 @@ module Riak
     ]
 
     Pool = ::Innertube::Pool
-
-    # @return [String] The protocol to use for the Riak endpoint
-    attr_reader :protocol
 
     # @return [Array] The set of Nodes this client can communicate with.
     attr_accessor :nodes
@@ -75,7 +69,6 @@ module Riak
     #   If no nodes are given, a single node is constructed from the remaining
     #   options given to Client.new.
     # @option options [String] :host ('127.0.0.1') The host or IP address for the Riak endpoint
-    # @option options [String] :protocol ('pbc') The protocol to use for connecting to a node backend
     # @option options [Fixnum] :pb_port (8087) The port of the Riak Protocol Buffers endpoint
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
@@ -102,7 +95,6 @@ module Riak
                                   )
 
 
-      self.protocol           = options[:protocol]           || "pbc"
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
       self.multiget_threads   = options[:multiget_threads]
@@ -111,12 +103,9 @@ module Riak
     # Yields a backend for operations that are protocol-independent.
     # You can change which type of backend is used by setting the
     # {#protocol}.
-    # @yield [HTTPBackend,ProtobuffsBackend] an appropriate client backend
+    # @yield [ProtobuffsBackend] an appropriate client backend
     def backend(&block)
-      case @protocol.to_s
-      when /pbc/i
-        protobuffs &block
-      end
+      protobuffs &block
     end
 
     # Retrieves a bucket from Riak.
@@ -255,13 +244,6 @@ module Riak
       "#<Riak::Client #{nodes.inspect}>"
     end
 
-    # Link-walk.
-    def link_walk(object, specs)
-      http do |h|
-        h.link_walk object, specs
-      end
-    end
-
     # Retrieves a list of keys in the given bucket. See Bucket#keys
     def list_keys(bucket, options={}, &block)
       if block_given?
@@ -279,23 +261,6 @@ module Riak
     def mapred(mr, &block)
       backend do |b|
         b.mapred(mr, &block)
-      end
-    end
-
-    # Creates a new HTTP backend.
-    # @return [HTTPBackend] An HTTP backend for a given node.
-    def new_http_backend
-      klass = self.class.const_get("#{@http_backend}Backend")
-      if klass.configured?
-        node = choose_node(
-          @nodes.select do |n|
-            n.http?
-          end
-        )
-
-        klass.new(self, node)
-      else
-        raise t('http_configuration', :backend => @http_backend)
       end
     end
 
@@ -341,33 +306,6 @@ module Riak
       @protobuffs_backend = value
       @protobuffs_pool.clear
       @protobuffs_backend
-    end
-
-    # Set the protocol of the Riak endpoint.  Value must be in the
-    # Riak::Client::PROTOCOLS array.
-    # @raise [ArgumentError] if the protocol is not in PROTOCOLS
-    # @return [String] the protocol being assigned
-    def protocol=(value)
-      unless PROTOCOLS.include?(value.to_s)
-        raise ArgumentError, t("protocol_invalid", :invalid => value, :valid => PROTOCOLS.join(', '))
-      end
-
-      #TODO
-      @backend = nil
-      @protocol = value
-
-      case value
-      when 'https'
-        nodes.each do |node|
-          node.ssl = true unless node.ssl_enabled?
-        end
-      when 'http'
-        nodes.each do |node|
-          node.ssl = false
-        end
-      end
-
-      @protocol
     end
 
     # Takes a pool. Acquires a backend from the pool and yields it with
@@ -418,26 +356,16 @@ module Riak
 
     # Sets the properties on a bucket. See Bucket#props=
     def set_bucket_props(bucket, properties)
-      # A bug in Beefcake is still giving us trouble with default booleans.
-      # Until it is resolved, we'll use the HTTP backend.
-      http do |b|
+      backend do |b|
         b.set_bucket_props(bucket, properties)
       end
     end
 
     # Clears the properties on a bucket. See Bucket#clear_props
     def clear_bucket_props(bucket)
-      http do |b|
-        b.clear_bucket_props(bucket)
+      backend do |b|
+        b.reset_bucket_props(bucket)
       end
-    end
-
-    # Enables or disables SSL on all nodes, for HTTP backends.
-    def ssl=(value)
-      @nodes.each do |node|
-        node.ssl = value
-      end
-      value
     end
 
     # Exposes a {Stamp} object for use in generating unique
