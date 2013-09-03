@@ -57,11 +57,11 @@ describe Riak::Serializers do
       s = h.to_json(Riak.json_options)
       expect {
         described_class.serialize('application/json', h)
-      }.should_not raise_error
+      }.to_not raise_error
 
       expect {
         described_class.deserialize('application/json', s)
-      }.should_not raise_error
+      }.to_not raise_error
     end
   end
 
