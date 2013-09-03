@@ -332,20 +332,6 @@ describe Riak::RObject do
     end
   end
 
-  describe "walking from the object to linked objects" do
-    before :each do
-      @http = mock("HTTPBackend")
-      @client.stub!(:http).and_yield(@http)
-      @client.stub!(:bucket).and_return(@bucket)
-      @object = Riak::RObject.new(@bucket, "bar")
-    end
-
-    it "should normalize the walk specs and submit the link-walking request to the HTTP backend" do
-      @http.should_receive(:link_walk).with(@object, [instance_of(Riak::WalkSpec)]).and_return([])
-      @object.walk(nil,"next",true).should == []
-    end
-  end
-
   describe "when deleting" do
     before :each do
       @backend = mock("Backend")
