@@ -25,7 +25,7 @@ describe Riak::Client do
     end
 
     it "should create a client ID if not specified" do
-      Riak::Client.new.client_id.should_not be_nil
+      Riak::Client.new(pb_port: 10017).client_id.should_not be_nil
     end
   end
 
