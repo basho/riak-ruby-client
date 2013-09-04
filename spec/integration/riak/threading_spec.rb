@@ -55,17 +55,13 @@ describe "Multithreaded client", :test_server => true do
   end
 
   [
-   {:protocol => 'pbc', :protobuffs_backend => :Beefcake},
-   {:protocol => 'http', :http_backend => :NetHTTP},
-   {:protocol => 'http', :http_backend => :Excon}
+   {:protobuffs_backend => :Beefcake}
   ].each do |opts|
     describe opts.inspect do
       before do
         @pb_port ||= test_server.pb_port
-        @http_port ||= test_server.http_port
         @client = Riak::Client.new({
-                                     :pb_port => @pb_port,
-                                     :http_port => @http_port
+                                     :pb_port => @pb_port
                                    }.merge(opts))
       end
 

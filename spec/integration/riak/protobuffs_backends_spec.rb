@@ -3,8 +3,7 @@ require 'spec_helper'
 describe "Protocol Buffers" do
   before do
     @pbc_port ||= test_server.pb_port
-    @http_port ||= test_server.http_port
-    @client = Riak::Client.new(:http_port => @http_port, :pb_port => @pbc_port, :protocol => "pbc")
+    @client = Riak::Client.new(:pb_port => @pbc_port)
   end
 
   [:BeefcakeProtobuffsBackend].each do |klass|

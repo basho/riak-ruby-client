@@ -32,7 +32,7 @@ describe Riak::TestServer, :nodegen => true do
 
   it "should clear stored data" do
     # TODO: use $test_server.to_host when client/host split is finished.
-    client = Riak::Client.new(:http_port => subject.http_port)
+    client = Riak::Client.new(:pb_port => subject.pb_port)
     obj = client['test_bucket'].new("test_item")
     obj.data = {"data" => "testing"}
     obj.store # rescue nil
