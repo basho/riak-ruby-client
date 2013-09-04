@@ -27,7 +27,7 @@ module Riak
       # @return [Gem::Version] the version of the Riak node to which
       #   this backend is connected
       def server_version
-        @server_version ||= Gem::Version.new(get_server_version[0,5])
+        @server_version ||= Gem::Version.new(get_server_version.split("-").first)
       end
 
       # @return [true,false] whether MapReduce requests can be submitted without
