@@ -8,8 +8,8 @@ require 'rspec'
 
 RSpec.configure do |c|
   # declare an exclusion filter
-  @http_port ||= 10018 # test_server.http_port
-  @client = Riak::Client.new(:http_port => @http_port)
+  @pbc_port ||= 10017
+  @client = Riak::Client.new(:pb_port => @pbc_port)
   yz_active = @client.ping rescue false
   c.filter_run_excluding :yokozuna => !yz_active
 end
@@ -17,8 +17,7 @@ end
 describe "Yokozuna", :yokozuna => true do
   before(:all) do
     @pbc_port ||= 10017  # test_server.pb_port
-    @http_port ||= 10018 # test_server.http_port
-    @client = Riak::Client.new(:http_port => @http_port, :pb_port => @pbc_port, :protocol => "pbc")
+    @client = Riak::Client.new(:pb_port => @pbc_port)
 
     @index = "test"
     @schema = "testschema"
