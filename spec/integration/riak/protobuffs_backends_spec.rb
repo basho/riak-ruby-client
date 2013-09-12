@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe "Protocol Buffers" do
+describe "Protocol Buffers", test_client: true do
   before do
-    @pbc_port ||= test_server.pb_port
-    @client = Riak::Client.new(:pb_port => @pbc_port)
+    @client = test_client
+    @bucket = random_bucket 'protobuf_spec'
   end
 
   [:BeefcakeProtobuffsBackend].each do |klass|
