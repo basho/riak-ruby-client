@@ -101,14 +101,6 @@ module Riak
       self.multiget_threads   = options[:multiget_threads]
     end
 
-    # Yields a backend for operations that are protocol-independent.
-    # You can change which type of backend is used by setting the
-    # {#protocol}.
-    # @yield [ProtobuffsBackend] an appropriate client backend
-    def backend(&block)
-      protobuffs &block
-    end
-
     # Retrieves a bucket from Riak.
     # @param [String] bucket the bucket to retrieve
     # @param [Hash] options options for retrieving the bucket
@@ -300,6 +292,7 @@ module Riak
     def protobuffs(&block)
       recover_from @protobuffs_pool, &block
     end
+    alias :backend :protobuffs
 
     # Sets the desired Protocol Buffers backend
     def protobuffs_backend=(value)
