@@ -37,9 +37,9 @@ module TestServerSupport
 end
 
 RSpec.configure do |config|
-  config.include TestServerSupport, :integration => true
+  config.include TestServerSupport, :test_server => true
 
-  config.before(:each, :integration => true) do
+  config.before(:each, :test_server => true) do
     fail "Test server not working: #{test_server_fatal}" if test_server_fatal
     if example.metadata[:test_server] == false
       test_server.stop
@@ -49,7 +49,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.after(:each, :integration => true) do
+  config.after(:each, :test_server => true) do
     if test_server && !test_server_fatal && test_server.started? && example.metadata[:test_server] != false
       test_server.drop
     end
