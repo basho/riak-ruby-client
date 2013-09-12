@@ -16,20 +16,6 @@ describe "Protocol Buffers", test_client: true do
 
         it_should_behave_like "Unified backend API"
 
-        describe "searching fulltext indexes (1.1 and earlier)", :version => '< 1.2.0' do
-          include_context "search corpus setup"
-
-          it 'should find document IDs via MapReduce' do
-            # Note that the trailing options Hash is ignored when
-            # emulating search with MapReduce
-            results = @backend.search 'search_test', 'fearless elephant rushed'
-            results.should have_key 'docs'
-            results.should have_key 'max_score'
-            results.should have_key 'num_found'
-            results['docs'].should include({"id" => "munchausen-605"})
-          end
-        end
-
         if "".respond_to?(:encoding) # Ruby 1.9 and later only
           describe "searching fulltext indexes (1.2 and later)", :version => '>= 1.2.0' do
             include_context "search corpus setup"
