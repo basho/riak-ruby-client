@@ -270,11 +270,14 @@ shared_examples_for "Unified backend API" do
   # mapred
   context "performing MapReduce" do
     before do
-      obj = Riak::RObject.new(@client.bucket("test"), "1")
+      @mapred_bucket = random_bucket("mapred_test")
+      obj = Riak::RObject.new(@mapred_bucket, "1")
       obj.content_type = "application/json"
       obj.data = {"value" => "1" }
       @backend.store_object(obj)
-      @mapred = Riak::MapReduce.new(@client).add("test").map("Riak.mapValuesJson", :keep => true)
+      @mapred = Riak::MapReduce.new(@client).
+        add(@mapred_bucket.name).
+        map("Riak.mapValuesJson", :keep => true)
     end
 
     it "should not raise an error without phases" do
@@ -312,7 +315,7 @@ shared_examples_for "Unified backend API" do
           unless result.empty?
             result.each do |v|
               begin
-                @client.get_object("test", v['value'])
+                @client.get_object(@mapred_bucket, v['value'])
               rescue => e
                 errors << e
               end
