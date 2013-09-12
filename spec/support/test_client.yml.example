@@ -1,0 +1,12 @@
+# This file is used for configuring test_client used by
+# many of the integration tests.
+#
+# Simply set the arguments you'd normally pass to
+# Riak::Client.new in the file.
+
+nodes: [
+  {host: 'localhost', pb_port: 10017},
+  {host: 'localhost', pb_port: 10027},
+  {host: 'localhost', pb_port: 10037},
+  {host: 'localhost', pb_port: 10047}
+]
