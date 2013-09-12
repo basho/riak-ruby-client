@@ -337,11 +337,15 @@ shared_examples_for "Unified backend API" do
     include_context "search corpus setup"
 
     it 'should find indexed documents, returning ids' do
-      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => 'id'
+      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => '_yz_rk'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
-      results['docs'].should include({"id" => "munchausen-605"})
+      found = results['docs'].any? do |e|
+        e['_yz_rk'] == 'munchausen-605'
+      end
+
+      expect(found).to be_true
     end
 
     it 'should find indexed documents, returning documents' do
@@ -350,7 +354,12 @@ shared_examples_for "Unified backend API" do
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
-      results['docs'].should include({"id" => "munchausen-605", "value" => "Fearless I advanced against the elephant, desirous to take alive the haughty Tippoo Sahib; but he drew a pistol from his belt, and discharged it full in my face as I rushed upon him, which did me no further harm than wound my cheek-bone, which disfigures me somewhat under my left eye. I could not withstand the rage and impulse of that moment, and with one blow of my sword separated his head from his body.\n"})
+
+      found = results['docs'].any? do |e|
+        e['_yz_rk'] == 'munchausen-605'
+      end
+
+      expect(found).to be_true
     end
   end
 end
