@@ -10,11 +10,32 @@ module Riak
       end
 
       class RpbBucketProps
+        def clean_hook(newval)
+          if newval.is_a? Array
+            return newval.map{|v| clean_hook v}
+          end
+
+          newval = newval.symbolize_keys if newval.is_a? Hash
+          if newval.is_a?(Hash) && newval[:module] && newval[:function]
+            modfun = RpbModFun.new newval
+            hook = RpbCommitHook.new modfun: modfun
+            newval = hook
+          elsif newval.is_a?(Hash) && newval[:name]
+            hook = RpbCommitHook.new newval
+            newval = hook
+          elsif newval.is_a? String
+            hook = RpbCommitHook.new name: newval
+            newval = hook
+          end
+
+          return newval
+        end
 
         # "repeated" elements with zero items are indistinguishable
         # from a nil, so we have to manage has_precommit/has_postcommit
         # flags.
         def precommit=(newval)
+          newval = clean_hook newval
           @precommit = newval
           @has_precommit = !!newval
         end
@@ -25,6 +46,7 @@ module Riak
         end
 
         def postcommit=(newval)
+          newval = clean_hook newval
           @postcommit = newval
           @has_postcommit = !!newval
         end
