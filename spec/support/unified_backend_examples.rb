@@ -328,7 +328,6 @@ shared_examples_for "Unified backend API" do
   end
 
   # search
-  # TODO: revisit for yz
   context "searching fulltext indexes" do
     # Search functionality existed since Riak 0.13, but PBC only
     # entered into the picture in 1.2. PBC can support searches
