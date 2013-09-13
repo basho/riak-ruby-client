@@ -13,5 +13,7 @@ shared_context "search corpus setup" do
         @backend.store_object(obj)
       end
     end
+
+    sleep 1
   end
 end
