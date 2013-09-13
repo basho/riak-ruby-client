@@ -20,8 +20,12 @@ module TestClient
   end
 
   def random_bucket(name='test_client')
-    bucket_name = [name, Time.now.to_i, rand(36**10).to_s(36)].join('-')
+    bucket_name = [name, Time.now.to_i, random_key].join('-')
     test_client.bucket bucket_name
+  end
+
+  def random_key
+    rand(36**10).to_s(36)
   end
 end
 
