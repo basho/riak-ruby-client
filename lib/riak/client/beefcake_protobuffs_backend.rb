@@ -118,7 +118,9 @@ module Riak
 
       def set_bucket_props(bucket, props)
         bucket = bucket.name if Bucket === bucket
-        req = RpbSetBucketReq.new(:bucket => maybe_encode(bucket), :props => RpbBucketProps.new(props.symbolize_keys))
+        req = RpbSetBucketReq.new(
+                                  bucket: maybe_encode(bucket),
+                                  props: RpbBucketProps.new(props.symbolize_keys))
         write_protobuff(:SetBucketReq, req)
         decode_response
       end
