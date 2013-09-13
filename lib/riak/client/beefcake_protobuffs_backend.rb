@@ -50,6 +50,7 @@ module Riak
       end
 
       def store_object(robject, options={})
+        options[:return_body] ||= options[:returnbody]
         options = normalize_quorums(options)
         if robject.prevent_stale_writes
           unless pb_conditionals?
