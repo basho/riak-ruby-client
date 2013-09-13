@@ -89,7 +89,7 @@ shared_examples_for "Unified backend API" do
   # store_object
   context "storing an object" do
     before do
-      @robject = Riak::RObject.new(@bucket, 'store')
+      @robject = Riak::RObject.new(@bucket, random_key)
       @robject.content_type = "application/json"
       @robject.data = {"test" => "pass"}
     end
@@ -106,7 +106,7 @@ shared_examples_for "Unified backend API" do
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
-        @client.bucket("test").exists?("store").should be_true
+        @client.bucket(@bucket.name).exists?(@robject.key).should be_true
       end
 
       it "should accept a DW value of #{q.inspect} for the request" do
@@ -126,7 +126,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      expect { @backend.fetch_object("test", "store") }.to_not raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object(@bucket.name, @robject.key) }.to_not raise_error(Riak::FailedRequest)
     end
   end
 
