@@ -1,5 +1,23 @@
 # Riak Ruby Client Release Notes
 
+## 1.4.1 Patch/Bugfix Release - 2013-09-06
+
+Release 1.4.1 fixes a few minor bugs and issues.
+
+Issues:
+
+* Test for object existence using head request, reported and fixed by
+  Elias "eliaslevy" Levy in https://github.com/basho/riak-ruby-client/pull/102
+
+Bugfixes:
+
+* License missing from gemspec, reported by Benjamin "bf4" Fleischer
+  in https://github.com/basho/riak-ruby-client/pull/108
+* Debugger required by Gemfile, reported by Basho Giddyup
+  in https://github.com/basho/riak-ruby-client/pull/114
+* Issue when reading Git-based version numbers, reported and fixed by
+  jacepp in https://github.com/basho/riak-ruby-client/pull/120
+
 ## 1.4.0 Feature Release - 2013-08-16
 
 Release 1.4.0 adds support for Riak 1.4 and fixes a few bugs.

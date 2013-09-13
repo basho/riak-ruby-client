@@ -320,6 +320,11 @@ module Riak
           code = MESSAGE_CODES[msgcode]
           raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
 
+          if msglen == 1
+            return if block_given?
+            return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
+          end
+
           message = RpbIndexResp.decode socket.read msglen - 1
 
           if !block_given?
