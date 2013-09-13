@@ -99,7 +99,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       results.should == %w{asdf asdg asdh}
     end
 
-    it "should not crash out when no keys or terms are released" do
+    it "should not crash out when no keys or terms are returned" do
       backend.should_receive(:write_protobuff) do |msg, req|
         msg.should == :IndexReq
         req[:stream].should_not be
@@ -107,9 +107,12 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
 
       response_message = Riak::Client::BeefcakeProtobuffsBackend::
         RpbIndexResp.new().encode
-      
+
       header = [response_message.length + 1, 26].pack 'NC'
-      @socket.should_receive(:read).and_return(header, response_message)
+      @socket.
+        should_receive(:read).
+        with(5).
+        and_return(header)
 
       results = nil
       fetch = proc do
