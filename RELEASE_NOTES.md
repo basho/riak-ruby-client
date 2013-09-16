@@ -1,5 +1,16 @@
 # Riak Ruby Client Release Notes
 
+## 1.4.2 Bugfix Release - TBD
+
+Release 1.4.2 fixes a bug.
+
+Bugfix:
+
+* 2i Requests over PBC block forever when 0 results match in 1.4.x,
+  reported by Sean "graphex" McKibben in
+  https://github.com/basho/riak-ruby-client/pull/121 and
+  https://github.com/basho/riak-ruby-client/pull/122
+
 ## 1.4.1 Patch/Bugfix Release - 2013-09-06
 
 Release 1.4.1 fixes a few minor bugs and issues.
