@@ -47,7 +47,7 @@ module Riak
           rcontent.raw_data = pbuf.value
           rcontent.etag = pbuf.vtag if pbuf.vtag.present?
           rcontent.content_type = pbuf.content_type if pbuf.content_type.present?
-          rcontent.links = pbuf.links.map(&method(:decode_link)) if pbuf.links.present?
+          rcontent.links = Set.new(pbuf.links.map(&method(:decode_link))) if pbuf.links.present?
           pbuf.usermeta.each {|pair| decode_meta(pair, rcontent.meta) } if pbuf.usermeta.present?
           if pbuf.indexes.present?
             rcontent.indexes.clear
