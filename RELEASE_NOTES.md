@@ -10,7 +10,7 @@ Bugfixes:
   reported by Sean "graphex" McKibben in
   https://github.com/basho/riak-ruby-client/pull/121 and
   https://github.com/basho/riak-ruby-client/pull/122
-* RObvject#links is an Array when loaded from PBC, reported by Dan Pisarski in
+* RObject#links is an Array when loaded from PBC, reported by Dan Pisarski in
   https://github.com/basho/riak-ruby-client/pull/123
 
 ## 1.4.1 Patch/Bugfix Release - 2013-09-06
