@@ -204,9 +204,9 @@ module Riak
 
       # Lists known buckets
       # @return [Array<String>] the list of buckets
-      def list_buckets(&block)
+      def list_buckets(options = {}, &block)
         if block_given?
-          get(200, bucket_list_path(stream: true), &BucketStreamer.new(block))
+          get(200, bucket_list_path(options.merge(stream: true)), &BucketStreamer.new(block))
           return
         end
 
