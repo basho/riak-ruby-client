@@ -171,9 +171,20 @@ describe Riak::Client::HTTPBackend do
   end
 
   context "listing buckets" do
-    it "should GET the bucket list URL and parse the response as JSON" do
+    before(:each) do
       @backend.should_receive(:get).with(200, @backend.bucket_list_path).and_return({:body => '{"buckets":["foo", "bar", "baz"]}'})
-      @backend.list_buckets.should == ["foo", "bar", "baz"]
+    end
+
+    context "given no arguments" do
+      it "should GET the bucket list URL and parse the response as JSON" do
+        @backend.list_buckets.should == ["foo", "bar", "baz"]
+      end
+    end
+
+    context "given a hash of options" do
+      it "should GET the bucket list URL and parse the response as JSON" do
+        @backend.list_buckets({}).should == ["foo", "bar", "baz"]
+      end
     end
   end
 
