@@ -12,6 +12,9 @@ Bugfixes:
   https://github.com/basho/riak-ruby-client/pull/122
 * RObject#links is an Array when loaded from PBC, reported by Dan Pisarski in
   https://github.com/basho/riak-ruby-client/pull/123
+* Bucket listing doesn't work with HTTP backend,
+  reported and fixed by Wagner Camaro in
+  https://github.com/basho/riak-ruby-client/pull/124
 
 ## 1.4.1 Patch/Bugfix Release - 2013-09-06
 
