@@ -210,6 +210,9 @@ q2 = q.next_page
     $ git checkout master
     $ git pull --rebase basho master
     ```
+
+* Copy spec/support/test_server.yml.example to spec/support/test_server.yml and change that file according to your local installation of riak.
+
 * Create a topic branch. If you've already created a topic branch, rebase it on top of changes from the mainline "master" branch. Examples:
   * New branch:
 
