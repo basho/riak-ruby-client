@@ -106,7 +106,7 @@ shared_examples_for "Unified backend API" do
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
-        @client.bucket(@bucket.name).exists?(@robject.key).should be_true
+        @bucket.exists?(@robject.key).should be_true
       end
 
       it "should accept a DW value of #{q.inspect} for the request" do
