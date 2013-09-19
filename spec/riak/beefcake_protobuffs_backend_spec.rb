@@ -42,6 +42,24 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       @socket = mock(:socket).as_null_object
       TCPSocket.stub(:new => @socket)
     end
+
+    it 'should raise an appropriate error when 2i is not available' do
+      backend.should_receive(:write_protobuff)
+      response_message = Riak::Client::BeefcakeProtobuffsBackend::
+        RpbErrorResp.
+        new(errmsg: '{error,{indexes_not_supported,riak_kv_bitcask_backend}}',
+            errcode: 0).
+        encode
+
+      response_header = [response_message.length + 1, 0].pack('NC')
+
+      @socket.should_receive(:read).with(5).and_return response_header
+      @socket.should_receive(:read).with(response_message.length).and_return response_message
+
+      expect{ backend.get_index 'bucket', 'words', 'asdf' }.to raise_error "Expected success from Riak but received 0. Secondary indexes aren't supported on the riak_kv_bitcask_backend backend."
+      # '
+    end
+    
     context 'when streaming' do
       it "should stream when a block is given" do 
         backend.should_receive(:write_protobuff) do |msg, req|
