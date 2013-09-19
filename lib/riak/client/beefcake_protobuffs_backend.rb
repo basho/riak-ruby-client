@@ -324,10 +324,11 @@ module Riak
             if match = message.match(/indexes_not_supported,(\w+)/)
               message = t('index.wrong_backend', backend: match[1])
             end
-pp message
             raise ProtobuffsFailedRequest.new resp.errcode, message
           elsif code != :IndexResp
-            raise ProtobuffsFailedRequest, code, t('protobuffs.unexpected_message')
+            teardown # close socket, we don't know what's going on anymore
+            inner = ProtobuffsFailedRequest.new code, t('protobuffs.unexpected_message')
+            raise Innertube::Pool::BadResource, inner
           end
 
           if msglen == 1
