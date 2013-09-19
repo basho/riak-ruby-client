@@ -3,10 +3,8 @@
 #
 # Simply set the arguments you'd normally pass to
 # Riak::Client.new in the file.
+#
+# Don't run multiple nodes, integration tests include
+# quorum checks that may result in race conditions.
 
-nodes: [
-  {host: 'localhost', pb_port: 10017},
-  {host: 'localhost', pb_port: 10027},
-  {host: 'localhost', pb_port: 10037},
-  {host: 'localhost', pb_port: 10047}
-]
+pb_port: 10017
