@@ -70,3 +70,38 @@ RSpec::Core::RakeTask.new(:ci) do |spec|
   spec.rspec_opts = %w[--profile]
 end
 task :default => :ci
+
+
+desc "Generate Protocol Buffers message definitions from riak_pb"
+task :pb_defs => 'beefcake:pb_defs'
+
+namespace :beefcake do
+  task :pb_defs => 'lib/riak/client/beefcake/messages.rb'
+
+  task :clean do
+    sh "rm -rf tmp/riak_pb"
+    sh "rm -rf tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb"
+  end
+
+  file 'lib/riak/client/beefcake/messages.rb' => %w{tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb} do |t|
+    sh "cat lib/riak/client/beefcake/header tmp/riak.pb.rb #{t.prerequisites.join ' '} lib/riak/client/beefcake/footer > #{t.name}"
+  end
+
+  file 'tmp/riak_kv.pb.rb' => 'tmp/riak_pb' do |t|
+    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_kv.proto"
+  end
+
+  file 'tmp/riak_search.pb.rb' => 'tmp/riak_pb' do |t|
+    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_search.proto"
+  end
+
+  file 'tmp/riak_yokozuna.pb.rb' => 'tmp/riak_pb' do |t|
+    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_yokozuna.proto"
+  end
+
+  directory 'tmp/riak_pb' do
+    cd 'tmp' do
+      sh "git clone -b develop https://github.com/basho/riak_pb.git"
+    end
+  end
+end
