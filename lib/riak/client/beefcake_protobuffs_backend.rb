@@ -318,6 +318,9 @@ module Riak
             IndexCollection.new_from_protobuf res
           when :SearchQueryResp
             res = RpbSearchQueryResp.decode(message)
+            if res.docs.nil?
+              res.docs = []
+            end
             { 'docs' => res.docs.map {|d| decode_doc(d) },
               'max_score' => res.max_score,
               'num_found' => res.num_found }
