@@ -1,0 +1,6 @@
+require 'beefcake'
+
+module Riak
+  class Client
+    # @private
+    class BeefcakeProtobuffsBackend
