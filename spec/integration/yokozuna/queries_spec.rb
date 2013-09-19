@@ -2,20 +2,14 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozona queries", test_server: true, integration: true do
+describe "Yokozona queries", test_client: true, integration: true do
   before :all do
-    opts = {
-      http_port: test_server.http_port,
-      pb_port: test_server.pb_port,
-      protocol: 'pbc'
-    }
-    test_server.start
-    @client = Riak::Client.new opts
+    @client = test_client
   end
 
   context "with a schema and indexes" do
     before :all do
-      @index = "test"
+      @index = 'yz_spec-' + random_key
 
       @client.create_search_index(@index).should == true
       wait_until{ !@client.get_search_index(@index).nil? }
@@ -103,17 +97,6 @@ describe "Yokozona queries", test_server: true, integration: true do
         resp['docs'].first['age_i'].to_i.should == 14
       end
 
-    end
-
-    after(:all) do
-      # Can't delete index with associate buckets
-      lambda{ @client.delete_search_index(@index) }.should raise_error(Riak::ProtobuffsFailedRequest)
-
-      # disassociate
-      @bucket = @client.bucket(@index)
-      @bucket.props = {'yz_index' => nil}
-
-      @client.delete_search_index(@index)
     end
   end
 

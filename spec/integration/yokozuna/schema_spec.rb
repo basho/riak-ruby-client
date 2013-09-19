@@ -1,18 +1,12 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozuna", test_server: true, integration: true do
+describe "Yokozuna", test_client: true, integration: true do
   before(:all) do
-    opts = {
-      http_port: test_server.http_port,
-      pb_port: test_server.pb_port,
-      protocol: 'pbc'
-    }
-    test_server.start
-    @client = Riak::Client.new opts
+    @client = test_client
 
-    @index = "test"
-    @schema = "testschema"
+    @index = 'yz_spec-' + random_key
+    @schema = 'yz_spec-' + random_key
   end
 
   context 'with no schema' do
@@ -34,7 +28,7 @@ describe "Yokozuna", test_server: true, integration: true do
 
   SCHEMA_CONTENT = <<-XML
 <?xml version=\"1.0\" encoding=\"UTF-8\" ?>
-<schema name=\"test\" version=\"1.5\">
+<schema name=\"#{@index}\" version=\"1.5\">
 <fields>
    <field name=\"_yz_id\" type=\"_yz_str\" indexed=\"true\" stored=\"true\" required=\"true\" />
    <field name=\"_yz_ed\" type=\"_yz_str\" indexed=\"true\" stored=\"true\"/>
