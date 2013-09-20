@@ -318,7 +318,18 @@ module Riak
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
           msglen, msgcode = header.unpack("NC")
           code = MESSAGE_CODES[msgcode]
-          raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
+          if code == :ErrorResp
+            resp = RpbErrorResp.decode socket.read msglen - 1
+            message = resp.errmsg
+            if match = message.match(/indexes_not_supported,(\w+)/)
+              message = t('index.wrong_backend', backend: match[1])
+            end
+            raise ProtobuffsFailedRequest.new resp.errcode, message
+          elsif code != :IndexResp
+            teardown # close socket, we don't know what's going on anymore
+            inner = ProtobuffsFailedRequest.new code, t('protobuffs.unexpected_message')
+            raise Innertube::Pool::BadResource, inner
+          end
 
           if msglen == 1
             return if block_given?

@@ -4,6 +4,11 @@
 
 Release 1.4.2 fixes a couple bugs.
 
+Issues:
+
+* Secondary index queries against non-2i-enabled buckets/backends now raise a
+  useful exception.
+
 Bugfixes:
 
 * 2i Requests over PBC block forever when 0 results match in 1.4.x,

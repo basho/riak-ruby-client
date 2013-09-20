@@ -294,8 +294,14 @@ module Riak
           end
           get(200, path, &parser)
         else
-          response = get(200, path)
-          Riak::IndexCollection.new_from_json response[:body]
+          begin
+            response = get(200, path)
+            Riak::IndexCollection.new_from_json response[:body]
+          rescue HTTPFailedRequest => e
+            if match = e.message.match(/indexes_not_supported,(\w+)/)
+              raise HTTPFailedRequest.new :get, 200, 500, e.headers, t('index.wrong_backend', backend: match[1])
+            end
+          end
         end
       end
 
