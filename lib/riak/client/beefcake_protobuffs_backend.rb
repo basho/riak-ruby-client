@@ -206,7 +206,7 @@ module Riak
         return super unless pb_search?
         options = options.symbolize_keys
         options[:op] = options.delete(:'q.op') if options[:'q.op']
-        req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
+        req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => maybe_encode(query)))
         write_protobuff(:SearchQueryReq, req)
         decode_response
       end

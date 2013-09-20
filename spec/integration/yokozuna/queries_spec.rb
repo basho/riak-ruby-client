@@ -1,15 +1,16 @@
 # encoding: UTF-8
-require 'spec_helper'
+# require 'spec_helper'
 require 'riak'
 
-describe "Yokozona queries", test_server: true, integration: true do
+# describe "Yokozona queries", test_server: true, integration: true do
+describe "Yokozona queries" do
   before :all do
     opts = {
-      http_port: test_server.http_port,
-      pb_port: test_server.pb_port,
+      http_port: 10018, #test_server.http_port,
+      pb_port: 10017, #test_server.pb_port,
       protocol: 'pbc'
     }
-    test_server.start
+    # test_server.start
     @client = Riak::Client.new opts
   end
 
@@ -74,13 +75,12 @@ describe "Yokozona queries", test_server: true, integration: true do
       resp['docs'].size.should == 2
     end
 
-    # TODO: run this when pb utf8 works
     it "should support utf8" do
       build_json_obj(@bucket, "ja", {"text_ja"=>"私はハイビスカスを食べるのが 大好き"})
-      # sleep 1.1  # pause for index commit to trigger
-      # resp = @client.search(@index, "text_ja:大好き")
-      # resp.should include('docs')
-      # resp['docs'].size.should == 1
+      sleep 1.1  # pause for index commit to trigger
+      resp = @client.search(@index, "text_ja:大好き")
+      resp.should include('docs')
+      resp['docs'].size.should == 1
     end
 
     context "using parameters" do
