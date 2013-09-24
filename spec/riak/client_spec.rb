@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Riak::Client do
+describe Riak::Client, test_client: true do
   describe "when initializing" do
     it "should default a single local node" do
       client = Riak::Client.new
@@ -25,7 +25,7 @@ describe Riak::Client do
     end
 
     it "should create a client ID if not specified" do
-      Riak::Client.new(pb_port: 10017).client_id.should_not be_nil
+      Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id.should_not be_nil
     end
   end
 
