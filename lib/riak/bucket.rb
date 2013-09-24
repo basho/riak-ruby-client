@@ -10,6 +10,9 @@ module Riak
   class Bucket
     include Util::Translation
 
+    # (Riak Search) The precommit specification for kv/search integration
+    SEARCH_PRECOMMIT_HOOK = {"mod" => "riak_search_kv_hook", "fun" => "precommit"}
+
     # @return [Riak::Client] the associated client
     attr_reader :client
 
