@@ -43,6 +43,21 @@ class RpbResetBucketReq
 end
 
 
+class RpbGetBucketTypeReq
+  include Beefcake::Message
+end
+
+
+class RpbSetBucketTypeReq
+  include Beefcake::Message
+end
+
+
+class RpbResetBucketTypeReq
+  include Beefcake::Message
+end
+
+
 class RpbModFun
   include Beefcake::Message
 end
@@ -54,6 +69,11 @@ end
 
 
 class RpbBucketProps
+  include Beefcake::Message
+end
+
+
+class RpbAuthReq
   include Beefcake::Message
 end
 
@@ -75,6 +95,7 @@ end
 
 class RpbGetBucketReq
   required :bucket, :bytes, 1
+  optional :type, :bytes, 2
 end
 
 class RpbGetBucketResp
@@ -84,10 +105,25 @@ end
 class RpbSetBucketReq
   required :bucket, :bytes, 1
   required :props, RpbBucketProps, 2
+  optional :type, :bytes, 3
 end
 
 class RpbResetBucketReq
   required :bucket, :bytes, 1
+  optional :type, :bytes, 2
+end
+
+class RpbGetBucketTypeReq
+  required :type, :bytes, 1
+end
+
+class RpbSetBucketTypeReq
+  required :type, :bytes, 1
+  required :props, RpbBucketProps, 2
+end
+
+class RpbResetBucketTypeReq
+  required :type, :bytes, 1
 end
 
 class RpbModFun
@@ -132,6 +168,11 @@ class RpbBucketProps
   optional :search, :bool, 23
   optional :repl, RpbBucketProps::RpbReplMode, 24
   optional :yz_index, :bytes, 25
+end
+
+class RpbAuthReq
+  required :user, :bytes, 1
+  required :password, :bytes, 2
 end
 ## Generated from riak_kv.proto for 
 require "beefcake"
@@ -278,6 +319,7 @@ class RpbGetReq
   optional :timeout, :uint32, 10
   optional :sloppy_quorum, :bool, 11
   optional :n_val, :uint32, 12
+  optional :type, :bytes, 13
 end
 
 class RpbGetResp
@@ -302,6 +344,7 @@ class RpbPutReq
   optional :asis, :bool, 13
   optional :sloppy_quorum, :bool, 14
   optional :n_val, :uint32, 15
+  optional :type, :bytes, 16
 end
 
 class RpbPutResp
@@ -323,11 +366,13 @@ class RpbDelReq
   optional :timeout, :uint32, 10
   optional :sloppy_quorum, :bool, 11
   optional :n_val, :uint32, 12
+  optional :type, :bytes, 13
 end
 
 class RpbListBucketsReq
   optional :timeout, :uint32, 1
   optional :stream, :bool, 2
+  optional :type, :bytes, 3
 end
 
 class RpbListBucketsResp
@@ -338,6 +383,7 @@ end
 class RpbListKeysReq
   required :bucket, :bytes, 1
   optional :timeout, :uint32, 2
+  optional :type, :bytes, 3
 end
 
 class RpbListKeysResp
@@ -372,6 +418,7 @@ class RpbIndexReq
   optional :max_results, :uint32, 9
   optional :continuation, :bytes, 10
   optional :timeout, :uint32, 11
+  optional :type, :bytes, 12
 end
 
 class RpbIndexResp
@@ -390,6 +437,7 @@ class RpbCSBucketReq
   optional :continuation, :bytes, 6
   optional :max_results, :uint32, 7
   optional :timeout, :uint32, 8
+  optional :type, :bytes, 9
 end
 
 class RpbCSBucketResp
@@ -431,6 +479,7 @@ class RpbCounterUpdateReq
   optional :dw, :uint32, 5
   optional :pw, :uint32, 6
   optional :returnvalue, :bool, 7
+  optional :type, :bytes, 8
 end
 
 class RpbCounterUpdateResp
@@ -444,6 +493,7 @@ class RpbCounterGetReq
   optional :pr, :uint32, 4
   optional :basic_quorum, :bool, 5
   optional :notfound_ok, :bool, 6
+  optional :type, :bytes, 7
 end
 
 class RpbCounterGetResp
@@ -575,6 +625,179 @@ end
 
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
+end
+## Generated from riak_dt.proto for 
+require "beefcake"
+
+
+class MapField
+  include Beefcake::Message
+end
+
+
+class MapEntry
+  include Beefcake::Message
+end
+
+
+class DtFetchReq
+  include Beefcake::Message
+end
+
+
+class DtValue
+  include Beefcake::Message
+end
+
+
+class DtFetchResp
+  include Beefcake::Message
+end
+
+
+class CounterOp
+  include Beefcake::Message
+end
+
+
+class SetOp
+  include Beefcake::Message
+end
+
+
+class MapUpdate
+  include Beefcake::Message
+end
+
+
+class MapOp
+  include Beefcake::Message
+end
+
+
+class DtOp
+  include Beefcake::Message
+end
+
+
+class DtUpdateReq
+  include Beefcake::Message
+end
+
+
+class DtUpdateResp
+  include Beefcake::Message
+end
+
+
+class MapField
+  module MapFieldType
+    COUNTER = 1
+    SET = 2
+    REGISTER = 3
+    FLAG = 4
+    MAP = 5
+  end
+  required :name, :bytes, 1
+  required :type, MapField::MapFieldType, 2
+end
+
+class MapEntry
+  required :field, MapField, 1
+  optional :counter_value, :sint64, 2
+  repeated :set_value, :bytes, 3
+  optional :register_value, :bytes, 4
+  optional :flag_value, :bool, 5
+  repeated :map_value, MapEntry, 6
+end
+
+class DtFetchReq
+  required :bucket, :bytes, 1
+  required :key, :bytes, 2
+  required :type, :bytes, 3
+  optional :r, :uint32, 4
+  optional :pr, :uint32, 5
+  optional :basic_quorum, :bool, 6
+  optional :notfound_ok, :bool, 7
+  optional :timeout, :uint32, 8
+  optional :sloppy_quorum, :bool, 9
+  optional :n_val, :uint32, 10
+  optional :include_context, :bool, 11, :default => true
+end
+
+class DtValue
+  optional :counter_value, :sint64, 1
+  repeated :set_value, :bytes, 2
+  repeated :map_value, MapEntry, 3
+end
+
+class DtFetchResp
+  module DataType
+    COUNTER = 1
+    SET = 2
+    MAP = 3
+  end
+  optional :context, :bytes, 1
+  required :type, DtFetchResp::DataType, 2
+  optional :value, DtValue, 3
+end
+
+class CounterOp
+  optional :increment, :sint64, 1
+end
+
+class SetOp
+  repeated :adds, :bytes, 1
+  repeated :removes, :bytes, 2
+end
+
+class MapUpdate
+  module FlagOp
+    ENABLE = 1
+    DISABLE = 2
+  end
+  required :field, MapField, 1
+  optional :counter_op, CounterOp, 2
+  optional :set_op, SetOp, 3
+  optional :register_op, :bytes, 4
+  optional :flag_op, MapUpdate::FlagOp, 5
+  optional :map_op, MapOp, 6
+end
+
+class MapOp
+  repeated :adds, MapField, 1
+  repeated :removes, MapField, 2
+  repeated :updates, MapUpdate, 3
+end
+
+class DtOp
+  optional :counter_op, CounterOp, 1
+  optional :set_op, SetOp, 2
+  optional :map_op, MapOp, 3
+end
+
+class DtUpdateReq
+  required :bucket, :bytes, 1
+  optional :key, :bytes, 2
+  required :type, :bytes, 3
+  optional :context, :bytes, 4
+  required :op, DtOp, 5
+  optional :w, :uint32, 6
+  optional :dw, :uint32, 7
+  optional :pw, :uint32, 8
+  optional :return_body, :bool, 9, :default => false
+  optional :timeout, :uint32, 10
+  optional :sloppy_quorum, :bool, 11
+  optional :n_val, :uint32, 12
+  optional :include_context, :bool, 13, :default => true
+end
+
+class DtUpdateResp
+  optional :key, :bytes, 1
+  optional :context, :bytes, 2
+  optional :counter_value, :sint64, 3
+  repeated :set_value, :bytes, 4
+  repeated :map_value, MapEntry, 5
 end
 
     end

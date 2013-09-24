@@ -33,12 +33,23 @@ module Riak
         :SearchQueryResp => 28,
         :ResetBucketReq => 29,
         :ResetBucketResp => 30,
+
+        # bucket types
+        :GetBucketTypeReq => 31,
+        :SetBucketTypeReq => 32,
+        :ResetBucketTypeReq => 33,
+
+        # riak cs
         :CSBucketReq => 40,
         :CSBucketResp => 41,
+
+        # 1.4 counters
         :CounterUpdateReq => 50,
         :CounterUpdateResp => 51,
         :CounterGetReq => 52,
         :CounterGetResp => 53,
+
+        # yokozuna
         :YokozunaIndexGetReq => 54,
         :YokozunaIndexGetResp => 55,
         :YokozunaIndexPutReq => 56,
@@ -46,6 +57,17 @@ module Riak
         :YokozunaSchemaGetReq => 58,
         :YokozunaSchemaGetResp => 59,
         :YokozunaSchemaPutReq => 60,
+
+        # riak 2 CRDT
+        :DtFetchReq => 80,
+        :DtFetchResp => 81,
+        :DtUpdateReq => 82,
+        :DtUpdateResp => 83,
+
+        # internal
+        :AuthReq => 253,
+        :AuthResp => 254,
+        :StartTls => 255
       }
 
       CODE_TO_MESSAGE = MESSAGE_TO_CODE.invert
