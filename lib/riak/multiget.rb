@@ -1,6 +1,5 @@
 require 'riak/client'
 require 'riak/bucket'
-require 'riak/cluster'
 
 module Riak
   # Coordinates a parallel fetch operation for multiple values.
