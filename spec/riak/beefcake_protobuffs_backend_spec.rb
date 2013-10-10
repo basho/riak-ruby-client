@@ -127,7 +127,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         RpbIndexResp.new().encode
       
       header = [response_message.length + 1, 26].pack 'NC'
-      @socket.should_receive(:read).and_return(header, response_message)
+      @socket.should_receive(:read).and_return(header)
 
       results = nil
       fetch = proc do
