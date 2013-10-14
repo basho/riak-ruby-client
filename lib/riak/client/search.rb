@@ -1,5 +1,3 @@
-require 'builder'
-
 module Riak
   class Client
     # (Riak Search) Performs a search via the Solr interface.
