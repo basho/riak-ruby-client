@@ -13,6 +13,7 @@ module Riak
           require 'riak/client/beefcake/messages'
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
+          require 'riak/client/beefcake/crdt'
           true
         rescue LoadError, NameError
           false
@@ -336,6 +337,10 @@ module Riak
             res = RpbYokozunaIndexGetResp.decode message
           when :YokozunaSchemaGetResp
             res = RpbYokozunaSchemaGetResp.decode message
+          when :DtFetchResp
+            res = DtFetchResp.decode message
+          when :DtUpdateResp
+            res = DtUpdateResp.decode message
           end
         end
       rescue SystemCallError, SocketError => e
