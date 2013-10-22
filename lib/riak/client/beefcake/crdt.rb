@@ -10,15 +10,13 @@ module Riak
                              )
 
         message = DtFetchReq.new(args)
-        pp message
         
         write_protobuff(:DtFetchReq, message)
         decode_response
       end
 
-      def store_counter(bucket, key, type, options={})
+      def update_crdt(bucket, key, type, operation, options={})
         bucket = bucket.name if bucket.is_a? Bucket
-        operation = DtOp.new counter_op: CounterOp.new
         args = options.merge(
                              bucket: bucket,
                              key: key,
@@ -27,7 +25,6 @@ module Riak
                              )
 
         message = DtUpdateReq.new args
-        pp message
         write_protobuff :DtUpdateReq, message
         decode_response
       end
