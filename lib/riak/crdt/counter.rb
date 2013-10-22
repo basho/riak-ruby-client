@@ -17,18 +17,14 @@ module Riak
       def value
         return @value if defined? @value
         reload
-        return @value = result.value unless result.value.nil?
+        return @value = result.value.counter_value unless result.value.nil?
         0
       end
 
       def increment(amount=1)
-        counter_operation = Client::BeefcakeProtobuffsBackend::
-          CounterOp.new increment: amount
-        operation = Client::BeefcakeProtobuffsBackend::
-          DtOp.new counter_op: counter_operation
-        client.backend do |be|
-          be.update_crdt @bucket, @key, @bucket_type, operation
-        end
+        counter_operation = backend_class::CounterOp.new increment: amount
+        operation = backend_class::DtOp.new counter_op: counter_operation
+        backend.update_crdt @bucket, @key, @bucket_type, operation
       end
 
       private
@@ -40,6 +36,14 @@ module Riak
       
       def client
         @bucket.client
+      end
+
+      def backend
+        client.backend{|be| be}
+      end
+
+      def backend_class
+        backend.class
       end
     end
   end
