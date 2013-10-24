@@ -24,13 +24,32 @@ describe "CRDTs", integration: true, test_client: true do
     it 'should allow batched counter ops' do
       start = subject.value
       subject.batch do |s|
-        s.increment 5
+        s.increment
+        s.increment 2
+        s.increment
+        s.increment
       end
       expect(subject.value).to == start + 5
     end
   end
   describe 'sets' do
-    it 'should allow straightforward set ops'
+
+    subject { Riak::Crdt::Set.new bucket, random_key }
+    
+    it 'should allow straightforward set ops' do
+      start = subject.members
+      addition = random_key
+
+      subject.add addition
+      expect(subject.include? addition).to be
+      expect(subject.members).to include(addition)
+
+      subject.remove addition
+      expect(subject.include? addition).to_not be
+      expect(subject.members).to_not include(addition)
+      expect(subject.members).to eq(start)
+    end
+    
     it 'should allow batched set ops'
   end
   describe 'maps' do
