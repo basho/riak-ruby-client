@@ -1,4 +1,4 @@
-%w{counter}.each do |f|
+%w{base counter map}.each do |f|
   require "riak/crdt/#{f}"
 end
 
