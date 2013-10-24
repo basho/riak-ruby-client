@@ -32,6 +32,10 @@ module Riak
       def backend_class
         backend.class
       end
+
+      def send_operation(operation, options={})
+        backend.update_crdt @bucket, @key, @bucket_type, operation, options
+      end
     end
   end
 end
