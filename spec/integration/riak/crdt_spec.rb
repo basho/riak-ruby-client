@@ -53,7 +53,25 @@ describe "CRDTs", integration: true, test_client: true do
     it 'should allow batched set ops'
   end
   describe 'maps' do
-    it 'should allow straightforward map ops'
+    subject { Riak::Crdt::Map.new bucket, random_key }
+    
+    it 'should allow straightforward map ops' do
+      subject.registers['first'] = 'hello'
+      expect(subject.registers['first']).to eq('hello')
+
+      subject.sets['arnold'].add 'commando'
+      subject.sets['arnold'].add 'terminator'
+      expect(subject.sets['arnold']).to include('commando')
+      subject.sets['arnold'].remove 'commando'
+      expect(subject.sets['arnold']).to_not include('commando')
+      expect(subject.sets['arnold']).to include('terminator')
+
+      subject.maps['first'].registers['second'] = 'good evening'
+      subject.maps['first'].maps['third'].counters['fourth'].increment
+
+      expect(subject.maps['first'].registers['second']).to eq('good evening')
+      expect(subject.maps['first'].maps['third'].counters['fourth']).to eq(1)
+    end
     it 'should allow batched map ops'
     
     describe 'containing a map' do
