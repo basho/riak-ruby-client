@@ -12,13 +12,13 @@ describe "CRDTs", integration: true, test_client: true do
     it 'should allow straightforward counter ops' do
       start = subject.value
       subject.increment
-      expect(subject.value).to equal(start + 1)
+      expect(subject.value).to eq(start + 1)
       subject.increment
-      expect(subject.value).to equal(start + 2)
+      expect(subject.value).to eq(start + 2)
       subject.increment -1
-      expect(subject.value).to equal(start + 1)
+      expect(subject.value).to eq(start + 1)
       subject.decrement
-      expect(subject.value).to equal(start)
+      expect(subject.value).to eq(start)
     end
     
     it 'should allow batched counter ops' do

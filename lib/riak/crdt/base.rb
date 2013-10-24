@@ -9,9 +9,10 @@ module Riak
       end
 
       def reload
-        @result = client.backend do |be|
+        response = client.backend do |be|
           be.fetch_crdt @bucket, @key, @bucket_type, @options
         end
+        @result = response.value
       end
       
       private
