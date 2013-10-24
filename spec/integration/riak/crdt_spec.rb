@@ -2,13 +2,32 @@ require 'spec_helper'
 require 'riak'
 
 describe "CRDTs", integration: true, test_client: true do
+  let(:bucket) { random_bucket }
   describe 'configuration' do
     it "should allow default bucket-types to be configured for each data type"
     it "should allow override bucket-types for instances"
   end
   describe 'counters' do
-    it 'should allow straightforward counter ops'
-    it 'should allow batched counter ops'
+    subject { Riak::Crdt::Counter.new bucket, random_key }
+    it 'should allow straightforward counter ops' do
+      start = subject.value
+      subject.increment
+      expect(subject.value).to equal(start + 1)
+      subject.increment
+      expect(subject.value).to equal(start + 2)
+      subject.increment -1
+      expect(subject.value).to equal(start + 1)
+      subject.decrement
+      expect(subject.value).to equal(start)
+    end
+    
+    it 'should allow batched counter ops' do
+      start = subject.value
+      subject.batch do |s|
+        s.increment 5
+      end
+      expect(subject.value).to == start + 5
+    end
   end
   describe 'sets' do
     it 'should allow straightforward set ops'
