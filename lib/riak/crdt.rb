@@ -1,4 +1,4 @@
-%w{base counter map set}.each do |f|
+%w{typed_collection base counter map set}.each do |f|
   require "riak/crdt/#{f}"
 end
 
