@@ -1,8 +1,9 @@
 module Riak
   module Crdt
     class TypedCollection
-      def initialize(type, contents={})
+      def initialize(type, parent, contents={})
         @type = type
+        @parent = parent
         @contents = contents.stringify_keys
       end
 
