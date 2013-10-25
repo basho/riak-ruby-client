@@ -1,17 +1,18 @@
 require 'spec_helper'
 
 describe Riak::Crdt::TypedCollection do
+
+  let(:parent){ double 'parent' }
+
   describe 'initialization' do
-    it "should accept a type" do
-      expect{ described_class.new Riak::Crdt::Counter }.to_not raise_error
-    end
-    it "should accept a hash of values" do
-      expect{ described_class.new Riak::Crdt::Counter, {} }.to_not raise_error
+    it "should accept a type, parent, and hash of values" do
+      expect{ described_class.new Riak::Crdt::Counter, parent, {} }.to_not raise_error
     end
   end
 
   describe 'containing' do
     describe 'registers' do
+      let(:parent){ double 'parent' }
       subject do
         described_class.new Riak::Crdt::Counter, existing: 'existing'
       end
@@ -21,7 +22,9 @@ describe Riak::Crdt::TypedCollection do
         expect(subject['existing']).to eq 'existing'
       end
       
-      it 'should send a MapOp with an update to the parent on update'
+      it 'should send a MapOp with an update to the parent on update' do
+        
+      end
       it 'should send a MapOp with an add and an update to the parent on create'
       it 'should send a MapOp with a remove on remove'
     end
