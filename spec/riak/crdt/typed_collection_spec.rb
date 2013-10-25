@@ -12,7 +12,15 @@ describe Riak::Crdt::TypedCollection do
 
   describe 'containing' do
     describe 'registers' do
-      it 'should expose them as strings'
+      subject do
+        described_class.new Riak::Crdt::Counter, existing: 'existing'
+      end
+      
+      it 'should expose them as strings' do
+        expect(subject[:existing]).to eq 'existing'
+        expect(subject['existing']).to eq 'existing'
+      end
+      
       it 'should send a MapOp with an update to the parent on update'
       it 'should send a MapOp with an add and an update to the parent on create'
       it 'should send a MapOp with a remove on remove'
