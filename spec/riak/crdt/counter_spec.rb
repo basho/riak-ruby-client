@@ -2,7 +2,11 @@ require 'spec_helper'
 
 describe Riak::Crdt::Counter do
   describe 'accessed directly' do
-    it 'should be initialized with bucket, key, and optional bucket-type'
+    let(:bucket){ double 'bucket' }
+    it 'should be initialized with bucket, key, and optional bucket-type' do
+      expect{ described_class.new bucket, 'asdf' }.to_not raise_error
+      expect{ described_class.new bucket, 'asdf', 'type' }.to_not raise_error
+    end
     it 'should be immediately incrementable'
     it 'should be batch-incrementable'
   end
