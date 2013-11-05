@@ -155,11 +155,11 @@ object = bucket.get_or_new 'cobb.salad'
 
 # Indexes end with the "_bin" suffix to indicate they're binary or string 
 # indexes. They can have multiple values.
-object.indexes[:ingredients_bin] = %w{lettuce tomato bacon egg chives}
+object.indexes['ingredients_bin'] = %w{lettuce tomato bacon egg chives}
 
 # Indexes ending with the "_int" suffix are indexed as integers. They can
 # have multiple values too.
-object.indexes[:calories_int] = [220]
+object.indexes['calories_int'] = [220]
 
 # You must re-save the object to store indexes.
 object.store
