@@ -1,8 +1,11 @@
 require 'spec_helper'
 
 describe Riak::Crdt::TypedCollection do
-
+  before(:all) do
+    backend.configured?
+  end
   let(:parent){ double 'parent' }
+  let(:backend){ Riak::Client::BeefcakeProtobuffsBackend }
 
   describe 'initialization' do
     it "should accept a type, parent, and hash of values" do
@@ -14,7 +17,7 @@ describe Riak::Crdt::TypedCollection do
     describe 'registers' do
       let(:parent){ double 'parent' }
       subject do
-        described_class.new Riak::Crdt::Counter, existing: 'existing'
+        described_class.new Riak::Crdt::Register, parent, existing: 'existing'
       end
       
       it 'should expose them as strings' do
@@ -23,8 +26,12 @@ describe Riak::Crdt::TypedCollection do
       end
       
       it 'should send a MapOp with an update to the parent on update' do
-        
+        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
+        parent.should_receive(:update).with(instance_of(backend::MapOp))
+
+        expect{subject['existing'] = 'new'}.to_not raise_error
       end
+      
       it 'should send a MapOp with an add and an update to the parent on create'
       it 'should send a MapOp with a remove on remove'
     end
