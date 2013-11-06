@@ -14,6 +14,10 @@ module Riak
         end
         @result = response.value
       end
+
+      def backend_class
+        backend.class
+      end
       
       private
       def result
@@ -28,10 +32,6 @@ module Riak
 
       def backend
         client.backend{|be| be}
-      end
-
-      def backend_class
-        backend.class
       end
 
       def send_operation(operation, options={})
