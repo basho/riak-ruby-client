@@ -48,12 +48,16 @@ describe Riak::Util::Escape do
     end
 
     it "should allow URI-safe characters" do
-      @object.escape("bracket[one").should == "bracket[one"
       @object.escape("sean@basho").should == "sean@basho"
     end
 
     it "should escape slashes" do
       @object.escape("some/inner/path").should == "some%2Finner%2Fpath"
+    end
+
+    it "should escape square brackets" do
+      @object.escape("bracket[one").should == "bracket%5Bone"
+      @object.escape("bracket]two").should == "bracket%5Dtwo"
     end
 
     it "should convert the bucket or key to a string before escaping" do
