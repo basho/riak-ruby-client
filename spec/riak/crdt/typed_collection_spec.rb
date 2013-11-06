@@ -32,7 +32,13 @@ describe Riak::Crdt::TypedCollection do
         expect{subject['existing'] = 'new'}.to_not raise_error
       end
       
-      it 'should send a MapOp with an add and an update to the parent on create'
+      it 'should send a MapOp with an add and an update to the parent on create' do
+        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
+        parent.should_receive(:update).with(instance_of(backend::MapOp))
+
+        expect{subject['actually_new'] = 'new'}.to_not raise_error
+      end
+      
       it 'should send a MapOp with a remove on remove'
     end
     describe 'flags' do
