@@ -49,6 +49,11 @@ describe Riak::Client::HTTPBackend do
       @backend.should_receive(:get).with([200,300], @backend.object_path('foo ', ' bar')).and_return({:headers => {"content-type" => ["application/json"]}, :body => '{"name":"Riak","company":"Basho"}'})
       @backend.fetch_object('foo ',' bar').should be_kind_of(Riak::RObject)
     end
+
+    it "should escape brackets in the bucket and key names" do
+      @backend.should_receive(:get).with([200,300], @backend.object_path('[foo]', '[bar]')).and_return({:headers => {"content-type" => ["application/json"]}, :body => '{"name":"Riak","company":"Basho"}'})
+      @backend.fetch_object('[foo]','[bar]').should be_kind_of(Riak::RObject)
+    end
   end
 
   context "reloading an object" do
@@ -128,6 +133,18 @@ describe Riak::Client::HTTPBackend do
       it "should include persistence-tuning parameters in the query string" do
         @backend.should_receive(:put).with([200,204,300], @backend.object_path("foo", "bar", {:w => 2, :returnbody => true}), "This is some text.", @headers).and_return({:headers => {'location' => ["/riak/foo/somereallylongstring"], "x-riak-vclock" => ["areallylonghashvalue"]}, :code => 204})
         @backend.store_object(@object, :returnbody => true, :w => 2)
+      end
+    end
+
+    context "when the object's key contains square brackets" do
+      before :each do
+        @object.key = "[bar]"
+      end
+
+      it "should escape the key name" do
+        @backend.should_receive(:put).with([200,204,300], @backend.object_path("foo", "[bar]", {:returnbody => true}), "This is some text.", @headers).and_return({:headers => {'location' => ["/riak/foo/%5Bbar%5D"], "x-riak-vclock" => ["areallylonghashvalue"]}, :code => 204})
+        @backend.store_object(@object, :returnbody => true)
+        @object.key.should == "[bar]"
       end
     end
   end
