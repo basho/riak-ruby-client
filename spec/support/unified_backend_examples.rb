@@ -11,7 +11,8 @@ shared_examples_for "Unified backend API" do
       @robject.content_type = "application/json"
       @robject.data = { "test" => "pass" }
       @robject.indexes['test_bin'] << 'pass'
-
+      @robject.links << Riak::Link.new('/riak/foo/bar', 'next')
+      @robject.links << Riak::Link.new('/riak/foo/baz', 'next')
       @backend.store_object(@robject)
     end
 
@@ -19,6 +20,7 @@ shared_examples_for "Unified backend API" do
       robj = @backend.fetch_object(@bucket.name, "fetch")
       robj.should be_kind_of(Riak::RObject)
       robj.data.should == { "test" => "pass" }
+      robj.links.should be_a Set
     end
 
     it "should raise an error when the object is not found" do
