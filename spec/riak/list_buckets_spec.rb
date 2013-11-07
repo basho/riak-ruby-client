@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Riak::ListBuckets do
   before :each do
-    @client = Riak::Client.new protocol: 'pbc'
+    @client = Riak::Client.new
     @backend = mock 'backend'
     @fake_pool = mock 'connection pool'
     @fake_pool.stub(:take).and_yield(@backend)

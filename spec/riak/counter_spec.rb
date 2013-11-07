@@ -93,7 +93,7 @@ describe Riak::Counter do
       @fake_pool = mock 'pool'
       @backend = mock 'backend'
         
-      @client = Riak::Client.new nodes: @nodes, protocol: 'pbc'
+      @client = Riak::Client.new nodes: @nodes
       @client.instance_variable_set :@protobuffs_pool, @fake_pool
 
       @fake_pool.stub(:take).and_yield(@backend)

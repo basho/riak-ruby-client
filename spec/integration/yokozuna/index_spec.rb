@@ -1,18 +1,12 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozuna", test_server: true, integration: true do
+describe "Yokozuna", test_client: true, integration: true do
   before(:all) do
-    opts = {
-      http_port: test_server.http_port,
-      pb_port: test_server.pb_port,
-      protocol: 'pbc'
-    }
-    test_server.start
-    @client = Riak::Client.new opts
+    @client = test_client
 
-    @index = "test"
-    @schema = "testschema"
+    @index = 'yz_spec-' + random_key
+    @schema = 'yz_spec-' + random_key
   end
 
   context "without any indexes" do

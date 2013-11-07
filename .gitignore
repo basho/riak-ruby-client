@@ -27,7 +27,7 @@ _notes
 doc
 .yardoc
 .bundle
-spec/support/test_server.yml
+spec/support/test_client.yml
 Gemfile.lock
 **/bin
 *.rbc

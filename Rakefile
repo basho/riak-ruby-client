@@ -78,25 +78,23 @@ task :pb_defs => 'beefcake:pb_defs'
 namespace :beefcake do
   task :pb_defs => 'lib/riak/client/beefcake/messages.rb'
 
+  PROTO_FILES = %w{riak_kv riak_search riak_yokozuna riak_dt}
+  PROTO_TMP = PROTO_FILES.map{|f| "tmp/#{f}.pb.rb"}
+  
   task :clean do
     sh "rm -rf tmp/riak_pb"
-    sh "rm -rf tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb"
+    sh "rm -rf #{PROTO_TMP.join ' '}"
   end
 
-  file 'lib/riak/client/beefcake/messages.rb' => %w{tmp/riak_kv.pb.rb tmp/riak_search.pb.rb tmp/riak_yokozuna.pb.rb} do |t|
+  
+  file 'lib/riak/client/beefcake/messages.rb' => PROTO_TMP do |t|
     sh "cat lib/riak/client/beefcake/header tmp/riak.pb.rb #{t.prerequisites.join ' '} lib/riak/client/beefcake/footer > #{t.name}"
   end
 
-  file 'tmp/riak_kv.pb.rb' => 'tmp/riak_pb' do |t|
-    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_kv.proto"
-  end
-
-  file 'tmp/riak_search.pb.rb' => 'tmp/riak_pb' do |t|
-    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_search.proto"
-  end
-
-  file 'tmp/riak_yokozuna.pb.rb' => 'tmp/riak_pb' do |t|
-    sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/riak_yokozuna.proto"
+  PROTO_FILES.each do |f|
+    file "tmp/#{f}.pb.rb" => 'tmp/riak_pb' do |t|
+      sh "protoc --beefcake_out tmp -I tmp/riak_pb/src tmp/riak_pb/src/#{f}.proto"
+    end
   end
 
   directory 'tmp/riak_pb' do

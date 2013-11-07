@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'riak/stamp'
 
-describe Riak::Stamp do
-  subject { described_class.new(Riak::Client.new) }
+describe Riak::Stamp, test_client: true do
+  subject { described_class.new test_client }
   it "should generate always increasing integer identifiers" do
     1000.times do
       one = subject.next
@@ -40,7 +40,7 @@ describe Riak::Stamp do
   # primary ordering.  This breaks from the Snowflake model where the
   # worker ID is in more significant bits.
   it "should use the client ID as the bottom component of the identifier" do
-    (subject.next & described_class::CLIENT_ID_MASK).should == subject.client.client_id & described_class::CLIENT_ID_MASK
+    (subject.next & described_class::CLIENT_ID_MASK).should == subject.client.client_id.hash & described_class::CLIENT_ID_MASK
   end
 
   context "using a non-integer client ID" do

@@ -182,13 +182,6 @@ module Riak
       "#<#{self.class.name} {#{bucket.name}#{"," + @key if @key}} [#{body}]>"
     end
 
-    # Walks links from this object to other objects in Riak.
-    # @param [Array<Hash,WalkSpec>] link specifications for the query
-    def walk(*params)
-      specs = WalkSpec.normalize(*params)
-      @bucket.client.link_walk(self, specs)
-    end
-
     # Converts the object to a link suitable for linking other objects
     # to it
     # @param [String] tag the tag to apply to the link

@@ -7,17 +7,17 @@ shared_examples_for "Unified backend API" do
   # fetch_object
   context "fetching an object" do
     before do
-      @robject = Riak::RObject.new(@client.bucket("test"), "fetch")
+      @robject = Riak::RObject.new(@bucket, "fetch")
       @robject.content_type = "application/json"
       @robject.data = { "test" => "pass" }
-      @robject.indexes['test_bin'] << 'pass' if test_server.version >= "1.0.0"
+      @robject.indexes['test_bin'] << 'pass'
       @robject.links << Riak::Link.new('/riak/foo/bar', 'next')
       @robject.links << Riak::Link.new('/riak/foo/baz', 'next')
       @backend.store_object(@robject)
     end
 
     it "should find a stored object" do
-      robj = @backend.fetch_object("test", "fetch")
+      robj = @backend.fetch_object(@bucket.name, "fetch")
       robj.should be_kind_of(Riak::RObject)
       robj.data.should == { "test" => "pass" }
       robj.links.should be_a Set
@@ -25,7 +25,7 @@ shared_examples_for "Unified backend API" do
 
     it "should raise an error when the object is not found" do
       begin
-        @backend.fetch_object("test", "notfound")
+        @backend.fetch_object(@bucket.name, "notfound")
       rescue Riak::FailedRequest => exception
         @exception = exception
       end
@@ -35,20 +35,20 @@ shared_examples_for "Unified backend API" do
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a R value of #{q.inspect} for the request" do
-        robj = @backend.fetch_object("test", "fetch", :r => q)
+        robj = @backend.fetch_object(@bucket.name, "fetch", :r => q)
         robj.should be_kind_of(Riak::RObject)
         robj.data.should == { "test" => "pass" }
       end
 
-      it "should accept a PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
-        robj = @backend.fetch_object("test", "fetch", :pr => q)
+      it "should accept a PR value of #{q.inspect} for the request" do
+        robj = @backend.fetch_object(@bucket.name, "fetch", :pr => q)
         robj.should be_kind_of(Riak::RObject)
         robj.data.should == { "test" => "pass" }
       end
     end
 
-    sometimes "should marshal indexes properly", :version => ">= 1.0.0", :retries => 5 do
-      robj = @backend.fetch_object('test', 'fetch')
+    sometimes "should marshal indexes properly", :retries => 5 do
+      robj = @backend.fetch_object(@bucket.name, 'fetch')
       robj.indexes['test_bin'].should be
       robj.indexes['test_bin'].should include('pass')
     end
@@ -57,11 +57,11 @@ shared_examples_for "Unified backend API" do
   # reload_object
   context "reloading an existing object" do
     before do
-      @robject = Riak::RObject.new(@client.bucket('test'), 'reload')
+      @robject = Riak::RObject.new(@bucket, 'reload')
       @robject.content_type = "application/json"
       @robject.data = {"test" => "pass"}
       @backend.store_object(@robject)
-      @robject2 = @backend.fetch_object("test", "reload")
+      @robject2 = @backend.fetch_object(@bucket.name, "reload")
       @robject2.data["test"] = "second"
       @backend.store_object(@robject2, :returnbody => true)
     end
@@ -75,7 +75,7 @@ shared_examples_for "Unified backend API" do
         @backend.reload_object(@robject, :r => q)
       end
 
-      it "should accept a valid PR value of #{q.inspect} for the request", :version => ">= 1.0.0" do
+      it "should accept a valid PR value of #{q.inspect} for the request" do
         @backend.reload_object(@robject, :pr => q)
       end
     end
@@ -91,7 +91,7 @@ shared_examples_for "Unified backend API" do
   # store_object
   context "storing an object" do
     before do
-      @robject = Riak::RObject.new(@client.bucket('test'), 'store')
+      @robject = Riak::RObject.new(@bucket, random_key)
       @robject.content_type = "application/json"
       @robject.data = {"test" => "pass"}
     end
@@ -108,19 +108,19 @@ shared_examples_for "Unified backend API" do
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
-        @client.bucket("test").exists?("store").should be_true
+        @bucket.exists?(@robject.key).should be_true
       end
 
       it "should accept a DW value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => :all, :dw => q)
       end
 
-      it "should accept a PW value of #{q.inspect} for the request", :version => ">= 1.0.0" do
+      it "should accept a PW value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :pw => q)
       end
     end
 
-    it "should store an object with indexes", :version => ">= 1.0.0" do
+    it "should store an object with indexes" do
       @robject.indexes['foo_bin'] << 'bar'
       @backend.store_object(@robject, :returnbody => true)
       @robject.indexes.should include('foo_bin')
@@ -128,7 +128,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      expect { @backend.fetch_object("test", "store") }.to_not raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object(@bucket.name, @robject.key) }.to_not raise_error(Riak::FailedRequest)
     end
   end
 
@@ -181,42 +181,43 @@ shared_examples_for "Unified backend API" do
   # list_keys
   context "listing keys in a bucket" do
     before do
-      obj = Riak::RObject.new(@client.bucket("test"), "keys")
+      @list_bucket = random_bucket 'unified_backend_list_keys'
+      obj = Riak::RObject.new(@list_bucket, "keys")
       obj.content_type = "application/json"
       obj.data = [1]
       @backend.store_object(obj)
     end
 
     it "should fetch an array of string keys" do
-      @backend.list_keys("test").should == ["keys"]
+      @backend.list_keys(@list_bucket).should == ["keys"]
     end
 
     context "streaming through a block" do
       it "should handle a large number of keys" do
-        obj = Riak::RObject.new(@client.bucket("test"))
+        obj = Riak::RObject.new(@list_bucket)
         obj.content_type = "application/json"
         obj.data = [1]
         750.times do |i|
           obj.key = i.to_s
           obj.store(:w => 1, :dw => 0, :returnbody => false)
         end
-        @backend.list_keys("test") do |keys|
+        @backend.list_keys(@list_bucket) do |keys|
           keys.should be_all {|k| k == 'keys' || (0..749).include?(k.to_i) }
         end
       end
 
       it "should pass an array of keys to the block" do
-        @backend.list_keys("test") do |keys|
+        @backend.list_keys(@list_bucket) do |keys|
           keys.should == ["keys"] unless keys.empty?
         end
       end
 
       it "should allow requests issued inside the block to execute" do
         errors = []
-        @backend.list_keys("test") do |keys|
+        @backend.list_keys(@list_bucket) do |keys|
           keys.each do |key|
             begin
-              @client.get_object("test", key)
+              @client.get_object(@list_bucket, key)
             rescue => e
               errors << e
             end
@@ -271,19 +272,17 @@ shared_examples_for "Unified backend API" do
   # mapred
   context "performing MapReduce" do
     before do
-      obj = Riak::RObject.new(@client.bucket("test"), "1")
+      @mapred_bucket = random_bucket("mapred_test")
+      obj = Riak::RObject.new(@mapred_bucket, "1")
       obj.content_type = "application/json"
       obj.data = {"value" => "1" }
       @backend.store_object(obj)
-      @mapred = Riak::MapReduce.new(@client).add("test").map("Riak.mapValuesJson", :keep => true)
+      @mapred = Riak::MapReduce.new(@client).
+        add(@mapred_bucket.name).
+        map("Riak.mapValuesJson", :keep => true)
     end
 
-    it "should raise an error without phases", :version => "< 1.1.0" do
-      @mapred.query.clear
-      expect { @backend.mapred(@mapred) }.to raise_error(Riak::MapReduceError)
-    end
-
-    it "should not raise an error without phases", :version => ">= 1.1.0" do
+    it "should not raise an error without phases" do
       @mapred.query.clear
       @backend.mapred(@mapred)
     end
@@ -318,7 +317,7 @@ shared_examples_for "Unified backend API" do
           unless result.empty?
             result.each do |v|
               begin
-                @client.get_object("test", v['value'])
+                @client.get_object(@mapred_bucket, v['value'])
               rescue => e
                 errors << e
               end
@@ -331,7 +330,7 @@ shared_examples_for "Unified backend API" do
   end
 
   # search
-  context "searching fulltext indexes", :version => ">= 1.2.0" do
+  context "searching fulltext indexes" do
     # Search functionality existed since Riak 0.13, but PBC only
     # entered into the picture in 1.2. PBC can support searches
     # against 1.1 and earlier nodes using MapReduce emulation, but has
@@ -340,20 +339,29 @@ shared_examples_for "Unified backend API" do
     include_context "search corpus setup"
 
     it 'should find indexed documents, returning ids' do
-      results = @backend.search 'search_test', 'fearless elephant rushed', :fl => 'id'
+      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => '_yz_rk'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
-      results['docs'].should include({"id" => "munchausen-605"})
+      found = results['docs'].any? do |e|
+        e['_yz_rk'] == 'munchausen-605'
+      end
+
+      expect(found).to be_true
     end
 
     it 'should find indexed documents, returning documents' do
       # For now use '*' until #122 is merged into riak_search
-      results = @backend.search 'search_test', 'fearless elephant rushed', :fl => '*'
+      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => '*'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
-      results['docs'].should include({"id" => "munchausen-605", "value" => "Fearless I advanced against the elephant, desirous to take alive the haughty Tippoo Sahib; but he drew a pistol from his belt, and discharged it full in my face as I rushed upon him, which did me no further harm than wound my cheek-bone, which disfigures me somewhat under my left eye. I could not withstand the rage and impulse of that moment, and with one blow of my sword separated his head from his body.\n"})
+
+      found = results['docs'].any? do |e|
+        e['_yz_rk'] == 'munchausen-605'
+      end
+
+      expect(found).to be_true
     end
   end
 end

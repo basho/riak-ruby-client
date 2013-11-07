@@ -1,15 +1,10 @@
 require 'spec_helper'
 
-describe Riak::Client do
+describe Riak::Client, test_client: true do
   describe "when initializing" do
     it "should default a single local node" do
       client = Riak::Client.new
       client.nodes.should == [Riak::Client::Node.new(client)]
-    end
-
-    it "should accept a protocol" do
-      client = Riak::Client.new :protocol => 'https'
-      client.protocol.should eq('https')
     end
 
     it "should accept a host" do
@@ -18,29 +13,10 @@ describe Riak::Client do
       client.nodes.first.host.should == "riak.basho.com"
     end
 
-    it "should accept an HTTP port" do
-      client = Riak::Client.new :http_port => 9000
-      client.nodes.size.should == 1
-      client.nodes.first.http_port.should == 9000
-    end
-
     it "should accept a Protobuffs port" do
       client = Riak::Client.new :pb_port => 9000
       client.nodes.size.should == 1
       client.nodes.first.pb_port.should == 9000
-    end
-
-    it "should warn on setting :port" do
-      # TODO: make a deprecation utility class/module instead
-      client = Riak::Client.allocate
-      client.should_receive(:warn).and_return(true)
-      client.send :initialize, :port => 9000
-    end
-
-    it "should accept basic_auth" do
-      client = Riak::Client.new :basic_auth => "user:pass"
-      client.nodes.size.should == 1
-      client.nodes.first.basic_auth.should eq("user:pass")
     end
 
     it "should accept a client ID" do
@@ -49,22 +25,7 @@ describe Riak::Client do
     end
 
     it "should create a client ID if not specified" do
-      Riak::Client.new.client_id.should_not be_nil
-    end
-
-    it "should accept a path prefix" do
-      client = Riak::Client.new(:prefix => "/jiak/")
-      client.nodes.first.http_paths[:prefix].should == "/jiak/"
-    end
-
-    it "should accept a mapreduce path" do
-      client = Riak::Client.new(:mapred => "/mr")
-      client.nodes.first.http_paths[:mapred].should == "/mr"
-    end
-
-    it "should accept a solr path" do
-      client = Riak::Client.new(:solr => "/solar")
-      client.nodes.first.http_paths[:solr].should == "/solar"
+      Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id.should_not be_nil
     end
   end
 
@@ -76,29 +37,6 @@ describe Riak::Client do
   describe "reconfiguring" do
     before :each do
       @client = Riak::Client.new
-    end
-
-    describe "setting the protocol" do
-      it "should allow setting the protocol" do
-        @client.should respond_to(:protocol=)
-        @client.protocol = "https"
-        @client.protocol.should eq("https")
-      end
-
-      it "should require a valid protocol to be set" do
-        lambda { @client.protocol = 'invalid-protocol' }.should(
-                                                           raise_error(ArgumentError, /^'invalid-protocol' is not a valid protocol/))
-      end
-    end
-
-    describe "setting http auth" do
-      it "should allow setting basic_auth" do
-        @client.should respond_to(:basic_auth=)
-        @client.basic_auth = "user:pass"
-        @client.nodes.each do |node|
-          node.basic_auth.should eq("user:pass")
-        end
-      end
     end
 
     describe "setting the client id" do
@@ -117,38 +55,9 @@ describe Riak::Client do
     end
   end
 
-  describe "choosing an HTTP backend" do
-    before :each do
-      @client = Riak::Client.new
-    end
-
-    it "should choose the selected backend" do
-      @client.http_backend = :NetHTTP
-      @client.http do |h|
-        h.should be_instance_of(Riak::Client::NetHTTPBackend)
-      end
-
-      @client = Riak::Client.new
-      @client.http_backend = :Excon
-      @client.http do |h|
-        h.should be_instance_of(Riak::Client::ExconBackend)
-      end
-    end
-
-    it "should clear the existing HTTP connections when changed" do
-      @client.http_pool.should_receive(:clear)
-      @client.http_backend = :Excon
-    end
-
-    it "should raise an error when the chosen backend is not valid" do
-      Riak::Client::NetHTTPBackend.should_receive(:configured?).and_return(false)
-      lambda { @client.http { |x| } }.should raise_error
-    end
-  end
-
   describe "choosing a Protobuffs backend" do
     before :each do
-      @client = Riak::Client.new(:protocol => "pbc")
+      @client = Riak::Client.new
     end
 
     it "should choose the selected backend" do
@@ -174,17 +83,7 @@ describe Riak::Client do
       @client = Riak::Client.new
     end
 
-    it "should use HTTP when the protocol is http or https" do
-      %w[http https].each do |p|
-        @client.protocol = p
-        @client.backend do |b|
-          b.should be_kind_of(Riak::Client::HTTPBackend)
-        end
-      end
-    end
-
     it "should use Protobuffs when the protocol is pbc" do
-      @client.protocol = "pbc"
       @client.backend do |b|
         b.should be_kind_of(Riak::Client::ProtobuffsBackend)
       end
@@ -272,149 +171,6 @@ describe Riak::Client do
 
       buckets = @client.buckets timeout: 1234
       buckets.should have(2).items
-    end
-  end
-
-  describe "ssl", :ssl => true do
-    before :each do
-      @client = Riak::Client.new
-    end
-
-    it "should enable ssl when passed to the initializer" do
-      client = Riak::Client.new(:ssl => true)
-      client.nodes.first.ssl_options.should be_a(Hash)
-      client.nodes.first.ssl_options.should_not be_empty
-    end
-
-    it "should allow passing ssl options into the initializer" do
-      client = Riak::Client.new(:ssl => {:verify_mode => "peer"})
-      client.nodes.first.ssl_options.should be_a(Hash)
-      client.nodes.first.ssl_options[:verify_mode].should eq("peer")
-    end
-
-    it "should enable ssl options when initializing the client with https but not setting any ssl options" do
-      client = Riak::Client.new(:protocol => 'https')
-      client.nodes.first.ssl_options.should be_a(Hash)
-      client.nodes.first.ssl_options.should_not be_empty
-    end
-
-    it "should allow setting ssl options and specifying the https protocol" do
-      client = Riak::Client.new(:protocol => 'https', :ssl => {:verify_mode => 'peer'})
-      client.nodes.first.ssl_options.should be_a(Hash)
-      client.nodes.first.ssl_options[:verify_mode].should eq("peer")
-    end
-
-    it "should enable ssl options when setting the protocol to https but not setting any ssl options" do
-      @client.protocol = 'https'
-      @client.nodes.first.ssl_options.should be_a(Hash)
-      @client.nodes.first.ssl_options.should_not be_empty
-    end
-
-    it "should not have ssl options by default" do
-      @client.nodes.first.ssl_options.should be_nil
-    end
-
-    # The api should have an ssl= method for setting up all of the ssl
-    # options.  Once the ssl options have been assigned via `ssl=` they should
-    # be read back out using the read only `ssl_options`.  This is to provide
-    # a seperate api for setting ssl options via client configuration and
-    # reading them inside of a http backend.
-    it "should not allow reading ssl options via ssl" do
-      @client.should_not respond_to(:ssl)
-    end
-
-    it "should not allow writing ssl options via ssl_options=" do
-      @client.should_not respond_to(:ssl_options=)
-    end
-
-    it "should allow setting ssl to true" do
-      @client.ssl = true
-      @client.nodes.first.ssl_options[:verify_mode].should eq('none')
-    end
-
-    it "should allow setting ssl options as a hash" do
-      @client.ssl = {:verify_mode => "peer"}
-      @client.nodes.first.ssl_options[:verify_mode].should eq('peer')
-    end
-
-    it "should set the protocol to https when setting ssl to true" do
-      @client.ssl = true
-      @client.protocol.should eq("https")
-    end
-
-    it "should set the protocol to http when setting ssl to false" do
-      @client.protocol = 'https'
-      @client.ssl = false
-      @client.protocol.should eq('http')
-    end
-
-    it "should should clear ssl options when setting ssl to false" do
-      @client.ssl = true
-      @client.nodes.first.ssl_options.should_not be_nil
-      @client.ssl = false
-      @client.nodes.first.ssl_options.should be_nil
-    end
-
-    it "should set the protocol to https when setting ssl options" do
-      @client.ssl = {:verify_mode => "peer"}
-      @client.protocol.should eq("https")
-    end
-
-    it "should allow setting the verify_mode to none" do
-      @client.ssl = {:verify_mode => "none"}
-      @client.nodes.first.ssl_options[:verify_mode].should eq("none")
-    end
-
-    it "should allow setting the verify_mode to peer" do
-      @client.ssl = {:verify_mode => "peer"}
-      @client.nodes.first.ssl_options[:verify_mode].should eq("peer")
-    end
-
-    it "should not allow setting the verify_mode to anything else" do
-      lambda {@client.ssl = {:verify_mode => :your_mom}}.should raise_error(ArgumentError)
-    end
-
-    it "should default verify_mode to none" do
-      @client.ssl = true
-      @client.nodes.first.ssl_options[:verify_mode].should eq("none")
-    end
-
-    it "should allow setting the pem" do
-      @client.ssl = {:pem => 'i-am-a-pem'}
-      @client.nodes.first.ssl_options[:pem].should eq('i-am-a-pem')
-    end
-
-    it "should set them pem from the contents of pem_file" do
-      filepath = File.expand_path(File.join(File.dirname(__FILE__), '../fixtures/test.pem'))
-      @client.ssl = {:pem_file => filepath}
-      @client.nodes.first.ssl_options[:pem].should eq("i-am-a-pem\n")
-    end
-
-    it "should allow setting the pem_password" do
-      @client.ssl = {:pem_password => 'pem-pass'}
-      @client.nodes.first.ssl_options[:pem_password].should eq('pem-pass')
-    end
-
-    it "should allow setting the ca_file" do
-      @client.ssl = {:ca_file => '/path/to/ca.crt'}
-      @client.nodes.first.ssl_options[:ca_file].should eq('/path/to/ca.crt')
-    end
-
-    it "should allow setting the ca_path" do
-      @client.ssl = {:ca_path => '/path/to/certs/'}
-      @client.nodes.first.ssl_options[:ca_path].should eq('/path/to/certs/')
-    end
-
-    %w[pem ca_file ca_path].each do |option|
-      it "should default the verify_mode to peer when setting the #{option}" do
-        @client.ssl = {option.to_sym => 'test-data'}
-        @client.nodes.first.ssl_options[:verify_mode].should eq("peer")
-      end
-
-      it "should allow setting the verify mode when setting the #{option}" do
-        @client.ssl = {option.to_sym => 'test-data', :verify_mode => "none"}
-        @client.nodes.first.ssl_options[:verify_mode].should eq("none")
-      end
     end
   end
 end

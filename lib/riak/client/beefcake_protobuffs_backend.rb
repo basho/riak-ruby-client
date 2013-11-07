@@ -50,6 +50,7 @@ module Riak
       end
 
       def store_object(robject, options={})
+        options[:return_body] ||= options[:returnbody]
         options = normalize_quorums(options)
         if robject.prevent_stale_writes
           unless pb_conditionals?
@@ -117,8 +118,9 @@ module Riak
 
       def set_bucket_props(bucket, props)
         bucket = bucket.name if Bucket === bucket
-        props = props.slice('n_val', 'allow_mult')
-        req = RpbSetBucketReq.new(:bucket => maybe_encode(bucket), :props => RpbBucketProps.new(props))
+        req = RpbSetBucketReq.new(
+                                  bucket: maybe_encode(bucket),
+                                  props: RpbBucketProps.new(props.symbolize_keys))
         write_protobuff(:SetBucketReq, req)
         decode_response
       end
@@ -316,6 +318,9 @@ module Riak
             IndexCollection.new_from_protobuf res
           when :SearchQueryResp
             res = RpbSearchQueryResp.decode(message)
+            if res.docs.nil?
+              res.docs = []
+            end
             { 'docs' => res.docs.map {|d| decode_doc(d) },
               'max_score' => res.max_score,
               'num_found' => res.num_found }
@@ -363,7 +368,23 @@ module Riak
           raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
           msglen, msgcode = header.unpack("NC")
           code = MESSAGE_CODES[msgcode]
-          raise SocketError, "Expected IndexResp, got #{code}" unless code == :IndexResp
+          if code == :ErrorResp
+            resp = RpbErrorResp.decode socket.read msglen - 1
+            message = resp.errmsg
+            if match = message.match(/indexes_not_supported,(\w+)/)
+              message = t('index.wrong_backend', backend: match[1])
+            end
+            raise ProtobuffsFailedRequest.new resp.errcode, message
+          elsif code != :IndexResp
+            teardown # close socket, we don't know what's going on anymore
+            inner = ProtobuffsFailedRequest.new code, t('protobuffs.unexpected_message')
+            raise Innertube::Pool::BadResource, inner
+          end
+
+          if msglen == 1
+            return if block_given?
+            return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
+          end
 
           if msglen == 1
             return if block_given?
