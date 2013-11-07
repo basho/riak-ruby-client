@@ -148,9 +148,10 @@ module Riak
     # @return [true, false] whether the key exists in this bucket
     def exists?(key, options={})
       begin
-        get(key, options)
+        get(key, options.merge({ :head => true }))
         true
-      rescue Riak::FailedRequest
+      rescue Riak::FailedRequest => e
+        raise e unless e.not_found?
         false
       end
     end
