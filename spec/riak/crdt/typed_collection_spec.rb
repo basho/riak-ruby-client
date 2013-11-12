@@ -39,7 +39,12 @@ describe Riak::Crdt::TypedCollection do
         expect{subject['actually_new'] = 'new'}.to_not raise_error
       end
       
-      it 'should send a MapOp with a remove on remove'
+      it 'should send a MapOp with a remove on remove' do
+        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
+        parent.should_receive(:update).with(instance_of(backend::MapOp))
+
+        expect{subject.delete 'existing'}.to_not raise_error
+      end
     end
     describe 'flags' do
       it 'should expose them as booleans'

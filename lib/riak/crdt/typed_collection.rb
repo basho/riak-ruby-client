@@ -22,6 +22,15 @@ module Riak
         @parent.update parent_operation
       end
 
+      def delete(key)
+        delete_op = backend_class::MapField.new
+        delete_op.name = key
+        delete_op.type = @type.map_field_type
+
+        parent_operation = backend_class::MapOp.new removes: [delete_op]
+        @parent.update parent_operation
+      end
+      
       private
       def backend_class
         @parent.backend_class
