@@ -29,4 +29,12 @@ describe Riak::Crdt::Register do
       expect(operation.type).to eq :register
     end
   end
+
+  describe 'deleting' do
+    it 'should ask the class for a delete operation' do
+      operation = described_class.delete
+
+      expect(operation.type).to eq :register
+    end
+  end
 end
