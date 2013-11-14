@@ -39,10 +39,23 @@ describe Riak::Crdt::TypedCollection do
             with(new_value).
             and_return(operation)
 
+          operation.
+            should_receive(:name=).
+            with('existing')
+
+          parent.should_receive(:operate)
+
           subject['existing'] = new_value
         end
         
-        it 'should give a named operation to the parent'
+        it 'should give a named operation to the parent' do
+          parent.should_receive(:operate) do |op|
+            pp op
+            expect(op.name).to == 'existing'
+            expect(op.value).to == new_value
+            expect(op.parent).to_not be
+          end
+        end
       end
       
       it 'should send an Operation with an update to the parent on update'
