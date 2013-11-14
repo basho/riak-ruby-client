@@ -8,7 +8,7 @@ module Riak
         attr_accessor :value
       end
 
-      class Remove
+      class Delete
         attr_accessor :parent
         attr_accessor :name
         attr_accessor :type

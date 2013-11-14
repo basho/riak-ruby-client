@@ -30,6 +30,14 @@ module Riak
 
         @parent.operate operation
       end
+
+      def delete(key)
+        key = normalize_key key
+        operation = @type.delete
+        operation.name = key
+
+        @parent.operate operation
+      end
       
       private
       def normalize_key(unnormalized_key)

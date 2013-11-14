@@ -15,6 +15,12 @@ module Riak
           op.type = :register
         end
       end
+
+      def self.delete
+        Operation::Delete.new.tap do |op|
+          op.type = :register
+        end
+      end
     end
   end
 end
