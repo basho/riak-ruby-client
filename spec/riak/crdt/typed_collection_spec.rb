@@ -34,13 +34,19 @@ describe Riak::Crdt::TypedCollection do
         let(:operation){ double 'operation' }
         
         it 'should ask the register class for an operation with the new value' do
-          expect(subject['existing']).
-            to_receive(:operate).
+          # I don't like how dirty this is
+          existing = double 'existing'
+          subject.instance_variable_get(:@contents)['existing'] = existing
+          
+          existing.
+            should_receive(:update).
             with(new_value).
             and_return(operation)
+
+          subject['existing'] = new_value
         end
-        it 'should decorate the operation with the name'
-        it 'should give the named operation to the parent'
+        
+        it 'should give a named operation to the parent'
       end
       
       it 'should send an Operation with an update to the parent on update'
