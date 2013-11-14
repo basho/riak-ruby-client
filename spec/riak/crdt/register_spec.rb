@@ -17,4 +17,14 @@ describe Riak::Crdt::Register do
       expect{ subject.gsub!('s', 'x') }.to raise_error
     end
   end
+
+  describe 'updating' do
+    let(:new_value){ 'new value' }
+    it "should ask the class for an update operation" do
+      operation = described_class.update(new_value)
+
+      expect(operation.value).to eq new_value
+      expect(operation.type).to eq :register
+    end
+  end
 end

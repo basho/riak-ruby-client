@@ -1,17 +1,19 @@
 module Riak
   module Crdt
     class Register < String
-      def self.update_operation_name
-        :register_op
-      end
-
-      def self.map_field_type
-        Crdt::Base.backend_class::MapField::MapFieldType::REGISTER
-      end
-
-      def initialize(*args, &block)
+      attr_reader :parent
+      
+      def initialize(parent, *args, &block)
+        @parent = parent
         super(*args, &block)
         freeze
+      end
+
+      def self.update(value)
+        Operation::Update.new.tap do |op|
+          op.value = value
+          op.type = :register
+        end
       end
     end
   end
