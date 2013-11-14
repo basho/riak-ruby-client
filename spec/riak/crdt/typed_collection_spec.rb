@@ -20,31 +20,32 @@ describe Riak::Crdt::TypedCollection do
         described_class.new Riak::Crdt::Register, parent, existing: 'existing'
       end
       
-      it 'should expose them as strings' do
+      it 'should expose them as frozen strings that are really Registers' do
         expect(subject[:existing]).to eq 'existing'
         expect(subject['existing']).to eq 'existing'
+        expect(subject[:existing]).to be_an_instance_of Riak::Crdt::Register
+        expect(subject['existing'].frozen?).to be
+        expect{subject['existing'].gsub!('e', 'a')}.to raise_error
+      end
+
+      describe 'creating and updating' do
+
+        let(:new_value){ 'the new value' }
+        let(:operation){ double 'operation' }
+        
+        it 'should ask the register class for an operation with the new value' do
+          expect(subject['existing']).
+            to_receive(:operate).
+            with(new_value).
+            and_return(operation)
+        end
+        it 'should decorate the operation with the name'
+        it 'should give the named operation to the parent'
       end
       
-      it 'should send a MapOp with an update to the parent on update' do
-        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
-        parent.should_receive(:update).with(instance_of(backend::MapOp))
-
-        expect{subject['existing'] = 'new'}.to_not raise_error
-      end
-      
-      it 'should send a MapOp with an add and an update to the parent on create' do
-        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
-        parent.should_receive(:update).with(instance_of(backend::MapOp))
-
-        expect{subject['actually_new'] = 'new'}.to_not raise_error
-      end
-      
-      it 'should send a MapOp with a remove on remove' do
-        parent.should_receive(:backend_class).at_least(:once).and_return(backend)
-        parent.should_receive(:update).with(instance_of(backend::MapOp))
-
-        expect{subject.delete 'existing'}.to_not raise_error
-      end
+      it 'should send an Operation with an update to the parent on update'
+      it 'should send an Operation with an update to the parent on create'    
+      it 'should send an Operation with a remove on remove'
     end
     describe 'flags' do
       it 'should expose them as booleans'
