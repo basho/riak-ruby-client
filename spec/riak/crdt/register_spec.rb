@@ -1,11 +1,13 @@
 require 'spec_helper'
 
 describe Riak::Crdt::Register do
-  subject { described_class.new "espressos" }
+  let(:parent){ double 'parent' }
+  subject { described_class.new parent, "espressos" }
 
   it 'should feel like a string' do
-    expect{ subject.gsub('s', 'x')}.to_not raise_error
-    expect(subject.gsub('s', 'x')).to eq('exprexxox')
+    expect(subject).to match 'espressos'
+    expect{ subject.gsub('s', 'x') }.to_not raise_error
+    expect(subject.gsub('s', 'x')).to eq 'exprexxox'
   end
   
   describe 'immutability' do
