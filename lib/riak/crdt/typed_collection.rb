@@ -25,7 +25,7 @@ module Riak
       def []=(key, value)
         key = normalize_key key
 
-        operation = @contents[key].update value
+        operation = @type.update value
         operation.name = key
 
         @parent.operate operation

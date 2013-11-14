@@ -12,14 +12,15 @@ describe Riak::Crdt::TypedCollection do
   describe 'containing' do
     describe 'registers' do
       let(:parent){ double 'parent' }
+      let(:register_class){ Riak::Crdt::Register }
       subject do
-        described_class.new Riak::Crdt::Register, parent, existing: 'existing'
+        described_class.new register_class, parent, existing: 'existing'
       end
       
       it 'should expose them as frozen strings that are really Registers' do
         expect(subject[:existing]).to eq 'existing'
         expect(subject['existing']).to eq 'existing'
-        expect(subject[:existing]).to be_an_instance_of Riak::Crdt::Register
+        expect(subject[:existing]).to be_an_instance_of register_class
         expect(subject['existing'].frozen?).to be
         expect{subject['existing'].gsub!('e', 'a')}.to raise_error
       end
@@ -30,12 +31,8 @@ describe Riak::Crdt::TypedCollection do
         let(:operation){ double 'operation' }
         
         it 'should ask the register class for an operation with the new value' do
-          # I don't like how dirty this is
-          existing = double 'existing'
-          subject.instance_variable_get(:@contents)['existing'] = existing
-          
-          existing.
-            should_receive(:update).
+
+          register_class.should_receive(:update).
             with(new_value).
             and_return(operation)
 
@@ -51,10 +48,12 @@ describe Riak::Crdt::TypedCollection do
         it 'should give a named operation to the parent' do
           parent.should_receive(:operate) do |op|
             pp op
-            expect(op.name).to == 'existing'
-            expect(op.value).to == new_value
+            expect(op.name).to eq 'existing'
+            expect(op.value).to eq new_value
             expect(op.parent).to_not be
           end
+
+          subject['existing'] = new_value
         end
       end
       
