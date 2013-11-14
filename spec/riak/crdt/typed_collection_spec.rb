@@ -51,8 +51,21 @@ describe Riak::Crdt::TypedCollection do
       describe 'removing' do
         let(:operation){ double 'operation' }
 
-        it 'should ask the register class for a remove operation'
-        it 'should give the named remove operation '
+        it <<-EOD.gsub(/\s+/, ' ') do
+          should ask the register class for a remove operation, add a name to
+          it, and pass it up to the parent
+          EOD
+          register_class.should_receive(:delete).
+            and_return(operation)
+
+          operation.
+            should_receive(:name=).
+            with('existing')
+
+          parent.should_receive(:operate).with(operation)
+
+          subject.delete 'existing'
+        end
       end
     end
     describe 'flags' do
