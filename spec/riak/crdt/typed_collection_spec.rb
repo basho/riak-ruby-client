@@ -30,8 +30,10 @@ describe Riak::Crdt::TypedCollection do
         let(:new_value){ 'the new value' }
         let(:operation){ double 'operation' }
         
-        it 'should ask the register class for an operation with the new value' do
-
+        it <<-EOD.gsub(/\s+/, ' ') do
+          should ask the register class for an operation with the new value,
+          add a name to it, and pass it up to the parent
+          EOD
           register_class.should_receive(:update).
             with(new_value).
             and_return(operation)
@@ -40,26 +42,18 @@ describe Riak::Crdt::TypedCollection do
             should_receive(:name=).
             with('existing')
 
-          parent.should_receive(:operate)
-
-          subject['existing'] = new_value
-        end
-        
-        it 'should give a named operation to the parent' do
-          parent.should_receive(:operate) do |op|
-            pp op
-            expect(op.name).to eq 'existing'
-            expect(op.value).to eq new_value
-            expect(op.parent).to_not be
-          end
+          parent.should_receive(:operate).with(operation)
 
           subject['existing'] = new_value
         end
       end
-      
-      it 'should send an Operation with an update to the parent on update'
-      it 'should send an Operation with an update to the parent on create'    
-      it 'should send an Operation with a remove on remove'
+
+      describe 'removing' do
+        let(:operation){ double 'operation' }
+
+        it 'should ask the register class for a remove operation'
+        it 'should give the named remove operation '
+      end
     end
     describe 'flags' do
       it 'should expose them as booleans'
