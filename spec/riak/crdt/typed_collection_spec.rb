@@ -1,11 +1,7 @@
 require 'spec_helper'
 
 describe Riak::Crdt::TypedCollection do
-  before(:all) do
-    backend.configured?
-  end
   let(:parent){ double 'parent' }
-  let(:backend){ Riak::Client::BeefcakeProtobuffsBackend }
 
   describe 'initialization' do
     it "should accept a type, parent, and hash of values" do
