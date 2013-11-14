@@ -11,7 +11,6 @@ describe Riak::Crdt::TypedCollection do
 
   describe 'containing' do
     describe 'registers' do
-      let(:parent){ double 'parent' }
       let(:register_class){ Riak::Crdt::Register }
       subject do
         described_class.new register_class, parent, existing: 'existing'
@@ -42,7 +41,9 @@ describe Riak::Crdt::TypedCollection do
             should_receive(:name=).
             with('existing')
 
-          parent.should_receive(:operate).with(operation)
+          parent.
+            should_receive(:operate).
+            with(operation)
 
           subject['existing'] = new_value
         end
@@ -55,22 +56,66 @@ describe Riak::Crdt::TypedCollection do
           should ask the register class for a remove operation, add a name to
           it, and pass it up to the parent
           EOD
-          register_class.should_receive(:delete).
+          register_class.
+            should_receive(:delete).
             and_return(operation)
 
           operation.
             should_receive(:name=).
             with('existing')
 
-          parent.should_receive(:operate).with(operation)
+          parent.
+            should_receive(:operate).
+            with(operation)
 
           subject.delete 'existing'
         end
       end
     end
     describe 'flags' do
-      it 'should expose them as booleans'
-      it 'should update them'
+      let(:flag_class){ Riak::Crdt::Flag }
+      let(:operation){ double 'operation' }
+      subject do
+        described_class.new flag_class, parent, truthy: true, falsey: false
+      end
+      
+      it 'should expose them as booleans' do
+        expect(subject[:truthy]).to eq true
+        expect(subject['falsey']).to eq false
+      end
+
+      it 'should update them' do
+        flag_class.
+          should_receive(:update).
+          with(true).
+          and_return(operation)
+
+        operation.
+          should_receive(:name=).
+          with('become_truthy')
+
+        parent.
+          should_receive(:operate).
+          with(operation)
+
+        subject['become_truthy'] = true
+      end
+      
+      it 'should delete them' do
+        flag_class.
+          should_receive(:delete).
+          and_return(operation)
+
+        operation.
+          should_receive(:name=).
+          with('become_deleted')
+
+        parent.
+          should_receive(:operate).
+          with(operation)
+
+        subject.delete 'become_deleted'
+      end
     end
     describe 'counters' do
       it 'should expose existing ones as Counter instances'
