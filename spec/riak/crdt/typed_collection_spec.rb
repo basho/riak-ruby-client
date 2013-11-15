@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe Riak::Crdt::TypedCollection do
   let(:parent){ double 'parent' }
+  let(:operation){ double 'operation' }
 
   describe 'initialization' do
     it "should accept a type, parent, and hash of values" do
@@ -27,7 +28,6 @@ describe Riak::Crdt::TypedCollection do
       describe 'creating and updating' do
 
         let(:new_value){ 'the new value' }
-        let(:operation){ double 'operation' }
         
         it <<-EOD.gsub(/\s+/, ' ') do
           should ask the register class for an operation with the new value,
@@ -50,7 +50,6 @@ describe Riak::Crdt::TypedCollection do
       end
 
       describe 'removing' do
-        let(:operation){ double 'operation' }
 
         it <<-EOD.gsub(/\s+/, ' ') do
           should ask the register class for a remove operation, add a name to
@@ -74,7 +73,6 @@ describe Riak::Crdt::TypedCollection do
     end
     describe 'flags' do
       let(:flag_class){ Riak::Crdt::Flag }
-      let(:operation){ double 'operation' }
       subject do
         described_class.new flag_class, parent, truthy: true, falsey: false
       end
@@ -130,7 +128,6 @@ describe Riak::Crdt::TypedCollection do
     
     describe 'maps' do
       let(:map_class){ Riak::Crdt::InnerMap }
-      let(:operation){ double 'operation' }
       let(:contents){ {a: {}, b: {}} }
       let(:inner_map_name){ 'inner map' }
       
