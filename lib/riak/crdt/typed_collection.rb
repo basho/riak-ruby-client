@@ -3,6 +3,7 @@ module Riak
     class TypedCollection
 
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet]
+      INITIALIZE_NIL = ::Set.new [Register]
       
       def initialize(type, parent, contents={})
         @type = type
@@ -27,6 +28,10 @@ module Riak
         key = normalize_key key
         return @contents[key] if include? key
 
+        if INITIALIZE_NIL.include? @type
+          return nil
+        end
+        
         new_instance = @type.new self
         if NEEDS_NAME.include? @type
           new_instance.name = key
