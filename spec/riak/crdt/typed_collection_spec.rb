@@ -186,15 +186,32 @@ describe Riak::Crdt::TypedCollection do
     
     describe 'maps' do
       let(:map_class){ Riak::Crdt::InnerMap }
-      let(:contents){ {a: {}, b: {}} }
+
+      let(:contents) do {a: {
+            counters: {},
+            flags: {},
+            maps: {},
+            registers: {'hello' => 'world'},
+            sets: {}
+          }}
+        end
+        
       let(:inner_map_name){ 'inner map' }
       
       subject do
         described_class.new map_class, parent, contents
       end
       
-      it 'should expose existing ones as populated Map instances'
-      it 'should expose new ones as empty Map instances'
+      it 'should expose existing ones as populated Map instances' do
+        expect(subject['a']).to be_an_instance_of map_class
+        expect(subject['a'].registers['hello']).to eq 'world'
+      end
+      
+      it 'should expose new ones as empty Map instances' do
+        expect(subject['b']).to be_an_instance_of map_class
+        expect(subject['b'].registers['hello']).to be_nil
+      end
+      
       it 'should cascade operations to a parent map' do
         operation.
           should_receive(:name=).
