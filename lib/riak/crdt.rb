@@ -1,4 +1,4 @@
-%w{typed_collection operation base register counter map set}.each do |f|
+%w{typed_collection operation base register flag counter map inner_map set}.each do |f|
   require "riak/crdt/#{f}"
 end
 
