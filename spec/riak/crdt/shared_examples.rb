@@ -43,8 +43,24 @@ shared_examples_for "Counter CRDT" do
 end
 
 shared_examples_for 'Set CRDT' do
-  it 'should have a value'
-  it 'should have an include? method'
-  it 'should have an add method'
-  it 'should have a remove method'
+  it 'should have a value' do
+    expect(subject.value).to be_a ::Set
+    expect(subject.to_a).to be_an ::Array
+  end
+
+  it 'should have an include? method' do
+    expect(subject).to respond_to :include?
+  end
+
+  it 'should have an empty? method' do
+    expect(subject).to respond_to :empty?
+  end
+
+  it 'should have an add method' do
+    expect(subject).to respond_to :add
+  end
+
+  it 'should have a remove method' do
+    expect(subject).to respond_to :remove
+  end
 end
