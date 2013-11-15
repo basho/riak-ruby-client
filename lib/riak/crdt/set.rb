@@ -14,24 +14,8 @@ module Riak
         members.include?(candidate)
       end
 
-      def add(*candidates)
-        set_operate backend_class::SetOp.new adds: candidates
-      end
-
-      def remove(*candidates)
-        set_operate backend_class::SetOp.new removes: candidates
-      end
 
       private
-      def set_operate(set_op)
-        op = backend_class::DtOp.new set_op: set_op
-        response = send_operation op
-        if response && response.set_value
-          @result = response
-        else
-          @result = nil
-        end
-      end
     end
   end
 end
