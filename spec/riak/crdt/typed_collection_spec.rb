@@ -127,10 +127,30 @@ describe Riak::Crdt::TypedCollection do
       it 'should expose new ones as empty Set instances'
       it 'should allow adding and removing'
     end
+    
     describe 'maps' do
+      let(:map_class){ Riak::Crdt::InnerMap }
+      let(:operation){ double 'operation' }
+      let(:contents){ {a: {}, b: {}} }
+      let(:inner_map_name){ 'inner map' }
+      
+      subject do
+        described_class.new map_class, parent, contents
+      end
+      
       it 'should expose existing ones as populated Map instances'
       it 'should expose new ones as empty Map instances'
-      it 'should cascade operations to a parent map'
+      it 'should cascade operations to a parent map' do
+        operation.
+          should_receive(:name=).
+          with(inner_map_name)
+        
+        parent.
+          should_receive(:operate).
+          with(operation)
+        
+        subject.operate inner_map_name, operation
+      end
     end
   end
 end

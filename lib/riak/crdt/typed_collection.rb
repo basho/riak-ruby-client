@@ -38,6 +38,14 @@ module Riak
 
         @parent.operate operation
       end
+
+      def operate(key, inner_operation)
+        key = normalize_key key
+        
+        inner_operation.name = key
+        
+        @parent.operate inner_operation
+      end
       
       private
       def normalize_key(unnormalized_key)

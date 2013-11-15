@@ -9,6 +9,21 @@ module Riak
         initialize_collections
       end
 
+      def operate(inner_operation)
+        wrapped_operation = Operation::Update.new.tap do |op|
+          op.value = inner_operation
+          op.type = :map
+        end
+
+        @parent.operate(wrapped_operation)
+      end
+
+      def self.delete
+        Operation::Delete.new.tap do |op|
+          op.type = :map
+        end
+      end
+
       private
       def initialize_collections
         @counters = TypedCollection.new Counter, self
