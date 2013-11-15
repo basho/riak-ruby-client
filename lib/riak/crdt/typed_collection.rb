@@ -2,7 +2,7 @@ module Riak
   module Crdt
     class TypedCollection
 
-      NEEDS_NAME = ::Set.new [InnerCounter]
+      NEEDS_NAME = ::Set.new [InnerCounter, InnerSet]
       
       def initialize(type, parent, contents={})
         @type = type

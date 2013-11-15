@@ -157,7 +157,7 @@ describe Riak::Crdt::TypedCollection do
       
       it 'should expose existing ones as Set instances' do
         expect(subject['brewers']).to be_an_instance_of set_class
-        expect(subject['brewers']).to include? 'aeropress'
+        expect(subject['brewers']).to include 'aeropress'
       end
       
       it 'should expose new ones as empty Set instances' do
