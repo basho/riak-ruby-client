@@ -3,8 +3,9 @@ module Riak
     class InnerMap
       attr_reader :counters, :flags, :maps, :registers, :sets
       
-      def initialize(parent, value)
+      def initialize(parent, value={})
         @parent = parent
+        @value = value.symbolize_keys
 
         initialize_collections
       end
@@ -26,11 +27,11 @@ module Riak
 
       private
       def initialize_collections
-        @counters = TypedCollection.new Counter, self
-        @flags = TypedCollection.new Flag, self
-        @maps = TypedCollection.new InnerMap, self
-        @registers = TypedCollection.new Register, self
-        @sets = TypedCollection.new Set, self
+        @counters = TypedCollection.new Counter, self, @value[:counters]
+        @flags = TypedCollection.new Flag, self, @value[:flags]
+        @maps = TypedCollection.new InnerMap, self, @value[:maps]
+        @registers = TypedCollection.new Register, self, @value[:registers]
+        @sets = TypedCollection.new Set, self, @value[:sets]
       end
     end
   end

@@ -7,6 +7,7 @@ module Riak
       def initialize(type, parent, contents={})
         @type = type
         @parent = parent
+        contents = {} if contents.nil?
         stringified_contents = contents.stringify_keys
         @contents = stringified_contents.keys.inject(Hash.new) do |contents, key|
           contents.tap do |c|
