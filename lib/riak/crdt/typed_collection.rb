@@ -1,6 +1,9 @@
 module Riak
   module Crdt
     class TypedCollection
+
+      NEEDS_NAME = ::Set.new [InnerCounter]
+      
       def initialize(type, parent, contents={})
         @type = type
         @parent = parent
@@ -8,6 +11,9 @@ module Riak
         @contents = stringified_contents.keys.inject(Hash.new) do |contents, key|
           contents.tap do |c|
             c[key] = @type.new self, stringified_contents[key]
+            if NEEDS_NAME.include? @type
+              c[key].name = key
+            end
           end
         end
       end
@@ -30,6 +36,7 @@ module Riak
 
         @parent.operate operation
       end
+      alias :increment :[]=
 
       def delete(key)
         key = normalize_key key

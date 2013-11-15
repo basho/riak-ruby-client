@@ -26,3 +26,18 @@ shared_examples_for "Map CRDT" do
     expect(subject.counters).to be_an_instance_of typed_collection
   end
 end
+
+shared_examples_for "Counter CRDT" do
+  it 'should have a value' do
+    expect(subject.value).to be_an ::Integer
+    expect(subject.to_i).to eq subject.value
+  end
+  
+  it 'should have an increment method' do
+    expect(subject).to respond_to :increment
+  end
+
+  it 'should have a decrement method' do
+    expect(subject).to respond_to :decrement
+  end
+end

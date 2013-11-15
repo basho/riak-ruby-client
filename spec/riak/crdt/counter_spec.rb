@@ -1,18 +1,22 @@
 require 'spec_helper'
+require_relative 'shared_examples'
 
 describe Riak::Crdt::Counter do
-  describe 'accessed directly' do
-    let(:bucket){ double 'bucket' }
-    it 'should be initialized with bucket, key, and optional bucket-type' do
-      expect{ described_class.new bucket, 'asdf' }.to_not raise_error
-      expect{ described_class.new bucket, 'asdf', 'type' }.to_not raise_error
-    end
-    it 'should be immediately incrementable'
-    it 'should be batch-incrementable'
+  let(:bucket){ double 'bucket' }
+  it 'should be initialized with bucket, key, and optional bucket-type' do
+    expect{ described_class.new bucket, 'asdf' }.to_not raise_error
+    expect{ described_class.new bucket, 'asdf', 'type' }.to_not raise_error
   end
-  describe 'within a map' do
-    it 'should be initializable with a parent'
-    it 'should be initializable with an existing value'
-    it 'should pass increments to its parent'
+
+  subject{ described_class.new bucket, 'asdf' }
+
+  describe 'with a client' do
+    let(:backend){ double 'backend' }
+    let(:client){ double 'client', backend: backend }
+    before(:each) do
+      bucket.stub(:client, client)
+    end
+    
+    include_examples 'Counter CRDT'
   end
 end

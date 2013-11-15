@@ -116,7 +116,7 @@ describe Riak::Crdt::TypedCollection do
       end
     end
     describe 'counters' do
-      let(:counter_class){ Riak::Crdt::Counter }
+      let(:counter_class){ Riak::Crdt::InnerCounter }
 
       subject{ described_class.new counter_class, parent, zero: 0, one: 1 }
       
