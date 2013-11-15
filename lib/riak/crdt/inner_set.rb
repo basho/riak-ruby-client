@@ -27,7 +27,7 @@ module Riak
       end
 
       def remove(element)
-        @parent.remove name, update(remove: element)
+        @parent.operate name, update(remove: element)
       end
 
       def update(changes)
