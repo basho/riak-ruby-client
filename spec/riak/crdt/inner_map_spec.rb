@@ -2,6 +2,9 @@ require 'spec_helper'
 require_relative 'shared_examples'
 
 describe Riak::Crdt::InnerMap do
+  let(:parent){ double 'parent' }
+  subject{ described_class.new parent, {} }
+
   include_examples 'Map CRDT'
   
   describe 'updating the inner map' do

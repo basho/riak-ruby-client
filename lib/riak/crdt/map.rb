@@ -1,26 +1,21 @@
 module Riak
   module Crdt
     class Map < Base
+      attr_reader :counters, :flags, :maps, :registers, :sets
+      
       def initialize(bucket, key, bucket_type=DEFAULT_MAP_BUCKET_TYPE, options={})
         super(bucket, key, bucket_type, options)
-        @counters = Hash.new
-        @flags = Hash.new
-        @maps = Hash.new
-        @registers = Hash.new
-        @sets = Hash.new
-      end
 
-      def registers
-        @registers
+        initialize_collections
       end
 
       private
-      def load_entries
-        result.value.map_value.each do |e|
-          f = e.field
-          pp e
-          pp f
-        end
+      def initialize_collections
+        @counters = TypedCollection.new Counter, self
+        @flags = TypedCollection.new Flag, self
+        @maps = TypedCollection.new InnerMap, self
+        @registers = TypedCollection.new Register, self
+        @sets = TypedCollection.new Set, self
       end
     end
   end
