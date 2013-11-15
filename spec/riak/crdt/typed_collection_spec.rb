@@ -116,7 +116,17 @@ describe Riak::Crdt::TypedCollection do
       end
     end
     describe 'counters' do
-      it 'should expose existing ones as Counter instances'
+      let(:counter_class){ Riak::Crdt::Counter }
+
+      subject{ described_class.new counter_class, parent, zero: 0, one: 1 }
+      
+      it 'should expose existing ones as Counter instances' do
+        expect(subject['zero']).to be_an_instance_of counter_class
+        expect(subject['zero'].to_i).to eq 0
+        
+        expect(subject['one'].to_i).to eq 1
+      end
+      
       it 'should expose new ones as Counter instances'
       it 'should allow incrementing and decrementing'
     end
