@@ -151,9 +151,37 @@ describe Riak::Crdt::TypedCollection do
       end
     end
     describe 'sets' do
-      it 'should expose existing ones as Set instances'
-      it 'should expose new ones as empty Set instances'
-      it 'should allow adding and removing'
+      let(:set_class){ Riak::Crdt::InnerSet }
+
+      subject{ described_class.new set_class, parent, brewers: %w{aeropress clever v60}}
+      
+      it 'should expose existing ones as Set instances' do
+        expect(subject['brewers']).to be_an_instance_of set_class
+        expect(subject['brewers']).to include? 'aeropress'
+      end
+      
+      it 'should expose new ones as empty Set instances' do
+        expect(subject['filters']).to be_an_instance_of set_class
+        expect(subject['filters']).to be_empty
+      end
+      
+      it 'should allow adding and removing' do
+        set_name = 'brewers'
+
+        parent.should_receive(:operate) do |op|
+          expect(op.name).to eq set_name
+          expect(op.type).to eq :set
+          expect(op.value).to eq add: 'frenchpress'
+        end
+        subject[set_name].add 'frenchpress'
+
+        parent.should_receive(:operate) do |op|
+          expect(op.name).to eq set_name
+          expect(op.type).to eq :set
+          expect(op.value).to eq remove: 'aeropress'
+        end
+        subject[set_name].remove 'aeropress'
+      end
     end
     
     describe 'maps' do
