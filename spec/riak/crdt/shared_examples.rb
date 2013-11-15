@@ -41,3 +41,10 @@ shared_examples_for "Counter CRDT" do
     expect(subject).to respond_to :decrement
   end
 end
+
+shared_examples_for 'Set CRDT' do
+  it 'should have a value'
+  it 'should have an include? method'
+  it 'should have an add method'
+  it 'should have a remove method'
+end

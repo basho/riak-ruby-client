@@ -6,7 +6,7 @@ module Riak
       attr_reader :value
       alias :to_i :value
         
-      def initialize(parent, value)
+      def initialize(parent, value=0)
         @parent = parent
         @value = value
       end
@@ -17,6 +17,13 @@ module Riak
 
       def decrement(amount = 1)
         increment -amount
+      end
+
+      def self.update(increment)
+        Operation::Update.new.tap do |op|
+          op.value = increment
+          op.type = :counter
+        end
       end
     end
   end

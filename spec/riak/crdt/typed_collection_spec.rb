@@ -127,8 +127,28 @@ describe Riak::Crdt::TypedCollection do
         expect(subject['one'].to_i).to eq 1
       end
       
-      it 'should expose new ones as Counter instances'
-      it 'should allow incrementing and decrementing'
+      it 'should expose new ones as Counter instances' do
+        expect(subject['new_zero']).to be_an_instance_of counter_class
+        expect(subject['new_zero'].to_i).to eq 0
+      end
+      
+      it 'should allow incrementing and decrementing' do
+        counter_name = 'counter'
+        
+        parent.should_receive(:operate) do |op|
+          expect(op.name).to eq counter_name
+          expect(op.type).to eq :counter
+          expect(op.value).to eq 1
+        end
+        subject[counter_name].increment
+
+        parent.should_receive(:operate) do |op|
+          expect(op.name).to eq counter_name
+          expect(op.type).to eq :counter
+          expect(op.value).to eq -5
+        end
+        subject[counter_name].decrement 5
+      end
     end
     describe 'sets' do
       it 'should expose existing ones as Set instances'

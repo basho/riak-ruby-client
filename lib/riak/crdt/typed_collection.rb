@@ -25,7 +25,13 @@ module Riak
       def [](key)
         key = normalize_key key
         return @contents[key] if include? key
-        return @type.new
+
+        new_instance = @type.new self
+        if NEEDS_NAME.include? @type
+          new_instance.name = key
+        end
+
+        return new_instance
       end
 
       def []=(key, value)
