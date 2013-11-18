@@ -25,6 +25,10 @@ shared_examples_for "Map CRDT" do
     expect(subject).to respond_to(:sets)
     expect(subject.counters).to be_an_instance_of typed_collection
   end
+
+  it 'should accept operations' do
+    expect(subject).to respond_to(:operate)
+  end
 end
 
 shared_examples_for "Counter CRDT" do
