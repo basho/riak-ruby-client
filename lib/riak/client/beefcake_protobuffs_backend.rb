@@ -13,7 +13,7 @@ module Riak
           require 'riak/client/beefcake/messages'
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
-          require 'riak/client/beefcake/crdt'
+          require 'riak/client/beefcake/crdt_operator'
           true
         rescue LoadError, NameError
           false
