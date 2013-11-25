@@ -86,7 +86,6 @@ p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night",
           #     "The Beatles", "Yellow Submarine", "Abbey Road", "Let It Be"]
 ```
 
-
 ## Riak Search Examples
 
 For more information about Riak Search, see [the Basho wiki](http://wiki.basho.com/Riak-Search.html).
@@ -201,6 +200,59 @@ q.values # => [<RObject {recipes,cobb.salad} ...>, <RObject {recipes,wedge...
 q.has_next_page? # => true
 q2 = q.next_page
 ```
+
+## Counter examples
+
+For more information about counters in Riak, see [the Basho wiki](http://docs.basho.com/riak/latest/dev/references/http/counters/).
+
+Counter records are automatically persisted on increment or decrement. The initial default value is 0.
+
+``` ruby
+# Firstly, ensure that your bucket is allow_mult set to true
+bucket = client.bucket "counters"
+bucket.allow_mult = true
+
+# You can create a counter by using the bucket's counter method
+counter = bucket.counter("counter-key-here")
+counter.increment
+=> nil
+
+p counter.value
+1
+=> 1
+
+# Let's increment one more time and then retrieve it from the database
+counter.increment
+
+# Retrieval is similar to creation
+persisted_counter = Riak::Counter.new(bucket, "counter-key-here")
+
+p persisted_counter.value
+2
+=> 2
+
+# We can also increment by a specified number
+persisted_counter.increment(20)
+p persisted_counter.value
+22
+=> 22
+
+# Decrement works much the same
+persisted_counter.decrement
+persisted_counter.value
+=> 21
+
+persisted_counter.decrement(6)
+persisted_counter.value
+=> 15
+
+# Incrementing by anything other than integer will throw an ArgumentError
+persisted_counter.increment "nonsense"
+ArgumentError: Counters can only be incremented or decremented by integers.
+```
+
+That's about it. PN Counters in Riak are distributed, so each node will receive the proper increment/decrement operation. Enjoy using them.
+
 
 ## How to Contribute
 
