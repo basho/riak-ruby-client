@@ -9,8 +9,6 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
     let(:increment){ 5 }
     let(:operation) do
       Riak::Crdt::Operation::Update.new.tap do |op|
-        op.parent = double 'parent'
-        op.name = nil
         op.type = :counter
         op.value = increment
       end
@@ -32,8 +30,6 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
     let(:removed_element){ 'removed_element' }
     let(:operation) do
       Riak::Crdt::Operation::Update.new.tap do |op|
-        op.parent = double 'parent'
-        op.name = nil
         op.type = :set
         op.value = {
           add: [added_element],
@@ -53,8 +49,66 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
   end
 
   describe 'operating on a map' do
-    it 'should serialize inner counter operations' 
-    it 'should serialize inner flag and register operations'
+    it 'should serialize inner counter operations' do
+      counter_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_counter'
+        op.type = :counter
+        op.value = 12345
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = counter_op
+      end
+
+      result = subject.serialize map_op
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.counter_op).to be_a backend_class::CounterOp
+      expect(map_update.counter_op.increment).to eq 12345
+    end
+    
+    it 'should serialize inner flag operations' do
+      flag_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_flag'
+        op.type = :flag
+        op.value = true
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = flag_op
+      end
+
+      result = subject.serialize map_op
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.flag_op).to eq backend_class::MapUpdate::FlagOp::ENABLE
+    end
+
+    it 'should serialize inner register operations' do
+      register_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_register'
+        op.type = :register
+        op.value = 'hello'
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = register_op
+      end
+
+      result = subject.serialize map_op
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.register_op).to eq 'hello'
+    end
     it 'should serialize inner set operations'
     it 'should serialize inner map operations'
   end

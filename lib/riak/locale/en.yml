@@ -10,6 +10,8 @@ en:
       bucket_needs_allow_mult: "Counters require allow_mult to be enabled on their bucket."
       increment_by_integer: "Counters can only be incremented or decremented by integers."
     crdt:
+      unknown_field: "Unknown field type %{symbol}, expected one of :counter, :map, or :set."
+      unknown_inner_field: "Unknown field type %{symbol}, expected one of :counter, :flag, :map, :register, or :set."
       flag:
         not_boolean: "Flags can only be true or false."
     deprecated:
