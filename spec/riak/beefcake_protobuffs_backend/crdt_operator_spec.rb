@@ -53,6 +53,9 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
   end
 
   describe 'operating on a map' do
-    it 'should consume an OperationRecorder and serialize operations into protobuffs'
+    it 'should serialize inner counter operations' 
+    it 'should serialize inner flag and register operations'
+    it 'should serialize inner set operations'
+    it 'should serialize inner map operations'
   end
 end
