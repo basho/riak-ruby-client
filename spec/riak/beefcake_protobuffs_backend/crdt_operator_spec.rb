@@ -109,7 +109,50 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(map_update).to be_a backend_class::MapUpdate
       expect(map_update.register_op).to eq 'hello'
     end
-    it 'should serialize inner set operations'
-    it 'should serialize inner map operations'
+    it 'should serialize inner set operations' do
+      set_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_set'
+        op.type = :set
+        op.value = {add: 'added_member'}
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = set_op
+      end
+
+      result = subject.serialize map_op
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.set_op.adds).to eq 'added_member'
+    end
+    
+    it 'should serialize inner map operations' do
+      register_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_inner_register'
+        op.type = :register
+        op.value = 'inner_register_value'
+      end
+      inner_map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_map'
+        op.type = :map
+        op.value = register_op
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = inner_map_op
+      end
+
+      result = subject.serialize map_op
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.map_op).to be_a backend_class::MapOp
+      expect(map_update.map_op.updates.first.register_op).to eq 'inner_register_value'
+    end
   end
 end

@@ -87,6 +87,21 @@ module Riak
                    )
         end
 
+        def serialize_inner_set(set_op)
+          value = set_op.value or nil
+
+          MapUpdate.new(
+                        field: MapField.new(
+                                            name: set_op.name,
+                                            type: MapField::MapFieldType::SET
+                                            ),
+                        set_op: SetOp.new(
+                                          adds: value[:add],
+                                          removes: value[:remove]
+                                          )
+                        )
+        end
+
         def serialize_map(map_op)
           inner_op = map_op.value
           inner_serialized = inner_serialize inner_op
@@ -96,6 +111,20 @@ module Riak
                                      updates: [inner_serialized]
                                      )
                    )
+        end
+
+        def serialize_inner_map(map_op)
+          inner_op = map_op.value
+          inner_serialized = inner_serialize inner_op
+
+          MapUpdate.new(
+                        field: MapField.new(
+                                            name: map_op.name,
+                                            type: MapField::MapFieldType::MAP
+                                            ),
+                        map_op: MapOp.new(
+                                          updates: [inner_serialized]
+                                     ))
         end
       end
     end
