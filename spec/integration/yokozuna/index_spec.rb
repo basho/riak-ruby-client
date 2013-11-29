@@ -32,17 +32,17 @@ describe "Yokozuna", test_client: true, integration: true do
 
     it "should associate a bucket with an index" do
       @bucket = Riak::Bucket.new(@client, @index)
-      @bucket.props = {'yz_index' => @index}
+      @bucket.props = {'search_index' => @index}
       @bucket = @client.bucket(@index)
-      @bucket.props.should include('yz_index' => @index)
+      @bucket.props.should include('search_index' => @index)
     end
 
     context "associated with a bucket" do
       before :all do
         @bucket = Riak::Bucket.new(@client, @index)
-        @bucket.props = {'yz_index' => @index}
+        @bucket.props = {'search_index' => @index}
         @bucket = @client.bucket(@index)
-        @bucket.props.should include('yz_index' => @index)
+        @bucket.props.should include('search_index' => @index)
       end
 
       it "should index on object writes" do
