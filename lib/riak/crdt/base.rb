@@ -11,9 +11,16 @@ module Riak
         @key = key
         @bucket_type = bucket_type
         @options = options
+
+        @dirty = true
+      end
+
+      def dirty?
+        @dirty
       end
       
       private
+      
       def result
         return @result if @result
         reload
@@ -24,6 +31,7 @@ module Riak
         l = loader
         vivify l.load @bucket, @key, @bucket_type
         @context = l.context
+        @dirty = false
       end
       
       def client
@@ -45,6 +53,7 @@ module Riak
                    bucket_type,
                    *args
                    )
+        @dirty = true
       end
       
       def operator

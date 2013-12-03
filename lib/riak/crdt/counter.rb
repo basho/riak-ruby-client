@@ -6,9 +6,8 @@ module Riak
       end
       
       def value
-        reload
-        return @value if defined? @value and !@value.nil?
-        0
+        reload if dirty?
+        return @value
       end
 
       def increment(amount=1, options={})
