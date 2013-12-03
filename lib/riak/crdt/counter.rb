@@ -10,6 +10,14 @@ module Riak
         0
       end
 
+      def increment
+        
+      end
+
+      def vivify(value)
+        @value = value
+      end
+      
       alias :to_i :value
 
       def decrement(amount=1)

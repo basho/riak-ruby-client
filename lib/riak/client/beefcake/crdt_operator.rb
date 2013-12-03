@@ -1,8 +1,34 @@
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
+      def crdt_operator
+        return CrdtOperator.new self
+      end
+      
       class CrdtOperator
         include Util::Translation
+
+        attr_reader :backend
+        
+        def initialize(backend)
+          @backend = backend
+        end
+
+        def operate(bucket, key, bucket_type, operation, options={})
+          serialized = serialize(operation)
+          args = {
+            bucket: bucket,
+            key: key,
+            type: bucket_type,
+            op: serialized
+          }.merge options
+          request = DtUpdateReq.new args
+          
+          backend.write_protobuff :DtUpdateReq, request
+
+          response = decode
+        end
+        
         def serialize(operation)
           case operation.type
           when :counter
@@ -18,6 +44,30 @@ module Riak
 
         private
 
+        def decode
+          header = socket.read 5
+
+          if header.nil?
+            backend.teardown
+            raise SocketError, t('pbc.unexpected_eof')
+          end
+
+          msglen, msgcode = header.unpack 'NC'
+
+          if BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] != :DtUpdateResp
+            backend.teardown
+            raise SocketError, t('pbc.wanted_dt_update_resp')
+          end
+
+          message = socket.read(msglen - 1)
+
+          DtUpdateResp.decode message
+        end
+
+        def socket
+          backend.socket
+        end
+        
         def inner_serialize(operation)
           case operation.type
           when :counter

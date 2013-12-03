@@ -9,6 +9,18 @@ module Riak
         initialize_collections
       end
 
+      def batch
+        batch_map = BatchMap.new self
+        yield batch_map
+        batch_map.process
+      end
+
+      def operate(operation)
+        batch do |m|
+          m.operate operation
+        end
+      end
+
       private
       def initialize_collections
         @counters = TypedCollection.new Counter, self

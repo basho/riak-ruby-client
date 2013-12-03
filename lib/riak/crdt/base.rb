@@ -1,6 +1,8 @@
 module Riak
   module Crdt
     class Base
+      attr_reader :bucket, :key, :bucket_type
+      
       def initialize(bucket, key, bucket_type, options={})
         @bucket = bucket
         @key = key
@@ -14,6 +16,12 @@ module Riak
         reload
         @result
       end
+
+      def reload
+        l = loader
+        vivify l.load @bucket, @key, @bucket_type
+        @context = l.context
+      end
       
       def client
         @bucket.client
@@ -21,6 +29,10 @@ module Riak
 
       def backend
         client.backend{|be| be}
+      end
+
+      def loader
+        backend.crdt_loader
       end
     end
   end
