@@ -20,12 +20,6 @@ module Riak
       end
       
       private
-      
-      def result
-        return @result if @result
-        reload
-        @result
-      end
 
       def reload
         l = loader
