@@ -6,12 +6,13 @@ module Riak
       end
       
       def value
-        return result.counter_value unless result.nil? || result.counter_value.nil?
+        reload
+        return @value if defined? @value and !@value.nil?
         0
       end
 
-      def increment
-        
+      def increment(amount=1, options={})
+        operate operation(amount), options
       end
 
       def vivify(value)
@@ -22,6 +23,13 @@ module Riak
 
       def decrement(amount=1)
         increment -amount
+      end
+      private
+      def operation(amount)
+        Operation::Update.new.tap do |op|
+          op.type = :counter
+          op.value = amount
+        end
       end
     end
   end

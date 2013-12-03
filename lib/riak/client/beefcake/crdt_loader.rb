@@ -52,6 +52,7 @@ module Riak
         end
 
         def rubyfy(response)
+          return nil_rubyfy(response.type) if response.value.nil?
           case response.type
           when DtFetchResp::DataType::COUNTER
             response.value.counter_value
@@ -59,6 +60,17 @@ module Riak
             ::Set.new response.value.set_value
           when DtFetchResp::DataType::MAP
             response.value.map_value
+          end
+        end
+
+        def nil_rubyfy(type)
+          case type
+          when DtFetchResp::DataType::COUNTER
+            0
+          when DtFetchResp::DataType::SET
+            ::Set.new
+          when DtFetchResp::DataType::MAP
+            "TODO"
           end
         end
 
