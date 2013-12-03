@@ -27,7 +27,7 @@ module Riak
 
           response = decode
           @context = response.context
-          response.value
+          rubyfy response
         end
 
         private
@@ -49,6 +49,17 @@ module Riak
           message = socket.read(msglen - 1)
 
           DtFetchResp.decode message
+        end
+
+        def rubyfy(response)
+          case response.type
+          when DtFetchResp::DataType::COUNTER
+            response.value.counter_value
+          when DtFetchResp::DataType::SET
+            ::Set.new response.value.set_value
+          when DtFetchResp::DataType::MAP
+            response.value.map_value
+          end
         end
 
         def socket
