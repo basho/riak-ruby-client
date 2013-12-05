@@ -17,17 +17,42 @@ module Riak
       def vivify(value)
         @value = value
       end
+
+      def batch
+        batcher = BatchCounter.new
+
+        yield batcher
+        
+        increment batcher.accumulator
+      end
       
       alias :to_i :value
 
       def decrement(amount=1)
         increment -amount
       end
+      
       private
       def operation(amount)
         Operation::Update.new.tap do |op|
           op.type = :counter
           op.value = amount
+        end
+      end
+
+      class BatchCounter
+        attr_reader :accumulator
+        
+        def initialize
+          @accumulator = 0
+        end
+
+        def increment(amount=1)
+          @accumulator += amount
+        end
+
+        def decrement(amount=1)
+          increment -amount
         end
       end
     end

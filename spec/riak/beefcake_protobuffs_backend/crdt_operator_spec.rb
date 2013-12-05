@@ -17,7 +17,6 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
     end
     
-    
     it 'should serialize a counter operation into protobuffs' do
       result = subject.serialize operation
       

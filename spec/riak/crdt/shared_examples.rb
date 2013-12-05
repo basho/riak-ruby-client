@@ -33,8 +33,7 @@ end
 
 shared_examples_for "Counter CRDT" do
   it 'should have a value' do
-    expect(subject.value).to be_an ::Integer
-    expect(subject.to_i).to eq subject.value
+    expect(subject).to respond_to :value
   end
   
   it 'should have an increment method' do
@@ -43,6 +42,10 @@ shared_examples_for "Counter CRDT" do
 
   it 'should have a decrement method' do
     expect(subject).to respond_to :decrement
+  end
+
+  it 'should have a batch method' do
+    expect(subject).to respond_to :batch
   end
 end
 
