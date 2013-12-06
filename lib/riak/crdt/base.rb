@@ -33,8 +33,6 @@ module Riak
       end
 
       def backend
-        pp @bucket
-        pp client
         client.backend{|be| be}
       end
 
