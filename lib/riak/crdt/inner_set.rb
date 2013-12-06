@@ -4,6 +4,7 @@ module Riak
       attr_accessor :name
       
       attr_reader :value
+      alias :members :value
       
       def initialize(parent, value=[])
         @parent = parent
