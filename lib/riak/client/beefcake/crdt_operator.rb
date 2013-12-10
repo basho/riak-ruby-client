@@ -89,6 +89,12 @@ module Riak
           end
         end
         
+        def inner_serialize_group(operations)
+          operations.map do |operation|
+            inner_serialize operation.value
+          end
+        end
+
         def inner_serialize(operation)
           case operation.type
           when :counter
@@ -102,7 +108,8 @@ module Riak
           when :map
             serialize_inner_map operation
           else
-            raise ArgumentError, t('crdt.unknown_inner_field', symbol: operation.type.inspect)
+            raise ArgumentError, t('crdt.unknown_inner_field',
+                                   symbol: operation.type.inspect)
           end
         end
         
@@ -149,13 +156,13 @@ module Riak
           removes = ::Set.new
           
           set_ops.each do |o|
-            adds.merge o.value[:add] if o.value[:add]
+            adds.add o.value[:add] if o.value[:add]
             removes.merge o.value[:remove] if o.value[:remove]
           end
           
           SetOp.new(
-                    adds: adds,
-                    removes: removes
+                    adds: adds.to_a.flatten,
+                    removes: removes.to_a.flatten
                     )
         end
 
@@ -175,14 +182,15 @@ module Riak
         end
 
         def serialize_map(map_ops)
-          inner_serialized = inner_serialize inner_op
+          inner_serialized = inner_serialize_group map_ops
 
           MapOp.new(
-                    updates: [inner_serialized]
+                    updates: inner_serialized
                     )
         end
 
         def serialize_inner_map(map_op)
+          pp map_op
           inner_op = map_op.value
           inner_serialized = inner_serialize inner_op
 

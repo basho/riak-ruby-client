@@ -29,7 +29,7 @@ describe "CRDTs", integration: true, test_client: true do
         s.increment
         s.increment
       end
-      expect(subject.value).to == start + 5
+      expect(subject.value).to eq(start + 5)
     end
   end
   describe 'sets' do
