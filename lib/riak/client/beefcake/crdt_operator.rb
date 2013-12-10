@@ -156,8 +156,8 @@ module Riak
           removes = ::Set.new
           
           set_ops.each do |o|
-            adds.add o.value[:add] if o.value[:add]
-            removes.merge o.value[:remove] if o.value[:remove]
+            adds.add [o.value[:add]] if o.value[:add]
+            removes.merge [o.value[:remove]] if o.value[:remove]
           end
           
           SetOp.new(
