@@ -63,7 +63,7 @@ module Riak
 
         def serialize_wrap(operations)
           raise ArgumentError, t('crdt.serialize_no_ops') if operations.empty?
-          ops = operations.map{|o| serialize_single o }
+          ops = serialize_group operations
 
           DtOp.new(wrap_field_for(operations) => ops)
         end
@@ -72,14 +72,14 @@ module Riak
           "#{ops.first.type.to_s}_op".to_sym
         end
         
-        def serialize_single(operation)
-          case operation.type
+        def serialize_group(operations)
+          case operations.first.type
           when :counter
-            serialize_counter operation
+            serialize_counter operations
           when :set
-            serialize_set operation
+            serialize_set operations
           when :map
-            serialize_map operation
+            serialize_map operations
           else
             raise ArgumentError, t('crdt.unknown_field', symbol: operation.type.inspect)
           end
@@ -102,8 +102,9 @@ module Riak
           end
         end
         
-        def serialize_counter(counter_op)
-          CounterOp.new(increment: counter_op.value)
+        def serialize_counter(counter_ops)
+          amount = counter_ops.inject(0){|m, o| m += o.value }
+          CounterOp.new(increment: amount)
         end
 
         def serialize_inner_counter(counter_op)
@@ -139,12 +140,18 @@ module Riak
                         )
         end
 
-        def serialize_set(set_op)
-          value = set_op.value or nil
+        def serialize_set(set_ops)
+          adds = ::Set.new
+          removes = ::Set.new
+          
+          set_ops.each do |o|
+            adds.merge o.value[:add] if o.value[:add]
+            removes.merge o.value[:remove] if o.value[:remove]
+          end
           
           SetOp.new(
-                    adds: value[:add],
-                    removes: value[:remove]
+                    adds: adds,
+                    removes: removes
                     )
         end
 
@@ -163,8 +170,7 @@ module Riak
                         )
         end
 
-        def serialize_map(map_op)
-          inner_op = map_op.value
+        def serialize_map(map_ops)
           inner_serialized = inner_serialize inner_op
 
           MapOp.new(

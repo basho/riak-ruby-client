@@ -21,13 +21,15 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       result = subject.serialize operation
       
       expect(result).to be_a backend_class::DtOp
-      expect(result.counter_op.first).to be_a backend_class::CounterOp
-      expect(result.counter_op.first.increment).to eq increment
+      expect(result.counter_op).to be_a backend_class::CounterOp
+      expect(result.counter_op.increment).to eq increment
     end
 
     it 'should serialize multiple counter operations into protobuffs' do
       result = subject.serialize [operation, operation]
 
+      expect{result.encode}.to_not raise_error
+      
       expect(result).to be_a backend_class::DtOp
       expect(result.counter_op).to be_a ::Array
       expect(result.counter_op.first).to be_a backend_class::CounterOp
@@ -49,11 +51,13 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
 
     it 'should serialize a set operation into protobuffs' do
       result = subject.serialize operation
+
+      expect{result.encode}.to_not raise_error
       
       expect(result).to be_a backend_class::DtOp
-      expect(result.set_op.first).to be_a backend_class::SetOp
-      expect(result.set_op.first.adds).to eq [added_element]
-      expect(result.set_op.first.removes).to eq [removed_element]
+      expect(result.set_op).to be_a backend_class::SetOp
+      expect(result.set_op.adds).to eq ::Set.new([added_element])
+      expect(result.set_op.removes).to eq ::Set.new([removed_element])
     end
   end
 
@@ -70,6 +74,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
 
       result = subject.serialize map_op
+
+      expect{result.encode}.to_not raise_error
 
       expect(result).to be_a backend_class::DtOp
       expect(result.map_op.first).to be_a backend_class::MapOp
@@ -92,6 +98,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
 
       result = subject.serialize map_op
 
+      expect{result.encode}.to_not raise_error
+
       expect(result).to be_a backend_class::DtOp
       expect(result.map_op.first).to be_a backend_class::MapOp
       map_update = result.map_op.first.updates.first
@@ -112,12 +120,15 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
 
       result = subject.serialize map_op
 
+      expect{result.encode}.to_not raise_error
+
       expect(result).to be_a backend_class::DtOp
-      expect(result.map_op.first).to be_a backend_class::MapOp
-      map_update = result.map_op.first.updates.first
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
       expect(map_update).to be_a backend_class::MapUpdate
       expect(map_update.register_op).to eq 'hello'
     end
+    
     it 'should serialize inner set operations' do
       set_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_set'
@@ -130,6 +141,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
 
       result = subject.serialize map_op
+
+      expect{result.encode}.to_not raise_error
 
       expect(result).to be_a backend_class::DtOp
       expect(result.map_op.first).to be_a backend_class::MapOp
@@ -155,6 +168,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
 
       result = subject.serialize map_op
+
+      expect{result.encode}.to_not raise_error
 
       expect(result).to be_a backend_class::DtOp
       expect(result.map_op.first).to be_a backend_class::MapOp

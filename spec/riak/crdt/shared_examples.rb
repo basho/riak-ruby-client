@@ -51,8 +51,9 @@ end
 
 shared_examples_for 'Set CRDT' do
   it 'should have a value' do
-    expect(subject.value).to be_a ::Set
-    expect(subject.to_a).to be_an ::Array
+    expect(subject).to respond_to :value
+    expect(subject).to respond_to :members
+    expect(subject).to respond_to :to_a
   end
 
   it 'should have an include? method' do
