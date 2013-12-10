@@ -27,11 +27,11 @@ module Riak
 
       private
       def initialize_collections
-        @counters = TypedCollection.new Counter, self, @value[:counters]
+        @counters = TypedCollection.new InnerCounter, self, @value[:counters]
         @flags = TypedCollection.new Flag, self, @value[:flags]
         @maps = TypedCollection.new InnerMap, self, @value[:maps]
         @registers = TypedCollection.new Register, self, @value[:registers]
-        @sets = TypedCollection.new Set, self, @value[:sets]
+        @sets = TypedCollection.new InnerSet, self, @value[:sets]
       end
     end
   end
