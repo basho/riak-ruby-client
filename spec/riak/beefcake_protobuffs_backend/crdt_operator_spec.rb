@@ -31,8 +31,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect{result.encode}.to_not raise_error
       
       expect(result).to be_a backend_class::DtOp
-      expect(result.counter_op).to be_a ::Array
-      expect(result.counter_op.first).to be_a backend_class::CounterOp
+      expect(result.counter_op).to be_a backend_class::CounterOp
+      expect(result.counter_op.increment).to eq (increment * 2)
     end
   end
 
