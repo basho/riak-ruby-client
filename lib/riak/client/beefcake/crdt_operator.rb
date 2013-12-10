@@ -47,7 +47,11 @@ module Riak
 
           msglen, msgcode = header.unpack 'NC'
 
-          if BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] != :DtUpdateResp
+          if BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] == :ErrorResp
+            error = socket.read(msglen - 1)
+            resp = RpbErrorResp.decode error
+            raise ProtobuffsFailedRequest.new resp.errcode, resp.errmsg
+          elsif BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] != :DtUpdateResp
             backend.teardown
             raise SocketError, t('pbc.wanted_dt_update_resp')
           end
