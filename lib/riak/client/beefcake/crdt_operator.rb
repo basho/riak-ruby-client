@@ -190,7 +190,6 @@ module Riak
         end
 
         def serialize_inner_map(map_op)
-          pp map_op
           inner_op = map_op.value
           inner_serialized = inner_serialize inner_op
 
