@@ -19,6 +19,14 @@ module Riak
         increment -amount
       end
 
+      def batch
+        batcher = BatchCounter.new
+
+        yield batcher
+
+        increment batcher.accumulator
+      end
+      
       def self.update(increment)
         Operation::Update.new.tap do |op|
           op.value = increment
