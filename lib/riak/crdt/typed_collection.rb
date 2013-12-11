@@ -13,9 +13,7 @@ module Riak
         @contents = stringified_contents.keys.inject(Hash.new) do |contents, key|
           contents.tap do |c|
             c[key] = @type.new self, stringified_contents[key]
-            if NEEDS_NAME.include? @type
-              c[key].name = key
-            end
+            c[key].name = key if needs_name?
           end
         end
       end
@@ -28,14 +26,10 @@ module Riak
         key = normalize_key key
         return @contents[key] if include? key
 
-        if INITIALIZE_NIL.include? @type
-          return nil
-        end
+        return nil if initialize_nil?
         
         new_instance = @type.new self
-        if NEEDS_NAME.include? @type
-          new_instance.name = key
-        end
+        new_instance.name = key if needs_name?
 
         return new_instance
       end
@@ -46,7 +40,12 @@ module Riak
         operation = @type.update value
         operation.name = key
 
-        @parent.operate operation
+        result = @parent.operate operation
+
+        @contents[key] = @type.new self, value
+        @contents[key].name = key if needs_name?
+        
+        result
       end
       alias :increment :[]=
 
@@ -56,6 +55,8 @@ module Riak
         operation.name = key
 
         @parent.operate operation
+
+        @contents.delete key
       end
 
       def operate(key, inner_operation)
@@ -69,6 +70,14 @@ module Riak
       private
       def normalize_key(unnormalized_key)
         unnormalized_key.to_s
+      end
+
+      def initialize_nil?
+        INITIALIZE_NIL.include? @type
+      end
+      
+      def needs_name?
+        NEEDS_NAME.include? @type
       end
     end
   end

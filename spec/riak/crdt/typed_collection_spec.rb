@@ -147,6 +147,7 @@ describe Riak::Crdt::TypedCollection do
           expect(op.type).to eq :counter
           expect(op.value).to eq -5
         end
+        
         subject[counter_name].decrement 5
       end
     end
