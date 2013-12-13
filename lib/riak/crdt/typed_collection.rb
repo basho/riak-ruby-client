@@ -2,7 +2,7 @@ module Riak
   module Crdt
     class TypedCollection
 
-      NEEDS_NAME = ::Set.new [InnerCounter, InnerSet]
+      NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
       INITIALIZE_NIL = ::Set.new [Register]
       
       def initialize(type, parent, contents={})
@@ -18,6 +18,12 @@ module Riak
         end
       end
 
+      def reparent(new_parent)
+        reparented = self.class.new(@type,
+                                    new_parent,
+                                    @contents)
+      end
+      
       def include?(key)
         @contents.include? normalize_key(key)
       end

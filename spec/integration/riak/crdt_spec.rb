@@ -61,10 +61,10 @@ describe "CRDTs", integration: true, test_client: true do
 
       subject.sets['arnold'].add 'commando'
       subject.sets['arnold'].add 'terminator'
-      expect(subject.sets['arnold']).to include('commando')
+      expect(subject.sets['arnold'].members).to include('commando')
       subject.sets['arnold'].remove 'commando'
-      expect(subject.sets['arnold']).to_not include('commando')
-      expect(subject.sets['arnold']).to include('terminator')
+      expect(subject.sets['arnold'].members).to_not include('commando')
+      expect(subject.sets['arnold'].members).to include('terminator')
 
       subject.maps['first'].registers['second'] = 'good evening'
       subject.maps['first'].maps['third'].counters['fourth'].increment

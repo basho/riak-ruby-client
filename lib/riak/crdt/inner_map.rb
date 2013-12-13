@@ -2,6 +2,8 @@ module Riak
   module Crdt
     class InnerMap
       attr_reader :counters, :flags, :maps, :registers, :sets
+
+      attr_accessor :name
       
       def initialize(parent, value={})
         @parent = parent
@@ -16,7 +18,7 @@ module Riak
           op.type = :map
         end
 
-        @parent.operate(wrapped_operation)
+        @parent.operate(name, wrapped_operation)
       end
 
       def self.delete

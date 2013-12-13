@@ -11,10 +11,13 @@ module Riak
 
       def batch
         batch_map = BatchMap.new self
+
         yield batch_map
-        batch_map.process
+
+        batch_operate batch_map.operations
       end
 
+      alias :batch_operate :operate
       def operate(operation)
         batch do |m|
           m.operate operation
@@ -23,11 +26,11 @@ module Riak
 
       private
       def initialize_collections
-        @counters = TypedCollection.new Counter, self
+        @counters = TypedCollection.new InnerCounter, self
         @flags = TypedCollection.new Flag, self
         @maps = TypedCollection.new InnerMap, self
         @registers = TypedCollection.new Register, self
-        @sets = TypedCollection.new Set, self
+        @sets = TypedCollection.new InnerSet, self
       end
     end
   end
