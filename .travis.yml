@@ -16,7 +16,7 @@ bundler_args: --without=guard
 before_install:
   - ./install_riak.sh
 script:
-  - bundle exec rspec $RSPEC_ARGS
+  - "bundle exec rspec $(RSPEC_ARGS)"
 before_script:
   - ! 'echo "pb_port: 8087" > spec/support/test_client.yml'
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
