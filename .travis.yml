@@ -11,7 +11,7 @@ services:
   - riak
 bundler_args: --without=guard
 script:
-  - "bundle exec rspec --tag ~riak:2.0"
+  - "bundle exec rspec --tag '~riak:2.0'"
 before_script:
   - ! 'echo "pb_port: 8087" > spec/support/test_client.yml'
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
