@@ -14,7 +14,7 @@ services:
   - riak
 bundler_args: --without=guard
 before_script:
-  - cp spec/support/test_client.yml.example spec/support/test_client.yml
+  - ! 'echo "pb_port: 8087" > spec/support/test_client.yml'
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
   - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
   - "ulimit -n 2048"
