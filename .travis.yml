@@ -1,6 +1,6 @@
 env:
-  - RIAK_VERSION=default RSPEC_ARGS=""
-  - RIAK_VERSION=2.0.0pre5 RIAK_RELEASE=2.0 RSPEC_ARGS="--tag '~riak:2.0'"
+  - RIAK_VERSION=default RSPEC_ARGS="--tag '~riak:2.0'"
+  - RIAK_VERSION=2.0.0pre5 RIAK_RELEASE=2.0 RSPEC_ARGS=""
 rvm:
   - 1.9.3
 matrix:
