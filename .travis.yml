@@ -1,3 +1,6 @@
+env:
+  - RIAK_VERSION=default RSPEC_ARGS=""
+  - RIAK_VERSION=2.0.0pre5 RIAK_RELEASE=2.0 RSPEC_ARGS="--tag '~riak:2.0'"
 rvm:
   - 1.9.3
 matrix:
@@ -10,8 +13,10 @@ matrix:
 services:
   - riak
 bundler_args: --without=guard
+before_install:
+  - ./install_riak.sh
 script:
-  - "bundle exec rspec --tag '~riak:2.0'"
+  - bundle exec rspec $RSPEC_ARGS
 before_script:
   - ! 'echo "pb_port: 8087" > spec/support/test_client.yml'
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
