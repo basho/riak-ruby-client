@@ -1,8 +1,5 @@
 rvm:
   - 1.9.3
-  - 2.0.0
-  - jruby-18mode
-  - jruby-19mode
 matrix:
   allow_failures:
     - rvm: jruby-head
@@ -13,6 +10,8 @@ matrix:
 services:
   - riak
 bundler_args: --without=guard
+script:
+  - "bundle exec rspec --tag ~riak:2.0"
 before_script:
   - ! 'echo "pb_port: 8087" > spec/support/test_client.yml'
   - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
