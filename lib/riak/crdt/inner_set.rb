@@ -8,7 +8,7 @@ module Riak
       
       def initialize(parent, value=[])
         @parent = parent
-        @value = ::Set.new value
+        @value = ::Set.new value.to_a
       end
 
       def to_a

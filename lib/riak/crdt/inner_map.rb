@@ -4,7 +4,7 @@ module Riak
       attr_reader :counters, :flags, :maps, :registers, :sets
 
       attr_accessor :name
-      
+
       def initialize(parent, value={})
         @parent = parent
         @value = value.symbolize_keys

@@ -23,10 +23,10 @@ module Riak
             op: serialized
           }.merge options
           request = DtUpdateReq.new args
-          
           backend.write_protobuff :DtUpdateReq, request
 
           response = decode
+          return response
         end
 
         def serialize(operations)

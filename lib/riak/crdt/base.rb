@@ -20,7 +20,6 @@ module Riak
       end
       
       private
-
       def reload
         l = loader
         vivify l.load @bucket, @key, @bucket_type

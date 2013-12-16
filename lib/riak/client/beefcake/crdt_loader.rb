@@ -59,7 +59,61 @@ module Riak
           when DtFetchResp::DataType::SET
             ::Set.new response.value.set_value
           when DtFetchResp::DataType::MAP
-            response.value.map_value
+            rubyfy_map response.value.map_value
+          end
+        end
+
+        def rubyfy_map(map_value)
+          accum = {
+            counters: {},
+            flags: {},
+            maps: {},
+            registers: {},
+            sets: {}
+          }
+          map_value.each do |mv|
+            case mv.field.type
+            when MapField::MapFieldType::COUNTER
+              accum[:counters][mv.field.name] = mv.counter_value
+            when MapField::MapFieldType::FLAG
+              accum[:flags][mv.field.name] = mv.flag_value
+            when MapField::MapFieldType::MAP
+              rubyfy_inner_map accum, mv
+            when MapField::MapFieldType::REGISTER
+              accum[:registers][mv.field.name] = mv.register_value
+            when MapField::MapFieldType::SET
+              accum[:sets][mv.field.name] = ::Set.new mv.set_value
+            end
+          end
+
+          return accum
+        end
+
+        def rubyfy_inner_map(accum, map_value)
+          destination = accum[:maps][map_value.field.name]
+          if destination.nil?
+            destination = accum[:maps][map_value.field.name] = {
+              counters: {},
+              flags: {},
+              maps: {},
+              registers: {},
+              sets: {}
+            }
+          end
+          
+          map_value.map_value.each do |inner_mv|
+            case inner_mv.field.type
+            when MapField::MapFieldType::COUNTER
+              destination[:counters][inner_mv.field.name] = inner_mv.counter_value
+            when MapField::MapFieldType::FLAG
+              destination[:flags][inner_mv.field.name] = inner_mv.flag_value
+            when MapField::MapFieldType::MAP
+              rubyfy_inner_map destination, inner_mv
+            when MapField::MapFieldType::REGISTER
+              destination[:registers][inner_mv.field.name] = inner_mv.register_value
+            when MapField::MapFieldType::SET
+              destination[:sets][inner_mv.field.name] = ::Set.new inner_mv.set_value
+            end
           end
         end
 
@@ -70,7 +124,13 @@ module Riak
           when DtFetchResp::DataType::SET
             ::Set.new
           when DtFetchResp::DataType::MAP
-            "TODO"
+            {
+              counters: {},
+              flags: {},
+              maps: {},
+              registers: {},
+              sets: {},
+            }
           end
         end
 

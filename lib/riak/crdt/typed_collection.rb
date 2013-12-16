@@ -2,6 +2,7 @@ module Riak
   module Crdt
     class TypedCollection
 
+      ALREADY_WRAPPED = ::Set.new [InnerCounter, Flag, InnerMap]
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
       INITIALIZE_NIL = ::Set.new [Register]
       
@@ -12,7 +13,12 @@ module Riak
         stringified_contents = contents.stringify_keys
         @contents = stringified_contents.keys.inject(Hash.new) do |contents, key|
           contents.tap do |c|
-            c[key] = @type.new self, stringified_contents[key]
+            content = stringified_contents[key]
+            if ALREADY_WRAPPED.include? content.class
+              c[key] = content
+            else
+              c[key] = @type.new self, content
+            end
             c[key].name = key if needs_name?
           end
         end
