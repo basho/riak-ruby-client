@@ -5,8 +5,19 @@ describe "CRDTs", integration: true, test_client: true do
   let(:bucket) { random_bucket }
 
   describe 'configuration' do
-    it "should allow default bucket-types to be configured for each data type"
-    it "should allow override bucket-types for instances"
+    it "should allow default bucket-types to be configured for each data type" do
+      expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
+      
+      Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'new_set_default'
+      expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_default_set'
+
+      Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'sets'
+      expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
+    end
+    
+    it "should allow override bucket-types for instances" do
+      expect(Riak::Crdt::Set.new(bucket, 'set', 'other_bucket_type').bucket_type).to eq 'other_bucket_type'
+    end
   end
   
   describe 'counters' do
