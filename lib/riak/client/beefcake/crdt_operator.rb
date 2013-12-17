@@ -154,7 +154,6 @@ module Riak
         def serialize_set(set_ops)
           adds = ::Set.new
           removes = ::Set.new
-          
           set_ops.each do |o|
             adds.add [o.value[:add]] if o.value[:add]
             removes.merge [o.value[:remove]] if o.value[:remove]
@@ -163,7 +162,7 @@ module Riak
           SetOp.new(
                     adds: adds.to_a.flatten,
                     removes: removes.to_a.flatten
-                    )
+                    ).tap{|o| pp o}
         end
 
         def serialize_inner_set(set_op)

@@ -15,6 +15,8 @@ module Riak
 
         yield batcher
 
+        pp batcher.operations
+        
         operate batcher.operations
       end
 
@@ -95,7 +97,7 @@ module Riak
         def operations
           Operation::Update.new.tap do |op|
             op.type = :set
-            op.value = {add: @adds, remove: @removes}
+            op.value = {add: @adds.to_a, remove: @removes.to_a}
           end
         end
       end

@@ -36,6 +36,8 @@ describe Riak::Crdt::Map do
         expect(key_arg).to eq key
         expect(type).to eq Riak::Crdt::DEFAULT_MAP_BUCKET_TYPE
 
+        expect(operations.length).to eq 2
+        
         expect(operations.first).to be_a Riak::Crdt::Operation::Update
 
         expect(operations.first.value).to be_a Riak::Crdt::Operation::Update
@@ -49,6 +51,27 @@ describe Riak::Crdt::Map do
   end
 
   describe 'immediate mode' do
-    it 'should submit member operations immediately'
+    it 'should submit member operations immediately' do
+      operator.
+        should_receive(:operate) do |bucket, key_arg, type, operations|
+
+        expect(bucket).to eq bucket
+        expect(key_arg).to eq key
+        expect(type).to eq Riak::Crdt::DEFAULT_MAP_BUCKET_TYPE
+
+        expect(operations.length).to eq 1
+
+        expect(operations.first).to be_a Riak::Crdt::Operation::Update
+
+        inner_op = operations.first.value
+
+        expect(inner_op).to be_a Riak::Crdt::Operation::Update
+        expect(inner_op.name).to eq 'hasta'
+        expect(inner_op.type).to eq :register
+        expect(inner_op.value).to eq 'la vista'
+      end
+
+      subject.registers['hasta'] = 'la vista' # baby
+    end
   end
 end

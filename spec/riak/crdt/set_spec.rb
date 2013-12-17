@@ -9,7 +9,10 @@ describe Riak::Crdt::Set do
     end
   end
 
-  it 'should be initialized with bucket, key, and optional bucket-type'
+  it 'should be initialized with bucket, key, and optional bucket-type' do
+    expect{described_class.new bucket, 'key', 'optional bucket type'}.
+      to_not raise_error
+  end
 
   subject{ described_class.new bucket, 'key' }
 
@@ -36,8 +39,8 @@ describe Riak::Crdt::Set do
 
         expect(operations).to be_a Riak::Crdt::Operation::Update
         expect(operations.value).to eq({
-                                         add: ::Set.new(%w{alpha bravo}),
-                                         remove: ::Set.new(%w{foxtrot})
+                                         add: %w{alpha bravo},
+                                         remove: %w{foxtrot}
                                        })
       end
 

@@ -3,10 +3,12 @@ require 'riak'
 
 describe "CRDTs", integration: true, test_client: true do
   let(:bucket) { random_bucket }
+
   describe 'configuration' do
     it "should allow default bucket-types to be configured for each data type"
     it "should allow override bucket-types for instances"
   end
+  
   describe 'counters' do
     subject { Riak::Crdt::Counter.new bucket, random_key }
     it 'should allow straightforward counter ops' do
@@ -50,7 +52,17 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.members).to eq(start)
     end
     
-    it 'should allow batched set ops'
+    it 'should allow batched set ops' do
+      subject.add 'zero'
+      subject.batch do |s|
+        s.add 'first'
+        s.add 'second'
+        s.remove 'zero'
+        s.remove 'second'
+      end
+
+      expect(subject.members.to_a).to eq %w{first}
+    end
   end
   describe 'maps' do
     subject { Riak::Crdt::Map.new bucket, random_key }
@@ -72,22 +84,52 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.maps['first'].registers['second']).to eq('good evening')
       expect(subject.maps['first'].maps['third'].counters['fourth'].value).to eq(1)
     end
-    it 'should allow batched map ops'
+    
+    it 'should allow batched map ops' do
+      subject.batch do |s|
+        s.registers['condiment'] = 'ketchup'
+        s.counters['banana'].increment
+      end
+
+      expect(subject.registers['condiment']).to eq 'ketchup'
+      expect(subject.counters['banana'].value).to eq 1
+    end
     
     describe 'containing a map' do
-      it 'should bubble straightforward map ops up'
-      it 'should bubble inner-map batches up'
-      it 'should include inner-map ops in the outer-map batch'
+      it 'should bubble straightforward map ops up' do
+        street_map = subject.maps['street']
+
+        street_map.registers['bird'] = 'avenue'
+        street_map.flags['traffic_light'] = false
+
+        expect(subject.maps['street'])
+      end
+      
+      it 'should include inner-map ops in the outer-map batch' do
+        subject.batch do |m|
+          m.maps['road'].counters['speedbumps'].increment 4
+          m.maps['road'].sets['signs'].add 'yield'
+        end
+
+        expect(subject.maps['road'].counters['speedbumps'].value).to eq 4
+        expect(subject.maps['road'].sets['signs'].include? 'yield').to be
+      end
     end
 
     describe 'containing a register' do
-      it 'should bubble straightforward register ops up'
-      # registers don't have batch ops
+      it 'should bubble straightforward register ops up' do
+        subject.registers['hkey_local_machine'] = 'registry'
+
+        expect(subject.registers['hkey_local_machine']).to eq 'registry'
+      end
     end
 
     describe 'containing a flag' do
-      it 'should bubble straightforward flag ops up'
-      # flags don't have batch ops
+      it 'should bubble straightforward flag ops up' do
+        subject.flags['enable_magic'] = true
+
+        expect(subject.flags['enable_magic']).to be
+      end
     end
   end
 end
