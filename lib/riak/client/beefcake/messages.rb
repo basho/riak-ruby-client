@@ -167,7 +167,7 @@ class RpbBucketProps
   optional :backend, :bytes, 22
   optional :search, :bool, 23
   optional :repl, RpbBucketProps::RpbReplMode, 24
-  optional :yz_index, :bytes, 25
+  optional :search_index, :bytes, 25
 end
 
 class RpbAuthReq
