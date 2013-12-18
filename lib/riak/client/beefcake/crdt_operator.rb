@@ -162,7 +162,7 @@ module Riak
           SetOp.new(
                     adds: adds.to_a.flatten,
                     removes: removes.to_a.flatten
-                    ).tap{|o| pp o}
+                    )
         end
 
         def serialize_inner_set(set_op)

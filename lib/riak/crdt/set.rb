@@ -14,8 +14,6 @@ module Riak
         batcher = BatchSet.new self
 
         yield batcher
-
-        pp batcher.operations
         
         operate batcher.operations
       end

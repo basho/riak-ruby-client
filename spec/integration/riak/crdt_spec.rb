@@ -9,7 +9,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
       
       Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'new_set_default'
-      expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_default_set'
+      expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_set_default'
 
       Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'sets'
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
@@ -67,9 +67,7 @@ describe "CRDTs", integration: true, test_client: true do
       subject.add 'zero'
       subject.batch do |s|
         s.add 'first'
-        s.add 'second'
         s.remove 'zero'
-        s.remove 'second'
       end
 
       expect(subject.members.to_a).to eq %w{first}
