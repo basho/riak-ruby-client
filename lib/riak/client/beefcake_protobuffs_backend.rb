@@ -392,6 +392,11 @@ module Riak
             return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
           end
 
+          if msglen == 1
+            return if block_given?
+            return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
+          end
+
           message = RpbIndexResp.decode socket.read msglen - 1
 
           if !block_given?
