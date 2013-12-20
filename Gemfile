@@ -4,7 +4,7 @@ gemspec
 gem 'bundler'
 gem 'rake'
 
-gem 'beefcake', github: 'protobuf-ruby/beefcake', branch: 'bk-encode-frozen-string'
+gem 'beefcake'
 
 group :guard do
   gem 'guard-rspec'
