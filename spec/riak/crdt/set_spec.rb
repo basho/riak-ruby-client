@@ -35,7 +35,7 @@ describe Riak::Crdt::Set do
 
         expect(bucket).to eq bucket
         expect(key).to eq 'key'
-        expect(type).to eq Riak::Crdt::DEFAULT_SET_BUCKET_TYPE
+        expect(type).to eq subject.bucket_type
 
         expect(operations).to be_a Riak::Crdt::Operation::Update
         expect(operations.value).to eq({

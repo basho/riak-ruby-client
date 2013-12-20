@@ -34,7 +34,7 @@ describe Riak::Crdt::Map do
 
         expect(bucket).to eq bucket
         expect(key_arg).to eq key
-        expect(type).to eq Riak::Crdt::DEFAULT_MAP_BUCKET_TYPE
+        expect(type).to eq subject.bucket_type
 
         expect(operations.length).to eq 2
         
@@ -57,7 +57,7 @@ describe Riak::Crdt::Map do
 
         expect(bucket).to eq bucket
         expect(key_arg).to eq key
-        expect(type).to eq Riak::Crdt::DEFAULT_MAP_BUCKET_TYPE
+        expect(type).to eq subject.bucket_type
 
         expect(operations.length).to eq 1
 

@@ -33,7 +33,7 @@ describe Riak::Crdt::Counter do
         should_receive(:operate) do |bucket, key, type, operations|
         expect(bucket).to eq bucket
         expect(key).to eq 'key'
-        expect(type).to eq Riak::Crdt::DEFAULT_COUNTER_BUCKET_TYPE
+        expect(type).to eq subject.bucket_type
 
         expect(operations).to be_a Riak::Crdt::Operation::Update
         expect(operations.value).to eq 5
