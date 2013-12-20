@@ -3,8 +3,8 @@ module Riak
     class Map < Base
       attr_reader :counters, :flags, :maps, :registers, :sets
       
-      def initialize(bucket, key, bucket_type=DEFAULT_MAP_BUCKET_TYPE, options={})
-        super(bucket, key, bucket_type, options)
+      def initialize(bucket, key, bucket_type=nil, options={})
+        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)
 
         initialize_collections
       end

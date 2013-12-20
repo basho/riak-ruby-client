@@ -6,8 +6,10 @@ module Riak
   # Container module for Convergent Replicated Data Type
   # features.
   module Crdt
-    DEFAULT_SET_BUCKET_TYPE = 'sets'
-    DEFAULT_MAP_BUCKET_TYPE = 'maps'
-    DEFAULT_COUNTER_BUCKET_TYPE = 'counters'
+    DEFAULT_BUCKET_TYPES = {
+      counter: 'counters',
+      map: 'maps',
+      set: 'sets',
+    }
   end
 end

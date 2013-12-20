@@ -2,8 +2,8 @@ module Riak
   module Crdt
     class Set < Base
       
-      def initialize(bucket, key, bucket_type=DEFAULT_SET_BUCKET_TYPE, options={})
-        super(bucket, key, bucket_type, options)
+      def initialize(bucket, key, bucket_type=nil, options={})
+        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:set], options)
       end
 
       def vivify(value)

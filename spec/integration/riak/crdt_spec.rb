@@ -8,10 +8,10 @@ describe "CRDTs", integration: true, test_client: true do
     it "should allow default bucket-types to be configured for each data type" do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
       
-      Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'new_set_default'
+      Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'new_set_default'
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_set_default'
 
-      Riak::Crdt::DEFAULT_SET_BUCKET_TYPE = 'sets'
+      Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'sets'
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
     end
     
