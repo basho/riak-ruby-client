@@ -1,11 +1,13 @@
 module Riak
   module Crdt
+    # A collection of elements of a given type inside a {Map}.
     class TypedCollection
 
       ALREADY_WRAPPED = ::Set.new [InnerCounter, Flag, InnerMap]
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
       INITIALIZE_NIL = ::Set.new [Register]
       
+      # @api private
       def initialize(type, parent, contents={})
         @type = type
         @parent = parent
@@ -24,16 +26,25 @@ module Riak
         end
       end
 
+      # @api private
       def reparent(new_parent)
         reparented = self.class.new(@type,
                                     new_parent,
                                     @contents)
       end
       
+      # Check if a value for a given key exists in this map.
+      #
+      # @param [String] key the key to check for
+      # @return [Boolean] if the key is inside this collection
       def include?(key)
         @contents.include? normalize_key(key)
       end
       
+      # Get the value for a given key
+      #
+      # @param [String] key the key to get the value for
+      # @return the value for the given key
       def [](key)
         key = normalize_key key
         return @contents[key] if include? key
@@ -46,6 +57,12 @@ module Riak
         return new_instance
       end
 
+      # Set the value for a given key. Operation of this method
+      # is only defined for {InnerCounter}, {Register}, and {Flag} types.
+      #
+      # @param [String] key the key to set a new value for
+      # @param [Boolean, String, Integer] value the value to set at the key,
+      #        or in the case of counters, the amount to increment
       def []=(key, value)
         key = normalize_key key
 
@@ -59,8 +76,12 @@ module Riak
         
         result
       end
+      
       alias :increment :[]=
 
+      # Remove the entry from the map.
+      #
+      # @param [String] key the key to remove from the map
       def delete(key)
         key = normalize_key key
         operation = @type.delete
@@ -71,6 +92,7 @@ module Riak
         @contents.delete key
       end
 
+      # @api private
       def operate(key, inner_operation)
         key = normalize_key key
         

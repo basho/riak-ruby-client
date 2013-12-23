@@ -1,5 +1,10 @@
 module Riak
   module Crdt
+    # The {Flag} is a boolean member of a {Map}. Since flag operations are
+    # extremely simple, this object simply provides internal API methods for
+    # {TypedCollection} to use.
+    #
+    # @api private
     class Flag
       def self.new(parent, value)
         ensure_boolean value

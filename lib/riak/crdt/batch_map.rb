@@ -1,8 +1,11 @@
 module Riak
   module Crdt
+    # A map that queues up its operations for the parent {Map} to send to
+    # Riak all at once.
     class BatchMap
       attr_reader :counters, :flags, :maps, :registers, :sets
       
+      # @api private
       def initialize(parent)
         @parent = parent
         @queue = []
@@ -10,10 +13,12 @@ module Riak
         initialize_collections
       end
 
+      # @api private
       def operate(operation)
         @queue << operation
       end
 
+      # @api private
       def operations
         @queue.map do |q|
           Operation::Update.new.tap do |op|

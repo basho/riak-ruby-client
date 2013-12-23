@@ -59,7 +59,7 @@ module Riak
       
       # Check to see if a given string is present in this data structure.
       #
-      # @param [String] candidate to check for inclusion in this structure
+      # @param [String] candidate string to check for inclusion in this structure
       # @return [Boolean] if the structure includes
       def include?(candidate)
         members.include?(candidate)
