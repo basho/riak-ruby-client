@@ -16,6 +16,10 @@ end
 YARD::Rake::YardocTask.new :doc do |doc|
   doc.options = ["--markup-provider=redcarpet",
                  "--charset utf-8",
+                 '-',
+                 'lib/**/*.rb',
+                 '*.md',
+                 '*.markdown'
                  ]
 end
 
