@@ -14,13 +14,14 @@ Gem::PackageTask.new(gemspec) do |pkg|
 end
 
 YARD::Rake::YardocTask.new :doc do |doc|
-  doc.options = ["--markup-provider=redcarpet",
+  doc.options = ["--markup markdown",
+                 "--markup-provider=redcarpet",
                  "--charset utf-8",
                  '-',
                  'lib/**/*.rb',
                  '*.md',
                  '*.markdown'
-                 ]
+                 ].map{|e| e.split(' ')}.flatten
 end
 
 task :gem => :gemspec
