@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'rubygems/package_task'
+require 'yard'
 require 'rspec/core'
 require 'rspec/core/rake_task'
 
@@ -10,6 +11,12 @@ end
 Gem::PackageTask.new(gemspec) do |pkg|
   pkg.need_zip = false
   pkg.need_tar = false
+end
+
+YARD::Rake::YardocTask.new :doc do |doc|
+  doc.options = ["--markup-provider=redcarpet",
+                 "--charset utf-8",
+                 ]
 end
 
 task :gem => :gemspec
