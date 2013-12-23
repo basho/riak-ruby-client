@@ -19,7 +19,7 @@ module Riak
         @dirty
       end
       
-      private
+      # Force a reload of this structure from Riak.
       def reload
         l = loader
         vivify l.load @bucket, @key, @bucket_type
@@ -27,6 +27,7 @@ module Riak
         @dirty = false
       end
       
+      private
       def client
         @bucket.client
       end
