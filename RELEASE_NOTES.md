@@ -1,6 +1,19 @@
 # Riak Ruby Client Release Notes
 
-## 1.4.2 Bugfix Release - TBD
+## 1.4.3 Bugfix Release - 2013-12-31
+
+Release 1.4.3 fixes some bugs and improves documentation.
+
+Documentation:
+* Secondary Index examples in README now use string names.
+* 1.4 Counter usage explained better, fixed by Srdjan "batasrki" Pejic in
+  https://github.com/basho/riak-ruby-client/pull/130
+
+Bugfixes:
+
+* Redundant `gem "rake"` in `Gemfile`.
+
+## 1.4.2 Bugfix Release - 2013-09-20
 
 Release 1.4.2 fixes a couple bugs.
 
