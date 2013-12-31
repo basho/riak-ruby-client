@@ -12,6 +12,10 @@ Documentation:
 Bugfixes:
 
 * Redundant `gem "rake"` in `Gemfile`.
+* Escape square brackets in key names, reported and fixed by Garret Alfert in
+  https://github.com/basho/riak-ruby-client/issues/128 and
+  https://github.com/basho/riak-ruby-client/pull/129 , respectively.
+
 
 ## 1.4.2 Bugfix Release - 2013-09-20
 
