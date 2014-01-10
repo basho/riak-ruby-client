@@ -7,7 +7,9 @@ module Riak
       end
 
       def vivify(value)
-        @members = value
+        value.each(&:freeze)
+        @members = Set.new(value)
+        @members.freeze
       end
 
       def batch

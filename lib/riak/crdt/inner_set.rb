@@ -8,7 +8,9 @@ module Riak
       
       def initialize(parent, value=[])
         @parent = parent
+        value.each(&:freeze)
         @value = ::Set.new value.to_a
+        @value.freeze
       end
 
       def to_a
