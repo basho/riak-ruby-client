@@ -1,6 +1,6 @@
 module Riak
   module Crdt
-    class Register < String
+    class InnerRegister < String
       attr_reader :parent
       
       def initialize(parent, *args, &block)

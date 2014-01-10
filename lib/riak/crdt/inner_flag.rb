@@ -1,6 +1,6 @@
 module Riak
   module Crdt
-    class Flag
+    class InnerFlag
       def self.new(parent, value)
         ensure_boolean value
         

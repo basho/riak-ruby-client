@@ -2,9 +2,9 @@ module Riak
   module Crdt
     class TypedCollection
 
-      ALREADY_WRAPPED = ::Set.new [InnerCounter, Flag, InnerMap]
+      ALREADY_WRAPPED = ::Set.new [InnerCounter, InnerFlag, InnerMap]
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
-      INITIALIZE_NIL = ::Set.new [Register]
+      INITIALIZE_NIL = ::Set.new [InnerRegister]
       
       def initialize(type, parent, contents={})
         @type = type
