@@ -21,7 +21,9 @@ module Riak
       # @api private
       def initialize(parent, value=[])
         @parent = parent
+        value.each(&:freeze)
         @value = ::Set.new value.to_a
+        @value.freeze
       end
       
       # Casts this {InnerSet} to an {Array}.

@@ -1,10 +1,6 @@
 source "https://rubygems.org"
 
 gemspec
-gem 'bundler'
-gem 'rake'
-
-gem 'beefcake'
 
 group :guard do
   gem 'guard-rspec'

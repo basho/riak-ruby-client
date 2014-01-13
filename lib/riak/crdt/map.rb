@@ -59,9 +59,9 @@ module Riak
       private
       def vivify(data)
         @counters = TypedCollection.new InnerCounter, self, data[:counters]
-        @flags = TypedCollection.new Flag, self, data[:flags]
+        @flags = TypedCollection.new InnerFlag, self, data[:flags]
         @maps = TypedCollection.new InnerMap, self, data[:maps]
-        @registers = TypedCollection.new Register, self, data[:registers]
+        @registers = TypedCollection.new InnerRegister, self, data[:registers]
         @sets = TypedCollection.new InnerSet, self, data[:sets]
       end
 

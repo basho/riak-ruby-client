@@ -23,6 +23,12 @@ module Riak
       # {Riak::Crdt::Set}.
       #
       # @yieldparam [BatchSet] batch_set collects set operations
+      def vivify(value)
+        value.each(&:freeze)
+        @members = Set.new(value)
+        @members.freeze
+      end
+
       def batch
         batcher = BatchSet.new self
 

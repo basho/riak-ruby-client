@@ -3,9 +3,9 @@ module Riak
     # A collection of elements of a given type inside a {Map}.
     class TypedCollection
 
-      ALREADY_WRAPPED = ::Set.new [InnerCounter, Flag, InnerMap]
+      ALREADY_WRAPPED = ::Set.new [InnerCounter, InnerFlag, InnerMap]
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
-      INITIALIZE_NIL = ::Set.new [Register]
+      INITIALIZE_NIL = ::Set.new [InnerRegister]
       
       # @api private
       def initialize(type, parent, contents={})
