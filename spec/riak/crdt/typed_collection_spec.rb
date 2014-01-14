@@ -12,7 +12,7 @@ describe Riak::Crdt::TypedCollection do
 
   describe 'containing' do
     describe 'registers' do
-      let(:register_class){ Riak::Crdt::Register }
+      let(:register_class){ Riak::Crdt::InnerRegister }
       subject do
         described_class.new register_class, parent, existing: 'existing'
       end
@@ -72,7 +72,7 @@ describe Riak::Crdt::TypedCollection do
       end
     end
     describe 'flags' do
-      let(:flag_class){ Riak::Crdt::Flag }
+      let(:flag_class){ Riak::Crdt::InnerFlag }
       subject do
         described_class.new flag_class, parent, truthy: true, falsey: false
       end
