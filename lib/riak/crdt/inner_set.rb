@@ -8,8 +8,8 @@ module Riak
       
       def initialize(parent, value=[])
         @parent = parent
-        value.each(&:freeze)
-        @value = ::Set.new value.to_a
+        frozen_value = value.to_a.tap{ |v| v.each(&:freeze) }
+        @value = ::Set.new frozen_value
         @value.freeze
       end
 
