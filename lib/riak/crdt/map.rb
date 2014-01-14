@@ -12,8 +12,8 @@ module Riak
     # * {BatchMap}: proxies multiple operations into a single Riak update request
     # * {TypedCollection}: a collection of members of a single map, similar
     #   to a Ruby {Hash}
-    # * {Flag}: a boolean value inside a map
-    # * {Register}: a {String} value inside a map
+    # * {InnerFlag}: a boolean value inside a map
+    # * {InnerRegister}: a {String} value inside a map
     # * {InnerCounter}: a {Riak::Crdt::Counter}, but inside a map
     # * {InnerSet}: a {Riak::Crdt::Set}, but inside a map
     # 
@@ -23,10 +23,10 @@ module Riak
       # Create a map instance. If not provided, the default bucket type
       # from {Riak::Crdt} will be used.
       #
-      # @param [Bucket] bucket the {Riak::Bucket} for this map
-      # @param [String] key the name of the map
-      # @param [String] bucket_type the optional bucket type for this map
-      # @param [Hash] options
+      # @param bucket [Bucket] the {Riak::Bucket} for this map
+      # @param key [String] the name of the map
+      # @param bucket_type [String] the optional bucket type for this map
+      # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)
 
@@ -37,7 +37,7 @@ module Riak
       # {BatchMap} to turn multiple operations into a single Riak update
       # request.
       #
-      # @yieldparam [BatchMap] batch_map collects updates and other operations 
+      # @yieldparam batch_map [BatchMap] collects updates and other operations 
       def batch(*args)
         batch_map = BatchMap.new self
 
