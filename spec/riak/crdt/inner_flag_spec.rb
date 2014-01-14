@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Riak::Crdt::Flag do
+describe Riak::Crdt::InnerFlag do
   let(:parent){ double 'parent' }
   describe 'a truthy flag' do
     subject { described_class.new parent, true }

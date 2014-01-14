@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Riak::Crdt::Register do
+describe Riak::Crdt::InnerRegister do
   let(:parent){ double 'parent' }
   subject { described_class.new parent, "espressos" }
 
