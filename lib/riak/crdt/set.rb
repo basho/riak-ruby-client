@@ -8,7 +8,7 @@ module Riak
 
       def vivify(value)
         value.each(&:freeze)
-        @members = Set.new(value)
+        @members = ::Set.new(value)
         @members.freeze
       end
 
