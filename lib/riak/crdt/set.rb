@@ -10,10 +10,10 @@ module Riak
       # Create a set instance. If not provided, the default bucket type from
       # {Riak::Crdt} will be used.
       #
-      # @param [Bucket] the {Riak::Bucket} for this set
-      # @param [String] key the name of the set
-      # @param [String] bucket_type the optional bucket type for this set
-      # @param [Hash] options
+      # @param bucket [Bucket] the {Riak::Bucket} for this set
+      # @param key [String] the name of the set
+      # @param bucket_type [String] the optional bucket type for this set
+      # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:set], options)
       end
@@ -22,7 +22,7 @@ module Riak
       # Riak update. The `BatchSet` has the same methods as this 
       # {Riak::Crdt::Set}.
       #
-      # @yieldparam [BatchSet] batch_set collects set operations
+      # @yieldparam batch_set [BatchSet] collects set operations
       def vivify(value)
         value.each(&:freeze)
         @members = Set.new(value)
