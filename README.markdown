@@ -82,7 +82,6 @@ p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night",
           #     "The Beatles", "Yellow Submarine", "Abbey Road", "Let It Be"]
 ```
 
-
 ## Riak Search Examples
 
 For more information about Riak Search, see [the Basho wiki](http://wiki.basho.com/Riak-Search.html).
@@ -197,6 +196,184 @@ q.values # => [<RObject {recipes,cobb.salad} ...>, <RObject {recipes,wedge...
 q.has_next_page? # => true
 q2 = q.next_page
 ```
+
+## Riak 2 Data Types
+
+Riak 2 features new distributed data structures: counters, sets, and maps 
+(containing counters, flags, maps, registers, and sets).  These are implemented 
+by the Riak database as Convergent Replicated Data Types.
+
+Riak data type support requires bucket types to be configured to support each
+top-level data type. If you're just playing around, use the 
+[Riak Ruby Vagrant](https://github.com/basho-labs/riak-ruby-vagrant) setup to
+get started with the appropriate configuration and bucket types quickly.
+
+The examples below presume that the appropriate bucket types are named
+`counters`, `maps`, and `sets`; these bucket type names are the client's defaults.
+Viewing and changing the defaults is easy:
+
+```ruby
+Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] #=> "sets"
+
+Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = "a_cooler_set"
+```
+
+The top-level CRDT types have both immediate and batch mode. If you're doing
+multiple writes to a single top-level counter or set, or updating multiple map
+entries, batch mode will make fewer round-trips to Riak.
+
+### Counters
+
+Riak 2 integer counters have one operation: increment by an integer.
+
+```ruby
+counter = Riak::Crdt::Counter.new bucket, key
+
+counter.value #=> 15
+
+counter.increment
+
+counter.value #=> 16
+
+counter.increment 3
+
+counter.value #=> 19
+
+counter.decrement
+
+counter.value #=> 18
+```
+
+Counter operations can be batched:
+
+```ruby
+counter.batch do |c|
+  c.increment
+  c.increment 5
+end
+```
+
+### Maps
+
+Riak 2 maps can contain counters, flags (booleans), registers (strings), sets, and
+other maps.
+
+Maps are similar but distinct from the standard Ruby `Hash`. Entries are
+segregated by both name and type, so you can have counters, registers, and sets inside a map that all have the same name.
+
+```ruby
+map = Riak::Crdt::Map.new bucket, key
+
+map.counters['potatoes'].value #=> 5
+map.sets['potatoes'].include? 'yukon gold' #=> true
+
+map.sets['cacti'].value #=> #<Set: {"saguaro", "prickly pear", "fishhook"}>
+map.sets['cacti'].remove 'prickly pear'
+
+map.registers['favorite butterfly'] = 'the mighty monarch'
+
+map.flags['pet cat'] = true
+
+map.maps['atlantis'].registers['location'] #=> 'kennedy space center'
+
+map.counters.delete 'thermometers'
+```
+
+Maps are a prime candidate for batched operations:
+
+```ruby
+map.batch do |m|
+  m.counters['hits'].increment
+  m.sets['followers'].add 'basho_elevator'
+end
+```
+
+### Sets
+
+Sets are an unordered collection of entries.
+
+**PROTIP:** Ruby and Riak Ruby Client both have classes called `Set`. Be careful
+to refer to the Ruby version as `::Set` and the Riak client version as
+`Riak::Crdt::Set`.
+
+```ruby
+set = Riak::Crdt::Set.new bucket, key
+
+set.members #=> #<Set: {"Edinburgh", "Leeds", "London"}>
+
+set.add "Newcastle"
+set.remove "London"
+
+set.include? "Leeds" #=> true
+```
+
+Sets support batched operations:
+
+```ruby
+set.batch do |s|
+  s.add "York"
+  s.add "Aberdeen"
+  s.remove "Newcastle"
+end
+```
+
+### Client Implementation Notes
+
+The client code for these types is in the `Riak::Crdt` namespace, and mostly
+in the `lib/riak/crdt` directory.
+
+## Riak 1.4 Counters
+
+For more information about counters in Riak, see [the Basho wiki](http://docs.basho.com/riak/latest/dev/references/http/counters/).
+
+Counter records are automatically persisted on increment or decrement. The initial default value is 0.
+
+``` ruby
+# Firstly, ensure that your bucket is allow_mult set to true
+bucket = client.bucket "counters"
+bucket.allow_mult = true
+
+# You can create a counter by using the bucket's counter method
+counter = bucket.counter("counter-key-here")
+counter.increment
+=> nil
+
+p counter.value
+1
+=> 1
+
+# Let's increment one more time and then retrieve it from the database
+counter.increment
+
+# Retrieval is similar to creation
+persisted_counter = Riak::Counter.new(bucket, "counter-key-here")
+
+p persisted_counter.value
+2
+=> 2
+
+# We can also increment by a specified number
+persisted_counter.increment(20)
+p persisted_counter.value
+22
+=> 22
+
+# Decrement works much the same
+persisted_counter.decrement
+persisted_counter.value
+=> 21
+
+persisted_counter.decrement(6)
+persisted_counter.value
+=> 15
+
+# Incrementing by anything other than integer will throw an ArgumentError
+persisted_counter.increment "nonsense"
+ArgumentError: Counters can only be incremented or decremented by integers.
+```
+
+That's about it. PN Counters in Riak are distributed, so each node will receive the proper increment/decrement operation. Enjoy using them.
+
 
 ## How to Contribute
 

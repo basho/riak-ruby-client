@@ -1,5 +1,6 @@
 module Riak
   module Crdt
+    # @api private
     module Operation
       class Update
         attr_accessor :parent

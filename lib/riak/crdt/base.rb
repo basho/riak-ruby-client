@@ -1,5 +1,12 @@
 module Riak
   module Crdt
+
+    # Basic and shared code used by the top-level CRDTs. In particular, dirty-
+    # tracking, loading, and operating is implemented by this class, and
+    # the {Riak::Crdt::Set}, {Riak::Crdt::Counter}, and {Riak::Crdt::Map}
+    # classes implement everything else.
+    #
+    # @api private
     class Base
       include Util::Translation
       attr_reader :bucket, :key, :bucket_type
@@ -19,7 +26,7 @@ module Riak
         @dirty
       end
       
-      private
+      # Force a reload of this structure from Riak.
       def reload
         l = loader
         vivify l.load @bucket, @key, @bucket_type
@@ -27,6 +34,7 @@ module Riak
         @dirty = false
       end
       
+      private
       def client
         @bucket.client
       end

@@ -1,10 +1,12 @@
 module Riak
   module Crdt
+    # A map that exists inside a {TypedCollection} inside another map.
     class InnerMap
       attr_reader :counters, :flags, :maps, :registers, :sets
 
       attr_accessor :name
 
+      # @api private
       def initialize(parent, value={})
         @parent = parent
         @value = value.symbolize_keys
@@ -12,6 +14,7 @@ module Riak
         initialize_collections
       end
 
+      # @api private
       def operate(inner_operation)
         wrapped_operation = Operation::Update.new.tap do |op|
           op.value = inner_operation
@@ -21,6 +24,7 @@ module Riak
         @parent.operate(name, wrapped_operation)
       end
 
+      # @api private
       def self.delete
         Operation::Delete.new.tap do |op|
           op.type = :map

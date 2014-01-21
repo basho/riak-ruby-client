@@ -6,6 +6,10 @@ module Riak
   # Container module for Convergent Replicated Data Type
   # features.
   module Crdt
+
+    # These are the default bucket types for the three top-level data types.
+    # Broadly, CRDTs require allow_mult to be enabled, and the `datatype`
+    # property to be set to the appropriate atom (`counter`, `map`, or `set`).
     DEFAULT_BUCKET_TYPES = {
       counter: 'counters',
       map: 'maps',
