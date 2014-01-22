@@ -71,22 +71,8 @@ module Riak
             registers: {},
             sets: {}
           }
-          map_value.each do |mv|
-            case mv.field.type
-            when MapField::MapFieldType::COUNTER
-              accum[:counters][mv.field.name] = mv.counter_value
-            when MapField::MapFieldType::FLAG
-              accum[:flags][mv.field.name] = mv.flag_value
-            when MapField::MapFieldType::MAP
-              rubyfy_inner_map accum, mv
-            when MapField::MapFieldType::REGISTER
-              accum[:registers][mv.field.name] = mv.register_value
-            when MapField::MapFieldType::SET
-              accum[:sets][mv.field.name] = ::Set.new mv.set_value
-            end
-          end
 
-          return accum
+          rubyfy_map_contents map_value, accum
         end
 
         def rubyfy_inner_map(accum, map_value)
@@ -101,7 +87,11 @@ module Riak
             }
           end
           
-          map_value.map_value.each do |inner_mv|
+          rubyfy_map_contents map_value.map_value, destination
+        end
+
+        def rubyfy_map_contents(map_value, destination)
+          map_value.each do |inner_mv|
             case inner_mv.field.type
             when MapField::MapFieldType::COUNTER
               destination[:counters][inner_mv.field.name] = inner_mv.counter_value
@@ -115,6 +105,8 @@ module Riak
               destination[:sets][inner_mv.field.name] = ::Set.new inner_mv.set_value
             end
           end
+
+          return destination
         end
 
         def nil_rubyfy(type)
