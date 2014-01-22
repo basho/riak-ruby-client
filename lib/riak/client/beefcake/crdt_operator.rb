@@ -1,10 +1,17 @@
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
+
+      # Returns a new {CrdtOperator} for serializing CRDT operations into 
+      # protobuffs and sending them to a Riak cluster.
+      # @api private
       def crdt_operator
         return CrdtOperator.new self
       end
       
+      # Serializes and writes CRDT operations from {Riak::Crdt::Operation} members
+      # into protobuffs, and writes them to a Riak cluster.
+      # @api private
       class CrdtOperator
         include Util::Translation
 
@@ -14,6 +21,7 @@ module Riak
           @backend = backend
         end
 
+        # Serializes and writes CRDT operations.
         def operate(bucket, key, bucket_type, operation, options={})
           serialized = serialize(operation)
           args = {
@@ -29,6 +37,7 @@ module Riak
           return response
         end
 
+        # Serializes CRDT operations without writing them.
         def serialize(operations)
           return serialize [operations] unless operations.is_a? Enumerable
 
@@ -36,7 +45,7 @@ module Riak
         end
 
         private
-
+        # Read from Riak to make sure the write succeeded.
         def decode
           header = socket.read 5
 

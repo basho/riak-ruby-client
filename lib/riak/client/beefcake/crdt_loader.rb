@@ -1,10 +1,17 @@
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
+
+      # Returns a new {CrdtLoader} for deserializing a protobuffs response full
+      # of CRDTs.
+      # @api private
       def crdt_loader
         return CrdtLoader.new self
       end
       
+      # Loads, and deserializes CRDTs from protobuffs into Ruby hashes,
+      # sets, strings, and integers.
+      # @api private
       class CrdtLoader
         include Util::Translation
 
@@ -14,6 +21,7 @@ module Riak
           @backend = backend
         end
 
+        # Perform the protobuffs request and return a deserialized CRDT.
         def load(bucket, key, bucket_type, options={})
           bucket = bucket.name if bucket.is_a? ::Riak::Bucket
           fetch_args = options.merge(
@@ -31,6 +39,7 @@ module Riak
         end
 
         private
+        # Read from the backend socket and decode the protobuffs response.
         def decode
           header = socket.read 5
 
@@ -51,6 +60,7 @@ module Riak
           DtFetchResp.decode message
         end
 
+        # Convert the protobuffs response into low-level Ruby objects.
         def rubyfy(response)
           return nil_rubyfy(response.type) if response.value.nil?
           case response.type
@@ -63,6 +73,7 @@ module Riak
           end
         end
 
+        # Convert a top-level map into a Ruby {Hash} of hashes.
         def rubyfy_map(map_value)
           accum = {
             counters: {},
@@ -75,6 +86,7 @@ module Riak
           rubyfy_map_contents map_value, accum
         end
 
+        # Convert a map inside another map into a Ruby {Hash}.
         def rubyfy_inner_map(accum, map_value)
           destination = accum[:maps][map_value.field.name]
           if destination.nil?
@@ -90,6 +102,7 @@ module Riak
           rubyfy_map_contents map_value.map_value, destination
         end
 
+        # Load the contents of a map into Ruby hashes.
         def rubyfy_map_contents(map_value, destination)
           map_value.each do |inner_mv|
             case inner_mv.field.type
@@ -109,6 +122,7 @@ module Riak
           return destination
         end
 
+        # Sometimes a CRDT is empty, provide a sane default.
         def nil_rubyfy(type)
           case type
           when DtFetchResp::DataType::COUNTER
