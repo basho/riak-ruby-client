@@ -140,7 +140,7 @@ module Riak
         end
 
         def serialize_flag(flag_op)
-          operation_value = flag_op ? MapUpdate::FlagOp::ENABLE : MapUpdate::FlagOp::DISABLE
+          operation_value = flag_op.value ? MapUpdate::FlagOp::ENABLE : MapUpdate::FlagOp::DISABLE
           MapUpdate.new(
                         field: MapField.new(
                                             name: flag_op.name,
