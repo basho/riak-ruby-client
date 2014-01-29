@@ -105,6 +105,26 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       map_update = result.map_op.updates.first
       expect(map_update).to be_a backend_class::MapUpdate
       expect(map_update.flag_op).to eq backend_class::MapUpdate::FlagOp::ENABLE
+
+      flag_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.name = 'inner_flag'
+        op.type = :flag
+        op.value = false
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = flag_op
+      end
+
+      result = subject.serialize map_op
+
+      expect{result.encode}.to_not raise_error
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_update = result.map_op.updates.first
+      expect(map_update).to be_a backend_class::MapUpdate
+      expect(map_update.flag_op).to eq backend_class::MapUpdate::FlagOp::DISABLE
     end
 
     it 'should serialize inner register operations' do
