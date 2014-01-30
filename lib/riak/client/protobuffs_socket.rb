@@ -21,15 +21,25 @@ module Riak
           def start_tls_socket(host, port, authentication)
             TlsInitiator.new(start_tcp_socket(host, port)).tls_socket
           end
-
+          
+          # Wrap up the logic to turn a TCP socket into a TLS socket.
+          # Depends on Beefcake, which should be relatively safe.
           class TlsInitiator
             BC = BeefcakeProtobuffsBackend
 
+            # Create a TLS Initiator
+            #
+            # @param tcp_socket [TCPSocket] the {TCPSocket} to start TLS on
+            # @param authentication [Hash] a hash of authentication details
             def initialize(tcp_socket, authentication)
               @sock = @tcp = tcp_socket
               @auth = authentication
             end
 
+            # Return the SSLSocket that has a TLS session running. (TLS is a
+            # better and safer SSL).
+            #
+            # @return [OpenSSL::SSL::SSLSocket]
             def tls_socket
               start_tls
               send_authentication
@@ -38,6 +48,7 @@ module Riak
             end
 
             private
+            # Attempt to exchange the TCP socket for a TLS socket.
             def start_tls
               write_message :StartTls
               expect_message :StartTls
@@ -47,17 +58,22 @@ module Riak
               @tls.connect
             end
 
+            # Send an AuthReq with the authentication data. Rely on beefcake
+            # discarding message parts it doesn't understand.
             def send_authentication
               req = BC::RpbAuthReq authentication
               write_message :AuthReq, req.encode
               expect_message :AuthResp
             end
 
+            # Ping the Riak node and make sure it actually works.
             def validate_connection
               write_message :PingReq
               expect_message :PingResp
             end
 
+            # Write a protocol buffers message to whatever the current
+            # socket is.
             def write_message(code, message='')
               if code.is_a? Symbol
                 code = BeefcakeMessageCodes.index code
@@ -72,6 +88,8 @@ module Riak
               raise SocketError, "Unexpected EOF during TLS init" if header.nil?
               len, code = header.unpack 'NC'
               decode = BeefcakeMessageCodes[code]
+              return decode, '' if len == 1
+              
               message = socket.read(len - 1)
               return decode, message
             end
