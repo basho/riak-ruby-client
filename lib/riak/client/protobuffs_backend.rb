@@ -4,6 +4,7 @@ require 'base64'
 require 'digest/sha1'
 require 'riak/util/translation'
 require 'riak/client/feature_detection'
+require 'riak/client/protobuffs_socket'
 require 'riak/client/beefcake/message_codes'
 
 module Riak
@@ -88,11 +89,7 @@ module Riak
       end
       
       def new_socket
-        socket = TCPSocket.new(@node.host, @node.pb_port)
-        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
-        #TODO: Should we set the client ID here?
-        # set_client_id @client.client_id
-        socket
+        ProtobuffsSocket.new(@node.host, @node.pb_port)
       end
 
       def reset_socket
