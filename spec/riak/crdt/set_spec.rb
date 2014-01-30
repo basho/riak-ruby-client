@@ -23,7 +23,7 @@ describe Riak::Crdt::Set do
 
     before(:each) do
       bucket.stub(:client).and_return(client)
-      client.stub(:backend).and_return(backend)
+      client.stub(:backend).and_yield(backend)
       backend.stub(:crdt_operator).and_return(operator)
     end
 

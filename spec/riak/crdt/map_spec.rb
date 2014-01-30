@@ -16,7 +16,7 @@ describe Riak::Crdt::Map do
   let(:key){ 'map' }
   
   before(:each) do
-    client.stub(:backend).and_return(backend)
+    client.stub(:backend).and_yield(backend)
     backend.stub(:crdt_operator).and_return(operator)
     backend.stub(:crdt_loader).and_return(loader)
     loader.stub(:load).and_return({})
