@@ -28,9 +28,10 @@ module Riak
       
       # Force a reload of this structure from Riak.
       def reload
-        l = loader
-        vivify l.load @bucket, @key, @bucket_type
-        @context = l.context
+        loader do |l|
+          vivify l.load @bucket, @key, @bucket_type
+          @context = l.context
+        end
         @dirty = false
       end
       
@@ -39,26 +40,31 @@ module Riak
         @bucket.client
       end
 
-      def backend
-        client.backend{|be| be}
+      def backend(&blk)
+        client.backend &blk
       end
 
       def loader
-        backend.crdt_loader
-      end
-
-      def operate(*args)
-        op = operator
-        op.operate(bucket.name,
-                   key,
-                   bucket_type,
-                   *args
-                   )
-        @dirty = true
+        backend do |be|
+          yield be.crdt_loader
+        end
       end
       
       def operator
-        backend.crdt_operator
+        backend do |be|
+          yield be.crdt_operator
+        end
+      end
+
+      def operate(*args)
+        operator do |op|
+          op.operate(bucket.name,
+                     key,
+                     bucket_type,
+                     *args
+                     )
+        end
+        @dirty = true
       end
     end
   end

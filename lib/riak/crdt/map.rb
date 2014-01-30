@@ -70,14 +70,14 @@ module Riak
       end
 
       def write_operations(operations, *args)
-        op = operator
-        op.operate(bucket.name,
-                   key,
-                   bucket_type,
-                   operations,
-                   *args
-                   )
-
+        operator do |op|
+          op.operate(bucket.name,
+                     key,
+                     bucket_type,
+                     operations,
+                     *args
+                     )
+        end
         # collections break dirty tracking
         reload
       end
