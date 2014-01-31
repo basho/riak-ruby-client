@@ -104,6 +104,7 @@ module Riak
 
         # Load the contents of a map into Ruby hashes.
         def rubyfy_map_contents(map_value, destination)
+          return destination if map_value.nil?
           map_value.each do |inner_mv|
             case inner_mv.field.type
             when MapField::MapFieldType::COUNTER
