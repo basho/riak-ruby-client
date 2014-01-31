@@ -92,6 +92,20 @@ describe "CRDTs", integration: true, test_client: true do
 
       expect(subject.maps['first'].registers['second']).to eq('good evening')
       expect(subject.maps['first'].maps['third'].counters['fourth'].value).to eq(1)
+
+      subject.counters['hits'].increment
+      expect(subject.counters['hits'].value).to eq 1
+
+      subject.flags['yes'] = true
+      expect(subject.flags['yes']).to eq true
+
+      expect do
+        subject.registers.delete 'first'
+        subject.sets.delete 'arnold'
+        subject.maps.delete 'first'
+        subject.counters.delete 'hits'
+        subject.flags.delete 'yes'
+      end.to_not raise_error
     end
     
     it 'should allow batched map ops' do
