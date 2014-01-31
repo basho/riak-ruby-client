@@ -147,6 +147,26 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       map_update = result.map_op.updates.first
       expect(map_update).to be_a backend_class::MapUpdate
       expect(map_update.register_op).to eq 'hello'
+
+      delete_op = Riak::Crdt::Operation::Delete.new.tap do |op|
+        op.name = 'inner_register'
+        op.type = :register
+      end
+      map_op = Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :map
+        op.value = delete_op
+      end
+
+      result = subject.serialize map_op
+
+      expect{ result.encode }.to_not raise_error
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.map_op).to be_a backend_class::MapOp
+      map_delete = result.map_op.removes.first
+      expect(map_delete).to be_a backend_class::MapField
+      expect(map_delete.name).to eq 'inner_register'
+      expect(map_delete.type).to eq backend_class::MapField::MapFieldType::REGISTER
     end
     
     it 'should serialize inner set operations' do

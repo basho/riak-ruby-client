@@ -57,6 +57,13 @@ module Riak
           op.type = :counter
         end
       end
+
+      # @api private
+      def self.delete
+        Operation::Delete.new.tap do |op|
+          op.type = :counter
+        end
+      end
     end
   end
 end

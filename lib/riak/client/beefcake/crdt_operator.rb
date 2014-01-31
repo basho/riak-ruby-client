@@ -99,9 +99,19 @@ module Riak
         end
         
         def inner_serialize_group(operations)
-          operations.map do |operation|
+          updates, deletes = operations.partition do |op| 
+            op.value.is_a? Riak::Crdt::Operation::Update
+          end
+          serialized_updates = updates.map do |operation|
             inner_serialize operation.value
           end
+          serialized_deletes = deletes.map do |operation|
+            inner_serialize_delete operation.value
+          end
+
+          { updates: serialized_updates,
+            removes: serialized_deletes
+          }
         end
 
         def inner_serialize(operation)
@@ -120,6 +130,13 @@ module Riak
             raise ArgumentError, t('crdt.unknown_inner_field',
                                    symbol: operation.type.inspect)
           end
+        end
+
+        def inner_serialize_delete(operation)
+          MapField.new(
+                       name: operation.name,
+                       type: type_symbol_to_type_enum(operation.type)
+                       )
         end
         
         def serialize_counter(counter_ops)
@@ -192,13 +209,20 @@ module Riak
         def serialize_map(map_ops)
           inner_serialized = inner_serialize_group map_ops
 
-          MapOp.new(
-                    updates: inner_serialized
-                    )
+          MapOp.new(inner_serialized)
         end
 
         def serialize_inner_map(map_op)
           inner_op = map_op.value
+          if inner_op.is_a? Riak::Crdt::Operation::Delete
+            return MapUpdate.new(field: MapField.new(
+                                                     name: map_op.name,
+                                                     type: MapField::MapFieldType::MAP
+                                                     ),
+                                 map_op: MapOp.new(
+                                                   removes: inner_op.name)
+                                 )
+          end
           inner_serialized = inner_serialize inner_op
 
           MapUpdate.new(
@@ -209,6 +233,10 @@ module Riak
                         map_op: MapOp.new(
                                           updates: [inner_serialized]
                                      ))
+        end
+
+        def type_symbol_to_type_enum(sym)
+          MapField::MapFieldType.const_get sym.to_s.upcase
         end
       end
     end
