@@ -4,7 +4,6 @@ require 'base64'
 require 'digest/sha1'
 require 'riak/util/translation'
 require 'riak/client/feature_detection'
-require 'riak/client/protobuffs_socket'
 require 'riak/client/beefcake/message_codes'
 
 module Riak
@@ -89,7 +88,7 @@ module Riak
       end
       
       def new_socket
-        ProtobuffsSocket.new(@node.host, @node.pb_port)
+        raise NotImplementedError
       end
 
       def reset_socket

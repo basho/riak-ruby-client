@@ -1,10 +1,10 @@
 module Riak
   class Client
-    class ProtobuffsBackend
+    class BeefcakeProtobuffsBackend
       # A factory class for making sockets, whether secure or not
       # @api private
-      class ProtobuffsSocket
-        include BeefcakeMessageCodes
+      class BeefcakeSocket
+        include Client::BeefcakeMessageCodes
         # Only create class methods, don't initialize
         class << self
           def new(host, port, options={})
