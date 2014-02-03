@@ -72,5 +72,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
 
       described_class.new host, pb_port, options
     end
+
+    it 'should pass pass TLS options through to OpenSSL'
   end
 end
