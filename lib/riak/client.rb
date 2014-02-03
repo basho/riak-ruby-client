@@ -30,7 +30,7 @@ module Riak
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -61,6 +61,9 @@ module Riak
 
     # @return [Integer] The number of threads for multiget requests
     attr_reader :multiget_threads
+
+    # @return [Hash] The authentication information this client will use.
+    attr_reader :authentication
 
     # Creates a client connection to Riak
     # @param [Hash] options configuration options for the client
@@ -99,6 +102,13 @@ module Riak
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
       self.multiget_threads   = options[:multiget_threads]
+      @authentication         = options[:authentication] && options[:authentication].symbolize_keys
+    end
+
+    # Is security enabled?
+    # @return [Boolean] whether or not a secure connection is being used
+    def security?
+      !!authentication
     end
 
     # Retrieves a bucket from Riak.

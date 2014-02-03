@@ -10,7 +10,7 @@ module Riak
         # Only create class methods, don't initialize
         class << self
           def new(host, port, options={})
-            return start_tcp_socket(host, port) unless options[:authentication]
+            return start_tcp_socket(host, port) if options[:authentication].blank?
             return start_tls_socket(host, port, options[:authentication])
           end
 
