@@ -29,7 +29,9 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       config.delete :authentication
 
-      expect{ test_client.ping }.to raise_error
+      plaintext_client = Riak::Client.new config
+
+      expect{ plaintext_client.ping }.to raise_error
     end
 
     it "should refuse to connect if the server cert isn't recognized"
