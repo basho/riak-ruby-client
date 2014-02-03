@@ -1,3 +1,5 @@
+require 'riak/client/beefcake/messages'
+
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
@@ -9,6 +11,7 @@ module Riak
         class << self
           def new(host, port, options={})
             return start_tcp_socket(host, port) unless options[:authentication]
+            return start_tls_socket(host, port, options[:authentication])
           end
 
           private
@@ -19,13 +22,14 @@ module Riak
           end
 
           def start_tls_socket(host, port, authentication)
-            TlsInitiator.new(start_tcp_socket(host, port)).tls_socket
+            tcp = start_tcp_socket(host, port)
+            TlsInitiator.new(tcp, authentication).tls_socket
           end
           
           # Wrap up the logic to turn a TCP socket into a TLS socket.
           # Depends on Beefcake, which should be relatively safe.
           class TlsInitiator
-            BC = BeefcakeProtobuffsBackend
+            BC = ::Riak::Client::BeefcakeProtobuffsBackend
 
             # Create a TLS Initiator
             #
@@ -41,6 +45,7 @@ module Riak
             #
             # @return [OpenSSL::SSL::SSLSocket]
             def tls_socket
+              configure_context
               start_tls
               send_authentication
               validate_connection
@@ -48,6 +53,12 @@ module Riak
             end
 
             private
+            # Set up an SSL context with appropriate defaults for Riak TLS
+            def configure_context
+              context_type = :TLSv1_2_client || @auth[:ssl_type]
+              
+            end
+
             # Attempt to exchange the TCP socket for a TLS socket.
             def start_tls
               write_message :StartTls
@@ -61,7 +72,7 @@ module Riak
             # Send an AuthReq with the authentication data. Rely on beefcake
             # discarding message parts it doesn't understand.
             def send_authentication
-              req = BC::RpbAuthReq authentication
+              req = BC::RpbAuthReq.new @auth
               write_message :AuthReq, req.encode
               expect_message :AuthResp
             end
@@ -90,7 +101,7 @@ module Riak
               decode = BeefcakeMessageCodes[code]
               return decode, '' if len == 1
               
-              message = socket.read(len - 1)
+              message = @sock.read(len - 1)
               return decode, message
             end
 
