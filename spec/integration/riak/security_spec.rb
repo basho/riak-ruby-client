@@ -4,7 +4,7 @@ require 'riak'
 describe 'Secure Protobuffs', test_client: true, integration: true do
   describe 'without security enabled on Riak', no_security: true do
     it 'should connect normally without authentication configured' do
-      expect(test_client.security?).to not_be
+      expect(test_client.security?).to_not be
 
       expect(test_client.ping).to be
     end
@@ -12,8 +12,10 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     it 'should refuse to connect with authentication configured' do
       config = test_client_configuration.dup
       config[:authentication] = { username: 'user', password: 'password' }
+
+      secure_client = Riak::Client.new config
       
-      expect{ test_client.ping }.to raise_error
+      expect{ secure_client.ping }.to raise_error
     end
   end
 
