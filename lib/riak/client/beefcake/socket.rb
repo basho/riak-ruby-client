@@ -1,3 +1,4 @@
+require 'openssl'
 require 'riak/client/beefcake/messages'
 
 module Riak
@@ -55,8 +56,16 @@ module Riak
             private
             # Set up an SSL context with appropriate defaults for Riak TLS
             def configure_context
-              context_type = :TLSv1_2_client || @auth[:ssl_type]
-              
+              @context = OpenSSL::SSL::SSLContext.new
+
+              # Replace insecure defaults
+              @context.ssl_version = @auth[:ssl_version] || :TLSv1_2_client
+              @context.verify_mode = @auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER
+
+              # Defer to defaults
+              %i{ cert key client_ca ca_file ca_path timeout }.each do |k|
+                @context.send(:"#{k}=", @auth[k]) if @auth[k]
+              end
             end
 
             # Attempt to exchange the TCP socket for a TLS socket.
@@ -65,7 +74,7 @@ module Riak
               expect_message :StartTls
               # Swap the tls socket in for the tcp socket, so write_message and
               # read_message continue working
-              @sock = @tls = OpenSSL::SSL::SSLSocket.new @tcp
+              @sock = @tls = OpenSSL::SSL::SSLSocket.new @tcp, @context
               @tls.connect
             end
 
