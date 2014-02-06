@@ -1,4 +1,5 @@
 require 'openssl'
+require 'r509'
 require 'riak/client/beefcake/messages'
 
 module Riak
@@ -24,20 +25,22 @@ module Riak
 
           def start_tls_socket(host, port, authentication)
             tcp = start_tcp_socket(host, port)
-            TlsInitiator.new(tcp, authentication).tls_socket
+            TlsInitiator.new(tcp, host, authentication).tls_socket
           end
           
           # Wrap up the logic to turn a TCP socket into a TLS socket.
           # Depends on Beefcake, which should be relatively safe.
           class TlsInitiator
             BC = ::Riak::Client::BeefcakeProtobuffsBackend
+            include Util::Translation
 
             # Create a TLS Initiator
             #
             # @param tcp_socket [TCPSocket] the {TCPSocket} to start TLS on
             # @param authentication [Hash] a hash of authentication details
-            def initialize(tcp_socket, authentication)
+            def initialize(tcp_socket, host, authentication)
               @sock = @tcp = tcp_socket
+              @host = host
               @auth = authentication
             end
 
@@ -48,12 +51,17 @@ module Riak
             def tls_socket
               configure_context
               start_tls
+              validate_session
               send_authentication
               validate_connection
               return @tls
             end
 
             private
+            def riak_cert
+              @riak_cert ||= R509::Cert.new cert: @tls.peer_cert
+            end
+
             # Set up an SSL context with appropriate defaults for Riak TLS
             def configure_context
               @context = OpenSSL::SSL::SSLContext.new
@@ -76,6 +84,25 @@ module Riak
               # read_message continue working
               @sock = @tls = OpenSSL::SSL::SSLSocket.new @tcp, @context
               @tls.connect
+            end
+
+            # Validate the TLS session
+            def validate_session
+              unless OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
+                raise t("ssl.cert_host_mismatch")
+              end
+
+              unless riak_cert.valid?
+                raise t("ssl.cert_not_valid")
+              end
+
+              validate_crl if @auth[:validate_crl]
+              validate_ocsp if @auth[:validate_ocsp]
+            end
+
+            def validate_crl
+              crl_uri = riak_cert.crl_distribution_points.uris.first
+              
             end
 
             # Send an AuthReq with the authentication data. Rely on beefcake
