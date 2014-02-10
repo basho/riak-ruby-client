@@ -592,6 +592,7 @@ end
 class RpbYokozunaIndex
   required :name, :bytes, 1
   optional :schema, :bytes, 2
+  optional :n_val, :uint32, 3
 end
 
 class RpbYokozunaIndexGetReq

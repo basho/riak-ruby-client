@@ -11,7 +11,7 @@ describe "Yokozuna", test_client: true, integration: true do
 
   context "without any indexes" do
     it "should allow index creation" do
-      @client.create_search_index(@index).should == true
+      @client.create_search_index(@index, "_yz_default", 3).should == true
     end
   end
 
