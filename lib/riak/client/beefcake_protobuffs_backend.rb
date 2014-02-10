@@ -225,7 +225,7 @@ module Riak
         write_protobuff(:YokozunaIndexGetReq, req)
         resp = decode_response
         if resp.index && Array === resp
-          resp.index.map{|index| {:name => index.name, :schema => index.schema, :schema => index.n_val} }
+          resp.index.map{|index| {:name => index.name, :schema => index.schema, :n_val => index.n_val} }
         else
           resp
         end
