@@ -12,7 +12,7 @@ module Riak
 
       # Adds a new result to the collector
       # @param [Fixnum] phase the phase index
-      # @param [Array] data the phase result
+      # @param [Array] result the phase result
       def add(phase, result)
         @hash[phase] += result
       end

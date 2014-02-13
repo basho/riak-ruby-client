@@ -13,6 +13,8 @@ module Riak
           require 'riak/client/beefcake/messages'
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
+          require 'riak/client/beefcake/crdt_operator'
+          require 'riak/client/beefcake/crdt_loader'
           true
         rescue LoadError, NameError
           false
@@ -251,13 +253,13 @@ module Riak
         resp.schema ? resp.schema : resp
       end
 
-      private
       def write_protobuff(code, message)
         encoded = message.encode
         header = [encoded.length+1, MESSAGE_CODES.index(code)].pack("NC")
         socket.write(header + encoded)
       end
 
+      private
       def decode_response(*args)
         header = socket.read(5)
         raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
@@ -336,6 +338,10 @@ module Riak
             res = RpbYokozunaIndexGetResp.decode message
           when :YokozunaSchemaGetResp
             res = RpbYokozunaSchemaGetResp.decode message
+          when :DtFetchResp
+            res = DtFetchResp.decode message
+          when :DtUpdateResp
+            res = DtUpdateResp.decode message
           end
         end
       rescue SystemCallError, SocketError => e

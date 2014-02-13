@@ -72,6 +72,10 @@ module Riak
       def teardown
         reset_socket
       end
+      
+      def socket
+        @socket ||= new_socket
+      end
 
       private
       def get_server_version
@@ -82,11 +86,7 @@ module Riak
       def decode_response
         raise NotImplementedError
       end
-
-      def socket
-        @socket ||= new_socket
-      end
-
+      
       def new_socket
         socket = TCPSocket.new(@node.host, @node.pb_port)
         socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)

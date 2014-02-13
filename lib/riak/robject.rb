@@ -29,7 +29,8 @@ module Riak
     alias :vector_clock :vclock
     alias :vector_clock= :vclock=
 
-    # @return [Boolean] whether to attempt to prevent stale writes using conditional PUT semantics, If-None-Match: * or If-Match: {#etag}
+    # @return [Boolean] whether to attempt to prevent stale writes using 
+    #   conditional PUT semantics, If-None-Match: * or If-Match: etag
     # @see http://wiki.basho.com/display/RIAK/REST+API#RESTAPI-Storeaneworexistingobjectwithakey Riak Rest API Docs
     attr_accessor :prevent_stale_writes
 

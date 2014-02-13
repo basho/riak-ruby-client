@@ -25,7 +25,7 @@ module Riak
     # being stored. This increases compatibility with the Protocol
     # Buffers transport and reduces inconsistency of link-walking
     # vs. regular operations. If the node you are connecting to has
-    # set {http_url_encoding, on}, set this to true. Default is false.
+    # set `{http_url_encoding, on}`, set this to true. Default is false.
     # @return [true,false] Whether Riak decodes URL-encoded paths and headers
     attr_accessor :url_decoding
   end

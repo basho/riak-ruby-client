@@ -1,7 +1,6 @@
 source "https://rubygems.org"
 
 gemspec
-gem 'bundler'
 
 group :guard do
   gem 'guard-rspec'
