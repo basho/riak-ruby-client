@@ -88,7 +88,8 @@ module Riak
 
             # Validate the TLS session
             def validate_session
-              unless OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
+              if @auth[:verify_hostname] &&
+                  !OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
                 raise t("ssl.cert_host_mismatch")
               end
 
@@ -96,13 +97,11 @@ module Riak
                 raise t("ssl.cert_not_valid")
               end
 
-              validate_crl if @auth[:validate_crl]
-              validate_ocsp if @auth[:validate_ocsp]
-            end
+              validator = R509::Cert::Validator.new riak_cert
 
-            def validate_crl
-              crl_uri = riak_cert.crl_distribution_points.uris.first
-              
+              unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
+                raise t("ssl.cert_revoked")
+              end
             end
 
             # Send an AuthReq with the authentication data. Rely on beefcake

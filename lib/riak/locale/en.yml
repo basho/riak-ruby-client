@@ -70,6 +70,7 @@ en:
     ssl:
       cert_host_mismatch: "The presented SSL/TLS certificate did not match the hostname."
       cert_not_in_valid_range: "The presented SSL/TLS certificate is either expired or premature."
+      cert_revoked: "The presented SSL/TLS certificate has been revoked."
     stale_write_prevented: "Stale write prevented by client."
     stored_function_invalid: "function must have :bucket and :key when a hash"
     streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."
