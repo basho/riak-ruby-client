@@ -58,7 +58,8 @@ module Riak
       end
 
       # Set the value for a given key. Operation of this method
-      # is only defined for {InnerCounter}, {Register}, and {Flag} types.
+      # is only defined for {InnerCounter}, {InnerRegister}, and 
+      # {InnerFlag} types.
       #
       # @param [String] key the key to set a new value for
       # @param [Boolean, String, Integer] value the value to set at the key,

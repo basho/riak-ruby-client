@@ -5,10 +5,10 @@ module Riak
     include Client::FeatureDetection
 
     # Create a Riak Secondary Index operation
-    # @param [Bucket] the {Riak::Bucket} we'll query against
-    # @param [String] the index name
-    # @param [String,Integer,Range<String,Integer>] a single value or
-    #   range of values to query for
+    # @param [Bucket] bucket the {Riak::Bucket} we'll query against
+    # @param [String] index the index name
+    # @param [String,Integer,Range<String,Integer>] query
+    #   a single value or range of values to query for
     def initialize(bucket, index, query, options={})
       @bucket = bucket
       @client = @bucket.client

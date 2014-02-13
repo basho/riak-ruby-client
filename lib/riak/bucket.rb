@@ -101,7 +101,7 @@ module Riak
     alias :[] :get
 
     # Retrieve multiple keys from this bucket.
-    # @param [Array<String>] array of keys to fetch
+    # @param [Array<String>] keys array of keys to fetch
     # @return [Hash<String, Riak::RObject>] hash of keys to objects
     def get_many(keys)
       pairs = keys.map{|k| [self, k]}
