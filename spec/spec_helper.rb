@@ -39,6 +39,12 @@ RSpec.configure do |config|
     FakeWeb.clean_registry
   end
 
+  if TestClient.test_client_configuration[:authentication]
+    config.filter_run_excluding no_security: true
+  else
+    config.filter_run_excluding yes_security: true
+  end
+
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
 

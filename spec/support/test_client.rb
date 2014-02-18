@@ -4,7 +4,6 @@ module TestClient
       return $test_client
     end
 
-
     candidate_client = Riak::Client.new test_client_configuration
 
     live = candidate_client.ping
@@ -13,6 +12,10 @@ module TestClient
   end
 
   def test_client_configuration
+    TestClient.test_client_configuration
+  end
+
+  def self.test_client_configuration
     if defined? $test_client_configuration
       return $test_client_configuration
     end
