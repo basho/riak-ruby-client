@@ -1,5 +1,5 @@
 require 'openssl'
-require 'r509'
+require 'r509/cert/validator'
 require 'riak/client/beefcake/messages'
 
 module Riak
