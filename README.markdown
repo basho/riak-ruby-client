@@ -27,7 +27,7 @@ $ bundle exec rake
 ## Basic Example
 
 ``` ruby
-require 'riak'
+require 'riak-client'
 
 # Create a client interface
 client = Riak::Client.new
