@@ -383,7 +383,7 @@ module Riak
             raise ProtobuffsFailedRequest.new resp.errcode, message
           elsif code != :IndexResp
             teardown # close socket, we don't know what's going on anymore
-            inner = ProtobuffsFailedRequest.new code, t('protobuffs.unexpected_message')
+            inner = ProtobuffsFailedRequest.new code, t('pbc.wanted_index_resp')
             raise Innertube::Pool::BadResource, inner
           end
 
