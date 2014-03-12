@@ -13,7 +13,11 @@ module Riak
       
       def initialize(bucket, key, bucket_type, options={})
         raise ArgumentError, t("bucket_type", bucket: bucket.inspect) unless bucket.is_a? Bucket
-        raise ArgumentError, t("string_type", string: key.inspect) unless key.is_a? String
+
+        unless key.is_a? String or key.nil?
+          raise ArgumentError, t("string_type", string: key.inspect)
+        end
+
         @bucket = bucket
         @key = key
         @bucket_type = bucket_type
