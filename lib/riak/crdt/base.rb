@@ -62,12 +62,15 @@ module Riak
 
       def operate(*args)
         operator do |op|
-          op.operate(bucket.name,
-                     key,
-                     bucket_type,
-                     *args
-                     )
+          response = op.operate(bucket.name,
+                                key,
+                                bucket_type,
+                                *args
+                                )
+
+          @key = response.key if response.key
         end
+
         @dirty = true
       end
     end
