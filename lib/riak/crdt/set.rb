@@ -11,8 +11,10 @@ module Riak
       # {Riak::Crdt} will be used.
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this set
-      # @param key [String] the name of the set
-      # @param bucket_type [String] the optional bucket type for this set
+      # @param [String, nil] key The name of the counter. A nil key makes
+      #        Riak assign a key.
+      # @param [String] bucket_type The optional bucket type for this set.
+      #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:set], options)
