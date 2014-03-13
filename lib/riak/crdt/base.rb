@@ -9,8 +9,13 @@ module Riak
     # @api private
     class Base
       include Util::Translation
-      attr_reader :bucket, :key, :bucket_type
-      
+      attr_reader :bucket
+      attr_reader :bucket_type
+
+      # Returns the key of this CRDT. Extremely useful when using a 
+      # Riak-assigned key.
+      attr_reader :key
+
       def initialize(bucket, key, bucket_type, options={})
         raise ArgumentError, t("bucket_type", bucket: bucket.inspect) unless bucket.is_a? Bucket
 
