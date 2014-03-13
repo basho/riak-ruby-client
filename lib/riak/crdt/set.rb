@@ -11,7 +11,7 @@ module Riak
       # {Riak::Crdt} will be used.
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this set
-      # @param [String, nil] key The name of the counter. A nil key makes
+      # @param [String, nil] key The name of the set. A nil key makes
       #        Riak assign a key.
       # @param [String] bucket_type The optional bucket type for this set.
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]`.
