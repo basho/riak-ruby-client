@@ -26,6 +26,20 @@ module Riak
           socket.flush
         end
 
+        def receive
+          header = socket.read 5
+          
+          raise t('pbc.failed_header') if header.nil?
+          message_length, code = header.unpack 'NC'
+          body_length = message_length - 1
+          body = nil
+          body = socket.read body_length if body_length > 0
+
+          name = BeefcakeMessageCodes[code]
+
+          return name, body
+        end
+
         private
 
         def serialize(message)
