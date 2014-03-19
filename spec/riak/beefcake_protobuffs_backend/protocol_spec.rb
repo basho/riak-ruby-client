@@ -80,8 +80,40 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
 
   describe 'expecting messages' do
     describe 'expected message received' do
-      it 'accepts expected messages without a body'
-      it 'accepts expected messages and returns a Beefcake::Message instance'
+      it 'accepts expected messages without a body and returns true' do
+        name = :PingResp
+        header = [1, codes.index(name)].pack 'NC'
+
+        socket.should_receive(:read).
+          with(5).
+          and_return(header)
+
+        payload = subject.expect name
+
+        expect(payload).to eq true
+      end
+
+      it 'accepts expected messages and returns a Beefcake::Message instance' do
+        message = ctr_resp
+        message_str = message.encode.to_s
+        message_len = message_str.length
+        name = :CounterGetResp
+        header = [message_len + 1, codes.index(name)].pack 'NC'
+        
+        socket.should_receive(:read).
+          ordered.
+          with(5).
+          and_return(header)
+        socket.should_receive(:read).
+          ordered.
+          with(message_len).
+          and_return(message_str)
+        
+        payload = subject.expect name, message.class
+
+        expect(payload).to eq message
+        expect(payload.value).to eq message.value
+      end
     end
 
     describe 'unexpected message received' do
