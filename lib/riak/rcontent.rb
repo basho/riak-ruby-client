@@ -68,7 +68,10 @@ module Riak
       @data
     end
 
-    # @param [Object] unmarshaled form of the data to be stored in riak. Object will be serialized using {#serialize} if a known content_type is used. Setting this overrides values stored with {#raw_data=}
+    # @param [Object] new_data unmarshaled form of the data to be stored in 
+    #   Riak. Object will be serialized using {#serialize} if a known 
+    #   content_type is used. Setting this overrides values stored with 
+    #   {#raw_data=}
     # @return [Object] the object stored
     def data=(new_data)
       if new_data.respond_to?(:read)
@@ -89,7 +92,9 @@ module Riak
       @raw_data
     end
 
-    # @param [String, IO-like] the raw data to be stored in riak at this key, will not be marshaled or manipulated prior to storage. Overrides any data stored by {#data=}
+    # @param [String, IO-like] new_raw_data the raw data to be stored in Riak
+    #   at this key, will not be marshaled or manipulated prior to storage.
+    #   Overrides any data stored by {#data=}
     # @return [String] the data stored
     def raw_data=(new_raw_data)
       @data = nil
@@ -130,7 +135,7 @@ module Riak
       "#<#{self.class.name} [#{@content_type}]:#{body}>"
     end
 
-    # @hidden
+    # @api private
     def load_map_reduce_value(hash)
       metadata = hash['metadata']
       extract_if_present(metadata, 'X-Riak-VTag', :etag)

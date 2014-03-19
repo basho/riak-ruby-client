@@ -220,8 +220,8 @@ module Riak
         decode_response
       end
 
-      def create_search_index(name, schema=nil)
-        index = RpbYokozunaIndex.new(:name => name, :schema => schema)
+      def create_search_index(name, schema=nil, n_val=nil)
+        index = RpbYokozunaIndex.new(:name => name, :schema => schema, :n_val => n_val)
         req = RpbYokozunaIndexPutReq.new(:index => index)
         write_protobuff(:YokozunaIndexPutReq, req)
         decode_response
@@ -232,7 +232,7 @@ module Riak
         write_protobuff(:YokozunaIndexGetReq, req)
         resp = decode_response
         if resp.index && Array === resp
-          resp.index.map{|index| {:name => index.name, :schema => index.schema} }
+          resp.index.map{|index| {:name => index.name, :schema => index.schema, :n_val => index.n_val} }
         else
           resp
         end

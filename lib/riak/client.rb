@@ -69,7 +69,7 @@ module Riak
     # @param [Hash] options configuration options for the client
     # @option options [Array] :nodes A list of nodes this client connects to.
     #   Each element of the list is a hash which is passed to Node.new, e.g.
-    #   {host: '127.0.0.1', pb_port: 1234, ...}.
+    #   `{host: '127.0.0.1', pb_port: 1234, ...}`.
     #   If no nodes are given, a single node is constructed from the remaining
     #   options given to Client.new.
     # @option options [String] :host ('127.0.0.1') The host or IP address for the Riak endpoint
@@ -112,7 +112,7 @@ module Riak
     end
 
     # Retrieves a bucket from Riak.
-    # @param [String] bucket the bucket to retrieve
+    # @param [String] name the bucket to retrieve
     # @param [Hash] options options for retrieving the bucket
     # @option options [Boolean] :props (false) whether to retreive the bucket properties
     # @return [Bucket] the requested bucket

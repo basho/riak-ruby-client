@@ -3,6 +3,7 @@ shared_context "search corpus setup" do
   before do
     @search_bucket = random_bucket 'search_test'
     @backend.create_search_index @search_bucket.name
+    wait_until{ !@backend.get_search_index(@search_bucket.name).nil? }
     @search_bucket.props = {search_index: @search_bucket.name}
     idx = 0
     old_encoding = Encoding.default_external
@@ -16,8 +17,14 @@ shared_context "search corpus setup" do
         @backend.store_object(obj)
       end
     end
-
     Encoding.default_external = old_encoding
     sleep 1
+  end
+
+  def wait_until(attempts=5)
+    begin
+      break if yield rescue nil
+      sleep 1
+    end while (attempts -= 1) > 0
   end
 end

@@ -42,7 +42,7 @@ module Riak
 
       # Check if a given string is in this structure.
       #
-      # @param [String] candidate string to check for inclusion
+      # @param [String] element candidate string to check for inclusion
       # @return [Boolean] whether the candidate is in this set or not
       def include?(element)
         value.include? element
