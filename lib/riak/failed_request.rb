@@ -80,7 +80,7 @@ module Riak
   end
 
   class ProtobuffsUnexpectedResponse < ProtobuffsFailedRequest
-    def initialize(code, wanted)
+    def initialize(code, expected)
       super code, t('pbc.unexpected_response', expected: expected, actual: code)
     end
   end
