@@ -1,5 +1,6 @@
 require 'riak/client/beefcake/messages'
 require 'riak/client/beefcake/message_codes'
+require 'riak/failed_request'
 module Riak
   class Client
     class BeefcakeProtobuffsBackend < ProtobuffsBackend
@@ -45,7 +46,7 @@ module Riak
           name, body = receive
           
           if name == :ErrorResp
-            raise ProtobuffsErrorResponse.new body
+            raise ProtobuffsErrorResponse.new RpbErrorResp.decode(body)
           end
 
           if name != code
