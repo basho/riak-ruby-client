@@ -40,6 +40,23 @@ module Riak
           return name, body
         end
 
+        def expect(code, decoder_class=nil)
+          code = BeefcakeMessageCodes[code] unless code.is_a? Symbol
+          name, body = receive
+          
+          if name == :ErrorResp
+            raise ProtobuffsErrorResponse.new body
+          end
+
+          if name != code
+            raise ProtobuffsUnexpectedResponse.new name, code
+          end
+
+          return true if decoder_class.nil?
+
+          return decoder_class.decode body
+        end
+
         private
 
         def serialize(message)
