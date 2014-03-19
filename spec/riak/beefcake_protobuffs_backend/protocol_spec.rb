@@ -117,11 +117,47 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
     end
 
     describe 'unexpected message received' do
-      it 'raises a ProtobuffsUnexpectedResponse error'
+      it 'raises a ProtobuffsUnexpectedResponse error' do
+        message = ctr_resp
+        message_str = message.encode.to_s
+        message_len = message_str.length
+        name = :CounterGetResp
+        header = [message_len + 1, codes.index(name)].pack 'NC'
+        
+        socket.should_receive(:read).
+          ordered.
+          with(5).
+          and_return(header)
+        socket.should_receive(:read).
+          ordered.
+          with(message_len).
+          and_return(message_str)
+
+        expect{ subject.expect :PingResp }.
+          to raise_error Riak::ProtobuffsUnexpectedResponse
+      end
     end
 
     describe 'ErrorResp received' do
-      it 'raises a ProtobuffsErrorResponse error'
+      it 'raises a ProtobuffsErrorResponse error' do
+        message = error_resp
+        message_str = message.encode.to_s
+        message_len = message_str.length
+        name = :ErrorResp
+        header = [message_len + 1, codes.index(name)].pack 'NC'
+        
+        socket.should_receive(:read).
+          ordered.
+          with(5).
+          and_return(header)
+        socket.should_receive(:read).
+          ordered.
+          with(message_len).
+          and_return(message_str)
+
+        expect{ subject.expect :PingResp }.
+          to raise_error Riak::ProtobuffsErrorResponse
+      end
     end
   end
 
@@ -129,4 +165,6 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
     RpbYokozunaSchemaGetReq.new name: 'schema' }
   let(:ctr_resp){ Riak::Client::BeefcakeProtobuffsBackend::
     RpbCounterGetResp.new value: rand(2**10) }
+  let(:error_resp){ Riak::Client::BeefcakeProtobuffsBackend::
+    RpbErrorResp.new errcode: rand(2**10), errmsg: 'message' }
 end
