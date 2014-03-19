@@ -78,4 +78,16 @@ module Riak
       @server_error
     end
   end
+
+  class ProtobuffsUnexpectedResponse < ProtobuffsFailedRequest
+    def initialize(code, wanted)
+      super code, t('pbc.unexpected_response', expected: expected, actual: code)
+    end
+  end
+
+  class ProtobuffsErrorResponse < ProtobuffsFailedRequest
+    def initialize(payload)
+      super payload.errcode, payload.errmsg
+    end
+  end
 end
