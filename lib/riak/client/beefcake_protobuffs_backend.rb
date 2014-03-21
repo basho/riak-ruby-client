@@ -307,10 +307,8 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp, 
-               :SetClientIdResp, 
-               :SetBucketResp, 
-               :ResetBucketResp
+          when :PingResp,
+            :SetClientIdResp
             true
           when :ListBucketsResp, 
                :ListKeysResp, 
