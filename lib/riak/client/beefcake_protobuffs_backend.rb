@@ -281,8 +281,11 @@ module Riak
         options[:stream] = block_given?
 
         req = RpbIndexReq.new(options)
-        write_protobuff(:IndexReq, req)
-        decode_index_response(&block)
+
+        protocol do |p|
+          p.write :IndexReq, req
+          decode_index_response(p, &block)
+        end
       end
 
       def search(index, query, options={})
@@ -452,45 +455,24 @@ module Riak
         end
       end
 
-      def decode_index_response
+      def decode_index_response(p)
         loop do
-          header = socket.read(5)
-          raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
-          msglen, msgcode = header.unpack("NC")
-          code = MESSAGE_CODES[msgcode]
-          if code == :ErrorResp
-            resp = RpbErrorResp.decode socket.read msglen - 1
-            message = resp.errmsg
-            if match = message.match(/indexes_not_supported,(\w+)/)
-              message = t('index.wrong_backend', backend: match[1])
-            end
-            raise ProtobuffsFailedRequest.new resp.errcode, message
-          elsif code != :IndexResp
-            teardown # close socket, we don't know what's going on anymore
-            inner = ProtobuffsFailedRequest.new code, t('protobuffs.unexpected_message')
-            raise Innertube::Pool::BadResource, inner
-          end
 
-          if msglen == 1
+          resp = p.expect :IndexResp, RpbIndexResp, empty_body_acceptable: true
+
+          if :empty == resp
             return if block_given?
             return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
           end
-
-          if msglen == 1
-            return if block_given?
-            return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
-          end
-
-          message = RpbIndexResp.decode socket.read msglen - 1
 
           if !block_given?
-            return IndexCollection.new_from_protobuf(message)
+            return IndexCollection.new_from_protobuf(resp)
           end
           
-          content = message.keys || message.results || []
+          content = resp.keys || resp.results || []
           yield content
           
-          return if message.done
+          return if resp.done
         end
       end
 
