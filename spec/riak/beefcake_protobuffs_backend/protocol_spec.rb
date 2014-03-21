@@ -114,6 +114,20 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         expect(payload).to eq message
         expect(payload.value).to eq message.value
       end
+
+      it 'accepts messages with an empty body when required to' do
+        name = :PutResp
+        header = [1, codes.index(name)].pack 'NC'
+        decoder_class = double 'RpbPutResp'
+
+        socket.should_receive(:read).
+          with(5).
+          and_return(header)
+
+        payload = subject.expect name, decoder_class, empty_body_acceptable: true
+
+        expect(payload).to eq :empty
+      end
     end
 
     describe 'unexpected message received' do

@@ -41,7 +41,8 @@ module Riak
           return name, body
         end
 
-        def expect(code, decoder_class=nil)
+        
+        def expect(code, decoder_class=nil, options={ })
           code = BeefcakeMessageCodes[code] unless code.is_a? Symbol
           name, body = receive
           
@@ -54,6 +55,8 @@ module Riak
           end
 
           return true if decoder_class.nil?
+
+          return :empty if body.nil? && options[:empty_body_acceptable]
 
           return decoder_class.decode body
         end
