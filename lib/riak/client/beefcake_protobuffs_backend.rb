@@ -379,12 +379,10 @@ module Riak
           when :PingResp,
             :SetClientIdResp
             true
-          when :ListBucketsResp, 
-               :ListKeysResp, 
+          when :ListBucketsResp,  
                :IndexResp
             []
           when :GetResp,
-               :YokozunaIndexGetResp,
                :YokozunaSchemaGetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
           when :CounterGetResp,
@@ -414,8 +412,6 @@ module Riak
           when :ListBucketsResp
             res = RpbListBucketsResp.decode(message)
             res.buckets
-          when :ListKeysResp
-            RpbListKeysResp.decode(message)
           when :GetBucketResp
             res = RpbGetBucketResp.decode(message)
             res.props.to_hash.stringify_keys
@@ -424,26 +420,8 @@ module Riak
           when :IndexResp
             res = RpbIndexResp.decode(message)
             IndexCollection.new_from_protobuf res
-          when :SearchQueryResp
-            res = RpbSearchQueryResp.decode(message)
-            if res.docs.nil?
-              res.docs = []
-            end
-            { 'docs' => res.docs.map {|d| decode_doc(d) },
-              'max_score' => res.max_score,
-              'num_found' => res.num_found }
           when :CSBucketResp
             res = RpbCSBucketResp.decode message
-          when :CounterUpdateResp
-            res = RpbCounterUpdateResp.decode message
-            res.value || nil
-          when :CounterGetResp
-            res = RpbCounterGetResp.decode message
-            res.value || 0
-          when :YokozunaIndexGetResp
-            res = RpbYokozunaIndexGetResp.decode message
-          when :YokozunaSchemaGetResp
-            res = RpbYokozunaSchemaGetResp.decode message
           when :DtFetchResp
             res = DtFetchResp.decode message
           when :DtUpdateResp
