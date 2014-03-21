@@ -15,11 +15,17 @@ module Riak
           require 'riak/client/beefcake/object_methods'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
+          require 'riak/client/beefcake/protocol'
           require 'riak/client/beefcake/socket'
           true
         rescue LoadError, NameError
           false
         end
+      end
+
+      def protocol
+        p = Protocol.new socket
+        yield p
       end
 
       def new_socket
@@ -34,8 +40,11 @@ module Riak
                   id.to_s
                 end
         req = RpbSetClientIdReq.new(:client_id => value)
-        write_protobuff(:SetClientIdReq, req)
-        decode_response
+        protocol do |p|
+          p.write :SetClientIdReq, req
+          p.expect :SetClientIdResp
+        end
+        return true
       end
 
       def fetch_object(bucket, key, options={})
@@ -94,9 +103,10 @@ module Riak
         options[:key] = key
         
         request = RpbCounterGetReq.new options
-        write_protobuff :CounterGetReq, request
+        protocol.write :CounterGetReq, request
         
-        decode_response
+        resp = protocol.expect :CounterGetResp, CounterGetResp
+        return resp.value || 0
       end
 
       def post_counter(bucket, key, amount, options={})
