@@ -117,8 +117,13 @@ module Riak
         options[:key] = maybe_encode(key)
         options[:vclock] = Base64.decode64(options[:vclock]) if options[:vclock]
         req = RpbDelReq.new(prune_unsupported_options(:DelReq, options))
-        write_protobuff(:DelReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :DelReq, req
+          p.expect :DelResp
+        end
+        
+        return true
       end
 
       def get_counter(bucket, key, options={})
@@ -129,9 +134,12 @@ module Riak
         options[:key] = key
         
         request = RpbCounterGetReq.new options
-        protocol.write :CounterGetReq, request
         
-        resp = protocol.expect :CounterGetResp, CounterGetResp
+        resp = protocol do |p|
+          p.write :CounterGetReq, request
+          p.expect :CounterGetResp, CounterGetresp
+        end
+        
         return resp.value || 0
       end
 
@@ -141,20 +149,30 @@ module Riak
         options = normalize_quorums(options)
         options[:bucket] = bucket
         options[:key] = key
-        # TODO: raise if ammount doesn't fit in sint64
+        # TODO: raise if amount doesn't fit in sint64
         options[:amount] = amount
-
+        
         request = RpbCounterUpdateReq.new options
-        write_protobuff :CounterUpdateReq, request
 
-        decode_response
+        resp = protocol do |p|
+          p.write :CounterUpdateReq, request
+          p.expect :CounterUpdateResp, RpbCounterUpdateResp, empty_body_acceptable: true
+        end
+
+        return nil if :empty == resp
+        
       end
 
       def get_bucket_props(bucket)
         bucket = bucket.name if Bucket === bucket
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
-        write_protobuff(:GetBucketReq, req)
-        resp = normalize_quorums decode_response
+
+        resp_message = protocol do |p|
+          p.write :GetBucketReq, req
+          p.expect :GetBucketResp, RpbGetBucketResp
+        end
+
+        resp = normalize_quorums resp_message.props.to_hash.stringify_keys
         normalized = normalize_hooks resp
         normalized.stringify_keys
       end
@@ -164,15 +182,21 @@ module Riak
         req = RpbSetBucketReq.new(
                                   bucket: maybe_encode(bucket),
                                   props: RpbBucketProps.new(props.symbolize_keys))
-        write_protobuff(:SetBucketReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :SetBucketReq, req
+          p.expect :SetBucketResp
+        end
       end
 
       def reset_bucket_props(bucket)
         bucket = bucket.name if Bucket === bucket
         req = RpbResetBucketReq.new(:bucket => maybe_encode(bucket))
-        write_protobuff(:ResetBucketReq)
-        decode_response
+
+        protocol do |p|
+          p.write :ResetBucketReq, req
+          p.expect :ResetBucketResp
+        end
       end
 
       def list_keys(bucket, options={}, &block)
