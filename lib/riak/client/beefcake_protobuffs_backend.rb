@@ -51,8 +51,18 @@ module Riak
         options = prune_unsupported_options(:GetReq, normalize_quorums(options))
         bucket = Bucket === bucket ? bucket.name : bucket
         req = RpbGetReq.new(options.merge(:bucket => maybe_encode(bucket), :key => maybe_encode(key)))
-        write_protobuff(:GetReq, req)
-        decode_response(RObject.new(client.bucket(bucket), key))
+
+        resp = protocol do |p|
+          p.write :GetReq, req
+          p.expect :GetResp, RpbGetResp, empty_body_acceptable: true
+        end
+
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
+        template = RObject.new(client.bucket(bucket), key)
+        load_object(resp, template)
       end
 
       def reload_object(robject, options={})
@@ -61,8 +71,17 @@ module Riak
         options[:key] = maybe_encode(robject.key)
         options[:if_modified] = maybe_encode Base64.decode64(robject.vclock) if robject.vclock
         req = RpbGetReq.new(prune_unsupported_options(:GetReq, options))
-        write_protobuff(:GetReq, req)
-        decode_response(robject)
+
+        resp = protocol do |p|
+          p.write :GetReq, req
+          p.expect :GetResp, RpbGetResp, empty_body_acceptable: true
+        end
+
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
+        load_object(resp, robject)
       end
 
       def store_object(robject, options={})
@@ -80,8 +99,15 @@ module Riak
           end
         end
         req = dump_object(robject, prune_unsupported_options(:PutReq, options))
-        write_protobuff(:PutReq, req)
-        decode_response(robject)
+
+        resp = protocol do |p|
+          p.write(:PutReq, req)
+          p.expect :PutResp, RpbPutResp, empty_body_acceptable: true
+        end
+
+        return true if :empty == resp
+
+        load_object resp, robject
       end
 
       def delete_object(bucket, key, options={})
@@ -283,8 +309,6 @@ module Riak
           case MESSAGE_CODES[msgcode]
           when :PingResp, 
                :SetClientIdResp, 
-               :PutResp, 
-               :DelResp, 
                :SetBucketResp, 
                :ResetBucketResp
             true
