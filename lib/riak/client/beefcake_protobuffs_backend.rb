@@ -202,17 +202,25 @@ module Riak
       def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
         req = RpbListKeysReq.new(options.merge(:bucket => maybe_encode(bucket)))
-        write_protobuff(:ListKeysReq, req)
+
         keys = []
-        while msg = decode_response
-          break if msg.done
-          if block_given?
-            yield msg.keys
-          else
-            keys += msg.keys
+
+        protocol do |p|
+          p.write :ListKeysReq, req
+
+          while msg = p.expect(:ListKeysResp, RpbListKeysResp)
+            break if msg.done
+            if block_given?
+              yield msg.keys
+            else
+              keys += msg.keys
+            end
           end
         end
-        block_given? || keys
+
+        return keys unless block_given?
+
+        return true
       end
 
       # override the simple list_buckets
