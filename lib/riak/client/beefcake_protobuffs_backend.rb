@@ -233,9 +233,15 @@ module Riak
         
         request = RpbListBucketsReq.new options
 
-        write_protobuff :ListBucketsReq, request
+        resp = protocol do |p|
+          p.write :ListBucketsReq, request
 
-        decode_response
+          p.expect :ListBucketsResp, RpbListBucketsResp, empty_body_acceptable: true
+        end
+
+        return [] if :empty == resp
+
+        resp.buckets
       end
 
       def mapred(mr, &block)
@@ -284,21 +290,41 @@ module Riak
         options = options.symbolize_keys
         options[:op] = options.delete(:'q.op') if options[:'q.op']
         req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
-        write_protobuff(:SearchQueryReq, req)
-        decode_response
+
+        resp = protocol do |p|
+          p.write :SearchQueryReq, req
+          p.expect :SearchQueryResp, RpbSearchQueryResp
+        end
+
+        resp.docs = [] if resp.docs.nil?
+
+        ret = { 'max_score' => resp.max_score, 'num_found' => resp.num_found }
+        ret['docs'] = resp.docs.map { |d| decode_doc d }
+
+        return ret
       end
 
       def create_search_index(name, schema=nil, n_val=nil)
         index = RpbYokozunaIndex.new(:name => name, :schema => schema, :n_val => n_val)
         req = RpbYokozunaIndexPutReq.new(:index => index)
-        write_protobuff(:YokozunaIndexPutReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :YokozunaIndexPutReq, req
+          p.expect :PutResp
+        end
       end
 
       def get_search_index(name)
         req = RpbYokozunaIndexGetReq.new(:name => name)
-        write_protobuff(:YokozunaIndexGetReq, req)
-        resp = decode_response
+        resp = protocol do |p|
+          p.write :YokozunaIndexGetReq, req
+          p.expect :YokozunaIndexGetResp, RpbYokozunaIndexGetResp, empty_body_acceptable: true
+        end
+        
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
         if resp.index && Array === resp
           resp.index.map{|index| {:name => index.name, :schema => index.schema, :n_val => index.n_val} }
         else
@@ -308,21 +334,32 @@ module Riak
 
       def delete_search_index(name)
         req = RpbYokozunaIndexDeleteReq.new(:name => name)
-        write_protobuff(:YokozunaIndexDeleteReq, req)
-        decode_response
+        protocol do |p|
+          p.write :YokozunaIndexDeleteReq, req
+          p.expect :DelResp
+        end
+        true
       end
 
       def create_search_schema(name, content)
         schema = RpbYokozunaSchema.new(:name => name, :content => content)
         req = RpbYokozunaSchemaPutReq.new(:schema => schema)
-        write_protobuff(:YokozunaSchemaPutReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :YokozunaSchemaPutReq, req
+          p.expect :PutResp
+        end
+        true
       end
 
       def get_search_schema(name)
         req = RpbYokozunaSchemaGetReq.new(:name => name)
-        write_protobuff(:YokozunaSchemaGetReq, req)
-        resp = decode_response
+
+        resp = protocol do |p|
+          p.write :YokozunaSchemaGetReq, req
+          p.expect :YokozunaSchemaGetResp, RpbYokozunaSchemaGetResp
+        end
+
         resp.schema ? resp.schema : resp
       end
 
