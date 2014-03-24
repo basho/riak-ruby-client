@@ -31,10 +31,10 @@ module Riak
             op: serialized
           }.merge options
           request = DtUpdateReq.new args
-          backend.write_protobuff :DtUpdateReq, request
-
-          response = decode
-          return response
+          return backend.protocol do |p|
+            p.write :DtUpdateReq, request
+            p.expect :DtUpdateResp, DtUpdateResp, empty_body_acceptable: true
+          end
         end
 
         # Serializes CRDT operations without writing them.
