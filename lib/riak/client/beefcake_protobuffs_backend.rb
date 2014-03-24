@@ -137,9 +137,13 @@ module Riak
         
         resp = protocol do |p|
           p.write :CounterGetReq, request
-          p.expect :CounterGetResp, CounterGetresp
+          p.expect :CounterGetResp, RpbCounterGetResp, empty_body_acceptable: true
         end
         
+        if :empty == resp
+          return 0
+        end
+
         return resp.value || 0
       end
 
@@ -151,6 +155,7 @@ module Riak
         options[:key] = key
         # TODO: raise if amount doesn't fit in sint64
         options[:amount] = amount
+        options[:returnvalue] = options[:returnvalue] || options[:return_value]
         
         request = RpbCounterUpdateReq.new options
 
@@ -161,6 +166,7 @@ module Riak
 
         return nil if :empty == resp
         
+        return resp.value
       end
 
       def get_bucket_props(bucket)
@@ -462,7 +468,6 @@ module Riak
 
       def decode_index_response(p)
         loop do
-
           resp = p.expect :IndexResp, RpbIndexResp, empty_body_acceptable: true
 
           if :empty == resp
@@ -479,6 +484,17 @@ module Riak
           
           return if resp.done
         end
+      rescue ProtobuffsErrorResponse => err
+        if match = err.message.match(/indexes_not_supported,(\w+)/)
+          old_err = err
+          err = ProtobuffsFailedRequest.new(old_err.code, 
+                                            t('index.wrong_backend', backend: match[1])
+                 
+                                            )
+          err.set_backtrace old_err.backtrace
+        end
+
+        raise err
       end
 
       def decode_doc(doc)
