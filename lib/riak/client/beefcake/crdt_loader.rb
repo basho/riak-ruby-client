@@ -31,9 +31,11 @@ module Riak
                                      )
           request = DtFetchReq.new fetch_args
 
-          backend.write_protobuff :DtFetchReq, request
+          response = backend.protocol do |p|
+            p.write :DtFetchReq, request
+            p.expect :DtFetchResp, DtFetchResp
+          end
 
-          response = decode
           @context = response.context
           rubyfy response
         end
