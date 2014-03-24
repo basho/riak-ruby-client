@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozona queries", test_client: true, integration: true do
+describe "Yokozuna queries", test_client: true, integration: true do
   before :all do
     @client = test_client
   end
