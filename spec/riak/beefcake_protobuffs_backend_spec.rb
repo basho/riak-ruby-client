@@ -29,7 +29,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
                       )
                   )
       
-      expect{ backend.get_index 'bucket', 'words', 'asdf' }.to raise_error "Expected success from Riak but received 0. Secondary indexes aren't supported on the riak_kv_bitcask_backend backend."
+      expect{ backend.get_index 'bucket', 'words', 'asdf' }.to raise_error /Secondary indexes aren't supported/
       # '
     end
     
@@ -79,8 +79,6 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
                          keys: %w{asdf asdg asdh}
                          )
       protocol.should_receive(:expect).
-        with(:IndexResp, 
-             Riak::Client::BeefcakeProtobuffsBackend::RpbIndexResp).
         and_return(response_message)
       
       results = backend.get_index 'bucket', 'words', 'asdf'..'hjkl'
@@ -88,19 +86,15 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     end
 
     it "should not crash out when no keys or terms are returned" do
-      backend.should_receive(:write_protobuff) do |msg, req|
+      protocol.should_receive(:write) do |msg, req|
         msg.should == :IndexReq
         req[:stream].should_not be
       end
 
       response_message = Riak::Client::BeefcakeProtobuffsBackend::
-        RpbIndexResp.new().encode
+        RpbIndexResp.new()
 
-      header = [response_message.length + 1, 26].pack 'NC'
-      @socket.
-        should_receive(:read).
-        with(5).
-        and_return(header)
+      protocol.should_receive(:expect).and_return(response_message)
 
       results = nil
       fetch = proc do

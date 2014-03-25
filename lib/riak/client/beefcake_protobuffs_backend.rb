@@ -487,11 +487,9 @@ module Riak
       rescue ProtobuffsErrorResponse => err
         if match = err.message.match(/indexes_not_supported,(\w+)/)
           old_err = err
-          err = ProtobuffsFailedRequest.new(old_err.code, 
+          err = ProtobuffsFailedRequest.new(:indexes_not_supported, 
                                             t('index.wrong_backend', backend: match[1])
-                 
                                             )
-          err.set_backtrace old_err.backtrace
         end
 
         raise err
