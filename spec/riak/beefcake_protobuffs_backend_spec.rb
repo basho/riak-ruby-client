@@ -116,9 +116,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       message.stub(:done).and_return(false, true)
 
       protocol.should_receive(:expect).
-        and_return(
-                   Riak::Client::BeefcakeProtobuffsBackend::RpbMapRedResp.stub(:decode => message)
-                   )
+        twice.
+        and_return(message)
 
       backend.mapred(mapred).should == [{}]
     end
