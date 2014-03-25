@@ -140,7 +140,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         msg.should == :PutReq
         req.if_none_match.should be_true
       end
-      protocol.should_receive(:expect)
+      protocol.should_receive(:expect).
+        and_return(:empty)
 
       backend.store_object(robject)
     end
@@ -151,7 +152,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         msg.should == :PutReq
         req.if_not_modified.should be_true
       end
-      protocol.should_receive(:expect)
+      protocol.should_receive(:expect).
+        and_return(:empty)
       backend.store_object(robject)
     end
   end
