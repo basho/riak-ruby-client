@@ -1,6 +1,7 @@
 require 'openssl'
 require 'r509/cert/validator'
 require 'riak/client/beefcake/messages'
+require 'riak/errors/connection_error'
 
 module Riak
   class Client
@@ -90,17 +91,17 @@ module Riak
             def validate_session
               if @auth[:verify_hostname] &&
                   !OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
-                raise t("ssl.cert_host_mismatch")
+                raise TlsError.new t("ssl.cert_host_mismatch")
               end
 
               unless riak_cert.valid?
-                raise t("ssl.cert_not_valid")
+                raise TlsError.new t("ssl.cert_not_valid")
               end
 
               validator = R509::Cert::Validator.new riak_cert
 
               unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
-                raise t("ssl.cert_revoked")
+                raise TlsError.new t("ssl.cert_revoked")
               end
             end
 
@@ -131,7 +132,7 @@ module Riak
 
             def read_message
               header = @sock.read 5
-              raise SocketError, "Unexpected EOF during TLS init" if header.nil?
+              raise TlsError.new(t('ssl.eof_during_init')) if header.nil?
               len, code = header.unpack 'NC'
               decode = BeefcakeMessageCodes[code]
               return decode, '' if len == 1
@@ -148,7 +149,12 @@ module Riak
               candidate_code, message = read_message
               return message if expected_code == candidate_code
 
-              raise "Wanted #{expected_code.inspect}, got #{candidate_code.inspect} and #{message.inspect}"
+              raise TlsError.new(t('ssl.unexpected_during_init',
+                                   expected: expected_code.inspect,
+                                   actual: candidate_code.inspect,
+                                   body: message.inspect
+                                   ))
+              
             end
           end
         end
