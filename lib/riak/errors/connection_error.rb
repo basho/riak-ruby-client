@@ -1,3 +1,5 @@
+require 'riak/errors/base'
+
 module Riak
   class ConnectionError < Error
   end
