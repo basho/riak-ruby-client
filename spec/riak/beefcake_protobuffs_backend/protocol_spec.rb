@@ -38,6 +38,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
 
       subject.write name, message
     end
+
+    it 'raises an error and writes nothing when passed the wrong thing' do
+      expect{ subject.write :YokozunaSchemaGetReq, Object.new }.
+        to raise_error
+    end
   end
 
   describe 'receiving messages' do
