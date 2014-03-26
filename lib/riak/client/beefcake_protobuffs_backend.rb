@@ -417,29 +417,6 @@ module Riak
           when :GetServerInfoResp
             res = RpbGetServerInfoResp.decode(message)
             {:node => res.node, :server_version => res.server_version}
-          when :GetResp
-            res = RpbGetResp.decode(message)
-            load_object(res, args.first)
-          when :PutResp
-            res = RpbPutResp.decode(message)
-            load_object(res, args.first)
-          when :ListBucketsResp
-            res = RpbListBucketsResp.decode(message)
-            res.buckets
-          when :GetBucketResp
-            res = RpbGetBucketResp.decode(message)
-            res.props.to_hash.stringify_keys
-          when :MapRedResp
-            RpbMapRedResp.decode(message)
-          when :IndexResp
-            res = RpbIndexResp.decode(message)
-            IndexCollection.new_from_protobuf res
-          when :CSBucketResp
-            res = RpbCSBucketResp.decode message
-          when :DtFetchResp
-            res = DtFetchResp.decode message
-          when :DtUpdateResp
-            res = DtUpdateResp.decode message
           end
         end
       rescue SystemCallError, SocketError => e
