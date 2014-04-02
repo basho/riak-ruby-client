@@ -386,7 +386,7 @@ module Riak
       private
       def decode_response(*args)
         header = socket.read(5)
-        raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+        raise ProtobuffsFailedHeader.new if header.nil?
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]

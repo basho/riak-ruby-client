@@ -1,6 +1,8 @@
 require 'riak/client/beefcake/messages'
 require 'riak/client/beefcake/message_codes'
 require 'riak/errors/failed_request'
+require 'riak/errors/protobuffs_error'
+
 module Riak
   class Client
     class BeefcakeProtobuffsBackend < ProtobuffsBackend
