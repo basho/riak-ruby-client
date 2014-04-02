@@ -352,7 +352,8 @@ describe Riak::RObject do
     end
 
     it "should pass through a failed request exception" do
-      @backend.should_receive(:delete_object).and_raise(Riak::HTTPFailedRequest.new(:delete, [204,404], 500, {}, ""))
+      @backend.should_receive(:delete_object).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, "server error"))
       lambda { @object.delete }.should raise_error(Riak::FailedRequest)
     end
 

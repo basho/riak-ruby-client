@@ -1,7 +1,7 @@
 require 'base64'
 require 'riak/json'
 require 'riak/client'
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 require 'riak/client/protobuffs_backend'
 
 module Riak

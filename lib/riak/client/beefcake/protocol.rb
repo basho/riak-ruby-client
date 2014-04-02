@@ -1,6 +1,6 @@
 require 'riak/client/beefcake/messages'
 require 'riak/client/beefcake/message_codes'
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 module Riak
   class Client
     class BeefcakeProtobuffsBackend < ProtobuffsBackend
@@ -41,7 +41,7 @@ module Riak
         def receive
           header = socket.read 5
           
-          raise t('pbc.failed_header') if header.nil?
+          raise ProtobuffsFailedHeader.new if header.nil?
           message_length, code = header.unpack 'NC'
           body_length = message_length - 1
           body = nil

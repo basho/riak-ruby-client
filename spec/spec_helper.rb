@@ -20,9 +20,6 @@ Riak.disable_list_keys_warnings = true
    sometimes
    search_corpus_setup
    unified_backend_examples
-   mocks
-   mock_server
-   drb_mock_server
    test_client].each do |file|
   require File.join("support", file)
 end

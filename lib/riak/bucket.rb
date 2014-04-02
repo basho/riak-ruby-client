@@ -2,7 +2,7 @@ require 'riak/util/translation'
 require 'riak/client'
 require 'riak/robject'
 require 'riak/counter'
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 
 module Riak
   # Represents and encapsulates operations on a Riak bucket.  You may retrieve a bucket

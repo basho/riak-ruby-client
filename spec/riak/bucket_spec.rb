@@ -141,6 +141,9 @@ describe Riak::Bucket do
   end
 
   describe "fetching or creating a new object" do
+    let(:not_found_error){ Riak::ProtobuffsFailedRequest.new :not_found, 'not found' }
+    let(:other_error){ Riak::ProtobuffsFailedRequest.new :server_error, 'server error' }
+
     it "should return the existing object if present" do
       @object = mock("RObject")
       @backend.should_receive(:fetch_object).with(@bucket,"db", {}).and_return(@object)
@@ -148,15 +151,15 @@ describe Riak::Bucket do
     end
 
     it "should create a new blank object if the key does not exist" do
-      @backend.should_receive(:fetch_object).and_raise(Riak::HTTPFailedRequest.new(:get, 200, 404, {}, "File not found"))
+      @backend.should_receive(:fetch_object).and_raise(not_found_error)
       obj = @bucket.get_or_new('db')
       obj.key.should == 'db'
       obj.data.should be_blank
     end
 
     it "should bubble up non-ok non-missing errors" do
-      @backend.should_receive(:fetch_object).and_raise(Riak::HTTPFailedRequest.new(:get, 200, 500, {}, "File not found"))
-      lambda { @bucket.get_or_new('db') }.should raise_error(Riak::HTTPFailedRequest)
+      @backend.should_receive(:fetch_object).and_raise(other_error)
+      lambda { @bucket.get_or_new('db') }.should raise_error(Riak::ProtobuffsFailedRequest)
     end
 
     it "should pass along the given R quorum parameter" do
@@ -252,7 +255,8 @@ describe Riak::Bucket do
     end
 
     it "should return false if the object doesn't exist" do
-      @backend.should_receive(:fetch_object).and_raise(Riak::HTTPFailedRequest.new(:get, [200,300], 404, {}, "not found"))
+      @backend.should_receive(:fetch_object).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
       @bucket.exists?("foo").should be_false
     end
   end

@@ -51,8 +51,13 @@ describe Riak::Multiget do
     end
 
     it "should not die when objects aren't found" do
-      @bucket.should_receive(:[]).with('key1').and_raise(Riak::HTTPFailedRequest.new(:get, 200, 404, {}, "File not found"))
-      @bucket.should_receive(:[]).with('key2').and_return(true)
+      @bucket.should_receive(:[]).
+        with('key1').
+        and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
+
+      @bucket.should_receive(:[]).
+        with('key2').
+        and_return(true)
 
       @results = Riak::Multiget.get_all @client, @pairs
 
