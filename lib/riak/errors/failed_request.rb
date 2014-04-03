@@ -19,7 +19,7 @@ module Riak
     # @return [true, false] whether the error response is in JSON
     def is_json?
       begin
-        JSON.parse(original_message)
+        JSON.parse(@original_message)
         true
       rescue
         false
@@ -35,6 +35,10 @@ module Riak
     #   server error
     def server_error?
       @server_error
+    end
+
+    def body
+      @original_message
     end
   end
 
