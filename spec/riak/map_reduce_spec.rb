@@ -345,7 +345,7 @@ describe Riak::MapReduce do
     it "should interpret failed requests with JSON content-types as map reduce errors" do
       @backend.stub!(:mapred).
         and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, '{"error":"syntax error"}'))
-      lambda { @mr.run }.should raise_error(Riak::MapReduceError)
+      expect{ @mr.run }.to raise_error(Riak::MapReduceError)
       begin
         @mr.run
       rescue Riak::MapReduceError => mre
