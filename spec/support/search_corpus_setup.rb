@@ -4,7 +4,9 @@ shared_context "search corpus setup" do
     @search_bucket = random_bucket 'search_test'
     @backend.create_search_index @search_bucket.name
     wait_until{ !@backend.get_search_index(@search_bucket.name).nil? }
-    @search_bucket.props = {search_index: @search_bucket.name}
+    @client.set_bucket_props(@search_bucket,
+                             {search_index: @search_bucket.name},
+                             'yokozuna')
     idx = 0
     old_encoding = Encoding.default_external
     Encoding.default_external = Encoding::UTF_8
@@ -14,17 +16,18 @@ shared_context "search corpus setup" do
       Riak::RObject.new(@search_bucket, "munchausen-#{idx}") do |obj|
         obj.content_type = 'text/plain'
         obj.raw_data = para
-        @backend.store_object(obj)
+        @backend.store_object(obj, type: 'yokozuna')
       end
     end
     Encoding.default_external = old_encoding
-    sleep 1
+    sleep 5
   end
 
   def wait_until(attempts=5)
+    initial_attempts = attempts
     begin
       break if yield rescue nil
-      sleep 1
+      sleep((initial_attempts - attempts) + 1)
     end while (attempts -= 1) > 0
   end
 end

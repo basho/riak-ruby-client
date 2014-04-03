@@ -82,7 +82,7 @@ describe Riak::Bucket do
 
     it "should set the new properties on the bucket" do
       @bucket.instance_variable_set(:@props, {}) # Pretend they are there
-      @backend.should_receive(:set_bucket_props).with(@bucket, { :name => "foo" })
+      @backend.should_receive(:set_bucket_props).with(@bucket, { :name => "foo" }, nil)
       @bucket.props = { :name => "foo" }
     end
 

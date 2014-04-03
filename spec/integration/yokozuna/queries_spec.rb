@@ -14,7 +14,7 @@ describe "Yokozuna queries", test_client: true, integration: true do
       @client.create_search_index(@index).should == true
       wait_until{ !@client.get_search_index(@index).nil? }
       @bucket = Riak::Bucket.new(@client, @index)
-      @bucket.props = {'search_index' => @index}
+      @client.set_bucket_props(@bucket, {'search_index' => @index}, 'yokozuna')
 
       @o1 = build_json_obj(@bucket, "cat", {"cat_s"=>"Lela"})
       @o2 = build_json_obj(@bucket, "docs", {"dog_ss"=>["Einstein", "Olive"]})

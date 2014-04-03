@@ -183,11 +183,12 @@ module Riak
         normalized.stringify_keys
       end
 
-      def set_bucket_props(bucket, props)
+      def set_bucket_props(bucket, props, type=nil)
         bucket = bucket.name if Bucket === bucket
         req = RpbSetBucketReq.new(
                                   bucket: maybe_encode(bucket),
-                                  props: RpbBucketProps.new(props.symbolize_keys))
+                                  props: RpbBucketProps.new(props.symbolize_keys),
+                                  type: type)
 
         protocol do |p|
           p.write :SetBucketReq, req

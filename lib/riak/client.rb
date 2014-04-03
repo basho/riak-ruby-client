@@ -359,9 +359,9 @@ module Riak
     end
 
     # Sets the properties on a bucket. See Bucket#props=
-    def set_bucket_props(bucket, properties)
+    def set_bucket_props(bucket, properties, type=nil)
       backend do |b|
-        b.set_bucket_props(bucket, properties)
+        b.set_bucket_props(bucket, properties, type)
       end
     end
 
