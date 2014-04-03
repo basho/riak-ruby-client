@@ -23,7 +23,7 @@ shared_context "search corpus setup" do
     sleep 5
   end
 
-  def wait_until(attempts=5)
+  def wait_until(attempts=10)
     initial_attempts = attempts
     begin
       break if yield rescue nil
