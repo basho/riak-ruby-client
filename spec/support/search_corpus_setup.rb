@@ -3,7 +3,9 @@ shared_context "search corpus setup" do
   before do
     @search_bucket = random_bucket 'search_test'
     @backend.create_search_index @search_bucket.name
+
     wait_until{ !@backend.get_search_index(@search_bucket.name).nil? }
+
     @client.set_bucket_props(@search_bucket,
                              {search_index: @search_bucket.name},
                              'yokozuna')
@@ -20,14 +22,12 @@ shared_context "search corpus setup" do
       end
     end
     Encoding.default_external = old_encoding
-    sleep 5
-  end
-
-  def wait_until(attempts=10)
-    initial_attempts = attempts
-    begin
-      break if yield rescue nil
-      sleep((initial_attempts - attempts) + 1)
-    end while (attempts -= 1) > 0
+    
+    wait_until do
+      results = @backend.search(@search_bucket.name, 
+                                'I bade the lovely creature dry her eyes',
+                                df: 'text')
+      results['docs'].length > 0
+    end
   end
 end

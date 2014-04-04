@@ -47,11 +47,4 @@ describe "Yokozuna", test_client: true, integration: true do
 </types>
 </schema>
       XML
-
-  def wait_until(attempts=5)
-    begin
-      break if yield rescue nil
-      sleep 1
-    end while (attempts -= 1) > 0
-  end
 end

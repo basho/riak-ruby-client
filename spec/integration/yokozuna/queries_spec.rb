@@ -100,13 +100,6 @@ describe "Yokozuna queries", test_client: true, integration: true do
     end
   end
 
-  def wait_until(attempts=5)
-    begin
-      break if yield rescue nil
-      sleep 1
-    end while (attempts -= 1) > 0
-  end
-
   # populate objects
   def build_json_obj(bucket, key, data)
     object = bucket.get_or_new(key)
