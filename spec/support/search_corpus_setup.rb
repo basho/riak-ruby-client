@@ -9,6 +9,9 @@ shared_context "search corpus setup" do
     @client.set_bucket_props(@search_bucket,
                              {search_index: @search_bucket.name},
                              'yokozuna')
+
+    sleep 5
+
     idx = 0
     old_encoding = Encoding.default_external
     Encoding.default_external = Encoding::UTF_8
