@@ -18,21 +18,4 @@ describe Riak::Util::Headers do
     h.parse("Content-Type: text/plain\r\n")
     h.to_hash.should == {"content-type" => ["text/plain"]}
   end
-
-  it "should split headers larger than 8KB" do
-    # This really tests Net::HTTPHeader#each_capitalized, which is
-    # used by Net::HTTP to write the headers to the socket. It does
-    # not cover the case where a single value is larger than 8KB. If
-    # you're doing that, you have something else wrong.
-    h = Riak::Util::Headers.new
-    10.times do
-      h.add_field "Link", "f" * 820
-    end
-    count = 0
-    h.each_capitalized do |k,v|
-      count += 1
-      "#{k}: #{v}\r\n".length.should < 8192
-    end
-    count.should > 1
-  end
 end
