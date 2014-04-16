@@ -16,7 +16,7 @@ describe "Protocol Buffers", test_client: true do
 
         it_should_behave_like "Unified backend API"
 
-        describe "searching yokozuna" do
+        describe "searching yokozuna", riak: "2.0" do
           include_context "search corpus setup"
 
           it 'should return documents with UTF-8 fields (GH #75)' do

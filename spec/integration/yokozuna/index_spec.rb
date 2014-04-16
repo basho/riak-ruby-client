@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozuna", test_client: true, integration: true do
+describe "Yokozuna", riak: "2.0", test_client: true, integration: true do
   before(:all) do
     @client = test_client
 
