@@ -1,5 +1,19 @@
 # Riak Ruby Client Release Notes
 
+## 1.4.4.1 Bugfix Release - 2014-04-17
+
+Release 1.4.4.1 includes the intended 1.4.4 bugfix:
+
+* Remove freedom-patched `Net::HTTPHeader#each_capitalized` method. This
+  caused infinite loops when parsing HTTP headers not related to Riak,
+  and is not necessary in Riak versions newer than 1.1.0. Thanks to
+  Morten Primdahl and Steven Davidovitz at Zendesk for helping isolate and
+  troubleshoot this.
+
+## 1.4.4 - 2014-04-17
+
+No changes from 1.4.3.
+
 ## 1.4.3 Bugfix Release - 2013-12-31
 
 Release 1.4.3 fixes some bugs and improves documentation.
