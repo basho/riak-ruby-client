@@ -25,6 +25,8 @@ module Riak
           end
 
           def start_tls_socket(host, port, authentication)
+            raise Riak::UserConfigurationError.new if authentication[:username]
+
             tcp = start_tcp_socket(host, port)
             TlsInitiator.new(tcp, host, authentication).tls_socket
           end
