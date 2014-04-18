@@ -33,7 +33,9 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       plaintext_client = Riak::Client.new config
 
-      expect{ plaintext_client.ping }.to raise_error
+      expect{ plaintext_client.ping }.
+        to(raise_error(Riak::ProtobuffsFailedRequest,
+                       /security is enabled/i))
     end
 
     it "refuses to connect if the server cert isn't recognized" do
@@ -43,7 +45,9 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       bugged_crypto_client = Riak::Client.new config
 
-      expect{ bugged_crypto_client.ping }.to raise_error
+      expect{ bugged_crypto_client.ping }.
+        to(raise_error(OpenSSL::SSL::SSLError,
+                       /certificate verify failed/i))
     end
 
     it "refuses to connect if the server cert is revoked"
