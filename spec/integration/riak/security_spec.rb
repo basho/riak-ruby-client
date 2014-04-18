@@ -7,7 +7,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     it 'connects normally without authentication configured' do
       expect(test_client.security?).to_not be
 
-      expect(test_client.ping).to be
+      expect{test_client.ping}.to_not raise_error
     end
 
     it 'refuses to connect with authentication configured' do
@@ -25,7 +25,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       expect(secure_client.security?).to be
 
-      expect{secure_client.ping}.to be
+      expect{secure_client.ping}.to_not raise_error
     end
 
     it 'refuses to connect without authentication configured' do
