@@ -15,7 +15,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       secure_client = Riak::Client.new config
       
-      expect{ secure_client.ping }.to raise_error
+      expect{ secure_client.ping }.to raise_error(Riak::TlsError)
     end
   end
 
