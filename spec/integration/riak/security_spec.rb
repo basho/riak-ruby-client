@@ -11,7 +11,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     end
 
     it 'should refuse to connect with authentication configured' do
-      config[:authentication] = { username: 'user', password: 'password' }
+      config[:authentication] = { user: 'user', password: 'password' }
 
       secure_client = Riak::Client.new config
       
