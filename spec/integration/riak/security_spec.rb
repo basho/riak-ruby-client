@@ -11,7 +11,8 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     end
 
     it 'refuses to connect with authentication configured' do
-      config[:authentication] = { user: 'user', password: 'password' }
+      with_auth_config = config.dup
+      with_auth_config[:authentication] = { user: 'user', password: 'password' }
 
       secure_client = Riak::Client.new config
       
@@ -29,9 +30,10 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     end
 
     it 'refuses to connect without authentication configured' do
-      config.delete :authentication
+      no_auth_config = config.dup
+      no_auth_config.delete :authentication
 
-      plaintext_client = Riak::Client.new config
+      plaintext_client = Riak::Client.new no_auth_config
 
       expect{ plaintext_client.ping }.
         to(raise_error(Riak::ProtobuffsFailedRequest,
@@ -39,11 +41,13 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
     end
 
     it "refuses to connect if the server cert isn't recognized" do
+      broken_auth_config = config.dup
+      broken_auth_config[:authentication] = broken_auth_config[:authentication].dup
       # this CA has never ever been used to sign a key
-      config[:authentication][:ca_file] =
+      broken_auth_config[:authentication][:ca_file] =
         File.join('support', 'certs', 'empty_ca.crt')
 
-      bugged_crypto_client = Riak::Client.new config
+      bugged_crypto_client = Riak::Client.new broken_auth_config
 
       expect{ bugged_crypto_client.ping }.
         to(raise_error(OpenSSL::SSL::SSLError,
