@@ -17,6 +17,7 @@ describe Riak::Crdt::Set do
   subject{ described_class.new bucket, 'key' }
 
   describe 'with a client' do
+    let(:response){ double 'response', key: nil }
     let(:operator){ double 'operator' }
     let(:backend){ double 'backend' }
     let(:client){ double 'client' }
@@ -42,7 +43,8 @@ describe Riak::Crdt::Set do
                                          add: %w{alpha bravo},
                                          remove: %w{foxtrot}
                                        })
-      end
+      end.
+        and_return(response)
 
       subject.batch do |s|
         s.add 'alpha'
