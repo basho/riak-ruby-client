@@ -31,7 +31,7 @@ compile:
 	@cd ..; bundle install --binstubs --path=vendor
 
 lint:
-	@find .. -type f -name "*.rb" | xargs -n1 ruby -c
+	@find ../lib ../spec -type f -name "*.rb" | xargs ruby -c
 
 test: test-normal test-security
 
