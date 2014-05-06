@@ -2,10 +2,9 @@ RIAK_CONF = ${RIAK_DIR}/etc/riak.conf
 ADVANCED_CONF = ${RIAK_DIR}/etc/advanced.config
 # RIAK = ${RIAK_DIR}/bin/riak
 RIAK_ADMIN = ${RIAK_DIR}/bin/riak-admin
-CERTS_DIR = $(shell pwd)/../riak-ruby-vagrant/certs
+CERTS_DIR = $(shell pwd)/../spec/support/certs
 
 preconfigure:
-	@git clone git://github.com/basho-labs/riak-ruby-vagrant.git
 	echo "storage_backend = memory" >> ${RIAK_CONF}
 	echo "search = on" >> ${RIAK_CONF}
 	echo "listener.protobuf.internal = 127.0.0.1:8087" >> ${RIAK_CONF}
@@ -31,7 +30,7 @@ compile:
 	@cd ..; bundle install --binstubs --path=vendor
 
 lint:
-	@find ../lib ../spec -type f -name "*.rb" | xargs ruby -c
+	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
 
 test: test-normal test-security
 
