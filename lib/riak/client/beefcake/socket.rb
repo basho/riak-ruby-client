@@ -102,9 +102,23 @@ module Riak
 
               validator = R509::Cert::Validator.new riak_cert
 
-              unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
+              unless validator.validate validator_options
                 raise TlsError.new t("ssl.cert_revoked")
               end
+            end
+
+            def validator_options
+              o = {
+                ocsp: !!@auth[:ocsp],
+                crl: !!@auth[:crl]
+              }
+              
+              if @auth[:crl_file]
+                o[:crl_file] = @auth[:crl_file]
+                o[:crl] = true
+              end
+
+              return o
             end
 
             # Send an AuthReq with the authentication data. Rely on beefcake
