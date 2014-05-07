@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'riak'
+require 'riak/errors/connection_error'
 require 'r509/cert/validator/errors'
 
 describe 'Secure Protobuffs', test_client: true, integration: true do
@@ -15,7 +16,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
       with_auth_config = config.dup
       with_auth_config[:authentication] = { user: 'user', password: 'password' }
 
-      secure_client = Riak::Client.new config
+      secure_client = Riak::Client.new with_auth_config
       
       expect{ secure_client.ping }.to raise_error(Riak::TlsError)
     end
