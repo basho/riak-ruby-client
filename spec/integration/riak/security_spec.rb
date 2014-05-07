@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'riak'
+require 'r509/cert/validator/errors'
 
 describe 'Secure Protobuffs', test_client: true, integration: true do
   let(:config){ test_client_configuration.dup }
@@ -54,6 +55,18 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
                        /certificate verify failed/i))
     end
 
-    it "refuses to connect if the server cert is revoked"
+    it "refuses to connect if the server cert is revoked" do
+      revoked_auth_config = config.dup
+      revoked_auth_config[:authentication] = revoked_auth_config[:authentication].dup
+
+      revoked_auth_config[:authentication][:crl_file] =
+        File.expand_path(File.join(__dir__, '..', '..', 'support', 'certs', 'server.crl'))
+
+      revoked_auth_client = Riak::Client.new revoked_auth_config
+
+      expect{ revoked_auth_client.ping }.
+        to(raise_error(Riak::TlsError,
+                       /revoked/i))
+    end
   end
 end
