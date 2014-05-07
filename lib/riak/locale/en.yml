@@ -56,6 +56,7 @@ en:
     object_in_conflict: "The object is in conflict (has siblings) and cannot be treated singly or saved: %{robject}"
     pbc:
       unexpected_eof: "Unexpected EOF on PBC socket"
+      user_not_username: "Authentication hash expects :user, not :username."
       wanted_index_resp: "Expected IndexResp during secondary index query"
       wanted_dt_fetch_resp: "Expected PBC DtFetchResp during CRDT fetch"
       wanted_dt_update_resp: "Expected PBC DtUpdateResp during CRDT update"
@@ -68,6 +69,12 @@ en:
     search_remove_requires_id_or_query: "Search index documents to be removed must have 'id' or 'query' keys."
     serializer_not_implemented: "No serializer has been registered for content type %{content_type}"
     source_and_root_required: "Riak::Node configuration must include :source and :root keys."
+    ssl:
+      cert_host_mismatch: "The presented SSL/TLS certificate did not match the hostname."
+      cert_not_in_valid_range: "The presented SSL/TLS certificate is either expired or premature."
+      cert_revoked: "The presented SSL/TLS certificate has been revoked."
+      eof_during_init: "Unexpected EOF during SSL/TLS initialization."
+      unexpected_during_init: "Expected %{expected}, got %{actual} with body %{body} during SSL/TLS initialization."
     stale_write_prevented: "Stale write prevented by client."
     stored_function_invalid: "function must have :bucket and :key when a hash"
     streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."

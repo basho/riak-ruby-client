@@ -14,9 +14,10 @@ module Riak
 
       # What IP address or hostname does this node listen on?
       attr_accessor :host
+
       # Which port does the protocol buffers interface listen on?
       attr_accessor :pb_port
-      attr_accessor :ssl_options
+
       # A Decaying rate of errors.
       attr_reader :error_rate
 

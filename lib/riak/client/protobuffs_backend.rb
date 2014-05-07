@@ -88,11 +88,7 @@ module Riak
       end
       
       def new_socket
-        socket = TCPSocket.new(@node.host, @node.pb_port)
-        socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
-        #TODO: Should we set the client ID here?
-        # set_client_id @client.client_id
-        socket
+        raise NotImplementedError
       end
 
       def reset_socket

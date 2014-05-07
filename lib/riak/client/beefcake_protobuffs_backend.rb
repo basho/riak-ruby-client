@@ -15,10 +15,15 @@ module Riak
           require 'riak/client/beefcake/object_methods'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
+          require 'riak/client/beefcake/socket'
           true
         rescue LoadError, NameError
           false
         end
+      end
+
+      def new_socket
+        BeefcakeSocket.new @node.host, @node.pb_port, authentication: client.authentication
       end
 
       def set_client_id(id)
