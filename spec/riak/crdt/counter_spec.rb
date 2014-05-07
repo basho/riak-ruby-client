@@ -16,6 +16,7 @@ describe Riak::Crdt::Counter do
   subject{ described_class.new bucket, 'key' }
 
   describe 'with a client' do
+    let(:response){ double 'response', key: nil }
     let(:operator){ double 'operator' }
     let(:backend){ double 'backend' }
     let(:client){ double 'client' }
@@ -37,7 +38,8 @@ describe Riak::Crdt::Counter do
 
         expect(operations).to be_a Riak::Crdt::Operation::Update
         expect(operations.value).to eq 5
-      end
+      end.
+        and_return(response)
 
       subject.batch do |s|
         s.increment 4 # 4

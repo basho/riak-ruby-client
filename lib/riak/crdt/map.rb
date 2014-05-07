@@ -24,8 +24,10 @@ module Riak
       # from {Riak::Crdt} will be used.
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this map
-      # @param key [String] the name of the map
-      # @param bucket_type [String] the optional bucket type for this map
+      # @param [String, nil] key The name of the map. A nil key makes
+      #        Riak assign a key.
+      # @param [String] bucket_type The optional bucket type for this map.
+      #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:map]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)

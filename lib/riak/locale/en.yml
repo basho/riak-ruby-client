@@ -57,6 +57,7 @@ en:
     pbc:
       unexpected_eof: "Unexpected EOF on PBC socket"
       user_not_username: "Authentication hash expects :user, not :username."
+      wanted_index_resp: "Expected IndexResp during secondary index query"
       wanted_dt_fetch_resp: "Expected PBC DtFetchResp during CRDT fetch"
       wanted_dt_update_resp: "Expected PBC DtUpdateResp during CRDT update"
     port_invalid: "port must be an integer between 0 and 65535"
