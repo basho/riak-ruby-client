@@ -25,6 +25,8 @@ module Riak
           end
 
           def start_tls_socket(host, port, authentication)
+            raise Riak::UserConfigurationError.new if authentication[:username]
+
             tcp = start_tcp_socket(host, port)
             TlsInitiator.new(tcp, host, authentication).tls_socket
           end
@@ -103,6 +105,20 @@ module Riak
               unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
                 raise TlsError::CertRevokedError.new
               end
+            end
+
+            def validator_options
+              o = {
+                ocsp: !!@auth[:ocsp],
+                crl: !!@auth[:crl]
+              }
+              
+              if @auth[:crl_file]
+                o[:crl_file] = @auth[:crl_file]
+                o[:crl] = true
+              end
+
+              return o
             end
 
             # Send an AuthReq with the authentication data. Rely on beefcake

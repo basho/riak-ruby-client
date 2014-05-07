@@ -222,6 +222,9 @@ The top-level CRDT types have both immediate and batch mode. If you're doing
 multiple writes to a single top-level counter or set, or updating multiple map
 entries, batch mode will make fewer round-trips to Riak.
 
+Top-level CRDT types accept `nil` as a key. This allows Riak to assign a random
+key for them.
+
 ### Counters
 
 Riak 2 integer counters have one operation: increment by an integer.
@@ -286,6 +289,17 @@ map.batch do |m|
   m.counters['hits'].increment
   m.sets['followers'].add 'basho_elevator'
 end
+```
+
+Frequently, you might want a map with a Riak-assigned name instead of one you
+come up with yourself:
+
+```ruby
+map = Riak::Crdt::Map.new bucket, nil
+
+map.registers['coat_pattern'] = 'tabby'
+
+map.key #=> "2do4NvcurWhXYNQg8HoIR9zedJV"
 ```
 
 ### Sets

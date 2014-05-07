@@ -28,10 +28,10 @@ describe Riak::Serializers do
 
   %w[ serialize deserialize ].each do |meth|
     describe ".#{meth}" do
-      it 'raises a NotImplementedError when given an unrecognized content type' do
+      it 'raises an IOError when given an unrecognized content type' do
         expect {
           described_class.send(meth, "application/unrecognized", "string")
-        }.to raise_error(NotImplementedError)
+        }.to raise_error(IOError)
       end
     end
   end

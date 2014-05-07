@@ -19,6 +19,14 @@ describe "CRDTs", integration: true, test_client: true do
       expect(Riak::Crdt::Set.new(bucket, 'set', 'other_bucket_type').bucket_type).to eq 'other_bucket_type'
     end
   end
+
+  describe 'an anonymous counter' do
+    subject { Riak::Crdt::Counter.new bucket, nil }
+    it 'accepts a Riak-assigned name' do
+      subject.increment
+      expect(subject.key).to be
+    end
+  end
   
   describe 'counters' do
     subject { Riak::Crdt::Counter.new bucket, random_key }
