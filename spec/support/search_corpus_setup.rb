@@ -10,7 +10,10 @@ shared_context "search corpus setup" do
                              {search_index: @search_bucket.name},
                              'yokozuna')
 
-    sleep 5
+    wait_until do
+      p = @client.get_bucket_props(@search_bucket)
+      p['search_index'] == @search_bucket.name
+    end
 
     idx = 0
     old_encoding = Encoding.default_external
