@@ -73,6 +73,7 @@ module Riak
                                 *args
                                 )
 
+          break if :empty == response
           @key = response.key if response.key
         end
 
