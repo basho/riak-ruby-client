@@ -13,7 +13,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
 
   context "secondary index" do
     before :each do
-      @socket = mock(:socket).as_null_object
+      @socket = double(:socket).as_null_object
       TCPSocket.stub(:new => @socket)
     end
 
@@ -58,7 +58,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
 
         protocol.should_receive(:expect).and_return(*response_messages)
 
-        block_body = mock 'block'
+        block_body = double 'block'
         block_body.should_receive(:check).with(response_sets.first).once
         block_body.should_receive(:check).with(response_sets.last).once
         
@@ -112,7 +112,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     it "should not return nil for previous phases that don't return anything" do
       protocol.should_receive(:write)
 
-      message = stub(:message, :phase => 1, :response => [{}].to_json)
+      message = double(:message, :phase => 1, :response => [{}].to_json)
       message.stub(:done).and_return(false, true)
 
       protocol.should_receive(:expect).

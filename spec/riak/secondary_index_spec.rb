@@ -20,8 +20,8 @@ describe Riak::SecondaryIndex do
 
   describe "operation" do
     before(:each) do
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {}]
       @index = Riak::SecondaryIndex.new *@args
 
@@ -45,8 +45,8 @@ describe Riak::SecondaryIndex do
 
   describe "streaming" do
     it "should stream keys into a block" do
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {stream: true}]
       @index = Riak::SecondaryIndex.new *@args
 
@@ -65,8 +65,8 @@ describe Riak::SecondaryIndex do
         'continuation' => 'examplecontinuation'
       }.to_json)
 
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @backend.
         should_receive(:get_index).
         with(
@@ -99,8 +99,8 @@ describe Riak::SecondaryIndex do
         'keys' => %w{ffff gggg hhhh}
       }.to_json)
 
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @backend.
         should_receive(:get_index).
         with(
@@ -135,8 +135,8 @@ describe Riak::SecondaryIndex do
         'continuation' => 'examplecontinuation'
       }.to_json)
 
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @backend.
         should_receive(:get_index).
         once.
@@ -192,8 +192,8 @@ describe Riak::SecondaryIndex do
         }.to_json)
 
 
-      @backend = mock 'Backend'
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double 'Backend'
+      @client.stub(:backend).and_yield(@backend)
       @backend.
         should_receive(:get_index).
         with(

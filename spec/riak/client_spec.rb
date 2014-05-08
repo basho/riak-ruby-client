@@ -94,8 +94,8 @@ describe Riak::Client, test_client: true do
     before :each do
       @client = Riak::Client.new
       @bucket = @client.bucket('foo')
-      @bucket.should_receive(:[]).with('value1').and_return(mock('robject'))
-      @bucket.should_receive(:[]).with('value2').and_return(mock('robject'))
+      @bucket.should_receive(:[]).with('value1').and_return(double('robject'))
+      @bucket.should_receive(:[]).with('value2').and_return(double('robject'))
       @pairs = [
         [@bucket, 'value1'],
         [@bucket, 'value2']
@@ -116,8 +116,8 @@ describe Riak::Client, test_client: true do
   describe "retrieving a bucket" do
     before :each do
       @client = Riak::Client.new
-      @backend = mock("Backend")
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double("Backend")
+      @client.stub(:backend).and_yield(@backend)
     end
 
     it "should return a bucket object" do
@@ -130,7 +130,7 @@ describe Riak::Client, test_client: true do
     end
 
     it "should memoize bucket parameters" do
-      @bucket = mock("Bucket")
+      @bucket = double("Bucket")
       Riak::Bucket.should_receive(:new).with(@client, "baz").once.and_return(@bucket)
       @client.bucket("baz").should == @bucket
       @client.bucket("baz").should == @bucket
@@ -144,8 +144,8 @@ describe Riak::Client, test_client: true do
   describe "listing buckets" do
     before do
       @client = Riak::Client.new
-      @backend = mock("Backend")
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double("Backend")
+      @client.stub(:backend).and_yield(@backend)
     end
 
     after { Riak.disable_list_keys_warnings = true }
@@ -161,7 +161,7 @@ describe Riak::Client, test_client: true do
 
     it "should warn about the expense of list-buckets when warnings are not disabled" do
       Riak.disable_list_keys_warnings = false
-      @backend.stub!(:list_buckets).and_return(%w{test test2})
+      @backend.stub(:list_buckets).and_return(%w{test test2})
       @client.should_receive(:warn)
       @client.buckets
     end

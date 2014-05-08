@@ -128,7 +128,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      expect { @backend.fetch_object(@bucket.name, @robject.key) }.to_not raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object(@bucket.name, @robject.key) }.not_to raise_error(Riak::FailedRequest)
     end
   end
 
