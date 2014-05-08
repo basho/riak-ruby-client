@@ -6,6 +6,13 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
   subject{ described_class.new socket }
   let(:codes){ Riak::Client::BeefcakeMessageCodes }
 
+  let(:yz_req){ Riak::Client::BeefcakeProtobuffsBackend::
+    RpbYokozunaSchemaGetReq.new name: 'schema' }
+  let(:ctr_resp){ Riak::Client::BeefcakeProtobuffsBackend::
+    RpbCounterGetResp.new value: rand(2**10) }
+  let(:error_resp){ Riak::Client::BeefcakeProtobuffsBackend::
+    RpbErrorResp.new errcode: rand(2**10), errmsg: 'message' }
+
   describe 'writing messages' do
     # I really wanted to call this "send" but Ruby already has that method
 
@@ -179,11 +186,4 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
       end
     end
   end
-
-  let(:yz_req){ Riak::Client::BeefcakeProtobuffsBackend::
-    RpbYokozunaSchemaGetReq.new name: 'schema' }
-  let(:ctr_resp){ Riak::Client::BeefcakeProtobuffsBackend::
-    RpbCounterGetResp.new value: rand(2**10) }
-  let(:error_resp){ Riak::Client::BeefcakeProtobuffsBackend::
-    RpbErrorResp.new errcode: rand(2**10), errmsg: 'message' }
 end
