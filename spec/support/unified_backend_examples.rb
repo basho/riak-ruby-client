@@ -339,13 +339,13 @@ shared_examples_for "Unified backend API" do
     include_context "search corpus setup"
 
     sometimes 'should find indexed documents, returning ids' do
-      results = @backend.search @search_bucket.name, 'fearless elephant rushed', fl: '_yz_rk', df: 'text'
+      results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
 
       found = results['docs'].any? do |e|
-        e['_yz_rk'] == 'munchausen-605'
+        e['_yz_rk'] == 'bitcask-10'
       end
 
       expect(found).to be_true
@@ -353,13 +353,13 @@ shared_examples_for "Unified backend API" do
 
     sometimes 'should find indexed documents, returning documents' do
       # For now use '*' until #122 is merged into riak_search
-      results = @backend.search @search_bucket.name, 'fearless elephant rushed', fl: '_yz_rk', df: 'text'
+      results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
 
       found = results['docs'].any? do |e|
-        e['_yz_rk'] == 'munchausen-605'
+        e['_yz_rk'] == 'bitcask-10'
       end
 
       expect(found).to be_true
