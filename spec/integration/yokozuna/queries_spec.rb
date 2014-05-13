@@ -23,7 +23,7 @@ describe "Yokozuna queries", test_client: true, integration: true do
       build_json_obj(@bucket, "F", {"username_s"=>"F", "name_s"=>"bryan fink", "age_i"=>32})
       build_json_obj(@bucket, "H", {"username_s"=>"H", "name_s"=>"brett", "age_i"=>14})
 
-      sleep 1.1  # pause for index commit to trigger
+      wait_until { @client.search(@index, "username_s:Z")['docs'].length > 0 }
     end
 
     it "should produce results on single term queries" do
