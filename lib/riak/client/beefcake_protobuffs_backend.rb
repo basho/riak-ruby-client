@@ -169,9 +169,11 @@ module Riak
         return resp.value
       end
 
-      def get_bucket_props(bucket)
+      def get_bucket_props(bucket, options = {  })
         bucket = bucket.name if Bucket === bucket
+
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
+        req.type = options[:type] if options[:type]
 
         resp_message = protocol do |p|
           p.write :GetBucketReq, req

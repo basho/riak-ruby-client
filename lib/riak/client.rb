@@ -216,9 +216,9 @@ module Riak
     end
 
     # Bucket properties. See Bucket#props
-    def get_bucket_props(bucket)
+    def get_bucket_props(bucket, options={  })
       backend do |b|
-        b.get_bucket_props bucket
+        b.get_bucket_props bucket, options
       end
     end
 
