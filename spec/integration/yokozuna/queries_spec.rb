@@ -9,12 +9,17 @@ describe "Yokozuna queries", test_client: true, integration: true do
 
   context "with a schema and indexes" do
     before :all do
-      @index = 'yz_spec-' + random_key
+      @bucket = random_bucket 'yz-spec'
+      @index = @bucket.name
 
       @client.create_search_index(@index).should == true
       wait_until{ !@client.get_search_index(@index).nil? }
-      @bucket = Riak::Bucket.new(@client, @index)
-      @client.set_bucket_props(@bucket, {'search_index' => @index}, 'yokozuna')
+      @client.set_bucket_props(@bucket, {:search_index => @index}, 'yokozuna')
+
+      wait_until do
+        props = @client.get_bucket_props(@bucket, type: 'yokozuna')
+        props['search_index'] == @index
+      end
 
       @o1 = build_json_obj(@bucket, "cat", {"cat_s"=>"Lela"})
       @o2 = build_json_obj(@bucket, "docs", {"dog_ss"=>["Einstein", "Olive"]})
@@ -105,7 +110,7 @@ describe "Yokozuna queries", test_client: true, integration: true do
     object = bucket.get_or_new(key)
     object.raw_data = data.to_json
     object.content_type = 'application/json'
-    object.store
+    object.store type: 'yokozuna'
     object
   end
 end
