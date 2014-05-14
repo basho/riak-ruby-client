@@ -76,7 +76,7 @@ describe Riak::Bucket do
   describe "setting the bucket properties" do
     it "should prefetch the properties when they are not present" do
       @backend.stub!(:set_bucket_props)
-      @backend.should_receive(:get_bucket_props).with(@bucket).and_return({"name" => "foo"})
+      @backend.should_receive(:get_bucket_props).with(@bucket, {  }).and_return({"name" => "foo"})
       @bucket.props = {"precommit" => []}
     end
 
@@ -94,12 +94,12 @@ describe Riak::Bucket do
   describe "fetching the bucket properties" do
     it "should fetch properties on first access" do
       @bucket.instance_variable_get(:@props).should be_nil
-      @backend.should_receive(:get_bucket_props).with(@bucket).and_return({"name" => "foo"})
+      @backend.should_receive(:get_bucket_props).with(@bucket, {  }).and_return({"name" => "foo"})
       @bucket.props.should == {"name" => "foo"}
     end
 
     it "should memoize fetched properties" do
-      @backend.should_receive(:get_bucket_props).once.with(@bucket).and_return({"name" => "foo"})
+      @backend.should_receive(:get_bucket_props).once.with(@bucket, {  }).and_return({"name" => "foo"})
       @bucket.props.should == {"name" => "foo"}
       @bucket.props.should == {"name" => "foo"}
     end
