@@ -11,7 +11,7 @@ shared_context "search corpus setup" do
                              'yokozuna')
 
     wait_until do
-      p = @client.get_bucket_props(@search_bucket)
+      p = @client.get_bucket_props(@search_bucket, type: 'yokozuna')
       p['search_index'] == @search_bucket.name
     end
 
