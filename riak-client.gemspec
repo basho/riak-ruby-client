@@ -12,6 +12,8 @@ Gem::Specification.new do |gem|
   gem.authors = ["Sean Cribbs", 'Bryce Kerley']
   gem.license = 'Apache 2.0'
 
+  gem.required_ruby_version = '>= 1.9.3'
+
   # Deps
   gem.add_development_dependency "rspec", "~>2.13.0"
   gem.add_development_dependency "fakeweb", ">=1.2"
@@ -26,7 +28,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "beefcake", "~>0.5.0"
   gem.add_runtime_dependency "multi_json", "~>1.0"
   gem.add_runtime_dependency "innertube", "~>1.0.2"
-  gem.add_runtime_dependency 'r509-cert-validator', '~> 0.0.2'
+  gem.add_runtime_dependency 'r509-cert-validator', '~> 0.0.3'
 
   # Files
 
