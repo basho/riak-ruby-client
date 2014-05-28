@@ -110,7 +110,7 @@ describe Riak::RObject do
         end
 
         context 'for an IO-like object' do
-          let(:io_object) { stub(:read => 'the io object') }
+          let(:io_object) { double(:read => 'the io object') }
 
           it 'reads the object before deserializing it' do
             @object.content.should_receive(:deserialize).with('the io object').and_return('deserialized')
@@ -138,7 +138,7 @@ describe Riak::RObject do
 
   describe "instantiating new object from a map reduce operation" do
     before :each do
-      @client.stub!(:[]).and_return(@bucket)
+      @client.stub(:[]).and_return(@bucket)
 
       @sample_response = [
                           {"bucket"=>"users",
@@ -264,8 +264,8 @@ describe Riak::RObject do
 
   describe "when storing the object normally" do
     before :each do
-      @backend = mock("Backend")
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double("Backend")
+      @client.stub(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket)
       @object.content_type = "text/plain"
       @object.data = "This is some text."
@@ -294,8 +294,8 @@ describe Riak::RObject do
 
   describe "when reloading the object" do
     before :each do
-      @backend = mock("Backend")
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double("Backend")
+      @client.stub(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket, "bar")
       @object.vclock = "somereallylongstring"
     end
@@ -334,8 +334,8 @@ describe Riak::RObject do
 
   describe "when deleting" do
     before :each do
-      @backend = mock("Backend")
-      @client.stub!(:backend).and_yield(@backend)
+      @backend = double("Backend")
+      @client.stub(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket, "bar")
     end
 
@@ -352,7 +352,8 @@ describe Riak::RObject do
     end
 
     it "should pass through a failed request exception" do
-      @backend.should_receive(:delete_object).and_raise(Riak::HTTPFailedRequest.new(:delete, [204,404], 500, {}, ""))
+      @backend.should_receive(:delete_object).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, "server error"))
       lambda { @object.delete }.should raise_error(Riak::FailedRequest)
     end
 

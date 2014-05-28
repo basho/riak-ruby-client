@@ -25,6 +25,7 @@ describe "CRDTs", integration: true, test_client: true do
     it 'accepts a Riak-assigned name' do
       subject.increment
       expect(subject.key).to be
+      expect(subject.value).to eq 1
     end
   end
   

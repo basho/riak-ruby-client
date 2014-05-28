@@ -1,6 +1,11 @@
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start
+end
+
 require 'rubygems' # Use the gems path only for the spec suite
 require 'riak'
 require 'rspec'
@@ -13,11 +18,9 @@ Riak.disable_list_keys_warnings = true
 %w[integration_setup
    version_filter
    sometimes
+   wait_until
    search_corpus_setup
    unified_backend_examples
-   mocks
-   mock_server
-   drb_mock_server
    test_client].each do |file|
   require File.join("support", file)
 end

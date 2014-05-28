@@ -1,7 +1,7 @@
 require 'base64'
 require 'riak/json'
 require 'riak/client'
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 require 'riak/client/protobuffs_backend'
 
 module Riak
@@ -15,6 +15,7 @@ module Riak
           require 'riak/client/beefcake/object_methods'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
+          require 'riak/client/beefcake/protocol'
           require 'riak/client/beefcake/socket'
           true
         rescue LoadError, NameError
@@ -22,8 +23,36 @@ module Riak
         end
       end
 
+      def protocol
+        p = Protocol.new socket
+        yield p
+      end
+
       def new_socket
         BeefcakeSocket.new @node.host, @node.pb_port, authentication: client.authentication
+      end
+
+      def ping
+        protocol do |p|
+          p.write :PingReq
+          p.expect :PingResp
+        end
+      end
+
+      def get_client_id
+        protocol do |p|
+          p.write :GetClientIdReq
+          p.expect(:GetClientIdResp, RpbGetClientIdResp).client_id
+        end
+      end
+
+      def server_info
+        resp = protocol do |p|
+          p.write :GetServerInfoReq
+          p.expect(:GetServerInfoResp, RpbGetServerInfoResp)
+        end
+
+        { node: resp.node, server_version: resp.server_version }
       end
 
       def set_client_id(id)
@@ -34,16 +63,29 @@ module Riak
                   id.to_s
                 end
         req = RpbSetClientIdReq.new(:client_id => value)
-        write_protobuff(:SetClientIdReq, req)
-        decode_response
+        protocol do |p|
+          p.write :SetClientIdReq, req
+          p.expect :SetClientIdResp
+        end
+        return true
       end
 
       def fetch_object(bucket, key, options={})
         options = prune_unsupported_options(:GetReq, normalize_quorums(options))
         bucket = Bucket === bucket ? bucket.name : bucket
         req = RpbGetReq.new(options.merge(:bucket => maybe_encode(bucket), :key => maybe_encode(key)))
-        write_protobuff(:GetReq, req)
-        decode_response(RObject.new(client.bucket(bucket), key))
+
+        resp = protocol do |p|
+          p.write :GetReq, req
+          p.expect :GetResp, RpbGetResp, empty_body_acceptable: true
+        end
+
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
+        template = RObject.new(client.bucket(bucket), key)
+        load_object(resp, template)
       end
 
       def reload_object(robject, options={})
@@ -52,8 +94,17 @@ module Riak
         options[:key] = maybe_encode(robject.key)
         options[:if_modified] = maybe_encode Base64.decode64(robject.vclock) if robject.vclock
         req = RpbGetReq.new(prune_unsupported_options(:GetReq, options))
-        write_protobuff(:GetReq, req)
-        decode_response(robject)
+
+        resp = protocol do |p|
+          p.write :GetReq, req
+          p.expect :GetResp, RpbGetResp, empty_body_acceptable: true
+        end
+
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
+        load_object(resp, robject)
       end
 
       def store_object(robject, options={})
@@ -71,8 +122,15 @@ module Riak
           end
         end
         req = dump_object(robject, prune_unsupported_options(:PutReq, options))
-        write_protobuff(:PutReq, req)
-        decode_response(robject)
+
+        resp = protocol do |p|
+          p.write(:PutReq, req)
+          p.expect :PutResp, RpbPutResp, empty_body_acceptable: true
+        end
+
+        return true if :empty == resp
+
+        load_object resp, robject
       end
 
       def delete_object(bucket, key, options={})
@@ -82,8 +140,13 @@ module Riak
         options[:key] = maybe_encode(key)
         options[:vclock] = Base64.decode64(options[:vclock]) if options[:vclock]
         req = RpbDelReq.new(prune_unsupported_options(:DelReq, options))
-        write_protobuff(:DelReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :DelReq, req
+          p.expect :DelResp
+        end
+        
+        return true
       end
 
       def get_counter(bucket, key, options={})
@@ -94,9 +157,17 @@ module Riak
         options[:key] = key
         
         request = RpbCounterGetReq.new options
-        write_protobuff :CounterGetReq, request
         
-        decode_response
+        resp = protocol do |p|
+          p.write :CounterGetReq, request
+          p.expect :CounterGetResp, RpbCounterGetResp, empty_body_acceptable: true
+        end
+        
+        if :empty == resp
+          return 0
+        end
+
+        return resp.value || 0
       end
 
       def post_counter(bucket, key, amount, options={})
@@ -105,54 +176,83 @@ module Riak
         options = normalize_quorums(options)
         options[:bucket] = bucket
         options[:key] = key
-        # TODO: raise if ammount doesn't fit in sint64
+        # TODO: raise if amount doesn't fit in sint64
         options[:amount] = amount
-
+        options[:returnvalue] = options[:returnvalue] || options[:return_value]
+        
         request = RpbCounterUpdateReq.new options
-        write_protobuff :CounterUpdateReq, request
 
-        decode_response
+        resp = protocol do |p|
+          p.write :CounterUpdateReq, request
+          p.expect :CounterUpdateResp, RpbCounterUpdateResp, empty_body_acceptable: true
+        end
+
+        return nil if :empty == resp
+        
+        return resp.value
       end
 
-      def get_bucket_props(bucket)
+      def get_bucket_props(bucket, options = {  })
         bucket = bucket.name if Bucket === bucket
+
         req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
-        write_protobuff(:GetBucketReq, req)
-        resp = normalize_quorums decode_response
+        req.type = options[:type] if options[:type]
+
+        resp_message = protocol do |p|
+          p.write :GetBucketReq, req
+          p.expect :GetBucketResp, RpbGetBucketResp
+        end
+
+        resp = normalize_quorums resp_message.props.to_hash.stringify_keys
         normalized = normalize_hooks resp
         normalized.stringify_keys
       end
 
-      def set_bucket_props(bucket, props)
+      def set_bucket_props(bucket, props, type=nil)
         bucket = bucket.name if Bucket === bucket
         req = RpbSetBucketReq.new(
                                   bucket: maybe_encode(bucket),
-                                  props: RpbBucketProps.new(props.symbolize_keys))
-        write_protobuff(:SetBucketReq, req)
-        decode_response
+                                  props: RpbBucketProps.new(props.symbolize_keys),
+                                  type: type)
+
+        protocol do |p|
+          p.write :SetBucketReq, req
+          p.expect :SetBucketResp
+        end
       end
 
       def reset_bucket_props(bucket)
         bucket = bucket.name if Bucket === bucket
         req = RpbResetBucketReq.new(:bucket => maybe_encode(bucket))
-        write_protobuff(:ResetBucketReq)
-        decode_response
+
+        protocol do |p|
+          p.write :ResetBucketReq, req
+          p.expect :ResetBucketResp
+        end
       end
 
       def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
         req = RpbListKeysReq.new(options.merge(:bucket => maybe_encode(bucket)))
-        write_protobuff(:ListKeysReq, req)
+
         keys = []
-        while msg = decode_response
-          break if msg.done
-          if block_given?
-            yield msg.keys
-          else
-            keys += msg.keys
+
+        protocol do |p|
+          p.write :ListKeysReq, req
+
+          while msg = p.expect(:ListKeysResp, RpbListKeysResp)
+            break if msg.done
+            if block_given?
+              yield msg.keys
+            else
+              keys += msg.keys
+            end
           end
         end
-        block_given? || keys
+
+        return keys unless block_given?
+
+        return true
       end
 
       # override the simple list_buckets
@@ -165,24 +265,35 @@ module Riak
         
         request = RpbListBucketsReq.new options
 
-        write_protobuff :ListBucketsReq, request
+        resp = protocol do |p|
+          p.write :ListBucketsReq, request
 
-        decode_response
+          p.expect :ListBucketsResp, RpbListBucketsResp, empty_body_acceptable: true
+        end
+
+        return [] if :empty == resp
+
+        resp.buckets
       end
 
       def mapred(mr, &block)
         raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
-        write_protobuff(:MapRedReq, req)
+        
         results = MapReduce::Results.new(mr)
-        while msg = decode_response
-          break if msg.done
-          if block_given?
-            yield msg.phase, JSON.parse(msg.response)
-          else
-            results.add msg.phase, JSON.parse(msg.response)
+        
+        protocol do |p|
+          p.write :MapRedReq, req
+          while msg = p.expect(:MapRedResp, RpbMapRedResp)
+            break if msg.done
+            if block_given?
+              yield msg.phase, JSON.parse(msg.response)
+            else
+              results.add msg.phase, JSON.parse(msg.response)
+            end
           end
         end
+        
         block_given? || results.report
       end
 
@@ -207,8 +318,11 @@ module Riak
         options[:stream] = block_given?
 
         req = RpbIndexReq.new(options)
-        write_protobuff(:IndexReq, req)
-        decode_index_response(&block)
+
+        protocol do |p|
+          p.write :IndexReq, req
+          decode_index_response(p, &block)
+        end
       end
 
       def search(index, query, options={})
@@ -216,21 +330,41 @@ module Riak
         options = options.symbolize_keys
         options[:op] = options.delete(:'q.op') if options[:'q.op']
         req = RpbSearchQueryReq.new(options.merge(:index => index || 'search', :q => query))
-        write_protobuff(:SearchQueryReq, req)
-        decode_response
+
+        resp = protocol do |p|
+          p.write :SearchQueryReq, req
+          p.expect :SearchQueryResp, RpbSearchQueryResp
+        end
+
+        resp.docs = [] if resp.docs.nil?
+
+        ret = { 'max_score' => resp.max_score, 'num_found' => resp.num_found }
+        ret['docs'] = resp.docs.map { |d| decode_doc d }
+
+        return ret
       end
 
       def create_search_index(name, schema=nil, n_val=nil)
         index = RpbYokozunaIndex.new(:name => name, :schema => schema, :n_val => n_val)
         req = RpbYokozunaIndexPutReq.new(:index => index)
-        write_protobuff(:YokozunaIndexPutReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :YokozunaIndexPutReq, req
+          p.expect :PutResp
+        end
       end
 
       def get_search_index(name)
         req = RpbYokozunaIndexGetReq.new(:name => name)
-        write_protobuff(:YokozunaIndexGetReq, req)
-        resp = decode_response
+        resp = protocol do |p|
+          p.write :YokozunaIndexGetReq, req
+          p.expect :YokozunaIndexGetResp, RpbYokozunaIndexGetResp, empty_body_acceptable: true
+        end
+        
+        if :empty == resp
+          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        end
+
         if resp.index && Array === resp
           resp.index.map{|index| {:name => index.name, :schema => index.schema, :n_val => index.n_val} }
         else
@@ -240,21 +374,32 @@ module Riak
 
       def delete_search_index(name)
         req = RpbYokozunaIndexDeleteReq.new(:name => name)
-        write_protobuff(:YokozunaIndexDeleteReq, req)
-        decode_response
+        protocol do |p|
+          p.write :YokozunaIndexDeleteReq, req
+          p.expect :DelResp
+        end
+        true
       end
 
       def create_search_schema(name, content)
         schema = RpbYokozunaSchema.new(:name => name, :content => content)
         req = RpbYokozunaSchemaPutReq.new(:schema => schema)
-        write_protobuff(:YokozunaSchemaPutReq, req)
-        decode_response
+
+        protocol do |p|
+          p.write :YokozunaSchemaPutReq, req
+          p.expect :PutResp
+        end
+        true
       end
 
       def get_search_schema(name)
         req = RpbYokozunaSchemaGetReq.new(:name => name)
-        write_protobuff(:YokozunaSchemaGetReq, req)
-        resp = decode_response
+
+        resp = protocol do |p|
+          p.write :YokozunaSchemaGetReq, req
+          p.expect :YokozunaSchemaGetResp, RpbYokozunaSchemaGetResp
+        end
+
         resp.schema ? resp.schema : resp
       end
 
@@ -267,23 +412,14 @@ module Riak
       private
       def decode_response(*args)
         header = socket.read(5)
-        raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
+        raise ProtobuffsFailedHeader.new if header.nil?
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp, 
-               :SetClientIdResp, 
-               :PutResp, 
-               :DelResp, 
-               :SetBucketResp, 
-               :ResetBucketResp
-            true
-          when :ListBucketsResp, 
-               :ListKeysResp, 
+          when :ListBucketsResp,  
                :IndexResp
             []
           when :GetResp,
-               :YokozunaIndexGetResp,
                :YokozunaSchemaGetResp
             raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
           when :CounterGetResp,
@@ -298,55 +434,6 @@ module Riak
           when :ErrorResp
             res = RpbErrorResp.decode(message)
             raise Riak::ProtobuffsFailedRequest.new(res.errcode, res.errmsg)
-          when :GetClientIdResp
-            res = RpbGetClientIdResp.decode(message)
-            res.client_id
-          when :GetServerInfoResp
-            res = RpbGetServerInfoResp.decode(message)
-            {:node => res.node, :server_version => res.server_version}
-          when :GetResp
-            res = RpbGetResp.decode(message)
-            load_object(res, args.first)
-          when :PutResp
-            res = RpbPutResp.decode(message)
-            load_object(res, args.first)
-          when :ListBucketsResp
-            res = RpbListBucketsResp.decode(message)
-            res.buckets
-          when :ListKeysResp
-            RpbListKeysResp.decode(message)
-          when :GetBucketResp
-            res = RpbGetBucketResp.decode(message)
-            res.props.to_hash.stringify_keys
-          when :MapRedResp
-            RpbMapRedResp.decode(message)
-          when :IndexResp
-            res = RpbIndexResp.decode(message)
-            IndexCollection.new_from_protobuf res
-          when :SearchQueryResp
-            res = RpbSearchQueryResp.decode(message)
-            if res.docs.nil?
-              res.docs = []
-            end
-            { 'docs' => res.docs.map {|d| decode_doc(d) },
-              'max_score' => res.max_score,
-              'num_found' => res.num_found }
-          when :CSBucketResp
-            res = RpbCSBucketResp.decode message
-          when :CounterUpdateResp
-            res = RpbCounterUpdateResp.decode message
-            res.value || nil
-          when :CounterGetResp
-            res = RpbCounterGetResp.decode message
-            res.value || 0
-          when :YokozunaIndexGetResp
-            res = RpbYokozunaIndexGetResp.decode message
-          when :YokozunaSchemaGetResp
-            res = RpbYokozunaSchemaGetResp.decode message
-          when :DtFetchResp
-            res = DtFetchResp.decode message
-          when :DtUpdateResp
-            res = DtUpdateResp.decode message
           end
         end
       rescue SystemCallError, SocketError => e
@@ -373,46 +460,33 @@ module Riak
         end
       end
 
-      def decode_index_response
+      def decode_index_response(p)
         loop do
-          header = socket.read(5)
-          raise SocketError, "Unexpected EOF on PBC socket" if header.nil?
-          msglen, msgcode = header.unpack("NC")
-          code = MESSAGE_CODES[msgcode]
-          if code == :ErrorResp
-            resp = RpbErrorResp.decode socket.read msglen - 1
-            message = resp.errmsg
-            if match = message.match(/indexes_not_supported,(\w+)/)
-              message = t('index.wrong_backend', backend: match[1])
-            end
-            raise ProtobuffsFailedRequest.new resp.errcode, message
-          elsif code != :IndexResp
-            teardown # close socket, we don't know what's going on anymore
-            inner = ProtobuffsFailedRequest.new code, t('pbc.wanted_index_resp')
-            raise Innertube::Pool::BadResource, inner
-          end
+          resp = p.expect :IndexResp, RpbIndexResp, empty_body_acceptable: true
 
-          if msglen == 1
+          if :empty == resp
             return if block_given?
             return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
           end
-
-          if msglen == 1
-            return if block_given?
-            return IndexCollection.new_from_protobuf(RpbIndexResp.decode(''))
-          end
-
-          message = RpbIndexResp.decode socket.read msglen - 1
 
           if !block_given?
-            return IndexCollection.new_from_protobuf(message)
+            return IndexCollection.new_from_protobuf(resp)
           end
           
-          content = message.keys || message.results || []
+          content = resp.keys || resp.results || []
           yield content
           
-          return if message.done
+          return if resp.done
         end
+      rescue ProtobuffsErrorResponse => err
+        if match = err.message.match(/indexes_not_supported,(\w+)/)
+          old_err = err
+          err = ProtobuffsFailedRequest.new(:indexes_not_supported, 
+                                            t('index.wrong_backend', backend: match[1])
+                                            )
+        end
+
+        raise err
       end
 
       def decode_doc(doc)

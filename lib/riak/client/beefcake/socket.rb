@@ -93,17 +93,17 @@ module Riak
             def validate_session
               if @auth[:verify_hostname] &&
                   !OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
-                raise TlsError.new t("ssl.cert_host_mismatch")
+                raise TlsError::CertHostMismatchError.new
               end
 
               unless riak_cert.valid?
-                raise TlsError.new t("ssl.cert_not_valid")
+                raise TlsError::CertNotValidError.new
               end
 
               validator = R509::Cert::Validator.new riak_cert
 
-              unless validator.validate validator_options
-                raise TlsError.new t("ssl.cert_revoked")
+              unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
+                raise TlsError::CertRevokedError.new
               end
             end
 

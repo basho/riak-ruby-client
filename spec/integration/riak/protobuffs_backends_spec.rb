@@ -21,7 +21,7 @@ describe "Protocol Buffers", test_client: true do
 
           it 'should return documents with UTF-8 fields (GH #75)' do
             utf8 = Encoding.find('UTF-8')
-            results = @backend.search @search_bucket.name, 'fearless elephant rushed'
+            results = @backend.search @search_bucket.name, 'fearless elephant rushed', df: 'text'
             results['docs'].each do |d|
               d.each {|(k,v)| k.encoding.should == utf8; v.encoding.should == utf8 }
             end

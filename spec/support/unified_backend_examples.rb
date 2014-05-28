@@ -4,6 +4,18 @@ shared_examples_for "Unified backend API" do
     @backend.ping.should be_true
   end
 
+  it "gets info about the server" do
+    expect{ @backend.server_info }.to_not raise_error
+
+    expect(@backend.server_info).to include(:node, :server_version)
+  end
+
+  it "gets client id" do
+    expect{ @backend.get_client_id }.to_not raise_error
+
+    expect(@backend.get_client_id).to be_a String
+  end
+
   # fetch_object
   context "fetching an object" do
     before do
@@ -128,7 +140,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      expect { @backend.fetch_object(@bucket.name, @robject.key) }.to_not raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object(@bucket.name, @robject.key) }.not_to raise_error(Riak::FailedRequest)
     end
   end
 
@@ -338,27 +350,28 @@ shared_examples_for "Unified backend API" do
     # pre-1.2 functionality.
     include_context "search corpus setup"
 
-    it 'should find indexed documents, returning ids' do
-      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => '_yz_rk'
+    sometimes 'should find indexed documents, returning ids' do
+      results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
+
       found = results['docs'].any? do |e|
-        e['_yz_rk'] == 'munchausen-605'
+        e['_yz_rk'] == 'bitcask-10'
       end
 
       expect(found).to be_true
     end
 
-    it 'should find indexed documents, returning documents' do
+    sometimes 'should find indexed documents, returning documents' do
       # For now use '*' until #122 is merged into riak_search
-      results = @backend.search @search_bucket.name, 'fearless elephant rushed', :fl => '*'
+      results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       results.should have_key 'docs'
       results.should have_key 'max_score'
       results.should have_key 'num_found'
 
       found = results['docs'].any? do |e|
-        e['_yz_rk'] == 'munchausen-605'
+        e['_yz_rk'] == 'bitcask-10'
       end
 
       expect(found).to be_true

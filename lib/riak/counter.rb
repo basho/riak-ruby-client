@@ -1,4 +1,4 @@
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 
 module Riak
 

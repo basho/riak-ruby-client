@@ -31,10 +31,10 @@ module Riak
             op: serialized
           }.merge options
           request = DtUpdateReq.new args
-          backend.write_protobuff :DtUpdateReq, request
-
-          response = decode
-          return response
+          return backend.protocol do |p|
+            p.write :DtUpdateReq, request
+            p.expect :DtUpdateResp, DtUpdateResp, empty_body_acceptable: true
+          end
         end
 
         # Serializes CRDT operations without writing them.
@@ -45,35 +45,6 @@ module Riak
         end
 
         private
-        # Read from Riak to make sure the write succeeded.
-        def decode
-          header = socket.read 5
-
-          if header.nil?
-            backend.teardown
-            raise SocketError, t('pbc.unexpected_eof')
-          end
-
-          msglen, msgcode = header.unpack 'NC'
-
-          if BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] == :ErrorResp
-            error = socket.read(msglen - 1)
-            resp = RpbErrorResp.decode error
-            raise ProtobuffsFailedRequest.new resp.errcode, resp.errmsg
-          elsif BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] != :DtUpdateResp
-            backend.teardown
-            raise SocketError, t('pbc.wanted_dt_update_resp')
-          end
-
-          message = socket.read(msglen - 1)
-
-          DtUpdateResp.decode message
-        end
-
-        def socket
-          backend.socket
-        end
-
         def serialize_wrap(operations)
           raise ArgumentError, t('crdt.serialize_no_ops') if operations.empty?
           ops = serialize_group operations

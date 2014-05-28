@@ -31,35 +31,16 @@ module Riak
                                      )
           request = DtFetchReq.new fetch_args
 
-          backend.write_protobuff :DtFetchReq, request
+          response = backend.protocol do |p|
+            p.write :DtFetchReq, request
+            p.expect :DtFetchResp, DtFetchResp
+          end
 
-          response = decode
           @context = response.context
           rubyfy response
         end
 
         private
-        # Read from the backend socket and decode the protobuffs response.
-        def decode
-          header = socket.read 5
-
-          if header.nil?
-            backend.teardown
-            raise SocketError, t('pbc.unexpected_eof')
-          end
-          
-          msglen, msgcode = header.unpack 'NC'
-
-          if BeefcakeProtobuffsBackend::MESSAGE_CODES[msgcode] != :DtFetchResp
-            backend.teardown
-            raise SocketError, t('pbc.wanted_dt_fetch_resp')
-          end
-
-          message = socket.read(msglen - 1)
-
-          DtFetchResp.decode message
-        end
-
         # Convert the protobuffs response into low-level Ruby objects.
         def rubyfy(response)
           return nil_rubyfy(response.type) if response.value.nil?
@@ -139,10 +120,6 @@ module Riak
               sets: {},
             }
           end
-        end
-
-        def socket
-          backend.socket
         end
       end
     end

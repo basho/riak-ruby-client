@@ -4,7 +4,7 @@ require 'innertube'
 require 'riak'
 require 'riak/util/translation'
 require 'riak/util/escape'
-require 'riak/failed_request'
+require 'riak/errors/failed_request'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
@@ -216,9 +216,9 @@ module Riak
     end
 
     # Bucket properties. See Bucket#props
-    def get_bucket_props(bucket)
+    def get_bucket_props(bucket, options={  })
       backend do |b|
-        b.get_bucket_props bucket
+        b.get_bucket_props bucket, options
       end
     end
 
@@ -359,9 +359,9 @@ module Riak
     end
 
     # Sets the properties on a bucket. See Bucket#props=
-    def set_bucket_props(bucket, properties)
+    def set_bucket_props(bucket, properties, type=nil)
       backend do |b|
-        b.set_bucket_props(bucket, properties)
+        b.set_bucket_props(bucket, properties, type)
       end
     end
 

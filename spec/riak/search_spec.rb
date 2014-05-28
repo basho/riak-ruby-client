@@ -5,8 +5,8 @@ describe "Search features" do
   describe Riak::Client do
     before :each do
       @client = Riak::Client.new
-      @pb = mock(Riak::Client::BeefcakeProtobuffsBackend)
-      @client.stub!(:backend).and_yield(@pb)
+      @pb = double(Riak::Client::BeefcakeProtobuffsBackend)
+      @client.stub(:backend).and_yield(@pb)
     end
 
     describe "searching" do

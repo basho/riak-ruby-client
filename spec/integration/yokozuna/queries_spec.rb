@@ -2,19 +2,24 @@
 require 'spec_helper'
 require 'riak'
 
-describe "Yokozona queries", test_client: true, integration: true do
+describe "Yokozuna queries", test_client: true, integration: true do
   before :all do
     @client = test_client
   end
 
   context "with a schema and indexes" do
     before :all do
-      @index = 'yz_spec-' + random_key
+      @bucket = random_bucket 'yz-spec'
+      @index = @bucket.name
 
       @client.create_search_index(@index).should == true
       wait_until{ !@client.get_search_index(@index).nil? }
-      @bucket = Riak::Bucket.new(@client, @index)
-      @bucket.props = {'search_index' => @index}
+      @client.set_bucket_props(@bucket, {:search_index => @index}, 'yokozuna')
+
+      wait_until do
+        props = @client.get_bucket_props(@bucket, type: 'yokozuna')
+        props['search_index'] == @index
+      end
 
       @o1 = build_json_obj(@bucket, "cat", {"cat_s"=>"Lela"})
       @o2 = build_json_obj(@bucket, "docs", {"dog_ss"=>["Einstein", "Olive"]})
@@ -23,7 +28,7 @@ describe "Yokozona queries", test_client: true, integration: true do
       build_json_obj(@bucket, "F", {"username_s"=>"F", "name_s"=>"bryan fink", "age_i"=>32})
       build_json_obj(@bucket, "H", {"username_s"=>"H", "name_s"=>"brett", "age_i"=>14})
 
-      sleep 1.1  # pause for index commit to trigger
+      wait_until { @client.search(@index, "username_s:Z")['docs'].length > 0 }
     end
 
     it "should produce results on single term queries" do
@@ -100,19 +105,12 @@ describe "Yokozona queries", test_client: true, integration: true do
     end
   end
 
-  def wait_until(attempts=5)
-    begin
-      break if yield rescue nil
-      sleep 1
-    end while (attempts -= 1) > 0
-  end
-
   # populate objects
   def build_json_obj(bucket, key, data)
     object = bucket.get_or_new(key)
     object.raw_data = data.to_json
     object.content_type = 'application/json'
-    object.store
+    object.store type: 'yokozuna'
     object
   end
 end

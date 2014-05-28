@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Riak::MapReduce do
   before :each do
     @client = Riak::Client.new
-    @backend = mock("Backend")
-    @client.stub!(:backend).and_yield(@backend)
+    @backend = double("Backend")
+    @client.stub(:backend).and_yield(@backend)
     @mr = Riak::MapReduce.new(@client)
   end
 
@@ -343,8 +343,9 @@ describe Riak::MapReduce do
     end
 
     it "should interpret failed requests with JSON content-types as map reduce errors" do
-      @backend.stub!(:mapred).and_raise(Riak::HTTPFailedRequest.new(:post, 200, 500, {"content-type" => ["application/json"]}, '{"error":"syntax error"}'))
-      lambda { @mr.run }.should raise_error(Riak::MapReduceError)
+      @backend.stub(:mapred).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, '{"error":"syntax error"}'))
+      expect{ @mr.run }.to raise_error(Riak::MapReduceError)
       begin
         @mr.run
       rescue Riak::MapReduceError => mre
@@ -355,7 +356,8 @@ describe Riak::MapReduce do
     end
 
     it "should re-raise non-JSON error responses" do
-      @backend.stub!(:mapred).and_raise(Riak::HTTPFailedRequest.new(:post, 200, 500, {"content-type" => ["text/plain"]}, 'Oops, you bwoke it.'))
+      @backend.stub(:mapred).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, 'Oops, you bwoke it.'))
       lambda { @mr.run }.should raise_error(Riak::FailedRequest)
     end
   end
