@@ -4,6 +4,12 @@ shared_examples_for "Unified backend API" do
     @backend.ping.should be_true
   end
 
+  it "gets info about the server" do
+    expect{ @backend.server_info }.to_not raise_error
+
+    expect(@backend.server_info).to include(:node, :server_version)
+  end
+
   # fetch_object
   context "fetching an object" do
     before do
