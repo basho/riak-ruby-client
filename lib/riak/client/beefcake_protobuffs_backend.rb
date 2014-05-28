@@ -32,6 +32,29 @@ module Riak
         BeefcakeSocket.new @node.host, @node.pb_port, authentication: client.authentication
       end
 
+      def ping
+        protocol do |p|
+          p.write :PingReq
+          p.expect :PingResp
+        end
+      end
+
+      def get_client_id
+        protocol do |p|
+          p.write :GetClientIdReq
+          p.expect(:GetClientIdResp, RpbGetClientIdResp).client_id
+        end
+      end
+
+      def server_info
+        resp = protocol do |p|
+          p.write :GetServerInfoReq
+          p.expect(:GetServerInfoResp, RpbGetServerInfoResp)
+        end
+
+        { node: resp.node, server_version: resp.server_version }
+      end
+
       def set_client_id(id)
         value = case id
                 when Integer
@@ -393,9 +416,6 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :PingResp,
-            :SetClientIdResp
-            true
           when :ListBucketsResp,  
                :IndexResp
             []
@@ -414,12 +434,6 @@ module Riak
           when :ErrorResp
             res = RpbErrorResp.decode(message)
             raise Riak::ProtobuffsFailedRequest.new(res.errcode, res.errmsg)
-          when :GetClientIdResp
-            res = RpbGetClientIdResp.decode(message)
-            res.client_id
-          when :GetServerInfoResp
-            res = RpbGetServerInfoResp.decode(message)
-            {:node => res.node, :server_version => res.server_version}
           end
         end
       rescue SystemCallError, SocketError => e

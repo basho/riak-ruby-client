@@ -29,10 +29,6 @@ module Riak
         @node = node
       end
 
-      simple :ping,          :PingReq
-      simple :get_client_id, :GetClientIdReq
-      simple :server_info,   :GetServerInfoReq
-
       # Performs a secondary-index query via emulation through MapReduce.
       # @param [String, Bucket] bucket the bucket to query
       # @param [String] index the index to query
