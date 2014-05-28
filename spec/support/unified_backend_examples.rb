@@ -10,6 +10,12 @@ shared_examples_for "Unified backend API" do
     expect(@backend.server_info).to include(:node, :server_version)
   end
 
+  it "gets client id" do
+    expect{ @backend.get_client_id }.to_not raise_error
+
+    expect(@backend.get_client_id).to be_a String
+  end
+
   # fetch_object
   context "fetching an object" do
     before do
