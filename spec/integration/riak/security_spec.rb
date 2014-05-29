@@ -71,4 +71,27 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
                        /revoked/i))
     end
   end
+
+  describe 'with client certificate security enabled on Riak', yes_security: true do
+    it 'connects normally with authentication configured' do
+      client_cert_config = config.dup
+      client_cert_config[:authentication] = 
+        client_cert_config[:authentication].dup
+
+      client_cert_config[:authentication][:client_ca] = 
+        OpenSSL::X509::Certificate.new File.read client_cert_config[:authentication]['ca_file']
+
+      client_cert_config[:authentication][:cert] =
+        OpenSSL::X509::Certificate.new File.read File.expand_path 'spec/support/certs/client.crt'
+      client_cert_config[:authentication][:key] =
+        OpenSSL::PKey::RSA.new File.read File.expand_path 'spec/support/certs/client.key'
+
+      client_cert_config[:authentication][:user] = 'certuser'
+      client_cert_config[:authentication][:password] = ''
+
+      cert_client = Riak::Client.new client_cert_config
+
+      expect{ cert_client.ping }.to_not raise_error
+    end
+  end
 end
