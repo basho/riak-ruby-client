@@ -1,0 +1,94 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 5866040 (0x598238)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=US, ST=Florida, L=Miami, O=Basho, OU=Riak Ruby Client, CN=CA/emailAddress=bryce@basho.com
+        Validity
+            Not Before: May 23 16:39:00 2014 GMT
+            Not After : May 20 16:39:00 2024 GMT
+        Subject: C=US, ST=Florida, O=Basho, OU=Riak Ruby client, CN=user/emailAddress=bryce@basho.com
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:cb:21:34:c3:63:92:35:0d:51:92:59:e8:eb:55:
+                    66:8d:f0:aa:53:21:db:94:b8:32:a0:fd:19:c6:94:
+                    96:53:3d:c0:a2:39:bf:f8:e6:06:26:5a:92:5b:e9:
+                    72:9a:60:e6:5a:9f:8f:2e:c6:ff:9e:7e:b4:a6:af:
+                    3d:f9:c4:c4:91:b5:9d:ff:1b:7f:11:e0:b5:7d:1c:
+                    81:92:61:8d:64:12:d6:1b:c2:3e:39:68:96:98:5d:
+                    97:58:07:39:6c:74:27:65:06:e6:37:f5:7c:de:7d:
+                    83:75:ab:24:9d:22:ae:7b:e4:9f:14:79:4f:ea:47:
+                    01:d3:f7:32:19:6a:79:a4:12:12:1f:c3:60:ac:16:
+                    2c:f4:78:6b:18:9a:3c:2d:80:15:a2:2f:66:c0:5e:
+                    89:8c:f8:96:28:e5:f1:3f:76:b3:68:6f:65:93:d1:
+                    c1:d3:1c:de:e8:62:13:69:54:8f:b6:fd:b7:43:e4:
+                    95:45:e7:ff:b5:03:94:7d:e4:a2:5f:40:92:15:5c:
+                    69:ac:67:b7:9d:a8:56:06:e5:9e:c1:41:af:55:c2:
+                    90:45:e7:e3:d5:25:19:1a:eb:1d:6e:8d:fa:43:71:
+                    7d:b9:6f:30:b5:b4:09:a5:7f:0c:1d:6c:56:9c:0e:
+                    6f:30:ad:50:7b:cc:47:7b:9f:bc:69:19:2a:18:e7:
+                    78:d3
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Cert Type: 
+                SSL Client, SSL Server
+            X509v3 Key Usage: 
+                Digital Signature, Non Repudiation, Key Encipherment
+            Netscape Comment: 
+                Riak Ruby Client Testing Certificate
+            X509v3 Subject Key Identifier: 
+                FF:CA:99:AC:BA:BE:F1:14:24:67:06:8D:0B:CE:78:25:37:F3:1F:1B
+            X509v3 Authority Key Identifier: 
+                DirName:/C=US/ST=Florida/L=Miami/O=Basho/OU=Riak Ruby Client/CN=CA/emailAddress=bryce@basho.com
+                serial:F7:8B:3F:BA:65:54:AC:05
+
+            X509v3 Extended Key Usage: 
+                TLS Web Server Authentication, TLS Web Client Authentication
+    Signature Algorithm: sha1WithRSAEncryption
+         35:f4:d3:8e:e3:db:68:25:45:4b:82:a8:53:d0:7d:06:e8:bc:
+         89:69:d4:95:a9:b1:3f:d7:13:8f:72:8f:12:63:fe:5e:68:84:
+         36:3e:90:3b:7f:77:8b:c3:5d:6c:1d:05:33:29:42:ea:fc:fd:
+         ff:9d:5c:35:92:41:16:01:ec:66:0c:42:b6:bb:16:d6:c5:87:
+         48:8d:01:f5:1b:c3:ff:23:75:2a:ee:c0:93:64:6e:0f:36:ed:
+         c4:79:f2:07:4e:6d:20:69:24:ce:6d:e1:57:d6:93:41:eb:17:
+         d2:9a:90:26:f3:f5:ea:ed:28:eb:15:e0:b8:db:6c:a2:ab:85:
+         a4:ee:4a:e0:fa:51:b1:40:6d:62:1e:e3:2d:98:96:c2:86:85:
+         c0:dc:f7:e6:5a:8f:67:ba:e6:e4:35:a1:40:ae:7e:81:11:99:
+         3f:62:3a:55:5e:9e:49:f6:bc:f4:5d:c2:b9:55:45:08:26:fd:
+         1e:1e:10:29:7c:6a:02:d9:ee:27:ff:a2:3a:5a:a8:41:32:3c:
+         0f:26:31:09:0f:0a:3a:9a:db:b6:4a:43:55:0f:d6:ea:a2:3b:
+         da:9d:95:df:0a:56:fa:59:19:1c:3d:ae:8c:5d:4c:fa:3d:6c:
+         9d:f0:c6:87:83:48:be:ff:38:86:21:a0:06:34:53:5a:ee:11:
+         7e:6a:a5:f0
+-----BEGIN CERTIFICATE-----
+MIIEyzCCA7OgAwIBAgIDWYI4MA0GCSqGSIb3DQEBBQUAMIGHMQswCQYDVQQGEwJV
+UzEQMA4GA1UECAwHRmxvcmlkYTEOMAwGA1UEBwwFTWlhbWkxDjAMBgNVBAoMBUJh
+c2hvMRkwFwYDVQQLDBBSaWFrIFJ1YnkgQ2xpZW50MQswCQYDVQQDDAJDQTEeMBwG
+CSqGSIb3DQEJARYPYnJ5Y2VAYmFzaG8uY29tMB4XDTE0MDUyMzE2MzkwMFoXDTI0
+MDUyMDE2MzkwMFoweTELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0Zsb3JpZGExDjAM
+BgNVBAoMBUJhc2hvMRkwFwYDVQQLDBBSaWFrIFJ1YnkgY2xpZW50MQ0wCwYDVQQD
+DAR1c2VyMR4wHAYJKoZIhvcNAQkBFg9icnljZUBiYXNoby5jb20wggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLITTDY5I1DVGSWejrVWaN8KpTIduUuDKg
+/RnGlJZTPcCiOb/45gYmWpJb6XKaYOZan48uxv+efrSmrz35xMSRtZ3/G38R4LV9
+HIGSYY1kEtYbwj45aJaYXZdYBzlsdCdlBuY39XzefYN1qySdIq575J8UeU/qRwHT
+9zIZanmkEhIfw2CsFiz0eGsYmjwtgBWiL2bAXomM+JYo5fE/drNob2WT0cHTHN7o
+YhNpVI+2/bdD5JVF5/+1A5R95KJfQJIVXGmsZ7edqFYG5Z7BQa9VwpBF5+PVJRka
+6x1ujfpDcX25bzC1tAmlfwwdbFacDm8wrVB7zEd7n7xpGSoY53jTAgMBAAGjggFL
+MIIBRzAJBgNVHRMEAjAAMBEGCWCGSAGG+EIBAQQEAwIGwDALBgNVHQ8EBAMCBeAw
+MwYJYIZIAYb4QgENBCYWJFJpYWsgUnVieSBDbGllbnQgVGVzdGluZyBDZXJ0aWZp
+Y2F0ZTAdBgNVHQ4EFgQU/8qZrLq+8RQkZwaNC854JTfzHxswgaYGA1UdIwSBnjCB
+m6GBjaSBijCBhzELMAkGA1UEBhMCVVMxEDAOBgNVBAgMB0Zsb3JpZGExDjAMBgNV
+BAcMBU1pYW1pMQ4wDAYDVQQKDAVCYXNobzEZMBcGA1UECwwQUmlhayBSdWJ5IENs
+aWVudDELMAkGA1UEAwwCQ0ExHjAcBgkqhkiG9w0BCQEWD2JyeWNlQGJhc2hvLmNv
+bYIJAPeLP7plVKwFMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggrBgEFBQcDAjANBgkq
+hkiG9w0BAQUFAAOCAQEANfTTjuPbaCVFS4KoU9B9Bui8iWnUlamxP9cTj3KPEmP+
+XmiENj6QO393i8NdbB0FMylC6vz9/51cNZJBFgHsZgxCtrsW1sWHSI0B9RvD/yN1
+Ku7Ak2RuDzbtxHnyB05tIGkkzm3hV9aTQesX0pqQJvP16u0o6xXguNtsoquFpO5K
+4PpRsUBtYh7jLZiWwoaFwNz35lqPZ7rm5DWhQK5+gRGZP2I6VV6eSfa89F3CuVVF
+CCb9Hh4QKXxqAtnuJ/+iOlqoQTI8DyYxCQ8KOprbtkpDVQ/W6qI72p2V3wpW+lkZ
+HD2ujF1M+j1snfDGh4NIvv84hiGgBjRTWu4Rfmql8A==
+-----END CERTIFICATE-----
