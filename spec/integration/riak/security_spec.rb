@@ -62,6 +62,7 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       revoked_auth_config[:authentication][:crl_file] =
         File.expand_path(File.join(__dir__, '..', '..', 'support', 'certs', 'server.crl'))
+      revoked_auth_config[:authentication][:crl] = true
 
       revoked_auth_client = Riak::Client.new revoked_auth_config
 
