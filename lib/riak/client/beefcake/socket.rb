@@ -102,7 +102,12 @@ module Riak
 
               validator = R509::Cert::Validator.new riak_cert
 
-              unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
+              validator_options = {}
+              validator_options[:ocsp] = !!@auth[:ocsp]
+              validator_options[:crl] = !!@auth[:crl]
+              validator_options[:crl_file] = @auth[:crl_file]
+
+              unless validator.validate(validator_options)
                 raise TlsError::CertRevokedError.new
               end
             end
