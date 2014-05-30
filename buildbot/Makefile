@@ -11,7 +11,6 @@ preconfigure:
 	echo "ssl.keyfile = ${CERTS_DIR}/server.key" >> ${RIAK_CONF}
 	echo "ssl.certfile = ${CERTS_DIR}/server.crt" >> ${RIAK_CONF}
 	echo "ssl.cacertfile = ${CERTS_DIR}/ca.crt" >> ${RIAK_CONF}
-	echo '[{riak_api,[{keyfile,"${CERTS_DIR}/server.key"},{certfile,"${CERTS_DIR}/server.crt"},{cacertfile,"${CERTS_DIR}/ca.crt"}]}].' > ${ADVANCED_CONF}
 
 configure:
 	@${RIAK_ADMIN} bucket-type create counters '{"props":{"datatype":"counter", "allow_mult":true}}'
