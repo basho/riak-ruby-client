@@ -44,10 +44,6 @@ class RpbSetBucketTypeReq
   include Beefcake::Message
 end
 
-class RpbResetBucketTypeReq
-  include Beefcake::Message
-end
-
 class RpbModFun
   include Beefcake::Message
 end
@@ -76,29 +72,24 @@ class RpbErrorResp
   required :errcode, :uint32, 2
 end
 
-
 class RpbGetServerInfoResp
   optional :node, :bytes, 1
   optional :server_version, :bytes, 2
 end
-
 
 class RpbPair
   required :key, :bytes, 1
   optional :value, :bytes, 2
 end
 
-
 class RpbGetBucketReq
   required :bucket, :bytes, 1
   optional :type, :bytes, 2
 end
 
-
 class RpbGetBucketResp
   required :props, RpbBucketProps, 1
 end
-
 
 class RpbSetBucketReq
   required :bucket, :bytes, 1
@@ -106,40 +97,29 @@ class RpbSetBucketReq
   optional :type, :bytes, 3
 end
 
-
 class RpbResetBucketReq
   required :bucket, :bytes, 1
   optional :type, :bytes, 2
 end
 
-
 class RpbGetBucketTypeReq
   required :type, :bytes, 1
 end
-
 
 class RpbSetBucketTypeReq
   required :type, :bytes, 1
   required :props, RpbBucketProps, 2
 end
 
-
-class RpbResetBucketTypeReq
-  required :type, :bytes, 1
-end
-
-
 class RpbModFun
   required :module, :bytes, 1
   required :function, :bytes, 2
 end
 
-
 class RpbCommitHook
   optional :modfun, RpbModFun, 1
   optional :name, :bytes, 2
 end
-
 
 class RpbBucketProps
   optional :n_val, :uint32, 1
@@ -167,14 +147,14 @@ class RpbBucketProps
   optional :search, :bool, 23
   optional :repl, RpbBucketProps::RpbReplMode, 24
   optional :search_index, :bytes, 25
+  optional :datatype, :bytes, 26
+  optional :consistent, :bool, 27
 end
-
 
 class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-
 ## Generated from riak_kv.proto for 
 require "beefcake"
 
@@ -284,11 +264,9 @@ class RpbGetClientIdResp
   required :client_id, :bytes, 1
 end
 
-
 class RpbSetClientIdReq
   required :client_id, :bytes, 1
 end
-
 
 class RpbGetReq
   required :bucket, :bytes, 1
@@ -306,13 +284,11 @@ class RpbGetReq
   optional :type, :bytes, 13
 end
 
-
 class RpbGetResp
   repeated :content, RpbContent, 1
   optional :vclock, :bytes, 2
   optional :unchanged, :bool, 3
 end
-
 
 class RpbPutReq
   required :bucket, :bytes, 1
@@ -333,13 +309,11 @@ class RpbPutReq
   optional :type, :bytes, 16
 end
 
-
 class RpbPutResp
   repeated :content, RpbContent, 1
   optional :vclock, :bytes, 2
   optional :key, :bytes, 3
 end
-
 
 class RpbDelReq
   required :bucket, :bytes, 1
@@ -357,19 +331,16 @@ class RpbDelReq
   optional :type, :bytes, 13
 end
 
-
 class RpbListBucketsReq
   optional :timeout, :uint32, 1
   optional :stream, :bool, 2
   optional :type, :bytes, 3
 end
 
-
 class RpbListBucketsResp
   repeated :buckets, :bytes, 1
   optional :done, :bool, 2
 end
-
 
 class RpbListKeysReq
   required :bucket, :bytes, 1
@@ -377,25 +348,21 @@ class RpbListKeysReq
   optional :type, :bytes, 3
 end
 
-
 class RpbListKeysResp
   repeated :keys, :bytes, 1
   optional :done, :bool, 2
 end
-
 
 class RpbMapRedReq
   required :request, :bytes, 1
   required :content_type, :bytes, 2
 end
 
-
 class RpbMapRedResp
   optional :phase, :uint32, 1
   optional :response, :bytes, 2
   optional :done, :bool, 3
 end
-
 
 class RpbIndexReq
   required :bucket, :bytes, 1
@@ -414,14 +381,12 @@ class RpbIndexReq
   optional :pagination_sort, :bool, 14
 end
 
-
 class RpbIndexResp
   repeated :keys, :bytes, 1
   repeated :results, RpbPair, 2
   optional :continuation, :bytes, 3
   optional :done, :bool, 4
 end
-
 
 class RpbCSBucketReq
   required :bucket, :bytes, 1
@@ -435,19 +400,16 @@ class RpbCSBucketReq
   optional :type, :bytes, 9
 end
 
-
 class RpbCSBucketResp
   repeated :objects, RpbIndexObject, 1
   optional :continuation, :bytes, 2
   optional :done, :bool, 3
 end
 
-
 class RpbIndexObject
   required :key, :bytes, 1
   required :object, RpbGetResp, 2
 end
-
 
 class RpbContent
   required :value, :bytes, 1
@@ -463,13 +425,11 @@ class RpbContent
   optional :deleted, :bool, 11
 end
 
-
 class RpbLink
   optional :bucket, :bytes, 1
   optional :key, :bytes, 2
   optional :tag, :bytes, 3
 end
-
 
 class RpbCounterUpdateReq
   required :bucket, :bytes, 1
@@ -481,11 +441,9 @@ class RpbCounterUpdateReq
   optional :returnvalue, :bool, 7
 end
 
-
 class RpbCounterUpdateResp
   optional :value, :sint64, 1
 end
-
 
 class RpbCounterGetReq
   required :bucket, :bytes, 1
@@ -496,11 +454,9 @@ class RpbCounterGetReq
   optional :notfound_ok, :bool, 6
 end
 
-
 class RpbCounterGetResp
   optional :value, :sint64, 1
 end
-
 ## Generated from riak_search.proto for 
 require "beefcake"
 
@@ -521,7 +477,6 @@ class RpbSearchDoc
   repeated :fields, RpbPair, 1
 end
 
-
 class RpbSearchQueryReq
   required :q, :bytes, 1
   required :index, :bytes, 2
@@ -535,13 +490,11 @@ class RpbSearchQueryReq
   optional :presort, :bytes, 10
 end
 
-
 class RpbSearchQueryResp
   repeated :docs, RpbSearchDoc, 1
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-
 ## Generated from riak_yokozuna.proto for 
 require "beefcake"
 
@@ -588,47 +541,38 @@ class RpbYokozunaIndex
   optional :n_val, :uint32, 3
 end
 
-
 class RpbYokozunaIndexGetReq
   optional :name, :bytes, 1
 end
-
 
 class RpbYokozunaIndexGetResp
   repeated :index, RpbYokozunaIndex, 1
 end
 
-
 class RpbYokozunaIndexPutReq
   required :index, RpbYokozunaIndex, 1
 end
 
-
 class RpbYokozunaIndexDeleteReq
   required :name, :bytes, 1
 end
-
 
 class RpbYokozunaSchema
   required :name, :bytes, 1
   optional :content, :bytes, 2
 end
 
-
 class RpbYokozunaSchemaPutReq
   required :schema, RpbYokozunaSchema, 1
 end
-
 
 class RpbYokozunaSchemaGetReq
   required :name, :bytes, 1
 end
 
-
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-
 ## Generated from riak_dt.proto for 
 require "beefcake"
 
@@ -705,7 +649,6 @@ class MapField
   required :type, MapField::MapFieldType, 2
 end
 
-
 class MapEntry
   required :field, MapField, 1
   optional :counter_value, :sint64, 2
@@ -714,7 +657,6 @@ class MapEntry
   optional :flag_value, :bool, 5
   repeated :map_value, MapEntry, 6
 end
-
 
 class DtFetchReq
   required :bucket, :bytes, 1
@@ -730,13 +672,11 @@ class DtFetchReq
   optional :include_context, :bool, 11, :default => true
 end
 
-
 class DtValue
   optional :counter_value, :sint64, 1
   repeated :set_value, :bytes, 2
   repeated :map_value, MapEntry, 3
 end
-
 
 class DtFetchResp
   optional :context, :bytes, 1
@@ -744,17 +684,14 @@ class DtFetchResp
   optional :value, DtValue, 3
 end
 
-
 class CounterOp
   optional :increment, :sint64, 1
 end
-
 
 class SetOp
   repeated :adds, :bytes, 1
   repeated :removes, :bytes, 2
 end
-
 
 class MapUpdate
   required :field, MapField, 1
@@ -765,20 +702,16 @@ class MapUpdate
   optional :map_op, MapOp, 6
 end
 
-
 class MapOp
-  repeated :adds, MapField, 1
-  repeated :removes, MapField, 2
-  repeated :updates, MapUpdate, 3
+  repeated :removes, MapField, 1
+  repeated :updates, MapUpdate, 2
 end
-
 
 class DtOp
   optional :counter_op, CounterOp, 1
   optional :set_op, SetOp, 2
   optional :map_op, MapOp, 3
 end
-
 
 class DtUpdateReq
   required :bucket, :bytes, 1
@@ -796,7 +729,6 @@ class DtUpdateReq
   optional :include_context, :bool, 13, :default => true
 end
 
-
 class DtUpdateResp
   optional :key, :bytes, 1
   optional :context, :bytes, 2
@@ -804,7 +736,6 @@ class DtUpdateResp
   repeated :set_value, :bytes, 4
   repeated :map_value, MapEntry, 5
 end
-
 
     end
   end
