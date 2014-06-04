@@ -44,6 +44,7 @@ test-security:
 	@echo 'authentication:' >> ../spec/support/test_client.yml
 	@echo '  user: user' >> ../spec/support/test_client.yml
 	@echo '  password: password' >> ../spec/support/test_client.yml
+	@echo "  ca_file: ${CERTS_DIR}/ca.crt" >> ../spec/support/test_client.yml
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
