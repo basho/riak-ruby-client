@@ -66,6 +66,7 @@ module Riak
       end
 
       def operate(*args)
+        options = Hash.new
         options = args.pop if args.last.is_a? Hash
         options[:context] ||= @context
         operator do |op|
