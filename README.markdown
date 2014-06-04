@@ -7,12 +7,14 @@ and map-reduce.
 
 ## Dependencies
 
+Ruby 1.9.3, 2.0, and 2.1 are supported. JRuby in 1.9 and 2.0 modes are
+also supported. `riak-client` is not compatible with Ruby 1.8.
+
 `riak-client` requires i18n, builder, beefcake, and multi_json. The
 cache store implementation requires ActiveSupport 3 or later.
 
 Development dependencies are handled with bundler. Install bundler
-(`gem install bundler`) and run this command in each sub-project to
-get started:
+(`gem install bundler`) and run this command to get started:
 
 ``` bash
 $ bundle install
@@ -32,8 +34,22 @@ require 'riak'
 # Create a client interface
 client = Riak::Client.new
 
-# Create a client that uses Protocol Buffers
-client = Riak::Client.new(:protocol => "pbc")
+# Create a client that uses secure Protocol Buffers
+client = Riak::Client.new(authentication: {
+      # certificate authority to validate the server cert
+      ca_file: '/home/zedo/ca.crt',
+
+      # username, required
+      user: 'zedo',
+      
+      # password for password-based authentication
+      password: 'catnip',
+
+      # client-cert authentication parameters
+      client_ca: OpenSSL::X509::Certificate.new(File.read '/home/zedo/ca.crt'),
+      cert: OpenSSL::X509::Certificate.new(File.read '/home/zedo/zedo.crt'),
+      key: OpenSSL::PKey::RSA.new(File.read '/home/zedo/zedo.key')
+    })
 
 # Automatically balance between multiple nodes
 client = Riak::Client.new(:nodes => [
