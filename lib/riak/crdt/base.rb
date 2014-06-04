@@ -66,11 +66,14 @@ module Riak
       end
 
       def operate(*args)
+        options = args.pop if args.last.is_a? Hash
+        options[:context] ||= @context
         operator do |op|
           response = op.operate(bucket.name,
                                 key,
                                 bucket_type,
-                                *args
+                                *args,
+                                options
                                 )
 
           break if :empty == response
