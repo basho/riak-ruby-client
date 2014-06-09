@@ -45,9 +45,11 @@ client = Riak::Client.new(authentication: {
       # password for password-based authentication
       password: 'catnip',
 
-      # client-cert authentication parameters
-      client_ca: OpenSSL::X509::Certificate.new(File.read '/home/zedo/ca.crt'),
-      cert: OpenSSL::X509::Certificate.new(File.read '/home/zedo/zedo.crt'),
+      # client-cert authentication parameters support filenames,
+      # OpenSSL-compatible string data, or properly initialized
+      # OpenSSL objects
+      client_ca: '/home/zedo/ca.crt',
+      cert: File.read '/home/zedo/zedo.crt',
       key: OpenSSL::PKey::RSA.new(File.read '/home/zedo/zedo.key')
     })
 
