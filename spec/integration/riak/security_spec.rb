@@ -78,13 +78,10 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
       client_cert_config[:authentication] = 
         client_cert_config[:authentication].dup
 
-      client_cert_config[:authentication][:client_ca] = 
-        OpenSSL::X509::Certificate.new File.read client_cert_config[:authentication]['ca_file']
+      client_cert_config[:authentication][:client_ca] = client_cert_config[:authentication]['ca_file']
 
-      client_cert_config[:authentication][:cert] =
-        OpenSSL::X509::Certificate.new File.read File.expand_path 'spec/support/certs/client.crt'
-      client_cert_config[:authentication][:key] =
-        OpenSSL::PKey::RSA.new File.read File.expand_path 'spec/support/certs/client.key'
+      client_cert_config[:authentication][:cert] = 'spec/support/certs/client.crt'
+      client_cert_config[:authentication][:key] = 'spec/support/certs/client.key'
 
       client_cert_config[:authentication][:user] = 'certuser'
       client_cert_config[:authentication][:password] = ''
