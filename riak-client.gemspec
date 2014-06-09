@@ -16,9 +16,6 @@ Gem::Specification.new do |gem|
 
   # Deps
   gem.add_development_dependency "rspec", "~>2.13.0"
-  gem.add_development_dependency "fakeweb", ">=1.2"
-  gem.add_development_dependency "rack", ">=1.0"
-  gem.add_development_dependency "excon", ">=0.6.1"
   gem.add_development_dependency 'rake', '~> 10.1.1'
   gem.add_development_dependency 'yard', '~> 0.8.7'
   gem.add_development_dependency 'redcarpet', '~> 3.0.0'
