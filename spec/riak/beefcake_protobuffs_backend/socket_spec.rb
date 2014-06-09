@@ -74,7 +74,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
         and_return(rcv_instance)
 
       rcv_instance.should_receive(:validate).
-        with(ocsp: false, crl: false).
+        with(ocsp: false, crl: false, crl_file: nil).
         and_return(true)
 
       # AuthResp
@@ -91,8 +91,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
     end
 
     it 'should pass pass TLS options through to OpenSSL' do
-      options[:authentication][:ca_file] = 'test ca file.crt'
-      options[:authentication][:key] = 'client.key'
+      options[:authentication][:ca_file] = 'spec/support/certs/ca.crt'
+      options[:authentication][:key] = 'spec/support/certs/client.key'
 
       TCPSocket.should_receive(:new).
         with(host, pb_port).
@@ -111,8 +111,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
       ssl::SSLSocket.should_receive(:new) do |sock, ctx|
         expect(sock).to eq tcp_socket_instance
         expect(ctx).to be_a OpenSSL::SSL::SSLContext
-        expect(ctx.key).to eq 'client.key'
-        expect(ctx.ca_file).to eq 'test ca file.crt'
+        expect(ctx.key).to be_a OpenSSL::PKey::PKey
+        expect(ctx.ca_file).to eq 'spec/support/certs/ca.crt'
         
         ssl_socket_instance
       end
@@ -132,7 +132,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
         and_return(rcv_instance)
 
       rcv_instance.should_receive(:validate).
-        with(ocsp: false, crl: false).
+        with(ocsp: false, crl: false, crl_file: nil).
         and_return(true)
 
       # AuthResp
