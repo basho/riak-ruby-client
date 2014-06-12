@@ -42,6 +42,8 @@ module Riak
           @context = l.context
         end
         @dirty = false
+
+        self
       end
       
       private
