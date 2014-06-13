@@ -72,6 +72,16 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.members).to eq(start)
     end
     
+    it 'lets Riak silently accept removals' do
+      addition = random_key
+      subject.add addition
+
+      other = Riak::Crdt::Set.new subject.bucket, subject.key
+      expect{ other.remove addition }.to_not raise_error
+      other.reload
+      expect{ other.remove 'an element not in the set' }.to_not raise_error
+    end
+
     it 'should allow batched set ops' do
       subject.add 'zero'
       subject.batch do |s|
