@@ -56,16 +56,6 @@ module Riak
           @postcommit ||= [] if newval
         end
       end
-
-      class RpbSearchDoc
-        # rebuild the fields instance method  since the
-        # generated :fields field overwrote this
-        def fields
-          self.class.fields
-        end
-        repeated :properties, RpbPair, 1
-      end
-
     end
   end
 end
