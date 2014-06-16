@@ -73,10 +73,68 @@ module Riak
               @context.ssl_version = @auth[:ssl_version] || :TLSv1_2_client
               @context.verify_mode = @auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER
 
+              cert_ify
+              key_ify
+
               # Defer to defaults
               %w{ cert key client_ca ca_file ca_path timeout }.each do |k|
                 @context.send(:"#{k}=", @auth[k.to_sym]) if @auth[k.to_sym]
               end
+            end
+
+            # Convert cert and client_ca fields to X509 Certs
+            def cert_ify
+              %w{ cert client_ca }.each do |k|
+                candidate = @auth[k.to_sym]
+                next if candidate.nil?
+                next if candidate.is_a? OpenSSL::X509::Certificate
+                
+                @auth[k.to_sym] = OpenSSL::X509::Certificate.new try_load candidate
+              end
+            end
+
+            def key_ify
+              candidate = @auth[:key]
+              return if candidate.nil?
+              return if candidate.is_a? OpenSSL::PKey::PKey
+
+              candidate = try_load candidate
+
+              pkey_class_names = OpenSSL::PKey.
+                constants.
+                reject{|s| s.to_s =~ /Error$/}
+
+              pkey_classes = pkey_class_names.map{ |n| OpenSSL::PKey.const_get n }
+
+              pkey_classes.each do |klass|
+                begin
+                  successfully_initialized = klass.new candidate
+                  @auth[:key] = successfully_initialized
+                  return
+                rescue
+                  next
+                end
+              end
+
+              # Don't try and guess what the key is
+              raise TlsError::UnknownKeyTypeError.new
+            end
+
+            # Figure out if the given string is the data itself or a path to the data
+            def try_load(data_or_path)
+              begin
+                data_or_path = File.read data_or_path
+              rescue Errno::ENOENT
+                # couldn't read the file, it might be a string containing
+                # a key
+              rescue Errno::ENAMETOOLONG
+                # the filename is too long, it's almost certainly a string 
+                # containing a key
+              rescue => e
+                raise TlsError::ReadDataError.new e, data_or_path
+              end
+
+              return data_or_path
             end
 
             # Attempt to exchange the TCP socket for a TLS socket.
@@ -102,7 +160,12 @@ module Riak
 
               validator = R509::Cert::Validator.new riak_cert
 
-              unless validator.validate(ocsp: !!@auth[:ocsp], crl: !!@auth[:crl])
+              validator_options = {}
+              validator_options[:ocsp] = !!@auth[:ocsp]
+              validator_options[:crl] = !!@auth[:crl]
+              validator_options[:crl_file] = @auth[:crl_file]
+
+              unless validator.validate(validator_options)
                 raise TlsError::CertRevokedError.new
               end
             end

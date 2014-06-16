@@ -16,16 +16,13 @@ Gem::Specification.new do |gem|
 
   # Deps
   gem.add_development_dependency "rspec", "~>2.13.0"
-  gem.add_development_dependency "fakeweb", ">=1.2"
-  gem.add_development_dependency "rack", ">=1.0"
-  gem.add_development_dependency "excon", ">=0.6.1"
   gem.add_development_dependency 'rake', '~> 10.1.1'
   gem.add_development_dependency 'yard', '~> 0.8.7'
   gem.add_development_dependency 'redcarpet', '~> 3.0.0'
   gem.add_development_dependency 'simplecov', '~> 0.8.2'
   
   gem.add_runtime_dependency "i18n", ">=0.4.0"
-  gem.add_runtime_dependency "beefcake", "~>0.5.0"
+  gem.add_runtime_dependency "beefcake", ">= 1.0.0.pre1"
   gem.add_runtime_dependency "multi_json", "~>1.0"
   gem.add_runtime_dependency "innertube", "~>1.0.2"
   gem.add_runtime_dependency 'r509-cert-validator', '~> 0.0.4'

@@ -22,6 +22,18 @@ module Riak
         super t('ssl.cert_revoked')
       end
     end
+
+    class ReadDataError < TlsError
+      def initialize(actual, candidate)
+        super t('ssl.read_data_error', actual: actual, candidate: candidate)
+      end
+    end
+
+    class UnknownKeyTypeError < TlsError
+      def initialize
+        super t('ssl.unknown_key_type')
+      end
+    end
   end
 
   class UserConfigurationError < ConnectionError

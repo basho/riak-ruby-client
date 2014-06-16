@@ -62,12 +62,33 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       revoked_auth_config[:authentication][:crl_file] =
         File.expand_path(File.join(__dir__, '..', '..', 'support', 'certs', 'server.crl'))
+      revoked_auth_config[:authentication][:crl] = true
 
       revoked_auth_client = Riak::Client.new revoked_auth_config
 
       expect{ revoked_auth_client.ping }.
         to(raise_error(Riak::TlsError,
                        /revoked/i))
+    end
+  end
+
+  describe 'with client certificate security enabled on Riak', yes_security: true do
+    it 'connects normally with authentication configured' do
+      client_cert_config = config.dup
+      client_cert_config[:authentication] = 
+        client_cert_config[:authentication].dup
+
+      client_cert_config[:authentication][:client_ca] = client_cert_config[:authentication]['ca_file']
+
+      client_cert_config[:authentication][:cert] = 'spec/support/certs/client.crt'
+      client_cert_config[:authentication][:key] = 'spec/support/certs/client.key'
+
+      client_cert_config[:authentication][:user] = 'certuser'
+      client_cert_config[:authentication][:password] = ''
+
+      cert_client = Riak::Client.new client_cert_config
+
+      expect{ cert_client.ping }.to_not raise_error
     end
   end
 end

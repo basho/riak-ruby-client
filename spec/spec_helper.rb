@@ -9,7 +9,6 @@ end
 require 'rubygems' # Use the gems path only for the spec suite
 require 'riak'
 require 'rspec'
-require 'fakeweb'
 require 'stringio'
 
 # Only the tests should really get away with this.
@@ -29,17 +28,8 @@ RSpec.configure do |config|
   #config.debug = true
   config.mock_with :rspec
 
-  config.before(:all, :integration => true) do
-    FakeWeb.allow_net_connect = true
-  end
-
-  config.after(:all, :integration => true) do
-    FakeWeb.allow_net_connect = false
-  end
-
   config.before(:each) do
     Riak::RObject.on_conflict_hooks.clear
-    FakeWeb.clean_registry
   end
 
   if TestClient.test_client_configuration[:authentication]

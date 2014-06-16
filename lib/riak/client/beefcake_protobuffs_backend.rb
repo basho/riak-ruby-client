@@ -490,7 +490,7 @@ module Riak
       end
 
       def decode_doc(doc)
-        Hash[doc.properties.map {|p| [ force_utf8(p.key), force_utf8(p.value) ] }]
+        Hash[doc.fields.map {|p| [ force_utf8(p.key), force_utf8(p.value) ] }]
       end
 
       def force_utf8(str)
