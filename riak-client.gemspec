@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'simplecov', '~> 0.8.2'
   
   gem.add_runtime_dependency "i18n", ">=0.4.0"
-  gem.add_runtime_dependency "beefcake", "~>0.5.0"
+  gem.add_runtime_dependency "beefcake", ">= 1.0.0.pre1"
   gem.add_runtime_dependency "multi_json", "~>1.0"
   gem.add_runtime_dependency "innertube", "~>1.0.2"
   gem.add_runtime_dependency 'r509-cert-validator', '~> 0.0.4'
