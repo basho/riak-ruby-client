@@ -7,14 +7,14 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
   let(:backend) { Riak::Client::BeefcakeProtobuffsBackend.new(client, node) }
   let(:protocol){ double 'protocol' }
   before(:each) do
-    backend.stub(:get_server_version => "2.0.0")
+    allow(backend).to receive(:get_server_version).and_return("2.0.0")
     allow(backend).to receive(:protocol).and_yield(protocol)
   end
 
   context "secondary index" do
     before :each do
       @socket = double(:socket).as_null_object
-      TCPSocket.stub(:new => @socket)
+      allow(TCPSocket).to receive(:new).and_return(@socket)
     end
 
     it 'should raise an appropriate error when 2i is not available' do
@@ -124,7 +124,10 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
   end
 
   context "preventing stale writes" do
-    before { backend.stub(:decode_response => nil, :get_server_version => "1.0.3") }
+    before do
+      allow(backend).to receive(:decode_response).and_return(nil)
+      allow(backend).to receive(:get_server_version).and_return("1.0.3")
+    end
 
     let(:robject) do
       Riak::RObject.new(client['stale'], 'prevent').tap do |obj|

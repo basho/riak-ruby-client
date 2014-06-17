@@ -76,7 +76,7 @@ describe Riak::SecondaryIndex do
              :max_results => @max_results
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -111,7 +111,7 @@ describe Riak::SecondaryIndex do
              continuation: 'examplecontinuation'
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -147,7 +147,7 @@ describe Riak::SecondaryIndex do
              :max_results => @max_results
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -203,7 +203,7 @@ describe Riak::SecondaryIndex do
              :return_terms => true
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
