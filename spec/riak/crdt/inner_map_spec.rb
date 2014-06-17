@@ -35,7 +35,7 @@ describe Riak::Crdt::InnerMap do
     it 'should wrap the operation in an update operation and pass it to the parent' do
       subject.name = 'name'
       
-      parent.should_receive(:operate) do |name, op|
+      expect(parent).to receive(:operate) do |name, op|
         expect(name).to eq 'name'
         expect(op.type).to eq :map
         expect(op.value).to eq inner_operation

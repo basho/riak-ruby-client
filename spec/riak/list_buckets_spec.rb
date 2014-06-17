@@ -3,11 +3,11 @@ require 'spec_helper'
 describe Riak::ListBuckets do
   before :each do
     @client = Riak::Client.new
-    @backend = mock 'backend'
-    @fake_pool = mock 'connection pool'
-    @fake_pool.stub(:take).and_yield(@backend)
+    @backend = double 'backend'
+    @fake_pool = double 'connection pool'
+    allow(@fake_pool).to receive(:take).and_yield(@backend)
 
-    @expect_list = @backend.should_receive(:list_buckets)
+    @expect_list = expect(@backend).to receive(:list_buckets)
 
     @client.instance_variable_set :@protobuffs_pool, @fake_pool
   end
@@ -33,9 +33,9 @@ describe Riak::ListBuckets do
       end
 
       @yielded.each do |b|
-        b.should be_a Riak::Bucket
+        expect(b).to be_a Riak::Bucket
       end
-      @yielded.map(&:name).should == %w{abc abd abe bbb ccc ddd}
+      expect(@yielded.map(&:name)).to eq(%w{abc abd abe bbb ccc ddd})
     end
   end
 end

@@ -4,9 +4,9 @@ require_relative 'shared_examples'
 describe Riak::Crdt::Map do
   let(:bucket) do
     double('bucket').tap do |b|
-      b.stub(:name).and_return('bucket')
-      b.stub(:is_a?).and_return(true)
-      b.stub(:client).and_return(client)
+      allow(b).to receive(:name).and_return('bucket')
+      allow(b).to receive(:is_a?).and_return(true)
+      allow(b).to receive(:client).and_return(client)
     end
   end
   let(:operator){ double 'operator' }
@@ -16,11 +16,11 @@ describe Riak::Crdt::Map do
   let(:key){ 'map' }
   
   before(:each) do
-    client.stub(:backend).and_yield(backend)
-    backend.stub(:crdt_operator).and_return(operator)
-    backend.stub(:crdt_loader).and_return(loader)
-    loader.stub(:load).and_return({})
-    loader.stub(:context).and_return('context')
+    allow(client).to receive(:backend).and_yield(backend)
+    allow(backend).to receive(:crdt_operator).and_return(operator)
+    allow(backend).to receive(:crdt_loader).and_return(loader)
+    allow(loader).to receive(:load).and_return({})
+    allow(loader).to receive(:context).and_return('context')
   end
   
   subject{ described_class.new bucket, key }
@@ -29,8 +29,8 @@ describe Riak::Crdt::Map do
 
   describe 'batch mode' do
     it 'should queue up operations' do
-      operator.
-        should_receive(:operate) do |bucket, key_arg, type, operations|
+      expect(operator).
+        to receive(:operate) do |bucket, key_arg, type, operations|
 
         expect(bucket).to eq bucket
         expect(key_arg).to eq key
@@ -52,8 +52,8 @@ describe Riak::Crdt::Map do
 
   describe 'immediate mode' do
     it 'should submit member operations immediately' do
-      operator.
-        should_receive(:operate) do |bucket, key_arg, type, operations|
+      expect(operator).
+        to receive(:operate) do |bucket, key_arg, type, operations|
 
         expect(bucket).to eq bucket
         expect(key_arg).to eq key

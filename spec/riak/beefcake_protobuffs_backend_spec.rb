@@ -1,14 +1,14 @@
 require 'spec_helper'
 
 describe Riak::Client::BeefcakeProtobuffsBackend do
-  before(:all) { described_class.should be_configured }
+  before(:all) { expect(described_class).to be_configured }
   let(:client) { Riak::Client.new }
   let(:node) { client.nodes.first }
   let(:backend) { Riak::Client::BeefcakeProtobuffsBackend.new(client, node) }
   let(:protocol){ double 'protocol' }
   before(:each) do
     backend.stub(:get_server_version => "2.0.0")
-    backend.stub(:protocol).and_yield(protocol)
+    allow(backend).to receive(:protocol).and_yield(protocol)
   end
 
   context "secondary index" do
@@ -18,8 +18,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     end
 
     it 'should raise an appropriate error when 2i is not available' do
-      protocol.should_receive(:write)
-      protocol.should_receive(:expect).
+      expect(protocol).to receive(:write)
+      expect(protocol).to receive(:expect).
         and_raise(
                   Riak::ProtobuffsErrorResponse.
                   new(Riak::Client::BeefcakeProtobuffsBackend::
@@ -35,11 +35,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     
     context 'when streaming' do
       it "should stream when a block is given" do 
-        protocol.should_receive(:write) do |msg, req|
-          msg.should == :IndexReq
-          req[:stream].should == true
+        expect(protocol).to receive(:write) do |msg, req|
+          expect(msg).to eq(:IndexReq)
+          expect(req[:stream]).to eq(true)
         end
-        protocol.should_receive(:expect).
+        expect(protocol).to receive(:expect).
           and_return(Riak::Client::BeefcakeProtobuffsBackend::RpbIndexResp.new keys: %w{'asdf'}, done: true)
 
         blk = proc{:asdf}
@@ -48,7 +48,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       end
 
       it "should send batches of results to the block" do
-        protocol.should_receive(:write)
+        expect(protocol).to receive(:write)
         
         response_sets = [%w{asdf asdg asdh}, %w{gggg gggh gggi}]
         response_messages = response_sets.map do |s| 
@@ -56,11 +56,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         end
         response_messages.last.done = true
 
-        protocol.should_receive(:expect).and_return(*response_messages)
+        expect(protocol).to receive(:expect).and_return(*response_messages)
 
         block_body = double 'block'
-        block_body.should_receive(:check).with(response_sets.first).once
-        block_body.should_receive(:check).with(response_sets.last).once
+        expect(block_body).to receive(:check).with(response_sets.first).once
+        expect(block_body).to receive(:check).with(response_sets.last).once
         
         blk = proc {|m| block_body.check m }
 
@@ -69,40 +69,40 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     end
 
     it "should return a full batch of results when not streaming" do
-      protocol.should_receive(:write) do |msg, req|
-        msg.should == :IndexReq
-        req[:stream].should_not be
+      expect(protocol).to receive(:write) do |msg, req|
+        expect(msg).to eq(:IndexReq)
+        expect(req[:stream]).not_to be
       end
 
       response_message = Riak::Client::BeefcakeProtobuffsBackend::
         RpbIndexResp.new(
                          keys: %w{asdf asdg asdh}
                          )
-      protocol.should_receive(:expect).
+      expect(protocol).to receive(:expect).
         and_return(response_message)
       
       results = backend.get_index 'bucket', 'words', 'asdf'..'hjkl'
-      results.should == %w{asdf asdg asdh}
+      expect(results).to eq(%w{asdf asdg asdh})
     end
 
     it "should not crash out when no keys or terms are returned" do
-      protocol.should_receive(:write) do |msg, req|
-        msg.should == :IndexReq
-        req[:stream].should_not be
+      expect(protocol).to receive(:write) do |msg, req|
+        expect(msg).to eq(:IndexReq)
+        expect(req[:stream]).not_to be
       end
 
       response_message = Riak::Client::BeefcakeProtobuffsBackend::
         RpbIndexResp.new()
 
-      protocol.should_receive(:expect).and_return(response_message)
+      expect(protocol).to receive(:expect).and_return(response_message)
 
       results = nil
       fetch = proc do
         results = backend.get_index 'bucket', 'words', 'asdf'
       end
 
-      fetch.should_not raise_error
-      results.should == []
+      expect(fetch).not_to raise_error
+      expect(results).to eq([])
     end
   end
 
@@ -110,16 +110,16 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}").map("function(){}") }
 
     it "should not return nil for previous phases that don't return anything" do
-      protocol.should_receive(:write)
+      expect(protocol).to receive(:write)
 
       message = double(:message, :phase => 1, :response => [{}].to_json)
-      message.stub(:done).and_return(false, true)
+      allow(message).to receive(:done).and_return(false, true)
 
-      protocol.should_receive(:expect).
+      expect(protocol).to receive(:expect).
         twice.
         and_return(message)
 
-      backend.mapred(mapred).should == [{}]
+      expect(backend.mapred(mapred)).to eq([{}])
     end
   end
 
@@ -135,11 +135,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     end
 
     it "should set the if_none_match field when the object is new" do
-      protocol.should_receive(:write) do |msg, req|
-        msg.should == :PutReq
-        req.if_none_match.should be_true
+      expect(protocol).to receive(:write) do |msg, req|
+        expect(msg).to eq(:PutReq)
+        expect(req.if_none_match).to be_truthy
       end
-      protocol.should_receive(:expect).
+      expect(protocol).to receive(:expect).
         and_return(:empty)
 
       backend.store_object(robject)
@@ -147,11 +147,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
 
     it "should set the if_not_modified field when the object has a vclock" do
       robject.vclock = Base64.encode64("foo")
-      protocol.should_receive(:write) do |msg, req|
-        msg.should == :PutReq
-        req.if_not_modified.should be_true
+      expect(protocol).to receive(:write) do |msg, req|
+        expect(msg).to eq(:PutReq)
+        expect(req.if_not_modified).to be_truthy
       end
-      protocol.should_receive(:expect).
+      expect(protocol).to receive(:expect).
         and_return(:empty)
       backend.store_object(robject)
     end

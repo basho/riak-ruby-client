@@ -6,22 +6,22 @@ describe "Search features" do
     before :each do
       @client = Riak::Client.new
       @pb = double(Riak::Client::BeefcakeProtobuffsBackend)
-      @client.stub(:backend).and_yield(@pb)
+      allow(@client).to receive(:backend).and_yield(@pb)
     end
 
     describe "searching" do
       it "should search the default index" do
-        @pb.should_receive(:search).with(nil, "foo", {}).and_return({})
+        expect(@pb).to receive(:search).with(nil, "foo", {}).and_return({})
         @client.search("foo")
       end
 
       it "should search the default index with additional options" do
-        @pb.should_receive(:search).with(nil, 'foo', 'rows' => 30).and_return({})
+        expect(@pb).to receive(:search).with(nil, 'foo', 'rows' => 30).and_return({})
         @client.search("foo", 'rows' => 30)
       end
 
       it "should search the specified index" do
-        @pb.should_receive(:search).with('search', 'foo', {}).and_return({})
+        expect(@pb).to receive(:search).with('search', 'foo', {}).and_return({})
         @client.search("search", "foo")
       end
     end
@@ -43,22 +43,22 @@ describe "Search features" do
 
     it "should detect whether the indexing hook is installed" do
       load_without_index_hook
-      @bucket.is_indexed?.should be_false
+      expect(@bucket.is_indexed?).to be_falsey
 
       load_with_index_hook
-      @bucket.is_indexed?.should be_true
+      expect(@bucket.is_indexed?).to be_truthy
     end
 
     describe "enabling indexing" do
       it "should add the index hook when not present" do
         load_without_index_hook
-        @bucket.should_receive(:props=).with({"precommit" => [Riak::Bucket::SEARCH_PRECOMMIT_HOOK], "search" => true})
+        expect(@bucket).to receive(:props=).with({"precommit" => [Riak::Bucket::SEARCH_PRECOMMIT_HOOK], "search" => true})
         @bucket.enable_index!
       end
 
       it "should not modify the precommit when the hook is present" do
         load_with_index_hook
-        @bucket.should_not_receive(:props=)
+        expect(@bucket).not_to receive(:props=)
         @bucket.enable_index!
       end
     end
@@ -66,13 +66,13 @@ describe "Search features" do
     describe "disabling indexing" do
       it "should remove the index hook when present" do
         load_with_index_hook
-        @bucket.should_receive(:props=).with({"precommit" => [], "search" => false})
+        expect(@bucket).to receive(:props=).with({"precommit" => [], "search" => false})
         @bucket.disable_index!
       end
 
       it "should not modify the precommit when the hook is missing" do
         load_without_index_hook
-        @bucket.should_not_receive(:props=)
+        expect(@bucket).not_to receive(:props=)
         @bucket.disable_index!
       end
     end
@@ -87,20 +87,20 @@ describe "Search features" do
     describe "using a search query as inputs" do
       it "should accept a bucket name and query" do
         @mr.search("foo", "bar OR baz")
-        @mr.inputs.should == {:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]}
+        expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
       it "should accept a Riak::Bucket and query" do
         @mr.search(Riak::Bucket.new(@client, "foo"), "bar OR baz")
-        @mr.inputs.should == {:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]}
+        expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
       it "should emit the Erlang function and arguments" do
         @mr.search("foo", "bar OR baz")
-        @mr.to_json.should include('"inputs":{')
-        @mr.to_json.should include('"module":"riak_search"')
-        @mr.to_json.should include('"function":"mapred_search"')
-        @mr.to_json.should include('"arg":["foo","bar OR baz"]')
+        expect(@mr.to_json).to include('"inputs":{')
+        expect(@mr.to_json).to include('"module":"riak_search"')
+        expect(@mr.to_json).to include('"function":"mapred_search"')
+        expect(@mr.to_json).to include('"arg":["foo","bar OR baz"]')
       end
     end
   end

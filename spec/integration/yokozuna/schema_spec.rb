@@ -13,7 +13,7 @@ describe "Yokozuna", test_client: true, integration: true do
     it 'should allow schema creation' do
       @client.create_search_schema(@schema, SCHEMA_CONTENT)
       wait_until{ !@client.get_search_schema(@schema).nil? }
-      @client.get_search_schema(@schema).should_not be_nil
+      expect(@client.get_search_schema(@schema)).not_to be_nil
     end
   end
   context 'with a schema' do
@@ -21,8 +21,8 @@ describe "Yokozuna", test_client: true, integration: true do
       @client.create_search_schema(@schema, SCHEMA_CONTENT)
       wait_until{ !@client.get_search_schema(@schema).nil? }
       schema_resp = @client.get_search_schema(@schema)
-      schema_resp.name.should == @schema
-      schema_resp.content.should == SCHEMA_CONTENT
+      expect(schema_resp.name).to eq(@schema)
+      expect(schema_resp.content).to eq(SCHEMA_CONTENT)
     end
   end
 

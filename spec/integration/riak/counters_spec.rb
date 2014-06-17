@@ -15,22 +15,22 @@ describe Riak::Counter, test_client: true, integration: true do
     @counter.increment
     @counter.increment
 
-    @counter.value.should == (initial + 2)
+    expect(@counter.value).to eq(initial + 2)
 
     @counter.decrement 2
 
-    @counter.value.should == initial
+    expect(@counter.value).to eq(initial)
 
     5.times do
       amt = rand(10_000)
       
       @counter.increment amt
-      @counter.value.should == (initial + amt)
+      expect(@counter.value).to eq(initial + amt)
 
       @counter.decrement (amt * 2)
-      @counter.value.should == (initial - amt)
+      expect(@counter.value).to eq(initial - amt)
 
-      @counter.increment_and_return(amt).should == initial
+      expect(@counter.increment_and_return(amt)).to eq(initial)
     end
   end
 end

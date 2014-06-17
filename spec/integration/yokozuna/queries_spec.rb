@@ -12,7 +12,7 @@ describe "Yokozuna queries", test_client: true, integration: true do
       @bucket = random_bucket 'yz-spec'
       @index = @bucket.name
 
-      @client.create_search_index(@index).should == true
+      expect(@client.create_search_index(@index)).to eq(true)
       wait_until{ !@client.get_search_index(@index).nil? }
       @client.set_bucket_props(@bucket, {:search_index => @index}, 'yokozuna')
 
@@ -33,44 +33,44 @@ describe "Yokozuna queries", test_client: true, integration: true do
 
     it "should produce results on single term queries" do
       resp = @client.search(@index, "username_s:Z")
-      resp.should include('docs')
-      resp['docs'].size.should == 1
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(1)
     end
 
     it "should produce results on multiple term queries" do
       resp = @client.search(@index, "username_s:(F OR H)")
-      resp.should include('docs')
-      resp['docs'].size.should == 2
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(2)
     end
 
     it "should produce results on queries with boolean logic" do
       resp = @client.search(@index, "username_s:Z AND name_s:ryan")
-      resp.should include('docs')
-      resp['docs'].size.should == 1
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(1)
     end
 
     it "should produce results on range queries" do
       resp = @client.search(@index, "age_i:[30 TO 33]")
-      resp.should include('docs')
-      resp['docs'].size.should == 2
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(2)
     end
 
     it "should produce results on phrase queries" do
       resp = @client.search(@index, 'name_s:"bryan fink"')
-      resp.should include('docs')
-      resp['docs'].size.should == 1
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(1)
     end
 
     it "should produce results on wildcard queries" do
       resp = @client.search(@index, "name_s:*ryan*")
-      resp.should include('docs')
-      resp['docs'].size.should == 2
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(2)
     end
 
     it "should produce results on regexp queries" do
       resp = @client.search(@index, "name_s:/br.*/")
-      resp.should include('docs')
-      resp['docs'].size.should == 2
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq(2)
     end
 
     # TODO: run this when pb utf8 works
@@ -85,21 +85,21 @@ describe "Yokozuna queries", test_client: true, integration: true do
     context "using parameters" do
       it "should search one row" do
         resp = @client.search(@index, "*:*", {:rows => 1})
-        resp.should include('docs')
-        resp['docs'].size.should == 1
+        expect(resp).to include('docs')
+        expect(resp['docs'].size).to eq(1)
       end
 
       it "should search with df" do
         resp = @client.search(@index, "Olive", {:rows => 1, :df => 'dog_ss'})
-        resp.should include('docs')
-        resp['docs'].size.should == 1
+        expect(resp).to include('docs')
+        expect(resp['docs'].size).to eq(1)
         resp['docs'].first['dog_ss']
       end
 
       it "should produce top result on sort" do
         resp = @client.search(@index, "username_s:*", {:sort => "age_i asc"})
-        resp.should include('docs')
-        resp['docs'].first['age_i'].to_i.should == 14
+        expect(resp).to include('docs')
+        expect(resp['docs'].first['age_i'].to_i).to eq(14)
       end
 
     end

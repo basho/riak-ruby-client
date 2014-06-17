@@ -4,16 +4,16 @@ describe Riak::Serializers do
   shared_examples_for "a serializer" do |type, deserialized, serialized|
     context "for #{type}" do
       it "serializes #{deserialized} to #{serialized}" do
-        described_class.serialize(type, deserialized).should == serialized
+        expect(described_class.serialize(type, deserialized)).to eq(serialized)
       end
 
       it "deserializes #{serialized} to #{deserialized}" do
-        described_class.deserialize(type, serialized).should == deserialized
+        expect(described_class.deserialize(type, serialized)).to eq(deserialized)
       end
 
       it "round trips properly" do
         str = described_class.serialize(type, deserialized)
-        described_class.deserialize(type, str).should == deserialized
+        expect(described_class.deserialize(type, str)).to eq(deserialized)
       end
     end
   end
@@ -38,7 +38,7 @@ describe Riak::Serializers do
 
   describe "plain text serializer" do
     it 'calls #to_s to convert the object to a string' do
-      described_class.serialize("text/plain", :a_string).should == "a_string"
+      expect(described_class.serialize("text/plain", :a_string)).to eq("a_string")
     end
   end
 
@@ -80,7 +80,7 @@ describe Riak::Serializers do
 
     it 'can be registered' do
       described_class['application/custom-type-1'] = custom_serializer
-      described_class['application/custom-type-1'].should be(custom_serializer)
+      expect(described_class['application/custom-type-1']).to be(custom_serializer)
       # fail
     end
 

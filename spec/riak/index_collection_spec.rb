@@ -6,17 +6,17 @@ describe Riak::IndexCollection do
       @input = {
         'keys' => %w{first second third}
       }.to_json
-      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
-      %w{first second third}.should == @coll
+      expect { @coll = Riak::IndexCollection.new_from_json @input }.not_to raise_error
+      expect(%w{first second third}).to eq(@coll)
     end
     it "should accept a list of keys and a continuation" do
       @input = {
         'keys' => %w{first second third},
         'continuation' => 'examplecontinuation'
       }.to_json
-      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
-      %w{first second third}.should == @coll
-      @coll.continuation.should == 'examplecontinuation'
+      expect { @coll = Riak::IndexCollection.new_from_json @input }.not_to raise_error
+      expect(%w{first second third}).to eq(@coll)
+      expect(@coll.continuation).to eq('examplecontinuation')
     end
     it "should accept a list of results hashes" do
       @input = {
@@ -27,9 +27,9 @@ describe Riak::IndexCollection do
         ]
       }.to_json
 
-      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
-      %w{first second other}.should == @coll
-      {'first' => %w{first}, 'second' => %w{second other}}.should == @coll.with_terms
+      expect { @coll = Riak::IndexCollection.new_from_json @input }.not_to raise_error
+      expect(%w{first second other}).to eq(@coll)
+      expect({'first' => %w{first}, 'second' => %w{second other}}).to eq(@coll.with_terms)
     end
     it "should accept a list of results hashes and a continuation" do
       @input = {
@@ -41,10 +41,10 @@ describe Riak::IndexCollection do
         'continuation' => 'examplecontinuation'
       }.to_json
 
-      lambda { @coll = Riak::IndexCollection.new_from_json @input }.should_not raise_error
-      %w{first second other}.should == @coll
-      @coll.continuation.should == 'examplecontinuation'
-      {'first' => %w{first}, 'second' => %w{second other}}.should == @coll.with_terms
+      expect { @coll = Riak::IndexCollection.new_from_json @input }.not_to raise_error
+      expect(%w{first second other}).to eq(@coll)
+      expect(@coll.continuation).to eq('examplecontinuation')
+      expect({'first' => %w{first}, 'second' => %w{second other}}).to eq(@coll.with_terms)
     end
   end
 end

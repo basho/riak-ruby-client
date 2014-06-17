@@ -13,7 +13,7 @@ describe Riak::Crdt::InnerCounter do
   include_examples 'Counter CRDT'
 
   it 'should send increments to the parent' do
-    parent.should_receive(:increment).
+    expect(parent).to receive(:increment).
       with(counter_name, 1)
 
     subject.increment

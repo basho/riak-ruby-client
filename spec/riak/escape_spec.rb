@@ -8,7 +8,7 @@ describe Riak::Util::Escape do
   end
 
   it "should use URI by default for escaping" do
-    Riak.escaper.should == URI
+    expect(Riak.escaper).to eq(URI)
   end
 
   context "when using CGI for escaping" do
@@ -16,24 +16,24 @@ describe Riak::Util::Escape do
     after { Riak.escaper = @oldesc }
 
     it "should escape standard non-safe characters" do
-      @object.escape("some string").should == "some%20string"
-      @object.escape("another^one").should == "another%5Eone"
-      @object.escape("bracket[one").should == "bracket%5Bone"
+      expect(@object.escape("some string")).to eq("some%20string")
+      expect(@object.escape("another^one")).to eq("another%5Eone")
+      expect(@object.escape("bracket[one")).to eq("bracket%5Bone")
     end
 
     it "should escape slashes" do
-      @object.escape("some/inner/path").should == "some%2Finner%2Fpath"
+      expect(@object.escape("some/inner/path")).to eq("some%2Finner%2Fpath")
     end
 
     it "should convert the bucket or key to a string before escaping" do
-      @object.escape(125).should == '125'
+      expect(@object.escape(125)).to eq('125')
     end
 
     it "should unescape escaped strings" do
-      @object.unescape("some%20string").should == "some string"
-      @object.unescape("another%5Eone").should == "another^one"
-      @object.unescape("bracket%5Bone").should == "bracket[one"
-      @object.unescape("some%2Finner%2Fpath").should == "some/inner/path"
+      expect(@object.unescape("some%20string")).to eq("some string")
+      expect(@object.unescape("another%5Eone")).to eq("another^one")
+      expect(@object.unescape("bracket%5Bone")).to eq("bracket[one")
+      expect(@object.unescape("some%2Finner%2Fpath")).to eq("some/inner/path")
     end
   end
 
@@ -42,31 +42,31 @@ describe Riak::Util::Escape do
     after { Riak.escaper = @oldesc }
 
     it "should escape standard non-safe characters" do
-      @object.escape("some string").should == "some%20string"
-      @object.escape("another^one").should == "another%5Eone"
-      @object.escape("--one+two--").should == "--one%2Btwo--"
+      expect(@object.escape("some string")).to eq("some%20string")
+      expect(@object.escape("another^one")).to eq("another%5Eone")
+      expect(@object.escape("--one+two--")).to eq("--one%2Btwo--")
     end
 
     it "should allow URI-safe characters" do
-      @object.escape("bracket[one").should == "bracket[one"
-      @object.escape("sean@basho").should == "sean@basho"
+      expect(@object.escape("bracket[one")).to eq("bracket[one")
+      expect(@object.escape("sean@basho")).to eq("sean@basho")
     end
 
     it "should escape slashes" do
-      @object.escape("some/inner/path").should == "some%2Finner%2Fpath"
+      expect(@object.escape("some/inner/path")).to eq("some%2Finner%2Fpath")
     end
 
     it "should convert the bucket or key to a string before escaping" do
-      @object.escape(125).should == '125'
+      expect(@object.escape(125)).to eq('125')
     end
 
     it "should unescape escaped strings" do
-      @object.unescape("some%20string").should == "some string"
-      @object.unescape("another%5Eone").should == "another^one"
-      @object.unescape("bracket%5Bone").should == "bracket[one"
-      @object.unescape("some%2Finner%2Fpath").should == "some/inner/path"
-      @object.unescape("--one%2Btwo--").should == "--one+two--"
-      @object.unescape("me%40basho.co").should == "me@basho.co"
+      expect(@object.unescape("some%20string")).to eq("some string")
+      expect(@object.unescape("another%5Eone")).to eq("another^one")
+      expect(@object.unescape("bracket%5Bone")).to eq("bracket[one")
+      expect(@object.unescape("some%2Finner%2Fpath")).to eq("some/inner/path")
+      expect(@object.unescape("--one%2Btwo--")).to eq("--one+two--")
+      expect(@object.unescape("me%40basho.co")).to eq("me@basho.co")
     end
   end
 end

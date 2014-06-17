@@ -4,34 +4,34 @@ describe Riak::Client, test_client: true do
   describe "when initializing" do
     it "should default a single local node" do
       client = Riak::Client.new
-      client.nodes.should == [Riak::Client::Node.new(client)]
+      expect(client.nodes).to eq([Riak::Client::Node.new(client)])
     end
 
     it "should accept a host" do
       client = Riak::Client.new :host => "riak.basho.com"
-      client.nodes.size.should == 1
-      client.nodes.first.host.should == "riak.basho.com"
+      expect(client.nodes.size).to eq(1)
+      expect(client.nodes.first.host).to eq("riak.basho.com")
     end
 
     it "should accept a Protobuffs port" do
       client = Riak::Client.new :pb_port => 9000
-      client.nodes.size.should == 1
-      client.nodes.first.pb_port.should == 9000
+      expect(client.nodes.size).to eq(1)
+      expect(client.nodes.first.pb_port).to eq(9000)
     end
 
     it "should accept a client ID" do
       client = Riak::Client.new :client_id => "AAAAAA=="
-      client.client_id.should == "AAAAAA=="
+      expect(client.client_id).to eq("AAAAAA==")
     end
 
     it "should create a client ID if not specified" do
-      Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id.should_not be_nil
+      expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id).not_to be_nil
     end
   end
 
   it "should expose a Stamp object" do
-    subject.should respond_to(:stamp)
-    subject.stamp.should be_kind_of(Riak::Stamp)
+    expect(subject).to respond_to(:stamp)
+    expect(subject.stamp).to be_kind_of(Riak::Stamp)
   end
 
   describe "reconfiguring" do
@@ -42,15 +42,15 @@ describe Riak::Client, test_client: true do
     describe "setting the client id" do
       it "should accept a string unmodified" do
         @client.client_id = "foo"
-        @client.client_id.should == "foo"
+        expect(@client.client_id).to eq("foo")
       end
 
       it "should reject an integer equal to the maximum client id" do
-        lambda { @client.client_id = Riak::Client::MAX_CLIENT_ID }.should raise_error(ArgumentError)
+        expect { @client.client_id = Riak::Client::MAX_CLIENT_ID }.to raise_error(ArgumentError)
       end
 
       it "should reject an integer larger than the maximum client id" do
-        lambda { @client.client_id = Riak::Client::MAX_CLIENT_ID + 1 }.should raise_error(ArgumentError)
+        expect { @client.client_id = Riak::Client::MAX_CLIENT_ID + 1 }.to raise_error(ArgumentError)
       end
     end
   end
@@ -63,18 +63,18 @@ describe Riak::Client, test_client: true do
     it "should choose the selected backend" do
       @client.protobuffs_backend = :Beefcake
       @client.protobuffs do |p|
-        p.should be_instance_of(Riak::Client::BeefcakeProtobuffsBackend)
+        expect(p).to be_instance_of(Riak::Client::BeefcakeProtobuffsBackend)
       end
     end
 
     it "should teardown the existing Protobuffs connections when changed" do
-      @client.protobuffs_pool.should_receive(:clear)
+      expect(@client.protobuffs_pool).to receive(:clear)
       @client.protobuffs_backend = :Beefcake
     end
 
     it "should raise an error when the chosen backend is not valid" do
-      Riak::Client::BeefcakeProtobuffsBackend.should_receive(:configured?).and_return(false)
-      lambda { @client.protobuffs { |x| } }.should raise_error
+      expect(Riak::Client::BeefcakeProtobuffsBackend).to receive(:configured?).and_return(false)
+      expect { @client.protobuffs { |x| } }.to raise_error
     end
   end
 
@@ -85,7 +85,7 @@ describe Riak::Client, test_client: true do
 
     it "should use Protobuffs when the protocol is pbc" do
       @client.backend do |b|
-        b.should be_kind_of(Riak::Client::ProtobuffsBackend)
+        expect(b).to be_kind_of(Riak::Client::ProtobuffsBackend)
       end
     end
   end
@@ -94,8 +94,8 @@ describe Riak::Client, test_client: true do
     before :each do
       @client = Riak::Client.new
       @bucket = @client.bucket('foo')
-      @bucket.should_receive(:[]).with('value1').and_return(double('robject'))
-      @bucket.should_receive(:[]).with('value2').and_return(double('robject'))
+      expect(@bucket).to receive(:[]).with('value1').and_return(double('robject'))
+      expect(@bucket).to receive(:[]).with('value2').and_return(double('robject'))
       @pairs = [
         [@bucket, 'value1'],
         [@bucket, 'value2']
@@ -103,13 +103,13 @@ describe Riak::Client, test_client: true do
     end
 
     it 'should accept an array of bucket and key pairs' do
-      lambda{ @client.get_many(@pairs) }.should_not raise_error
+      expect{ @client.get_many(@pairs) }.not_to raise_error
     end
 
     it 'should return a hash of bucket/key pairs and robjects' do
       @results = @client.get_many(@pairs)
-      @results.should be_a Hash
-      @results.length.should be(@pairs.length)
+      expect(@results).to be_a Hash
+      expect(@results.length).to be(@pairs.length)
     end
   end
 
@@ -117,23 +117,23 @@ describe Riak::Client, test_client: true do
     before :each do
       @client = Riak::Client.new
       @backend = double("Backend")
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
     end
 
     it "should return a bucket object" do
-      @client.bucket("foo").should be_kind_of(Riak::Bucket)
+      expect(@client.bucket("foo")).to be_kind_of(Riak::Bucket)
     end
 
     it "should fetch bucket properties if asked" do
-      @backend.should_receive(:get_bucket_props) {|b| b.name.should == "foo"; {} }
+      expect(@backend).to receive(:get_bucket_props) {|b| expect(b.name).to eq("foo"); {} }
       @client.bucket("foo", :props => true)
     end
 
     it "should memoize bucket parameters" do
       @bucket = double("Bucket")
-      Riak::Bucket.should_receive(:new).with(@client, "baz").once.and_return(@bucket)
-      @client.bucket("baz").should == @bucket
-      @client.bucket("baz").should == @bucket
+      expect(Riak::Bucket).to receive(:new).with(@client, "baz").once.and_return(@bucket)
+      expect(@client.bucket("baz")).to eq(@bucket)
+      expect(@client.bucket("baz")).to eq(@bucket)
     end
 
     it "should reject buckets with zero-length names" do
@@ -145,32 +145,32 @@ describe Riak::Client, test_client: true do
     before do
       @client = Riak::Client.new
       @backend = double("Backend")
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
     end
 
     after { Riak.disable_list_keys_warnings = true }
 
     it "should list buckets" do
-      @backend.should_receive(:list_buckets).and_return(%w{test test2})
+      expect(@backend).to receive(:list_buckets).and_return(%w{test test2})
       buckets = @client.buckets
-      buckets.should have(2).items
-      buckets.should be_all {|b| b.is_a?(Riak::Bucket) }
-      buckets[0].name.should == "test"
-      buckets[1].name.should == "test2"
+      expect(buckets.size).to eq(2)
+      expect(buckets).to be_all {|b| b.is_a?(Riak::Bucket) }
+      expect(buckets[0].name).to eq("test")
+      expect(buckets[1].name).to eq("test2")
     end
 
     it "should warn about the expense of list-buckets when warnings are not disabled" do
       Riak.disable_list_keys_warnings = false
-      @backend.stub(:list_buckets).and_return(%w{test test2})
-      @client.should_receive(:warn)
+      allow(@backend).to receive(:list_buckets).and_return(%w{test test2})
+      expect(@client).to receive(:warn)
       @client.buckets
     end
 
     it "should support a timeout option" do
-      @backend.should_receive(:list_buckets).with(timeout: 1234).and_return(%w{test test2})
+      expect(@backend).to receive(:list_buckets).with(timeout: 1234).and_return(%w{test test2})
 
       buckets = @client.buckets timeout: 1234
-      buckets.should have(2).items
+      expect(buckets.size).to eq(2)
     end
   end
 end
