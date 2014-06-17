@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 1.9.3'
 
   # Deps
-  gem.add_development_dependency "rspec", "~>2.99"
+  gem.add_development_dependency "rspec", "~> 3.0.0"
   gem.add_development_dependency 'rake', '~> 10.1.1'
   gem.add_development_dependency 'yard', '~> 0.8.7'
   gem.add_development_dependency 'redcarpet', '~> 3.0.0'
