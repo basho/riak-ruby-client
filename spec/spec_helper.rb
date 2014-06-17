@@ -16,7 +16,6 @@ Riak.disable_list_keys_warnings = true
 
 %w[integration_setup
    version_filter
-   sometimes
    wait_until
    search_corpus_setup
    unified_backend_examples

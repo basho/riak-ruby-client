@@ -59,7 +59,7 @@ shared_examples_for "Unified backend API" do
       end
     end
 
-    sometimes "should marshal indexes properly", :retries => 5 do
+    it "marshals indexes properly", :retries => 5 do
       robj = @backend.fetch_object(@bucket.name, 'fetch')
       expect(robj.indexes['test_bin']).to be
       expect(robj.indexes['test_bin']).to include('pass')
@@ -350,7 +350,7 @@ shared_examples_for "Unified backend API" do
     # pre-1.2 functionality.
     include_context "search corpus setup"
 
-    sometimes 'should find indexed documents, returning ids' do
+    it 'finds indexed documents, returning ids' do
       results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       expect(results).to have_key 'docs'
       expect(results).to have_key 'max_score'
@@ -363,7 +363,7 @@ shared_examples_for "Unified backend API" do
       expect(found).to be_truthy
     end
 
-    sometimes 'should find indexed documents, returning documents' do
+    it 'finds indexed documents, returning documents' do
       # For now use '*' until #122 is merged into riak_search
       results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
       expect(results).to have_key 'docs'
