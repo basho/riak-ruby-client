@@ -113,7 +113,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
       
       set.reload
       
-      set_parallel = Riak::Crdt::Set.new set_bucket, key
+      set_parallel = Riak::Crdt::Set.new bucket, set.key
       set_parallel.add 'Z'
 
       expect{ set.remove 'Z' }.to_not raise_error
