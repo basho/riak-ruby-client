@@ -23,6 +23,7 @@ describe 'Bucket Types', test_client: true, integration: true do
     it 'deletes from the bucket only with a bucket type' do
       expect(bucket.delete object.key).to eq true
       expect{ bucket.get object.key, type: bucket_type }.to_not raise_error
+
       expect{ bucket.delete object.key, type: bucket_type }.to_not raise_error
       expect{ bucket.get object.key, type: bucket_type }.to raise_error /not_found/
     end
@@ -30,6 +31,7 @@ describe 'Bucket Types', test_client: true, integration: true do
     it 'self-deletes only with a bucket type' do
       expect(object.delete).to be
       expect{ object.reload type: bucket_type }.to_not raise_error
+
       expect(object.delete type: bucket_type).to be
       expect{ object.reload type: bucket_type }.to raise_error /not_found/
     end
