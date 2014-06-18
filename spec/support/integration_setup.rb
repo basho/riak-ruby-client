@@ -6,5 +6,5 @@ module IntegrationSpecs
 end
 
 RSpec.configure do |config|
-  config.include IntegrationSpecs, :example_group => { :file_path => %r{spec/integration} }
+  config.include IntegrationSpecs, file_path: %r{spec/integration}
 end

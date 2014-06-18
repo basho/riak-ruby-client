@@ -11,14 +11,14 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
   describe 'without authentication configured' do
     let(:options){ Hash.new }
     it 'should start a tcp connection and not start a tls connection' do
-      TCPSocket.should_receive(:new).
+      expect(TCPSocket).to receive(:new).
         with(host, pb_port).
         and_return(tcp_socket_instance)
 
-      tcp_socket_instance.should_receive(:setsockopt).
+      expect(tcp_socket_instance).to receive(:setsockopt).
         with(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
 
-      ssl::SSLSocket.should_not_receive(:new)
+      expect(ssl::SSLSocket).not_to receive(:new)
 
       described_class.new host, pb_port
     end
@@ -41,49 +41,49 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
     let(:rcv_instance){ double 'R509::Cert::Validator instance' }
 
     it 'should start a tcp and a tls connection, and send authentication info' do
-      TCPSocket.should_receive(:new).
+      expect(TCPSocket).to receive(:new).
         with(host, pb_port).
         and_return(tcp_socket_instance)
 
-      tcp_socket_instance.should_receive(:setsockopt).
+      expect(tcp_socket_instance).to receive(:setsockopt).
         with(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
 
-      tcp_socket_instance.stub(:write)
+      allow(tcp_socket_instance).to receive(:write)
 
       # StartTls
-      tcp_socket_instance.should_receive(:read).
+      expect(tcp_socket_instance).to receive(:read).
         with(5).
         and_return([1, 255].pack 'NC')
 
-      ssl::SSLSocket.should_receive(:new).
+      expect(ssl::SSLSocket).to receive(:new).
         with(tcp_socket_instance, kind_of(OpenSSL::SSL::SSLContext)).
         and_return(ssl_socket_instance)
 
-      ssl_socket_instance.should_receive(:connect)
+      expect(ssl_socket_instance).to receive(:connect)
 
-      ssl_socket_instance.stub(:write)
+      allow(ssl_socket_instance).to receive(:write)
 
-      ssl_socket_instance.should_receive(:peer_cert).
+      expect(ssl_socket_instance).to receive(:peer_cert).
         and_return(ssl_peer_cert)
-      R509::Cert.should_receive(:new).
+      expect(R509::Cert).to receive(:new).
         with(cert: ssl_peer_cert).
         and_return(r509_cert)
-      r509_cert.stub(:valid?).and_return(true)
-      R509::Cert::Validator.should_receive(:new).
+      allow(r509_cert).to receive(:valid?).and_return(true)
+      expect(R509::Cert::Validator).to receive(:new).
         with(r509_cert).
         and_return(rcv_instance)
 
-      rcv_instance.should_receive(:validate).
+      expect(rcv_instance).to receive(:validate).
         with(ocsp: false, crl: false, crl_file: nil).
         and_return(true)
 
       # AuthResp
-      ssl_socket_instance.should_receive(:read).
+      expect(ssl_socket_instance).to receive(:read).
         with(5).
         and_return([1, 254].pack 'NC')
 
       # PingResp
-      ssl_socket_instance.should_receive(:read).
+      expect(ssl_socket_instance).to receive(:read).
         with(5).
         and_return([1, 2].pack 'NC')
 
@@ -94,21 +94,21 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
       options[:authentication][:ca_file] = 'spec/support/certs/ca.crt'
       options[:authentication][:key] = 'spec/support/certs/client.key'
 
-      TCPSocket.should_receive(:new).
+      expect(TCPSocket).to receive(:new).
         with(host, pb_port).
         and_return(tcp_socket_instance)
 
-      tcp_socket_instance.should_receive(:setsockopt).
+      expect(tcp_socket_instance).to receive(:setsockopt).
         with(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
 
-      tcp_socket_instance.stub(:write)
+      allow(tcp_socket_instance).to receive(:write)
 
       # StartTls
-      tcp_socket_instance.should_receive(:read).
+      expect(tcp_socket_instance).to receive(:read).
         with(5).
         and_return([1, 255].pack 'NC')
 
-      ssl::SSLSocket.should_receive(:new) do |sock, ctx|
+      expect(ssl::SSLSocket).to receive(:new) do |sock, ctx|
         expect(sock).to eq tcp_socket_instance
         expect(ctx).to be_a OpenSSL::SSL::SSLContext
         expect(ctx.key).to be_a OpenSSL::PKey::PKey
@@ -117,31 +117,31 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BeefcakeSocket do
         ssl_socket_instance
       end
 
-      ssl_socket_instance.should_receive(:connect)
+      expect(ssl_socket_instance).to receive(:connect)
 
-      ssl_socket_instance.stub(:write)
+      allow(ssl_socket_instance).to receive(:write)
 
-      ssl_socket_instance.should_receive(:peer_cert).
+      expect(ssl_socket_instance).to receive(:peer_cert).
         and_return(ssl_peer_cert)
-      R509::Cert.should_receive(:new).
+      expect(R509::Cert).to receive(:new).
         with(cert: ssl_peer_cert).
         and_return(r509_cert)
-      r509_cert.stub(:valid?).and_return(true)
-      R509::Cert::Validator.should_receive(:new).
+      allow(r509_cert).to receive(:valid?).and_return(true)
+      expect(R509::Cert::Validator).to receive(:new).
         with(r509_cert).
         and_return(rcv_instance)
 
-      rcv_instance.should_receive(:validate).
+      expect(rcv_instance).to receive(:validate).
         with(ocsp: false, crl: false, crl_file: nil).
         and_return(true)
 
       # AuthResp
-      ssl_socket_instance.should_receive(:read).
+      expect(ssl_socket_instance).to receive(:read).
         with(5).
         and_return([1, 254].pack 'NC')
 
       # PingResp
-      ssl_socket_instance.should_receive(:read).
+      expect(ssl_socket_instance).to receive(:read).
         with(5).
         and_return([1, 2].pack 'NC')
 

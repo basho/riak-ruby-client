@@ -33,16 +33,16 @@ describe Riak::Crdt::TypedCollection do
           should ask the register class for an operation with the new value,
           add a name to it, and pass it up to the parent
           EOD
-          register_class.should_receive(:update).
+          expect(register_class).to receive(:update).
             with(new_value).
             and_return(operation)
 
-          operation.
-            should_receive(:name=).
+          expect(operation).
+            to receive(:name=).
             with('existing')
 
-          parent.
-            should_receive(:operate).
+          expect(parent).
+            to receive(:operate).
             with(operation)
 
           subject['existing'] = new_value
@@ -55,16 +55,16 @@ describe Riak::Crdt::TypedCollection do
           should ask the register class for a remove operation, add a name to
           it, and pass it up to the parent
           EOD
-          register_class.
-            should_receive(:delete).
+          expect(register_class).
+            to receive(:delete).
             and_return(operation)
 
-          operation.
-            should_receive(:name=).
+          expect(operation).
+            to receive(:name=).
             with('existing')
 
-          parent.
-            should_receive(:operate).
+          expect(parent).
+            to receive(:operate).
             with(operation)
 
           subject.delete 'existing'
@@ -83,33 +83,33 @@ describe Riak::Crdt::TypedCollection do
       end
 
       it 'should update them' do
-        flag_class.
-          should_receive(:update).
+        expect(flag_class).
+          to receive(:update).
           with(true).
           and_return(operation)
 
-        operation.
-          should_receive(:name=).
+        expect(operation).
+          to receive(:name=).
           with('become_truthy')
 
-        parent.
-          should_receive(:operate).
+        expect(parent).
+          to receive(:operate).
           with(operation)
 
         subject['become_truthy'] = true
       end
       
       it 'should delete them' do
-        flag_class.
-          should_receive(:delete).
+        expect(flag_class).
+          to receive(:delete).
           and_return(operation)
 
-        operation.
-          should_receive(:name=).
+        expect(operation).
+          to receive(:name=).
           with('become_deleted')
 
-        parent.
-          should_receive(:operate).
+        expect(parent).
+          to receive(:operate).
           with(operation)
 
         subject.delete 'become_deleted'
@@ -135,14 +135,14 @@ describe Riak::Crdt::TypedCollection do
       it 'should allow incrementing and decrementing' do
         counter_name = 'counter'
         
-        parent.should_receive(:operate) do |op|
+        expect(parent).to receive(:operate) do |op|
           expect(op.name).to eq counter_name
           expect(op.type).to eq :counter
           expect(op.value).to eq 1
         end
         subject[counter_name].increment
 
-        parent.should_receive(:operate) do |op|
+        expect(parent).to receive(:operate) do |op|
           expect(op.name).to eq counter_name
           expect(op.type).to eq :counter
           expect(op.value).to eq -5
@@ -169,14 +169,14 @@ describe Riak::Crdt::TypedCollection do
       it 'should allow adding and removing' do
         set_name = 'brewers'
 
-        parent.should_receive(:operate) do |op|
+        expect(parent).to receive(:operate) do |op|
           expect(op.name).to eq set_name
           expect(op.type).to eq :set
           expect(op.value).to eq add: 'frenchpress'
         end
         subject[set_name].add 'frenchpress'
 
-        parent.should_receive(:operate) do |op|
+        expect(parent).to receive(:operate) do |op|
           expect(op.name).to eq set_name
           expect(op.type).to eq :set
           expect(op.value).to eq remove: 'aeropress'
@@ -214,12 +214,12 @@ describe Riak::Crdt::TypedCollection do
       end
       
       it 'should cascade operations to a parent map' do
-        operation.
-          should_receive(:name=).
+        expect(operation).
+          to receive(:name=).
           with(inner_map_name)
         
-        parent.
-          should_receive(:operate).
+        expect(parent).
+          to receive(:operate).
           with(operation)
         
         subject.operate inner_map_name, operation

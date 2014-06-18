@@ -8,52 +8,52 @@ describe Riak::MapReduce::Phase do
 
   it "should initialize with a type and a function" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => @js_fun, :language => "javascript")
-    phase.type.should == :map
-    phase.function.should == @js_fun
-    phase.language.should == "javascript"
+    expect(phase.type).to eq(:map)
+    expect(phase.function).to eq(@js_fun)
+    expect(phase.language).to eq("javascript")
   end
 
   it "should initialize with a type and an MF" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => ["module", "function"], :language => "erlang")
-    phase.type.should == :map
-    phase.function.should == ["module", "function"]
-    phase.language.should == "erlang"
+    expect(phase.type).to eq(:map)
+    expect(phase.function).to eq(["module", "function"])
+    expect(phase.language).to eq("erlang")
   end
 
   it "should initialize with a type and a bucket/key" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => {:bucket => "funs", :key => "awesome_map"}, :language => "javascript")
-    phase.type.should == :map
-    phase.function.should == {:bucket => "funs", :key => "awesome_map"}
-    phase.language.should == "javascript"
+    expect(phase.type).to eq(:map)
+    expect(phase.function).to eq({:bucket => "funs", :key => "awesome_map"})
+    expect(phase.language).to eq("javascript")
   end
 
   it "should assume the language is erlang when the function is an array" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => ["module", "function"])
-    phase.language.should == "erlang"
+    expect(phase.language).to eq("erlang")
   end
 
   it "should assume the language is javascript when the function is a string and starts with function" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => @js_fun)
-    phase.language.should == "javascript"
+    expect(phase.language).to eq("javascript")
   end
 
   it "should assume the language is erlang when the function is a string and starts with anon fun" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => @erl_fun)
-    phase.language.should == "erlang"
+    expect(phase.language).to eq("erlang")
   end
 
   it "should assume the language is javascript when the function is a hash" do
     phase = Riak::MapReduce::Phase.new(:type => :map, :function => {:bucket => "jobs", :key => "awesome_map"})
-    phase.language.should == "javascript"
+    expect(phase.language).to eq("javascript")
   end
 
   it "should accept a WalkSpec for the function when a link phase" do
     phase = Riak::MapReduce::Phase.new(:type => :link, :function => Riak::WalkSpec.new({}))
-    phase.function.should be_kind_of(Riak::WalkSpec)
+    expect(phase.function).to be_kind_of(Riak::WalkSpec)
   end
 
   it "should raise an error if a WalkSpec is given for a phase type other than :link" do
-    lambda { Riak::MapReduce::Phase.new(:type => :map, :function => Riak::WalkSpec.new({})) }.should raise_error(ArgumentError)
+    expect { Riak::MapReduce::Phase.new(:type => :map, :function => Riak::WalkSpec.new({})) }.to raise_error(ArgumentError)
   end
 
   describe "converting to JSON for the job" do
@@ -68,41 +68,41 @@ describe Riak::MapReduce::Phase do
         end
 
         it "should be an object with a single key of '#{type}'" do
-          @phase.to_json.should =~ /^\{"#{type}":/
+          expect(@phase.to_json).to match(/^\{"#{type}":/)
         end
 
         it "should include the language" do
-          @phase.to_json.should =~ /"language":/
+          expect(@phase.to_json).to match(/"language":/)
         end
 
         it "should include the keep value" do
-          @phase.to_json.should =~ /"keep":false/
+          expect(@phase.to_json).to match(/"keep":false/)
           @phase.keep = true
-          @phase.to_json.should =~ /"keep":true/
+          expect(@phase.to_json).to match(/"keep":true/)
         end
 
         it "should include the function source when the function is a source string" do
           @phase.function = "function(v,_,_){ return v; }"
-          @phase.to_json.should include(@phase.function)
-          @phase.to_json.should =~ /"source":/
+          expect(@phase.to_json).to include(@phase.function)
+          expect(@phase.to_json).to match(/"source":/)
         end
 
         it "should include the function name when the function is not a lambda" do
           @phase.function = "Riak.mapValues"
-          @phase.to_json.should include('"name":"Riak.mapValues"')
-          @phase.to_json.should_not include('"source"')
+          expect(@phase.to_json).to include('"name":"Riak.mapValues"')
+          expect(@phase.to_json).not_to include('"source"')
         end
 
         it "should include the bucket and key when referring to a stored function" do
           @phase.function = {:bucket => "design", :key => "wordcount_map"}
-          @phase.to_json.should include('"bucket":"design"')
-          @phase.to_json.should include('"key":"wordcount_map"')
+          expect(@phase.to_json).to include('"bucket":"design"')
+          expect(@phase.to_json).to include('"key":"wordcount_map"')
         end
 
         it "should include the module and function when invoking an Erlang function" do
           @phase.function = ["riak_mapreduce", "mapreduce_fun"]
-          @phase.to_json.should include('"module":"riak_mapreduce"')
-          @phase.to_json.should include('"function":"mapreduce_fun"')
+          expect(@phase.to_json).to include('"module":"riak_mapreduce"')
+          expect(@phase.to_json).to include('"function":"mapreduce_fun"')
         end
       end
     end
@@ -114,28 +114,28 @@ describe Riak::MapReduce::Phase do
       end
 
       it "should be an object of a single key 'link'" do
-        @phase.to_json.should =~ /^\{"link":/
+        expect(@phase.to_json).to match(/^\{"link":/)
       end
 
       it "should include the bucket" do
-        @phase.to_json.should =~ /"bucket":"_"/
+        expect(@phase.to_json).to match(/"bucket":"_"/)
         @phase.function[:bucket] = "foo"
-        @phase.to_json.should =~ /"bucket":"foo"/
+        expect(@phase.to_json).to match(/"bucket":"foo"/)
       end
 
       it "should include the tag" do
-        @phase.to_json.should =~ /"tag":"_"/
+        expect(@phase.to_json).to match(/"tag":"_"/)
         @phase.function[:tag] = "parent"
-        @phase.to_json.should =~ /"tag":"parent"/
+        expect(@phase.to_json).to match(/"tag":"parent"/)
       end
 
       it "should include the keep value" do
-        @phase.to_json.should =~ /"keep":false/
+        expect(@phase.to_json).to match(/"keep":false/)
         @phase.keep = true
-        @phase.to_json.should =~ /"keep":true/
+        expect(@phase.to_json).to match(/"keep":true/)
         @phase.keep = false
         @phase.function[:keep] = true
-        @phase.to_json.should =~ /"keep":true/
+        expect(@phase.to_json).to match(/"keep":true/)
       end
     end
   end

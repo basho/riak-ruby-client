@@ -23,7 +23,7 @@ describe "Protocol Buffers", test_client: true do
             utf8 = Encoding.find('UTF-8')
             results = @backend.search @search_bucket.name, 'fearless elephant rushed', df: 'text'
             results['docs'].each do |d|
-              d.each {|(k,v)| k.encoding.should == utf8; v.encoding.should == utf8 }
+              d.each {|(k,v)| expect(k.encoding).to eq(utf8); expect(v.encoding).to eq(utf8) }
             end
           end
         end

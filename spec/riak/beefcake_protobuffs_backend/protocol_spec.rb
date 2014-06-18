@@ -19,12 +19,12 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
     it 'writes messages without a body' do
       name = :PingReq
 
-      socket.should_receive(:write) do |payload|
+      expect(socket).to receive(:write) { |payload|
         length, code = payload.unpack 'NC'
         expect(length).to eq 1
         expect(code).to eq codes.index name
-      end.ordered
-      socket.should_receive(:flush).ordered
+      }.ordered
+      expect(socket).to receive(:flush).ordered
 
       subject.write name
     end
@@ -33,15 +33,15 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
       message = yz_req
       name = :YokozunaSchemaGetReq
 
-      socket.should_receive(:write) do |payload|
+      expect(socket).to receive(:write) { |payload|
         header = payload[0..4]
         body = payload[5..-1]
         length, code = header.unpack 'NC'
         expect(code).to eq codes.index name
         expect(length).to eq(body.length + 1)
         expect(body).to eq message.encode.to_s
-      end.ordered
-      socket.should_receive(:flush).ordered
+      }.ordered
+      expect(socket).to receive(:flush).ordered
 
       subject.write name, message
     end
@@ -56,7 +56,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
     it 'receives messages without a body and returns an array of code-symbol and nil' do
       name = :PingResp
       header = [1, codes.index(name)].pack 'NC'
-      socket.should_receive(:read).
+      expect(socket).to receive(:read).
         ordered.
         with(5).
         and_return(header)
@@ -74,11 +74,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
       name = :CounterGetResp
       header = [message_len + 1, codes.index(name)].pack 'NC'
 
-      socket.should_receive(:read).
+      expect(socket).to receive(:read).
         ordered.
         with(5).
         and_return(header)
-      socket.should_receive(:read).
+      expect(socket).to receive(:read).
         ordered.
         with(message_len).
         and_return(message_str)
@@ -96,7 +96,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         name = :PingResp
         header = [1, codes.index(name)].pack 'NC'
 
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           with(5).
           and_return(header)
 
@@ -112,11 +112,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         name = :CounterGetResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
         
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(5).
           and_return(header)
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(message_len).
           and_return(message_str)
@@ -132,7 +132,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         header = [1, codes.index(name)].pack 'NC'
         decoder_class = double 'RpbPutResp'
 
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           with(5).
           and_return(header)
 
@@ -150,11 +150,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         name = :CounterGetResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
         
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(5).
           and_return(header)
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(message_len).
           and_return(message_str)
@@ -172,11 +172,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         name = :ErrorResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
         
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(5).
           and_return(header)
-        socket.should_receive(:read).
+        expect(socket).to receive(:read).
           ordered.
           with(message_len).
           and_return(message_str)

@@ -9,14 +9,14 @@ describe Riak::Multiget do
 
   describe "initialization" do
     it "should accept a client and an array of bucket/key pairs" do
-      lambda { Riak::Multiget.new(@client, @pairs) }.should_not raise_error
+      expect { Riak::Multiget.new(@client, @pairs) }.not_to raise_error
     end
   end
 
   describe "operation" do
     it "should fetch both keys from the bucket" do
-      @bucket.should_receive(:[]).with('key1')
-      @bucket.should_receive(:[]).with('key2')
+      expect(@bucket).to receive(:[]).with('key1')
+      expect(@bucket).to receive(:[]).with('key2')
 
       @multiget = Riak::Multiget.new(@client, @pairs)
       @multiget.fetch
@@ -29,53 +29,53 @@ describe Riak::Multiget do
       @slow_mtx.lock
 
       # set up fetch process to wait on key2
-      @bucket.should_receive(:[]) do |key|
+      expect(@bucket).to receive(:[]) { |key|
         next if key == 'key1'
 
         # wait for test process
         @slow_mtx.lock
-      end.twice
+      }.twice
 
       # start fetch process
       @multiget = Riak::Multiget.new(@client, @pairs)
       @multiget.fetch
 
-      @multiget.finished?.should be_false
+      expect(@multiget.finished?).to be_falsey
 
       # allow fetch 
       @slow_mtx.unlock
 
       @results = @multiget.results
-      @multiget.finished?.should be_true
-      @results.should be_a Hash
+      expect(@multiget.finished?).to be_truthy
+      expect(@results).to be_a Hash
     end
 
     it "should not die when objects aren't found" do
-      @bucket.should_receive(:[]).
+      expect(@bucket).to receive(:[]).
         with('key1').
         and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
 
-      @bucket.should_receive(:[]).
+      expect(@bucket).to receive(:[]).
         with('key2').
         and_return(true)
 
       @results = Riak::Multiget.get_all @client, @pairs
 
-      @results[[@bucket, 'key1']].should be_nil
-      @results[[@bucket, 'key2']].should be_true
+      expect(@results[[@bucket, 'key1']]).to be_nil
+      expect(@results[[@bucket, 'key2']]).to be_truthy
     end
   end
 
   describe "results" do
     it "should return a hash of pairs to values" do
-      @bucket.should_receive(:[]).with('key1')
-      @bucket.should_receive(:[]).with('key2')
+      expect(@bucket).to receive(:[]).with('key1')
+      expect(@bucket).to receive(:[]).with('key2')
       
       @multiget = Riak::Multiget.new(@client, @pairs)
       @multiget.fetch
       @results = @multiget.results
 
-      @results.should be_a Hash
+      expect(@results).to be_a Hash
     end
   end
 end

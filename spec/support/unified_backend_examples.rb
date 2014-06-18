@@ -1,7 +1,7 @@
 shared_examples_for "Unified backend API" do
   # ping
   it "should ping the server" do
-    @backend.ping.should be_true
+    expect(@backend.ping).to be_truthy
   end
 
   it "gets info about the server" do
@@ -30,9 +30,9 @@ shared_examples_for "Unified backend API" do
 
     it "should find a stored object" do
       robj = @backend.fetch_object(@bucket.name, "fetch")
-      robj.should be_kind_of(Riak::RObject)
-      robj.data.should == { "test" => "pass" }
-      robj.links.should be_a Set
+      expect(robj).to be_kind_of(Riak::RObject)
+      expect(robj.data).to eq({ "test" => "pass" })
+      expect(robj.links).to be_a Set
     end
 
     it "should raise an error when the object is not found" do
@@ -41,28 +41,28 @@ shared_examples_for "Unified backend API" do
       rescue Riak::FailedRequest => exception
         @exception = exception
       end
-      @exception.should be_kind_of(Riak::FailedRequest)
-      @exception.should be_not_found
+      expect(@exception).to be_kind_of(Riak::FailedRequest)
+      expect(@exception).to be_not_found
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a R value of #{q.inspect} for the request" do
         robj = @backend.fetch_object(@bucket.name, "fetch", :r => q)
-        robj.should be_kind_of(Riak::RObject)
-        robj.data.should == { "test" => "pass" }
+        expect(robj).to be_kind_of(Riak::RObject)
+        expect(robj.data).to eq({ "test" => "pass" })
       end
 
       it "should accept a PR value of #{q.inspect} for the request" do
         robj = @backend.fetch_object(@bucket.name, "fetch", :pr => q)
-        robj.should be_kind_of(Riak::RObject)
-        robj.data.should == { "test" => "pass" }
+        expect(robj).to be_kind_of(Riak::RObject)
+        expect(robj.data).to eq({ "test" => "pass" })
       end
     end
 
-    sometimes "should marshal indexes properly", :retries => 5 do
+    it "marshals indexes properly", :retries => 5 do
       robj = @backend.fetch_object(@bucket.name, 'fetch')
-      robj.indexes['test_bin'].should be
-      robj.indexes['test_bin'].should include('pass')
+      expect(robj.indexes['test_bin']).to be
+      expect(robj.indexes['test_bin']).to include('pass')
     end
   end
 
@@ -92,10 +92,10 @@ shared_examples_for "Unified backend API" do
       end
     end
 
-    after do
+    after do |example|
       unless example.pending?
-        @robject.vclock.should == @robject2.vclock
-        @robject.data['test'].should == "second"
+        expect(@robject.vclock).to eq(@robject2.vclock)
+        expect(@robject.data['test']).to eq("second")
       end
     end
   end
@@ -114,13 +114,13 @@ shared_examples_for "Unified backend API" do
 
     it "should modify the object with the returned data if returnbody" do
       @backend.store_object(@robject, :returnbody => true)
-      @robject.vclock.should be_present
+      expect(@robject.vclock).to be_present
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
       it "should accept a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
-        @bucket.exists?(@robject.key).should be_true
+        expect(@bucket.exists?(@robject.key)).to be_truthy
       end
 
       it "should accept a DW value of #{q.inspect} for the request" do
@@ -135,12 +135,12 @@ shared_examples_for "Unified backend API" do
     it "should store an object with indexes" do
       @robject.indexes['foo_bin'] << 'bar'
       @backend.store_object(@robject, :returnbody => true)
-      @robject.indexes.should include('foo_bin')
-      @robject.indexes['foo_bin'].should include('bar')
+      expect(@robject.indexes).to include('foo_bin')
+      expect(@robject.indexes['foo_bin']).to include('bar')
     end
 
     after do
-      expect { @backend.fetch_object(@bucket.name, @robject.key) }.not_to raise_error(Riak::FailedRequest)
+      expect { @backend.fetch_object(@bucket.name, @robject.key) }.not_to raise_error
     end
   end
 
@@ -155,7 +155,7 @@ shared_examples_for "Unified backend API" do
 
     it "should remove the object" do
       @backend.delete_object("test", "delete")
-      @obj.bucket.exists?("delete").should be_false
+      expect(@obj.bucket.exists?("delete")).to be_falsey
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
@@ -169,7 +169,7 @@ shared_examples_for "Unified backend API" do
     end
 
     after do
-      @obj.bucket.exists?("delete").should be_false
+      expect(@obj.bucket.exists?("delete")).to be_falsey
     end
   end
 
@@ -177,8 +177,8 @@ shared_examples_for "Unified backend API" do
   context "fetching bucket properties" do
     it "should fetch a hash of bucket properties" do
       props = @backend.get_bucket_props("test")
-      props.should be_kind_of(Hash)
-      props.should include("n_val")
+      expect(props).to be_kind_of(Hash)
+      expect(props).to include("n_val")
     end
   end
 
@@ -186,7 +186,7 @@ shared_examples_for "Unified backend API" do
   context "setting bucket properties" do
     it "should store properties for the bucket" do
       @backend.set_bucket_props("test", {"n_val" => 3})
-      @backend.get_bucket_props("test")["n_val"].should == 3
+      expect(@backend.get_bucket_props("test")["n_val"]).to eq(3)
     end
   end
 
@@ -201,7 +201,7 @@ shared_examples_for "Unified backend API" do
     end
 
     it "should fetch an array of string keys" do
-      @backend.list_keys(@list_bucket).should == ["keys"]
+      expect(@backend.list_keys(@list_bucket)).to eq(["keys"])
     end
 
     context "streaming through a block" do
@@ -214,13 +214,13 @@ shared_examples_for "Unified backend API" do
           obj.store(:w => 1, :dw => 0, :returnbody => false)
         end
         @backend.list_keys(@list_bucket) do |keys|
-          keys.should be_all {|k| k == 'keys' || (0..749).include?(k.to_i) }
+          expect(keys).to be_all {|k| k == 'keys' || (0..749).include?(k.to_i) }
         end
       end
 
       it "should pass an array of keys to the block" do
         @backend.list_keys(@list_bucket) do |keys|
-          keys.should == ["keys"] unless keys.empty?
+          expect(keys).to eq(["keys"]) unless keys.empty?
         end
       end
 
@@ -235,7 +235,7 @@ shared_examples_for "Unified backend API" do
             end
           end
         end
-        errors.should be_empty
+        expect(errors).to be_empty
       end
     end
   end
@@ -251,8 +251,8 @@ shared_examples_for "Unified backend API" do
 
     it "should fetch a list of string bucket names" do
       list = @backend.list_buckets
-      list.should be_kind_of(Array)
-      list.should include("test")
+      expect(list).to be_kind_of(Array)
+      expect(list).to include("test")
     end
   end
 
@@ -269,15 +269,15 @@ shared_examples_for "Unified backend API" do
     end
 
     it "should find keys for an equality query" do
-      @backend.get_index('test', 'index_int', 20).should == ["20"]
+      expect(@backend.get_index('test', 'index_int', 20)).to eq(["20"])
     end
 
     it "should find keys for a range query" do
-      @backend.get_index('test', 'index_int', 19..21).should =~ ["19","20", "21"]
+      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(["19","20", "21"])
     end
 
     it "should return an empty array for a query that does not match any keys" do
-      @backend.get_index('test', 'index_int', 10000).should == []
+      expect(@backend.get_index('test', 'index_int', 10000)).to eq([])
     end
   end
 
@@ -300,25 +300,25 @@ shared_examples_for "Unified backend API" do
     end
 
     it "should perform a simple MapReduce request" do
-      @backend.mapred(@mapred).should == [{"value" => "1"}]
+      expect(@backend.mapred(@mapred)).to eq([{"value" => "1"}])
     end
 
     it "should return an ordered array of results when multiple phases are kept" do
       @mapred.reduce("function(objects){ return objects; }", :keep => true)
-      @backend.mapred(@mapred).should == [[{"value" => "1"}], [{"value" => "1"}]]
+      expect(@backend.mapred(@mapred)).to eq([[{"value" => "1"}], [{"value" => "1"}]])
     end
 
     it "should not remove empty phase results when multiple phases are kept" do
       @mapred.reduce("function(){ return []; }", :keep => true)
-      @backend.mapred(@mapred).should == [[{"value" => "1"}], []]
+      expect(@backend.mapred(@mapred)).to eq([[{"value" => "1"}], []])
     end
 
     context "streaming results through a block" do
       it "should pass phase number and result to the block" do
         @backend.mapred(@mapred) do |phase, result|
           unless result.empty?
-            phase.should == 0
-            result.should == [{"value" => "1"}]
+            expect(phase).to eq(0)
+            expect(result).to eq([{"value" => "1"}])
           end
         end
       end
@@ -336,7 +336,7 @@ shared_examples_for "Unified backend API" do
             end
           end
         end
-        errors.should be_empty
+        expect(errors).to be_empty
       end
     end
   end
@@ -350,31 +350,31 @@ shared_examples_for "Unified backend API" do
     # pre-1.2 functionality.
     include_context "search corpus setup"
 
-    sometimes 'should find indexed documents, returning ids' do
+    it 'finds indexed documents, returning ids' do
       results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
-      results.should have_key 'docs'
-      results.should have_key 'max_score'
-      results.should have_key 'num_found'
+      expect(results).to have_key 'docs'
+      expect(results).to have_key 'max_score'
+      expect(results).to have_key 'num_found'
 
       found = results['docs'].any? do |e|
         e['_yz_rk'] == 'bitcask-10'
       end
 
-      expect(found).to be_true
+      expect(found).to be_truthy
     end
 
-    sometimes 'should find indexed documents, returning documents' do
+    it 'finds indexed documents, returning documents' do
       # For now use '*' until #122 is merged into riak_search
       results = @backend.search @search_bucket.name, 'predictable operations behavior', fl: '_yz_rk', df: 'text'
-      results.should have_key 'docs'
-      results.should have_key 'max_score'
-      results.should have_key 'num_found'
+      expect(results).to have_key 'docs'
+      expect(results).to have_key 'max_score'
+      expect(results).to have_key 'num_found'
 
       found = results['docs'].any? do |e|
         e['_yz_rk'] == 'bitcask-10'
       end
 
-      expect(found).to be_true
+      expect(found).to be_truthy
     end
   end
 end

@@ -5,21 +5,21 @@ describe Riak::Counter do
     before :each do
       @bucket = Riak::Bucket.allocate
       @key = 'key'
-      @bucket.stub allow_mult: true
-      @bucket.stub(client: mock('client'))
-      @bucket.stub('is_a?' => true)
+      allow(@bucket).to receive(:allow_mult).and_return(true)
+      allow(@bucket).to receive(:client).and_return(double('client'))
+      allow(@bucket).to receive('is_a?').and_return(true)
     end
 
     it "should set the bucket and key" do
       ctr = Riak::Counter.new @bucket, @key
-      ctr.bucket.should == @bucket
-      ctr.key.should == @key
+      expect(ctr.bucket).to eq(@bucket)
+      expect(ctr.key).to eq(@key)
     end
 
     it "should require allow_mult" do
       @bad_bucket = Riak::Bucket.allocate
-      @bad_bucket.stub allow_mult: false
-      @bad_bucket.stub(client: mock('client'))
+      allow(@bad_bucket).to receive(:allow_mult).and_return(false)
+      allow(@bad_bucket).to receive(:client).and_return(double('client'))
 
       expect{ctr = Riak::Counter.new @bad_bucket, @key}.to raise_error(ArgumentError)
       
@@ -28,20 +28,20 @@ describe Riak::Counter do
   
   describe "incrementing and decrementing" do
     before :each do
-      @backend = mock 'backend'
+      @backend = double 'backend'
 
-      @client = mock 'client'
-      @client.stub(:backend).and_yield @backend
+      @client = double 'client'
+      allow(@client).to receive(:backend).and_yield @backend
 
       @bucket = Riak::Bucket.allocate
-      @bucket.stub allow_mult: true
-      @bucket.stub client: @client
+      allow(@bucket).to receive(:allow_mult).and_return(true)
+      allow(@bucket).to receive(:client).and_return(@client)
 
       @key = 'key'
 
       @ctr = Riak::Counter.new @bucket, @key
 
-      @increment_expectation = proc{|n| @backend.should_receive(:post_counter).with(@bucket, @key, n, {})}
+      @increment_expectation = proc{|n| expect(@backend).to receive(:post_counter).with(@bucket, @key, n, {})}
     end
 
     it "should increment by 1 by default" do
@@ -90,21 +90,21 @@ describe Riak::Counter do
         {pb_port: "100#{n}7"}
       end
 
-      @fake_pool = mock 'pool'
-      @backend = mock 'backend'
+      @fake_pool = double 'pool'
+      @backend = double 'backend'
         
       @client = Riak::Client.new nodes: @nodes
       @client.instance_variable_set :@protobuffs_pool, @fake_pool
 
-      @fake_pool.stub(:take).and_yield(@backend)
+      allow(@fake_pool).to receive(:take).and_yield(@backend)
 
       @bucket = Riak::Bucket.allocate
-      @bucket.stub allow_mult: true
-      @bucket.stub client: @client
+      allow(@bucket).to receive(:allow_mult).and_return(true)
+      allow(@bucket).to receive(:client).and_return(@client)
 
       @key = 'key'
 
-      @expect_post = @backend.should_receive(:post_counter).with(@bucket, @key, 1, {})
+      @expect_post = expect(@backend).to receive(:post_counter).with(@bucket, @key, 1, {})
 
       @ctr = Riak::Counter.new @bucket, @key
     end

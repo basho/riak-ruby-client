@@ -8,49 +8,49 @@ describe Riak::SecondaryIndex do
 
   describe "initialization" do
     it "should accept a bucket, index name, and scalar" do
-      lambda { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa' }.should_not raise_error
-      lambda { Riak::SecondaryIndex.new @bucket, 'asdf', 12345 }.should_not raise_error
+      expect { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa' }.not_to raise_error
+      expect { Riak::SecondaryIndex.new @bucket, 'asdf', 12345 }.not_to raise_error
     end
 
     it "should accept a bucket, index name, and a range" do
-      lambda { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa'..'zzzz' }.should_not raise_error
-      lambda { Riak::SecondaryIndex.new @bucket, 'asdf', 1..5 }.should_not raise_error
+      expect { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa'..'zzzz' }.not_to raise_error
+      expect { Riak::SecondaryIndex.new @bucket, 'asdf', 1..5 }.not_to raise_error
     end
   end
 
   describe "operation" do
     before(:each) do
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {}]
       @index = Riak::SecondaryIndex.new *@args
 
-      @backend.should_receive(:get_index).with(*@args).and_return(%w{abcd efgh})
+      expect(@backend).to receive(:get_index).with(*@args).and_return(%w{abcd efgh})
     end
 
     it "should return an array of keys" do
       @results = @index.keys
-      @results.should be_a Array
-      @results.first.should be_a String
+      expect(@results).to be_a Array
+      expect(@results.first).to be_a String
     end
     it "should return an array of values" do
-      @backend.should_receive(:fetch_object).with(@bucket, 'abcd', {}).and_return('abcd')
-      @backend.should_receive(:fetch_object).with(@bucket, 'efgh', {}).and_return('efgh')
+      expect(@backend).to receive(:fetch_object).with(@bucket, 'abcd', {}).and_return('abcd')
+      expect(@backend).to receive(:fetch_object).with(@bucket, 'efgh', {}).and_return('efgh')
 
       @results = @index.values
-      @results.should be_a Array
-      @results.length.should == 2
+      expect(@results).to be_a Array
+      expect(@results.length).to eq(2)
     end
   end
 
   describe "streaming" do
     it "should stream keys into a block" do
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {stream: true}]
       @index = Riak::SecondaryIndex.new *@args
 
-      @backend.should_receive(:get_index).with(*@args).and_yield('abcd').and_yield('efgh')
+      expect(@backend).to receive(:get_index).with(*@args).and_yield('abcd').and_yield('efgh')
 
       @index.keys {|b| :noop }
     end
@@ -66,9 +66,9 @@ describe Riak::SecondaryIndex do
       }.to_json)
 
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
-      @backend.
-        should_receive(:get_index).
+      allow(@client).to receive(:backend).and_yield(@backend)
+      expect(@backend).
+        to receive(:get_index).
         with(
              @bucket,
              'asdf',
@@ -76,7 +76,7 @@ describe Riak::SecondaryIndex do
              :max_results => @max_results
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -87,9 +87,9 @@ describe Riak::SecondaryIndex do
                                         )
 
       @results = @index.keys
-      @results.should be_an Array
-      @results.should == @expected_collection
-      @results.length.should == @max_results
+      expect(@results).to be_an Array
+      expect(@results).to eq(@expected_collection)
+      expect(@results.length).to eq(@max_results)
     end
 
     it "should support continuations" do
@@ -100,9 +100,9 @@ describe Riak::SecondaryIndex do
       }.to_json)
 
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
-      @backend.
-        should_receive(:get_index).
+      allow(@client).to receive(:backend).and_yield(@backend)
+      expect(@backend).
+        to receive(:get_index).
         with(
              @bucket,
              'asdf',
@@ -111,7 +111,7 @@ describe Riak::SecondaryIndex do
              continuation: 'examplecontinuation'
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -123,8 +123,8 @@ describe Riak::SecondaryIndex do
                                         )
 
       @results = @index.keys
-      @results.should be_an Array
-      @results.should == @expected_collection
+      expect(@results).to be_an Array
+      expect(@results).to eq(@expected_collection)
     end
 
     it "should support a next_page method" do
@@ -136,9 +136,9 @@ describe Riak::SecondaryIndex do
       }.to_json)
 
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
-      @backend.
-        should_receive(:get_index).
+      allow(@client).to receive(:backend).and_yield(@backend)
+      expect(@backend).
+        to receive(:get_index).
         once.
         with(
              @bucket,
@@ -147,7 +147,7 @@ describe Riak::SecondaryIndex do
              :max_results => @max_results
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -158,13 +158,13 @@ describe Riak::SecondaryIndex do
                                         )
 
       @results = @index.keys
-      @results.should == @expected_collection
+      expect(@results).to eq(@expected_collection)
 
       @second_collection = Riak::IndexCollection.new_from_json({
         'keys' => %w{ffff gggg hhhh}
       }.to_json)
-      @backend.
-        should_receive(:get_index).
+      expect(@backend).
+        to receive(:get_index).
         once.
         with(
              @bucket,
@@ -177,7 +177,7 @@ describe Riak::SecondaryIndex do
 
       @second_page = @index.next_page
       @second_results = @second_page.keys
-      @second_results.should == @second_collection
+      expect(@second_results).to eq(@second_collection)
     end
   end
 
@@ -193,9 +193,9 @@ describe Riak::SecondaryIndex do
 
 
       @backend = double 'Backend'
-      @client.stub(:backend).and_yield(@backend)
-      @backend.
-        should_receive(:get_index).
+      allow(@client).to receive(:backend).and_yield(@backend)
+      expect(@backend).
+        to receive(:get_index).
         with(
              @bucket,
              'asdf',
@@ -203,7 +203,7 @@ describe Riak::SecondaryIndex do
              :return_terms => true
              ).
         and_return(@expected_collection)
-      @backend.stub(:get_server_version => '1.4.0')
+      allow(@backend).to receive(:get_server_version).and_return('1.4.0')
 
 
       @index = Riak::SecondaryIndex.new(
@@ -214,12 +214,12 @@ describe Riak::SecondaryIndex do
                                         )
 
       @results = @index.keys
-      @results.should be_an Array
-      @results.should == @expected_collection
-      @results.with_terms.should == {
+      expect(@results).to be_an Array
+      expect(@results).to eq(@expected_collection)
+      expect(@results.with_terms).to eq({
         'aaaa' => %w{aaaa},
         'bbbb' => %w{bbbb bbbb2}
-      }
+      })
     end
   end
 end

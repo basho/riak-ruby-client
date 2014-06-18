@@ -4,18 +4,18 @@ describe Riak::MapReduce do
   before :each do
     @client = Riak::Client.new
     @backend = double("Backend")
-    @client.stub(:backend).and_yield(@backend)
+    allow(@client).to receive(:backend).and_yield(@backend)
     @mr = Riak::MapReduce.new(@client)
   end
 
   it "should require a client" do
-    lambda { Riak::MapReduce.new }.should raise_error
-    lambda { Riak::MapReduce.new(@client) }.should_not raise_error
+    expect { Riak::MapReduce.new }.to raise_error
+    expect { Riak::MapReduce.new(@client) }.not_to raise_error
   end
 
   it "should initialize the inputs and query to empty arrays" do
-    @mr.inputs.should == []
-    @mr.query.should == []
+    expect(@mr.inputs).to eq([])
+    expect(@mr.query).to eq([])
   end
 
   it "should yield itself when given a block on initializing" do
@@ -23,46 +23,46 @@ describe Riak::MapReduce do
     @mr = Riak::MapReduce.new(@client) do |mr|
       @mr2 = mr
     end
-    @mr2.should == @mr
+    expect(@mr2).to eq(@mr)
   end
 
   describe "adding inputs" do
     it "should return self for chaining" do
-      @mr.add("foo", "bar").should == @mr
+      expect(@mr.add("foo", "bar")).to eq(@mr)
     end
 
     it "should add bucket/key pairs to the inputs" do
       @mr.add("foo","bar")
-      @mr.inputs.should == [["foo","bar"]]
+      expect(@mr.inputs).to eq([["foo","bar"]])
     end
 
     it "should add an array containing a bucket/key pair to the inputs" do
       @mr.add(["foo","bar"])
-      @mr.inputs.should == [["foo","bar"]]
+      expect(@mr.inputs).to eq([["foo","bar"]])
     end
 
     it "should add an object to the inputs by its bucket and key" do
       bucket = Riak::Bucket.new(@client, "foo")
       obj = Riak::RObject.new(bucket, "bar")
       @mr.add(obj)
-      @mr.inputs.should == [["foo", "bar"]]
+      expect(@mr.inputs).to eq([["foo", "bar"]])
     end
 
     it "should add an array containing a bucket/key/key-data triple to the inputs" do
       @mr.add(["foo","bar",1000])
-      @mr.inputs.should == [["foo","bar",1000]]
+      expect(@mr.inputs).to eq([["foo","bar",1000]])
     end
 
     it "should use a bucket name as the single input" do
       @mr.add(Riak::Bucket.new(@client, "foo"))
-      @mr.inputs.should == "foo"
+      expect(@mr.inputs).to eq("foo")
       @mr.add("docs")
-      @mr.inputs.should == "docs"
+      expect(@mr.inputs).to eq("docs")
     end
 
     it "should accept a list of key-filters along with a bucket" do
       @mr.add("foo", [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]])
-      @mr.inputs.should == {:bucket => "foo", :key_filters => [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]]}
+      expect(@mr.inputs).to eq({:bucket => "foo", :key_filters => [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]]})
     end
 
     it "should add a bucket and filter list via a builder block" do
@@ -71,18 +71,18 @@ describe Riak::MapReduce do
         string_to_int
         between 2009, 2010
       end
-      @mr.inputs.should == {:bucket => "foo", :key_filters => [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]]}
+      expect(@mr.inputs).to eq({:bucket => "foo", :key_filters => [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]]})
     end
 
     context "using secondary indexes as inputs" do
       it "should set the inputs for equality" do
-        @mr.index("foo", "email_bin", "sean@basho.com").should == @mr
-        @mr.inputs.should == {:bucket => "foo", :index => "email_bin", :key => "sean@basho.com"}
+        expect(@mr.index("foo", "email_bin", "sean@basho.com")).to eq(@mr)
+        expect(@mr.inputs).to eq({:bucket => "foo", :index => "email_bin", :key => "sean@basho.com"})
       end
 
       it "should set the inputs for a range" do
-        @mr.index("foo", "rank_int", 10..20).should == @mr
-        @mr.inputs.should == {:bucket => "foo", :index => "rank_int", :start => 10, :end => 20}
+        expect(@mr.index("foo", "rank_int", 10..20)).to eq(@mr)
+        expect(@mr.inputs).to eq({:bucket => "foo", :index => "rank_int", :start => 10, :end => 20})
       end
 
       it "should raise an error when given an invalid query" do
@@ -101,31 +101,31 @@ describe Riak::MapReduce do
 
         it "should add bucket/key pairs to the inputs with bucket and key escaped" do
           @mr.add("[foo]","(bar)")
-          @mr.inputs.should == [["%5Bfoo%5D","%28bar%29"]]
+          expect(@mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
         end
 
         it "should add an escaped array containing a bucket/key pair to the inputs" do
           @mr.add(["[foo]","(bar)"])
-          @mr.inputs.should == [["%5Bfoo%5D","%28bar%29"]]
+          expect(@mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
         end
 
         it "should add an object to the inputs by its escaped bucket and key" do
           bucket = Riak::Bucket.new(@client, "[foo]")
           obj = Riak::RObject.new(bucket, "(bar)")
           @mr.add(obj)
-          @mr.inputs.should == [["%5Bfoo%5D", "%28bar%29"]]
+          expect(@mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
         end
 
         it "should add an escaped array containing a bucket/key/key-data triple to the inputs" do
           @mr.add(["[foo]","(bar)","[]()"])
-          @mr.inputs.should == [["%5Bfoo%5D", "%28bar%29","[]()"]]
+          expect(@mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29","[]()"]])
         end
 
         it "should use an escaped bucket name as the single input" do
           @mr.add(Riak::Bucket.new(@client, "[foo]"))
-          @mr.inputs.should == "%5Bfoo%5D"
+          expect(@mr.inputs).to eq("%5Bfoo%5D")
           @mr.add("docs")
-          @mr.inputs.should == "docs"
+          expect(@mr.inputs).to eq("docs")
         end
       end
 
@@ -135,31 +135,31 @@ describe Riak::MapReduce do
 
         it "should add bucket/key pairs to the inputs with bucket and key unescaped" do
           @mr.add("[foo]","(bar)")
-          @mr.inputs.should == [["[foo]","(bar)"]]
+          expect(@mr.inputs).to eq([["[foo]","(bar)"]])
         end
 
         it "should add an unescaped array containing a bucket/key pair to the inputs" do
           @mr.add(["[foo]","(bar)"])
-          @mr.inputs.should == [["[foo]","(bar)"]]
+          expect(@mr.inputs).to eq([["[foo]","(bar)"]])
         end
 
         it "should add an object to the inputs by its unescaped bucket and key" do
           bucket = Riak::Bucket.new(@client, "[foo]")
           obj = Riak::RObject.new(bucket, "(bar)")
           @mr.add(obj)
-          @mr.inputs.should == [["[foo]","(bar)"]]
+          expect(@mr.inputs).to eq([["[foo]","(bar)"]])
         end
 
         it "should add an unescaped array containing a bucket/key/key-data triple to the inputs" do
           @mr.add(["[foo]","(bar)","[]()"])
-          @mr.inputs.should == [["[foo]","(bar)","[]()"]]
+          expect(@mr.inputs).to eq([["[foo]","(bar)","[]()"]])
         end
 
         it "should use an unescaped bucket name as the single input" do
           @mr.add(Riak::Bucket.new(@client, "[foo]"))
-          @mr.inputs.should == "[foo]"
+          expect(@mr.inputs).to eq("[foo]")
           @mr.add("docs")
-          @mr.inputs.should == "docs"
+          expect(@mr.inputs).to eq("docs")
         end
       end
     end
@@ -170,31 +170,31 @@ describe Riak::MapReduce do
 
       it "should add bucket/key pairs to the inputs with bucket and key escaped" do
         @mr.add("[foo]","(bar)")
-        @mr.inputs.should == [["%5Bfoo%5D","%28bar%29"]]
+        expect(@mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
       end
 
       it "should add an escaped array containing a bucket/key pair to the inputs" do
         @mr.add(["[foo]","(bar)"])
-        @mr.inputs.should == [["%5Bfoo%5D","%28bar%29"]]
+        expect(@mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
       end
 
       it "should add an object to the inputs by its escaped bucket and key" do
         bucket = Riak::Bucket.new(@client, "[foo]")
         obj = Riak::RObject.new(bucket, "(bar)")
         @mr.add(obj)
-        @mr.inputs.should == [["%5Bfoo%5D", "%28bar%29"]]
+        expect(@mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
       end
 
       it "should add an escaped array containing a bucket/key/key-data triple to the inputs" do
         @mr.add(["[foo]","(bar)","[]()"])
-        @mr.inputs.should == [["%5Bfoo%5D", "%28bar%29","[]()"]]
+        expect(@mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29","[]()"]])
       end
 
       it "should use an escaped bucket name as the single input" do
         @mr.add(Riak::Bucket.new(@client, "[foo]"))
-        @mr.inputs.should == "%5Bfoo%5D"
+        expect(@mr.inputs).to eq("%5Bfoo%5D")
         @mr.add("docs")
-        @mr.inputs.should == "docs"
+        expect(@mr.inputs).to eq("docs")
       end
     end
 
@@ -203,13 +203,13 @@ describe Riak::MapReduce do
       after { Riak.disable_list_keys_warnings = true }
 
       it "should warn about list-keys on buckets" do
-        @mr.should_receive(:warn).twice
+        expect(@mr).to receive(:warn).twice
         @mr.add("foo")
         @mr.add(Riak::Bucket.new(@client, "foo"))
       end
 
       it "should warn about list-keys on key-filters" do
-        @mr.should_receive(:warn)
+        expect(@mr).to receive(:warn)
         @mr.filter("foo") { matches "bar" }
       end
     end
@@ -218,111 +218,111 @@ describe Riak::MapReduce do
   [:map, :reduce].each do |type|
     describe "adding #{type} phases" do
       it "should return self for chaining" do
-        @mr.send(type, "function(){}").should == @mr
+        expect(@mr.send(type, "function(){}")).to eq(@mr)
       end
 
       it "should accept a function string" do
         @mr.send(type, "function(){}")
-        @mr.query.should have(1).items
+        expect(@mr.query.size).to eq(1)
         phase = @mr.query.first
-        phase.function.should == "function(){}"
-        phase.type.should == type
+        expect(phase.function).to eq("function(){}")
+        expect(phase.type).to eq(type)
       end
 
       it "should accept a function and options" do
         @mr.send(type, "function(){}", :keep => true)
-        @mr.query.should have(1).items
+        expect(@mr.query.size).to eq(1)
         phase = @mr.query.first
-        phase.function.should == "function(){}"
-        phase.type.should == type
-        phase.keep.should be_true
+        expect(phase.function).to eq("function(){}")
+        expect(phase.type).to eq(type)
+        expect(phase.keep).to be_truthy
       end
 
       it "should accept a module/function pair" do
         @mr.send(type, ["riak","mapsomething"])
-        @mr.query.should have(1).items
+        expect(@mr.query.size).to eq(1)
         phase = @mr.query.first
-        phase.function.should == ["riak", "mapsomething"]
-        phase.type.should == type
-        phase.language.should == "erlang"
+        expect(phase.function).to eq(["riak", "mapsomething"])
+        expect(phase.type).to eq(type)
+        expect(phase.language).to eq("erlang")
       end
 
       it "should accept a module/function pair with extra options" do
         @mr.send(type, ["riak", "mapsomething"], :arg => [1000])
-        @mr.query.should have(1).items
+        expect(@mr.query.size).to eq(1)
         phase = @mr.query.first
-        phase.function.should == ["riak", "mapsomething"]
-        phase.type.should == type
-        phase.language.should == "erlang"
-        phase.arg.should == [1000]
+        expect(phase.function).to eq(["riak", "mapsomething"])
+        expect(phase.type).to eq(type)
+        expect(phase.language).to eq("erlang")
+        expect(phase.arg).to eq([1000])
       end
     end
   end
 
   describe "adding link phases" do
     it "should return self for chaining" do
-      @mr.link({}).should == @mr
+      expect(@mr.link({})).to eq(@mr)
     end
 
     it "should accept a WalkSpec" do
       @mr.link(Riak::WalkSpec.new(:tag => "next"))
-      @mr.query.should have(1).items
+      expect(@mr.query.size).to eq(1)
       phase = @mr.query.first
-      phase.type.should == :link
-      phase.function.should be_kind_of(Riak::WalkSpec)
-      phase.function.tag.should == "next"
+      expect(phase.type).to eq(:link)
+      expect(phase.function).to be_kind_of(Riak::WalkSpec)
+      expect(phase.function.tag).to eq("next")
     end
 
     it "should accept a WalkSpec and a hash of options" do
       @mr.link(Riak::WalkSpec.new(:bucket => "foo"), :keep => true)
-      @mr.query.should have(1).items
+      expect(@mr.query.size).to eq(1)
       phase = @mr.query.first
-      phase.type.should == :link
-      phase.function.should be_kind_of(Riak::WalkSpec)
-      phase.function.bucket.should == "foo"
-      phase.keep.should be_true
+      expect(phase.type).to eq(:link)
+      expect(phase.function).to be_kind_of(Riak::WalkSpec)
+      expect(phase.function.bucket).to eq("foo")
+      expect(phase.keep).to be_truthy
     end
 
     it "should accept a hash of options intermingled with the walk spec options" do
       @mr.link(:tag => "snakes", :arg => [1000])
-      @mr.query.should have(1).items
+      expect(@mr.query.size).to eq(1)
       phase = @mr.query.first
-      phase.arg.should == [1000]
-      phase.function.should be_kind_of(Riak::WalkSpec)
-      phase.function.tag.should == "snakes"
+      expect(phase.arg).to eq([1000])
+      expect(phase.function).to be_kind_of(Riak::WalkSpec)
+      expect(phase.function.tag).to eq("snakes")
     end
   end
 
   describe "converting to JSON for the job" do
     it "should include the inputs and query keys" do
-      @mr.to_json.should =~ /"inputs":/
+      expect(@mr.to_json).to match(/"inputs":/)
     end
 
     it "should map phases to their JSON equivalents" do
       phase = Riak::MapReduce::Phase.new(:type => :map, :function => "function(){}")
       @mr.query << phase
-      @mr.to_json.should include('"source":"function(){}"')
-      @mr.to_json.should include('"query":[{"map":{')
+      expect(@mr.to_json).to include('"source":"function(){}"')
+      expect(@mr.to_json).to include('"query":[{"map":{')
     end
 
     it "should emit only the bucket name when the input is the whole bucket" do
       @mr.add("foo")
-      @mr.to_json.should include('"inputs":"foo"')
+      expect(@mr.to_json).to include('"inputs":"foo"')
     end
 
     it "should emit an array of inputs when there are multiple inputs" do
       @mr.add("foo","bar",1000).add("foo","baz")
-      @mr.to_json.should include('"inputs":[["foo","bar",1000],["foo","baz"]]')
+      expect(@mr.to_json).to include('"inputs":[["foo","bar",1000],["foo","baz"]]')
     end
 
     it "should add the timeout value when set" do
       @mr.timeout(50000)
-      @mr.to_json.should include('"timeout":50000')
+      expect(@mr.to_json).to include('"timeout":50000')
     end
   end
 
   it "should return self from setting the timeout" do
-    @mr.timeout(5000).should == @mr
+    expect(@mr.timeout(5000)).to eq(@mr)
   end
 
   describe "executing the map reduce job" do
@@ -331,34 +331,34 @@ describe Riak::MapReduce do
     end
 
     it "should submit the query to the backend" do
-      @backend.should_receive(:mapred).with(@mr).and_return([])
-      @mr.run.should == []
+      expect(@backend).to receive(:mapred).with(@mr).and_return([])
+      expect(@mr.run).to eq([])
     end
 
     it "should pass the given block to the backend for streaming" do
       arr = []
-      @backend.should_receive(:mapred).with(@mr).and_yield("foo").and_yield("bar")
+      expect(@backend).to receive(:mapred).with(@mr).and_yield("foo").and_yield("bar")
       @mr.run {|v| arr << v }
-      arr.should == ["foo", "bar"]
+      expect(arr).to eq(["foo", "bar"])
     end
 
     it "should interpret failed requests with JSON content-types as map reduce errors" do
-      @backend.stub(:mapred).
+      allow(@backend).to receive(:mapred).
         and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, '{"error":"syntax error"}'))
       expect{ @mr.run }.to raise_error(Riak::MapReduceError)
       begin
         @mr.run
       rescue Riak::MapReduceError => mre
-        mre.message.should include('{"error":"syntax error"}')
+        expect(mre.message).to include('{"error":"syntax error"}')
       else
         fail "No exception raised!"
       end
     end
 
     it "should re-raise non-JSON error responses" do
-      @backend.stub(:mapred).
+      allow(@backend).to receive(:mapred).
         and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, 'Oops, you bwoke it.'))
-      lambda { @mr.run }.should raise_error(Riak::FailedRequest)
+      expect { @mr.run }.to raise_error(Riak::FailedRequest)
     end
   end
 end

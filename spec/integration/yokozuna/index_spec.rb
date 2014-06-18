@@ -11,30 +11,30 @@ describe "Yokozuna", test_client: true, integration: true do
 
   context "without any indexes" do
     it "should allow index creation" do
-      @client.create_search_index(@index, "_yz_default", 3).should == true
+      expect(@client.create_search_index(@index, "_yz_default", 3)).to eq(true)
     end
   end
 
   context "with an index" do
     before :all do
-      @client.create_search_index(@index).should == true
+      expect(@client.create_search_index(@index)).to eq(true)
       wait_until{ !@client.get_search_index(@index).nil? }
     end
 
     it "should allow index inspection" do
-      @client.get_search_index(@index).name.should == @index
-      lambda{ @client.get_search_index("herp_derp") }.should raise_error(Riak::ProtobuffsFailedRequest)
+      expect(@client.get_search_index(@index).name).to eq(@index)
+      expect{ @client.get_search_index("herp_derp") }.to raise_error(Riak::ProtobuffsFailedRequest)
     end
 
     it "should have an index list" do
-      @client.list_search_indexes.size.should >= 1
+      expect(@client.list_search_indexes.size).to be >= 1
     end
 
     it "should associate a bucket with an index" do
       @bucket = Riak::Bucket.new(@client, @index)
       @bucket.props = {'search_index' => @index}
       @bucket = @client.bucket(@index)
-      @bucket.props.should include('search_index' => @index)
+      expect(@bucket.props).to include('search_index' => @index)
     end
 
     context "associated with a bucket" do
@@ -42,7 +42,7 @@ describe "Yokozuna", test_client: true, integration: true do
         @bucket = Riak::Bucket.new(@client, @index)
         @bucket.props = {'search_index' => @index}
         @bucket = @client.bucket(@index)
-        @bucket.props.should include('search_index' => @index)
+        expect(@bucket.props).to include('search_index' => @index)
       end
 
       it "should index on object writes" do
@@ -53,8 +53,8 @@ describe "Yokozuna", test_client: true, integration: true do
         sleep 1.1  # pause for index commit to trigger
 
         resp = @client.search(@index, "cat_s:Lela")
-        resp.should include('docs')
-        resp['docs'].size.should == 1
+        expect(resp).to include('docs')
+        expect(resp['docs'].size).to eq(1)
       end
     end
   end

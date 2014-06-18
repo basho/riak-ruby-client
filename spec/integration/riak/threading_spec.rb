@@ -71,8 +71,8 @@ describe "Multithreaded client", :test_client => true do
 
         threads 10, :synchronize => true do
           x = @bucket['test']
-          x.content_type.should == "application/json"
-          x.data.should == [data]
+          expect(x.content_type).to eq("application/json")
+          expect(x.data).to eq([data])
         end
       end
 
@@ -89,8 +89,8 @@ describe "Multithreaded client", :test_client => true do
 
         (0...n).each do |i|
           read = @bucket["test-#{i}"]
-          read.content_type.should == "application/json"
-          read.data.should == ["#{data}-#{i}"]
+          expect(read.content_type).to eq("application/json")
+          expect(read.data).to eq(["#{data}-#{i}"])
         end
       end
 
@@ -99,7 +99,7 @@ describe "Multithreaded client", :test_client => true do
       # also likely fail for nodes with vnode_vclocks = false.
       it 'should put conflicts in parallel' do
         @bucket.allow_mult = true
-        @bucket.allow_mult.should == true
+        expect(@bucket.allow_mult).to eq(true)
 
         init = @bucket.new('test')
         init.content_type = "application/json"
@@ -117,10 +117,10 @@ describe "Multithreaded client", :test_client => true do
         end
 
         read = @bucket["test"]
-        read.conflict?.should == true
-        read.siblings.map do |sibling|
+        expect(read.conflict?).to eq(true)
+        expect(read.siblings.map do |sibling|
           sibling.data.first
-        end.to_set.should == (0...n).to_set
+        end.to_set).to eq((0...n).to_set)
       end
 
       it 'should list-keys and get in parallel', :slow => true do
@@ -142,7 +142,7 @@ describe "Multithreaded client", :test_client => true do
               set.merge @bucket[key].data
             end
           end
-          set.should == (0...count).to_set
+          expect(set).to eq((0...count).to_set)
         end
       end
     end

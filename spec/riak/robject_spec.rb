@@ -9,34 +9,34 @@ describe Riak::RObject do
   describe "initialization" do
     it "should set the bucket" do
       @object = Riak::RObject.new(@bucket)
-      @object.bucket.should == @bucket
+      expect(@object.bucket).to eq(@bucket)
     end
 
     it "should set the key" do
       @object = Riak::RObject.new(@bucket, "bar")
-      @object.key.should == "bar"
+      expect(@object.key).to eq("bar")
     end
 
     it "should initialize the links to an empty set" do
       @object = Riak::RObject.new(@bucket, "bar")
-      @object.links.should == Set.new
+      expect(@object.links).to eq(Set.new)
     end
 
     it "should initialize the meta to an empty hash" do
       @object = Riak::RObject.new(@bucket, "bar")
-      @object.meta.should == {}
+      expect(@object.meta).to eq({})
     end
 
     it "should initialize indexes to an empty hash with a Set for the default value" do
       @object = Riak::RObject.new(@bucket, "bar")
-      @object.indexes.should be_kind_of(Hash)
-      @object.indexes.should be_empty
-      @object.indexes['foo_bin'].should be_kind_of(Set)
+      expect(@object.indexes).to be_kind_of(Hash)
+      expect(@object.indexes).to be_empty
+      expect(@object.indexes['foo_bin']).to be_kind_of(Set)
     end
 
     it "should yield itself to a given block" do
       Riak::RObject.new(@bucket, "bar") do |r|
-        r.key.should == "bar"
+        expect(r.key).to eq("bar")
       end
     end
   end
@@ -48,16 +48,16 @@ describe Riak::RObject do
 
     it 'delegates #serialize to the appropriate serializer for the content type' do
       @object.content_type = 'text/plain'
-      Riak::Serializers.should respond_to(:serialize).with(2).arguments
-      Riak::Serializers.should_receive(:serialize).with('text/plain', "foo").and_return("serialized foo")
-      @object.content.serialize("foo").should == "serialized foo"
+      expect(Riak::Serializers).to respond_to(:serialize).with(2).arguments
+      expect(Riak::Serializers).to receive(:serialize).with('text/plain', "foo").and_return("serialized foo")
+      expect(@object.content.serialize("foo")).to eq("serialized foo")
     end
 
     it 'delegates #deserialize to the appropriate serializer for the content type' do
       @object.content_type = 'text/plain'
-      Riak::Serializers.should respond_to(:deserialize).with(2).arguments
-      Riak::Serializers.should_receive(:deserialize).with('text/plain', "foo").and_return("deserialized foo")
-      @object.content.deserialize("foo").should == "deserialized foo"
+      expect(Riak::Serializers).to respond_to(:deserialize).with(2).arguments
+      expect(Riak::Serializers).to receive(:deserialize).with('text/plain', "foo").and_return("deserialized foo")
+      expect(@object.content.deserialize("foo")).to eq("deserialized foo")
     end
   end
 
@@ -76,20 +76,20 @@ describe Riak::RObject do
         it "should reset unserialized forms when stored" do
           @object.raw_data = value = '{ "raw": "json" }'
 
-          @object.raw_data.should == value
-          @object.data.should == { "raw" => "json" }
+          expect(@object.raw_data).to eq(value)
+          expect(@object.data).to eq({ "raw" => "json" })
         end
 
         it "should lazily serialize when read" do
-          @object.raw_data.should == '{"some":"data"}'
+          expect(@object.raw_data).to eq('{"some":"data"}')
         end
       end
 
       it "should not unnecessarily marshal/demarshal" do
-        @object.should_not_receive(:serialize)
-        @object.should_not_receive(:deserialize)
+        expect(@object).not_to receive(:serialize)
+        expect(@object).not_to receive(:deserialize)
         @object.raw_data = value = "{not even valid json!}}"
-        @object.raw_data.should == value
+        expect(@object.raw_data).to eq(value)
       end
     end
 
@@ -101,21 +101,21 @@ describe Riak::RObject do
 
         it "should reset previously stored raw data" do
           @object.data = value = { "new" => "data" }
-          @object.raw_data.should == '{"new":"data"}'
-          @object.data.should == value
+          expect(@object.raw_data).to eq('{"new":"data"}')
+          expect(@object.data).to eq(value)
         end
 
         it "should lazily deserialize when read" do
-          @object.data.should == { "some" => "data" }
+          expect(@object.data).to eq({ "some" => "data" })
         end
 
         context 'for an IO-like object' do
           let(:io_object) { double(:read => 'the io object') }
 
           it 'reads the object before deserializing it' do
-            @object.content.should_receive(:deserialize).with('the io object').and_return('deserialized')
+            expect(@object.content).to receive(:deserialize).with('the io object').and_return('deserialized')
             @object.raw_data = io_object
-            @object.data.should == 'deserialized'
+            expect(@object.data).to eq('deserialized')
           end
 
           it 'does not allow it to be assigned directly to data since it should be assigned to raw_data instead' do
@@ -127,10 +127,10 @@ describe Riak::RObject do
       end
 
       it "should not unnecessarily marshal/demarshal" do
-        @object.should_not_receive(:serialize)
-        @object.should_not_receive(:deserialize)
+        expect(@object).not_to receive(:serialize)
+        expect(@object).not_to receive(:deserialize)
         @object.data = value = { "some" => "data" }
-        @object.data.should == value
+        expect(@object.data).to eq(value)
       end
     end
   end
@@ -138,7 +138,7 @@ describe Riak::RObject do
 
   describe "instantiating new object from a map reduce operation" do
     before :each do
-      @client.stub(:[]).and_return(@bucket)
+      allow(@client).to receive(:[]).and_return(@bucket)
 
       @sample_response = [
                           {"bucket"=>"users",
@@ -163,59 +163,59 @@ describe Riak::RObject do
                           }
                          ]
       @object = Riak::RObject.load_from_mapreduce(@client,@sample_response).first
-      @object.should be_kind_of(Riak::RObject)
+      expect(@object).to be_kind_of(Riak::RObject)
     end
 
     it "should load the content type" do
-      @object.content_type.should == "application/json"
+      expect(@object.content_type).to eq("application/json")
     end
 
     it "should load the body data" do
-      @object.data.should be_present
+      expect(@object.data).to be_present
     end
 
     it "should deserialize the body data" do
-      @object.data.should == {"email" => "mail@test.com", "_type" => "User"}
+      expect(@object.data).to eq({"email" => "mail@test.com", "_type" => "User"})
     end
 
     it "should set the vclock" do
-      @object.vclock.should == "a85hYGBgzmDKBVIsCfs+fc9gSN9wlA8q/hKosDpIOAsA"
+      expect(@object.vclock).to eq("a85hYGBgzmDKBVIsCfs+fc9gSN9wlA8q/hKosDpIOAsA")
     end
 
     it "should load and parse links" do
-      @object.links.should have(1).item
-      @object.links.first.url.should == "/riak/addresses/A2cbUQ2KEMbeyWGtdz97LoTi1DN"
-      @object.links.first.rel.should == "home_address"
+      expect(@object.links.size).to eq(1)
+      expect(@object.links.first.url).to eq("/riak/addresses/A2cbUQ2KEMbeyWGtdz97LoTi1DN")
+      expect(@object.links.first.rel).to eq("home_address")
     end
 
     it "should load and parse indexes" do
-      @object.indexes.should have(2).items
-      @object.indexes['email_bin'].should have(2).items
-      @object.indexes['rank_int'].should have(1).item
+      expect(@object.indexes.size).to eq(2)
+      expect(@object.indexes['email_bin'].size).to eq(2)
+      expect(@object.indexes['rank_int'].size).to eq(1)
     end
 
     it "should set the ETag" do
-      @object.etag.should == "5bnavU3rrubcxLI8EvFXhB"
+      expect(@object.etag).to eq("5bnavU3rrubcxLI8EvFXhB")
     end
 
     it "should set modified date" do
-      @object.last_modified.to_i.should == Time.httpdate("Mon, 12 Jul 2010 21:37:43 GMT").to_i
+      expect(@object.last_modified.to_i).to eq(Time.httpdate("Mon, 12 Jul 2010 21:37:43 GMT").to_i)
     end
 
     it "should load meta information" do
-      @object.meta["King-Of-Robots"].should == ["I"]
+      expect(@object.meta["King-Of-Robots"]).to eq(["I"])
     end
 
     it "should set the key" do
-      @object.key.should == "A2IbUQ2KEMbe4WGtdL97LoTi1DN[(\\/)]"
+      expect(@object.key).to eq("A2IbUQ2KEMbe4WGtdL97LoTi1DN[(\\/)]")
     end
 
     it "should not set conflict when there is none" do
-      @object.conflict?.should be_false
+      expect(@object.conflict?).to be_falsey
     end
 
     it 'should return [RContent] for siblings' do
-      @object.siblings.should == [@object.content]
+      expect(@object.siblings).to eq([@object.content])
     end
 
     describe "when there are multiple values in an object" do
@@ -235,14 +235,14 @@ describe Riak::RObject do
       end
 
       it "should expose siblings" do
-        @object.should have(2).siblings
-        @object.siblings[0].etag.should == "5bnavU3rrubcxLI8EvFXhB"
-        @object.siblings[1].etag.should == "7jDZLdu0fIj2iRsjGD8qq8"
+        expect(@object.siblings.size).to eq(2)
+        expect(@object.siblings[0].etag).to eq("5bnavU3rrubcxLI8EvFXhB")
+        expect(@object.siblings[1].etag).to eq("7jDZLdu0fIj2iRsjGD8qq8")
       end
 
       it "should be in conflict" do
         expect { @object.data }.to raise_error(Riak::Conflict)
-        @object.should be_conflict
+        expect(@object).to be_conflict
       end
     end
   end
@@ -251,21 +251,21 @@ describe Riak::RObject do
     @object = Riak::RObject.new(@bucket, "foo")
     @object.links << Riak::Link.new("/riak/foo/baz", "next")
     @object.links << Riak::Link.new("/riak/foo/baz", "next")
-    @object.links.length.should == 1
+    expect(@object.links.length).to eq(1)
   end
 
   it "should allow mass-overwriting indexes while preserving default behavior" do
     @object = described_class.new(@bucket, 'foo')
     @object.indexes = {"ts_int" => [12345], "foo_bin" => "bar"}
-    @object.indexes['ts_int'].should == Set.new([12345])
-    @object.indexes['foo_bin'].should == Set.new(["bar"])
-    @object.indexes['unset_bin'].should == Set.new
+    expect(@object.indexes['ts_int']).to eq(Set.new([12345]))
+    expect(@object.indexes['foo_bin']).to eq(Set.new(["bar"]))
+    expect(@object.indexes['unset_bin']).to eq(Set.new)
   end
 
   describe "when storing the object normally" do
     before :each do
       @backend = double("Backend")
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket)
       @object.content_type = "text/plain"
       @object.data = "This is some text."
@@ -273,16 +273,16 @@ describe Riak::RObject do
     end
 
     it "should raise an error when the content_type is blank" do
-      lambda { @object.content_type = nil; @object.store }.should raise_error(ArgumentError)
-      lambda { @object.content_type = "   "; @object.store }.should raise_error(ArgumentError)
+      expect { @object.content_type = nil; @object.store }.to raise_error(ArgumentError)
+      expect { @object.content_type = "   "; @object.store }.to raise_error(ArgumentError)
     end
 
     it "should raise an error when given an empty string as key" do
-      lambda { @object.key = ''; @object.store }.should raise_error(ArgumentError)
+      expect { @object.key = ''; @object.store }.to raise_error(ArgumentError)
     end
 
     it "should pass along quorum parameters and returnbody to the backend" do
-      @backend.should_receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
+      expect(@backend).to receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
       @object.store(:returnbody => false, :w => 3, :dw => 2)
     end
 
@@ -295,37 +295,37 @@ describe Riak::RObject do
   describe "when reloading the object" do
     before :each do
       @backend = double("Backend")
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket, "bar")
       @object.vclock = "somereallylongstring"
     end
 
     it "should return without requesting if the key is blank" do
       @object.key = nil
-      @backend.should_not_receive(:reload_object)
+      expect(@backend).not_to receive(:reload_object)
       @object.reload
     end
 
     it "should return without requesting if the vclock is blank" do
       @object.vclock = nil
-      @backend.should_not_receive(:reload_object)
+      expect(@backend).not_to receive(:reload_object)
       @object.reload
     end
 
     it "should reload the object if the key is present" do
-      @backend.should_receive(:reload_object).with(@object, {}).and_return(@object)
+      expect(@backend).to receive(:reload_object).with(@object, {}).and_return(@object)
       @object.reload
     end
 
     it "should pass along the requested R quorum" do
-      @backend.should_receive(:reload_object).with(@object, :r => 2).and_return(@object)
+      expect(@backend).to receive(:reload_object).with(@object, :r => 2).and_return(@object)
       @object.reload :r => 2
     end
 
     it "should disable matching conditions if the key is present and the :force option is given" do
-      @backend.should_receive(:reload_object) do |obj, _|
-        obj.etag.should be_nil
-        obj.last_modified.should be_nil
+      expect(@backend).to receive(:reload_object) do |obj, _|
+        expect(obj.etag).to be_nil
+        expect(obj.last_modified).to be_nil
         obj
       end
       @object.reload :force => true
@@ -335,49 +335,49 @@ describe Riak::RObject do
   describe "when deleting" do
     before :each do
       @backend = double("Backend")
-      @client.stub(:backend).and_yield(@backend)
+      allow(@client).to receive(:backend).and_yield(@backend)
       @object = Riak::RObject.new(@bucket, "bar")
     end
 
     it "should make a DELETE request to the Riak server and freeze the object" do
-      @backend.should_receive(:delete_object).with(@bucket, "bar", {})
+      expect(@backend).to receive(:delete_object).with(@bucket, "bar", {})
       @object.delete
-      @object.should be_frozen
+      expect(@object).to be_frozen
     end
 
     it "should do nothing when the key is blank" do
-      @backend.should_not_receive(:delete_object)
+      expect(@backend).not_to receive(:delete_object)
       @object.key = nil
       @object.delete
     end
 
     it "should pass through a failed request exception" do
-      @backend.should_receive(:delete_object).
+      expect(@backend).to receive(:delete_object).
         and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, "server error"))
-      lambda { @object.delete }.should raise_error(Riak::FailedRequest)
+      expect { @object.delete }.to raise_error(Riak::FailedRequest)
     end
 
     it "should send the vector clock if present" do
       @object.vclock = "somevclock"
-      @backend.should_receive(:delete_object).with(@bucket, "bar", {:vclock => "somevclock"})
+      expect(@backend).to receive(:delete_object).with(@bucket, "bar", {:vclock => "somevclock"})
       @object.delete
     end
   end
 
   it "should not convert to link without a tag" do
     @object = Riak::RObject.new(@bucket, "bar")
-    lambda { @object.to_link }.should raise_error
+    expect { @object.to_link }.to raise_error
   end
 
   it "should convert to a link having the same url and a supplied tag" do
     @object = Riak::RObject.new(@bucket, "bar")
-    @object.to_link("next").should == Riak::Link.new("/riak/foo/bar", "next")
+    expect(@object.to_link("next")).to eq(Riak::Link.new("/riak/foo/bar", "next"))
   end
 
   it "should escape the bucket and key when converting to a link" do
     @object = Riak::RObject.new(@bucket, "deep/path")
-    @bucket.should_receive(:name).and_return("bucket spaces")
-    @object.to_link("bar").url.should == "/riak/bucket%20spaces/deep%2Fpath"
+    expect(@bucket).to receive(:name).and_return("bucket spaces")
+    expect(@object.to_link("bar").url).to eq("/riak/bucket%20spaces/deep%2Fpath")
   end
 
   describe "#inspect" do
@@ -385,7 +385,7 @@ describe Riak::RObject do
 
     it "provides useful output even when the key is nil" do
       expect { object.inspect }.not_to raise_error
-      object.inspect.should be_kind_of(String)
+      expect(object.inspect).to be_kind_of(String)
     end
 
     it 'uses the serializer output in inspect' do
@@ -395,18 +395,18 @@ describe Riak::RObject do
         def o.load(object); "serialize for inspect"; end
       end
 
-      object.inspect.should =~ /serialize for inspect/
+      expect(object.inspect).to match(/serialize for inspect/)
     end
   end
 
   describe '.on_conflict' do
     it 'adds the hook to the list of on conflict hooks' do
       hook_run = false
-      described_class.on_conflict_hooks.should be_empty
+      expect(described_class.on_conflict_hooks).to be_empty
       described_class.on_conflict { hook_run = true }
-      described_class.on_conflict_hooks.size.should == 1
+      expect(described_class.on_conflict_hooks.size).to eq(1)
       described_class.on_conflict_hooks.first.call
-      hook_run.should == true
+      expect(hook_run).to eq(true)
     end
   end
 
@@ -428,27 +428,27 @@ describe Riak::RObject do
       described_class.on_conflict(&resolver_3)
       described_class.on_conflict(&resolver_4)
       conflicted_robject.attempt_conflict_resolution
-      invoked_resolvers.should == [:resolver_1, :resolver_2, :resolver_3]
+      expect(invoked_resolvers).to eq([:resolver_1, :resolver_2, :resolver_3])
     end
 
     it 'returns the robject returned by the last invoked resolver' do
       described_class.on_conflict(&resolver_4)
-      conflicted_robject.attempt_conflict_resolution.should be(resolved_robject)
+      expect(conflicted_robject.attempt_conflict_resolution).to be(resolved_robject)
     end
 
     it 'allows the resolver to return the original robject' do
       described_class.on_conflict(&resolver_3)
-      conflicted_robject.attempt_conflict_resolution.should be(conflicted_robject)
+      expect(conflicted_robject.attempt_conflict_resolution).to be(conflicted_robject)
     end
 
     it 'returns the robject and does not call any resolvers if the robject is not in conflict' do
-      resolved_robject.attempt_conflict_resolution.should be(resolved_robject)
-      invoked_resolvers.should == []
+      expect(resolved_robject.attempt_conflict_resolution).to be(resolved_robject)
+      expect(invoked_resolvers).to eq([])
     end
 
     it 'returns the original robject if none of the resolvers returns an robject' do
-      conflicted_robject.attempt_conflict_resolution.should be(conflicted_robject)
-      invoked_resolvers.should == [:resolver_1, :resolver_2]
+      expect(conflicted_robject.attempt_conflict_resolution).to be(conflicted_robject)
+      expect(invoked_resolvers).to eq([:resolver_1, :resolver_2])
     end
   end
 end
