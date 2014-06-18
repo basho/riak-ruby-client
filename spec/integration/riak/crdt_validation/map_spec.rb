@@ -26,7 +26,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     expect(map2.sets['set'].members).to eq ::Set.new(['Z'])
   end
 
-  it 'deletes counters and increment counters' do
+  it 'deletes counters and increments counters' do
     map.counters['counter'].increment 5
 
     map.reload
@@ -43,7 +43,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     expect(map2.counters['counter'].value).to eq 7
   end
 
-  it 'deletes maps containing sets and re-add to sets' do
+  it 'deletes maps containing sets and re-adds the contained sets' do
     map.batch do |m|
       m.maps['map'].sets['set'].add "X"
       m.maps['map'].sets['set'].add "Y"
