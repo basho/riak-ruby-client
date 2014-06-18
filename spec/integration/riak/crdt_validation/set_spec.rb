@@ -13,10 +13,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
         s.add 'Z'
         s.remove 'Y'
       end
-    end.to_not raise_error
-    
-    set2 = Riak::Crdt::Set.new bucket, set.key
-    expect(set2.members).to eq ::Set.new(['X', 'Z'])
+    end.to raise_error /precondition/
   end
   
   it 'removes non-members with context' do
