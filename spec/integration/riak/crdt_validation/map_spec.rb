@@ -5,7 +5,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
   let(:bucket){ random_bucket 'crdt_validation' }
   let(:map){ Riak::Crdt::Map.new bucket, random_key }
 
-  it 'should delete sets and re-add entries' do
+  it 'deletes sets and re-add entries' do
     map.batch do |m|
       m.sets['set'].add 'X'
       m.sets['set'].add 'Y'
@@ -26,7 +26,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     expect(map2.sets['set'].members).to eq ::Set.new(['Z'])
   end
 
-  it 'should delete counters and increment counters' do
+  it 'deletes counters and increment counters' do
     map.counters['counter'].increment 5
 
     map.reload
@@ -43,7 +43,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     expect(map2.counters['counter'].value).to eq 7
   end
 
-  it 'should delete maps containing sets and re-add to sets' do
+  it 'deletes maps containing sets and re-add to sets' do
     map.batch do |m|
       m.maps['map'].sets['set'].add "X"
       m.maps['map'].sets['set'].add "Y"

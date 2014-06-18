@@ -5,7 +5,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
   let(:bucket){ random_bucket 'crdt_validation' }
   let(:set){ Riak::Crdt::Set.new bucket, random_key }
   
-  it 'should allow removal of recently-added set entries during batch mode' do
+  it 'removes recently-added set entries during batch mode' do
     expect do
       set.batch do |s|
         s.add 'X'
@@ -19,7 +19,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
     expect(set2.members).to eq ::Set.new(['X', 'Z'])
   end
   
-  it 'should allow removal of non-members with context' do
+  it 'removes non-members with context' do
     set.batch do |s|
       s.add 'X'
       s.add 'Y'
@@ -33,7 +33,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
     expect(set2.members).to eq ::Set.new(%w{X Y})
   end
 
-  it 'should allow adding of duplicate members' do
+  it 'adds duplicate members' do
     set.batch do |s|
       s.add 'X'
       s.add 'Y'
@@ -47,7 +47,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
     expect(set2.members).to eq ::Set.new(%w{X Y})
   end
 
-  it 'should no-op adding then removing a duplicate member' do
+  it 'no-ops adding then removing a duplicate member' do
     set.batch do |s|
       s.add 'X'
       s.add 'Y'
@@ -67,7 +67,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
     expect(set2.members).to eq ::Set.new(%w{X Y})
   end
 
-  it 'should no-op removing then re-adding a set member' do
+  it 'no-ops removing then re-adding a set member' do
     set.batch do |s|
       s.add 'X'
       s.add 'Y'
@@ -85,5 +85,41 @@ describe 'CRDT set validation', integration: true, test_client: true do
 
     set2 = Riak::Crdt::Set.new bucket, set.key
     expect(set2.members).to eq ::Set.new(%w{X Y})
+  end
+
+  describe 'parallel operations' do
+    it 'removes with up-to-date context' do
+      set.batch do |s|
+        s.add 'X'
+        s.add 'Y'
+      end
+      
+      set_parallel = Riak::Crdt::Set.new bucket, set.key
+      set_parallel.add 'Z'
+      
+      set.reload
+      
+      expect{ set.remove 'Z' }.to_not raise_error
+      
+      set2 = Riak::Crdt::Set.new bucket, set.key
+      expect(set2.members).to eq ::Set.new(%w{X Y})
+    end
+
+    it "doesn't remove with outdated context" do
+      set.batch do |s|
+        s.add 'X'
+        s.add 'Y'
+      end
+      
+      set.reload
+      
+      set_parallel = Riak::Crdt::Set.new set_bucket, key
+      set_parallel.add 'Z'
+
+      expect{ set.remove 'Z' }.to_not raise_error
+
+      set2 = Riak::Crdt::Set.new bucket, set.key
+      expect(set2.members).to eq ::Set.new(%w{X Y Z})
+    end
   end
 end
