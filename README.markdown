@@ -280,7 +280,7 @@ brews = Riak::Crdt::Set.new bucket, 'brews'
 brews.add 'espresso'
 brews.add 'aeropress'
 
-bucket.destroy brews.key, type: brews.bucket_type
+bucket.delete brews.key, type: brews.bucket_type
 ```
 
 
