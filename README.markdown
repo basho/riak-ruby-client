@@ -85,6 +85,36 @@ new_one.raw_data = "alert('Hello, World!')"
 new_one.store
 ```
 
+## Bucket Types
+
+Riak 2 uses [bucket types](http://docs.basho.com/riak/2.0.0pre11/dev/advanced/bucket-types/) to
+enable groups of similar buckets to share properties, configuration, and to namespace values 
+within those buckets. Bucket type support is integral to how CRDTs work.
+
+Many operations take `type` options to perform them with a specific bucket type.
+
+```ruby
+# This example assumes you have a "beverages" bucket type.
+
+coffees = client.bucket 'coffees'
+
+chapadao = coffees.new 'chapadao'
+chapadao.data = "Chapadao de Ferro"
+chapadao.store type: 'beverages' # stores this in the "beverages" bucket type
+
+coffees.get 'chapadao' # raises error, not found
+coffees.get 'chapadao', type: 'beverages' # succeeds
+
+chapadao.reload # raises error, not found
+chapadao.reload type: 'beverages' # succeeds
+
+chapadao.delete # silently fails to delete it
+coffees.delete 'chapadao' # silently fails to delete it
+
+chapadao.delete type: 'beverages' # deletes it
+coffees.delete 'chapadao', type: 'beverages' # deletes it
+```
+
 ## Map-Reduce Example
 
 ``` ruby
@@ -242,6 +272,17 @@ entries, batch mode will make fewer round-trips to Riak.
 
 Top-level CRDT types accept `nil` as a key. This allows Riak to assign a random
 key for them.
+
+Deleting CRDTs requires you to use the key-value API for the time being.
+
+```ruby
+brews = Riak::Crdt::Set.new bucket, 'brews'
+brews.add 'espresso'
+brews.add 'aeropress'
+
+bucket.destroy brews.key, type: brews.bucket_type
+```
+
 
 ### Counters
 
