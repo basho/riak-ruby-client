@@ -39,8 +39,23 @@ describe 'Bucket Types', test_client: true, integration: true do
 
   describe 'performing CRDT set operations' do
     let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] }
-    it 'stores the set into a bucket type'
-    it 'retrieves the set blob via key-value using a bucket type'
-    it 'deletes the set blob through the bucket type'
+    let(:set) do
+      set = Riak::Crdt::Set.new bucket, random_key
+      set.add random_key
+      set
+    end
+
+    it 'retrieves the set blob via key-value using a bucket type' do
+      expect{ bucket.get set.key }.to raise_error /not_found/
+      expect(bucket.get set.key, type: bucket_type).to be
+    end
+
+    it 'deletes the set blob through the bucket type' do
+      expect(bucket.delete set.key).to be
+      expect{ bucket.get set.key, type: bucket_type }.to_not raise_error
+
+      expect(bucket.delete set.key, type: bucket_type).to be
+      expect{ bucket.get set.key, type: bucket_type }.to raise_error /not_found/
+    end
   end
 end
