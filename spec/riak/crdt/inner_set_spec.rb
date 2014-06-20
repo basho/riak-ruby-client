@@ -26,6 +26,7 @@ describe Riak::Crdt::InnerSet do
       expect(op.type).to eq :set
       expect(op.value).to eq remove: 'el2'
     end
+    allow(parent).to receive(:context?).and_return(true)
 
     subject.remove 'el2'
   end

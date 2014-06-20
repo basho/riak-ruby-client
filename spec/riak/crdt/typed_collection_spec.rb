@@ -181,6 +181,8 @@ describe Riak::Crdt::TypedCollection do
           expect(op.type).to eq :set
           expect(op.value).to eq remove: 'aeropress'
         end
+        allow(parent).to receive(:context?).and_return(true)
+
         subject[set_name].remove 'aeropress'
       end
     end
