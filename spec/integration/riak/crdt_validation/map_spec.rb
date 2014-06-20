@@ -40,7 +40,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
 
     map2 = Riak::Crdt::Map.new bucket, map.key
 
-    expect(map2.counters['counter'].value).to eq 7
+    expect(map2.counters['counter'].value).to eq(7).or eq(2)
   end
 
   it 'deletes maps containing sets and re-adds the contained sets' do
