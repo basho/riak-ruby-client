@@ -64,6 +64,7 @@ module Riak
       #
       # @param [String] element the element to remove
       def remove(element)
+        raise CrdtError::SetRemovalWithoutContextError unless context?
         @parent.operate name, update(remove: element)
       end
 

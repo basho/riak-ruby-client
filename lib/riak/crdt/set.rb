@@ -86,6 +86,7 @@ module Riak
       # @param [String] element to remove from the set
       # @param [Hash] options
       def remove(element, options={})
+        raise CrdtError::SetRemovalWithoutContextError unless context?
         operate operation(:remove, element), options
       end
 
@@ -115,6 +116,7 @@ module Riak
         end
 
         def remove(element)
+          raise CrdtError::SetRemovalWithoutContextError.new unless context?
           @removes.add element
         end
 
