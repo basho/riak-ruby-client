@@ -1,3 +1,5 @@
+require 'riak/errors/crdt_error'
+
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
