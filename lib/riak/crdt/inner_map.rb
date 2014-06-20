@@ -6,6 +6,11 @@ module Riak
 
       attr_accessor :name
 
+      # The parent of this counter.
+      #
+      # @api private
+      attr_reader :parent
+
       # @api private
       def initialize(parent, value={})
         @parent = parent

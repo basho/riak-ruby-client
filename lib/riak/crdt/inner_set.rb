@@ -17,7 +17,12 @@ module Riak
       # @return [::Set] set value
       attr_reader :value
       alias :members :value
-      
+
+      # The parent of this counter.
+      #
+      # @api private
+      attr_reader :parent
+
       # @api private
       def initialize(parent, value=[])
         @parent = parent

@@ -16,6 +16,11 @@ module Riak
       # @return [Integer] counter value
       attr_reader :value
       alias :to_i :value
+
+      # The parent of this counter.
+      #
+      # @api private
+      attr_reader :parent
         
       # @api private
       def initialize(parent, value=0)
