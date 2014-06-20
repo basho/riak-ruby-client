@@ -13,7 +13,7 @@ describe 'CRDT set validation', integration: true, test_client: true do
         s.add 'Z'
         s.remove 'Y'
       end
-    end.to raise_error /precondition/
+    end.to raise_error Riak::CrdtError::SetRemovalWithoutContextError
   end
   
   it 'removes non-members with context' do
