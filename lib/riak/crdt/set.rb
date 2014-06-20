@@ -112,12 +112,10 @@ module Riak
         
         def add(element)
           @adds.add element
-          @removes.delete element
         end
 
         def remove(element)
           @removes.add element
-          @adds.delete element
         end
 
         alias :delete :remove
