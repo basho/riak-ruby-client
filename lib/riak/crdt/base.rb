@@ -45,6 +45,13 @@ module Riak
 
         self
       end
+
+      # Does this CRDT have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        !!@context
+      end
       
       private
       def client

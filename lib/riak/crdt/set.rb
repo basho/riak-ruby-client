@@ -128,6 +128,10 @@ module Riak
           members.empty?
         end
 
+        def context?
+          @base.context?
+        end
+
         def to_a
           members.to_a
         end

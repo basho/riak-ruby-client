@@ -36,6 +36,10 @@ module Riak
         end
       end
 
+      def context?
+        @parent.context?
+      end
+
       private
       def initialize_collections
         @counters = TypedCollection.new InnerCounter, self, @value[:counters]

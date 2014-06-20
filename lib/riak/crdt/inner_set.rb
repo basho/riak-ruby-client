@@ -67,6 +67,14 @@ module Riak
         @parent.operate name, update(remove: element)
       end
 
+            
+      # Does the map containing this set have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        @parent.context?
+      end
+
       # @api private
       def update(changes)
         Operation::Update.new.tap do |op|

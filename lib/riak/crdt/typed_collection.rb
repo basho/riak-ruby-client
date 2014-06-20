@@ -106,6 +106,14 @@ module Riak
         @parent.operate inner_operation
       end
       
+      
+      # Does this set have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        !!@parent.context?
+      end
+      
       private
       def normalize_key(unnormalized_key)
         unnormalized_key.to_s
