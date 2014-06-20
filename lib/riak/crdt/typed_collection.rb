@@ -47,7 +47,11 @@ module Riak
       # @return the value for the given key
       def [](key)
         key = normalize_key key
-        return @contents[key] if include? key
+        if include? key
+          candidate = @contents[key]
+          return candidate unless candidate.respond_to? :parent
+          return candidate if candidate.parent == self
+        end
 
         return nil if initialize_nil?
         
