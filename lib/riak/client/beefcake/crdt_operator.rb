@@ -1,3 +1,5 @@
+require 'riak/errors/crdt_error'
+
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
@@ -31,9 +33,14 @@ module Riak
             op: serialized
           }.merge options
           request = DtUpdateReq.new args
-          return backend.protocol do |p|
-            p.write :DtUpdateReq, request
-            p.expect :DtUpdateResp, DtUpdateResp, empty_body_acceptable: true
+          begin
+            return backend.protocol do |p|
+              p.write :DtUpdateReq, request
+              p.expect :DtUpdateResp, DtUpdateResp, empty_body_acceptable: true
+            end
+          rescue ProtobuffsErrorResponse => e
+            raise unless e.message =~ /precondition/
+            raise CrdtError::PreconditionError.new e.message
           end
         end
 

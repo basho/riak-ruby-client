@@ -46,6 +46,8 @@ describe Riak::Crdt::Set do
       }.
         and_return(response)
 
+      subject.instance_variable_set :@context, 'placeholder'
+
       subject.batch do |s|
         s.add 'alpha'
         s.add 'bravo'

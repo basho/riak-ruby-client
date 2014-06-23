@@ -17,7 +17,12 @@ module Riak
       # @return [::Set] set value
       attr_reader :value
       alias :members :value
-      
+
+      # The parent of this counter.
+      #
+      # @api private
+      attr_reader :parent
+
       # @api private
       def initialize(parent, value=[])
         @parent = parent
@@ -59,7 +64,16 @@ module Riak
       #
       # @param [String] element the element to remove
       def remove(element)
+        raise CrdtError::SetRemovalWithoutContextError unless context?
         @parent.operate name, update(remove: element)
+      end
+
+            
+      # Does the map containing this set have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        @parent.context?
       end
 
       # @api private

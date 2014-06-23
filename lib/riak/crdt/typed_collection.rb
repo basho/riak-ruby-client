@@ -47,7 +47,11 @@ module Riak
       # @return the value for the given key
       def [](key)
         key = normalize_key key
-        return @contents[key] if include? key
+        if include? key
+          candidate = @contents[key]
+          return candidate unless candidate.respond_to? :parent
+          return candidate if candidate.parent == self
+        end
 
         return nil if initialize_nil?
         
@@ -100,6 +104,14 @@ module Riak
         inner_operation.name = key
         
         @parent.operate inner_operation
+      end
+      
+      
+      # Does this set have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        !!@parent.context?
       end
       
       private

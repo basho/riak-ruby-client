@@ -6,6 +6,11 @@ module Riak
 
       attr_accessor :name
 
+      # The parent of this counter.
+      #
+      # @api private
+      attr_reader :parent
+
       # @api private
       def initialize(parent, value={})
         @parent = parent
@@ -29,6 +34,10 @@ module Riak
         Operation::Delete.new.tap do |op|
           op.type = :map
         end
+      end
+
+      def context?
+        @parent.context?
       end
 
       private

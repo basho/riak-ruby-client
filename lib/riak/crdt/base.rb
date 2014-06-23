@@ -45,6 +45,13 @@ module Riak
 
         self
       end
+
+      # Does this CRDT have the context necessary to remove elements?
+      #
+      # @return [Boolean] if the set has a defined context
+      def context?
+        !!@context
+      end
       
       private
       def client
@@ -71,7 +78,7 @@ module Riak
         options = Hash.new
         options = args.pop if args.last.is_a? Hash
         options[:context] ||= @context
-        operator do |op|
+        result = operator do |op|
           response = op.operate(bucket.name,
                                 key,
                                 bucket_type,
