@@ -1,6 +1,36 @@
 # Riak Ruby Client Release Notes
 
-## 1.4.2 Bugfix Release - TBD
+## 2.0.0 Release - TBD
+
+Version 2.0.0 is a major new version with many new features, API changes,
+and feature removals.
+
+New features:
+
+* Yokozuna: full-text search built on Solr and powered by Riak.
+* Riak security: TLS-encrypted and authenticated protocol buffers, access
+  control, and more!
+* Convergent Replicated Data Types (CRDTs): counters, maps, and sets, all with
+  convenient and safe distributed semantics.
+* Bucket types: the building blocks of Yokozuna, access control, and CRDTs.
+
+API changes:
+
+* Exceptions raised by the client are subclasses of `Riak::Error`.
+* The internals of the Beefcake-based protocol buffers support have been
+  refactored for reliability and maintainability.
+* The Beefcake version has been bumped to 1.0 for improvements in speed and
+  memory usage.
+* Tests now use RSpec 3.
+
+Removed:
+
+* HTTP support has been removed from the Riak Ruby Client in favor of focusing
+  on Protocol Buffers.
+* The included test-server has been removed. Tests now require a Riak node to
+  be configured and run independently of the test suite.
+
+## 1.4.2 Bugfix Release - 2013-09-20
 
 Release 1.4.2 fixes a couple bugs.
 
