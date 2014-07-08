@@ -8,11 +8,13 @@ describe 'Protocol Buffers', test_client: true do
     
     before do
       first = bucket.new 'first'
-      first.raw_data = 'first'
+      first.data = 'first'
+      first.content_type = 'text/plain'
       first.store
 
       second = bucket.new 'second'
-      second.raw_data = 'second'
+      second.data = 'second'
+      second.content_type = 'text/plain'
       second.store
     end
 
