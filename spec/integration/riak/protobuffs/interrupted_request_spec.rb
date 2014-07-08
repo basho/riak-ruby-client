@@ -22,13 +22,12 @@ describe 'Protocol Buffers', test_client: true do
       expect do
         Timeout.timeout 1 do
           loop do
-            expect(bucket.get('first')).to eq 'first'
+            expect(bucket.get('first').data).to eq 'first'
           end
         end
       end.to raise_error Timeout::Error
 
-      second = bucket.get 'second'
-      expect(second.raw_data).to eq 'second'
+      expect(bucket.get('second').data).to eq 'second'
     end    
   end
 end
