@@ -26,7 +26,16 @@ describe 'Secondary indexes', test_client: true, integration: true do
   end
 
   it "returns terms" do
-    expect(backend.get_index(bucket.name, 'index_int', 19..21, return_terms: true)).
-      to(be_a Hash)
+    results = nil
+    expect do
+      results = backend.get_index(bucket.name, 
+                                  'index_int', 
+                                  19..21, 
+                                  return_terms: true)
+    end.to_not raise_error
+
+    expect(results).to be_a Array
+    expect(results.with_terms).to be_a Hash
+  end
   end
 end
