@@ -13,15 +13,15 @@ describe 'Secondary indexes', test_client: true, integration: true do
     end
   end
 
-  it "should find keys for an equality query" do
+  it "finds keys for an equality query" do
     expect(backend.get_index(bucket.name, 'index_int', 20)).to eq(["20"])
   end
 
-  it "should find keys for a range query" do
+  it "finds keys for a range query" do
     expect(backend.get_index(bucket.name, 'index_int', 19..21)).to match_array(["19","20", "21"])
   end
 
-  it "should return an empty array for a query that does not match any keys" do
+  it "returns an empty array for a query that does not match any keys" do
     expect(backend.get_index(bucket.name, 'index_int', 10000)).to eq([])
   end
 
