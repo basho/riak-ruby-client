@@ -26,13 +26,15 @@ module Riak
       def protocol
         p = Protocol.new socket
         in_request = false
+        result = nil
         begin
           in_request = true
-          yield p
+          result = yield p
           in_request = false
         ensure
           reset_socket if in_request
         end
+        return result
       end
 
       def new_socket
