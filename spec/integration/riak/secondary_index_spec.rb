@@ -7,6 +7,7 @@ describe 'Secondary indexes', test_client: true, integration: true do
     50.times do |i|
       bucket.new(i.to_s).tap do |obj|
         obj.indexes["index_int"] << i
+        obj.indexes["index_bin"] << i.to_s
         obj.data = [i]
         backend.store_object(obj)
       end
@@ -37,5 +38,20 @@ describe 'Secondary indexes', test_client: true, integration: true do
     expect(results).to be_a Array
     expect(results.with_terms).to be_a Hash
   end
+
+  it "returns terms matching a term_regex" do
+    results = nil
+    expect do
+      results = backend.get_index(bucket.name, 
+                                  'index_bin', 
+                                  '19'..'21', 
+                                  return_terms: true,
+                                  term_regex: '20')
+    end.to_not raise_error
+
+    terms = results.with_terms
+
+    expect(terms['20']).to be
+    expect(terms['19']).to be_empty
   end
 end
