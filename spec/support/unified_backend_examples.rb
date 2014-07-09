@@ -256,31 +256,6 @@ shared_examples_for "Unified backend API" do
     end
   end
 
-  # get_index
-  context "querying secondary indexes" do
-    before do
-      50.times do |i|
-        @client.bucket('test').new(i.to_s).tap do |obj|
-          obj.indexes["index_int"] << i
-          obj.data = [i]
-          @backend.store_object(obj)
-        end
-      end
-    end
-
-    it "should find keys for an equality query" do
-      expect(@backend.get_index('test', 'index_int', 20)).to eq(["20"])
-    end
-
-    it "should find keys for a range query" do
-      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(["19","20", "21"])
-    end
-
-    it "should return an empty array for a query that does not match any keys" do
-      expect(@backend.get_index('test', 'index_int', 10000)).to eq([])
-    end
-  end
-
   # mapred
   context "performing MapReduce" do
     before do
