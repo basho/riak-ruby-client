@@ -83,6 +83,18 @@ new_one = Riak::RObject.new(bucket, "application.js")
 new_one.content_type = "application/javascript" # You must set the content type.
 new_one.raw_data = "alert('Hello, World!')"
 new_one.store
+
+# Create and store a new object as part of a block of commands using "tap"
+bucket = client.bucket('fruits')
+
+bucket.new('apple').tap do |obj|
+  obj.content_type = 'application/json'
+  obj.data = {
+    :species => 'M. domestica',
+    :colors => %w{red yellow green other}
+  }
+  obj.store
+end
 ```
 
 ## Bucket Types
