@@ -18,7 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rspec", "~> 3.0.0"
   gem.add_development_dependency 'rake', '~> 10.1.1'
   gem.add_development_dependency 'yard', '~> 0.8.7'
-  gem.add_development_dependency 'redcarpet', '~> 3.0.0'
+  gem.add_development_dependency 'kramdown', '~> 1.4'
   gem.add_development_dependency 'simplecov', '~> 0.8.2'
   
   gem.add_runtime_dependency "i18n", ">=0.4.0"
