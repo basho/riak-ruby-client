@@ -41,7 +41,7 @@ module Riak
         if m[1].include? "$"
           source.parent
         else
-          m[1].strip
+          Pathname.new(m[1].strip)
         end
       end
     end
