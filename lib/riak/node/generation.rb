@@ -18,6 +18,7 @@ module Riak
       unless exist?
         touch_ssl_distribution_args
         copy_directories
+        ensure_directories
         write_scripts
         write_vm_args
         write_app_config
@@ -59,10 +60,21 @@ module Riak
       base_dir.each_child do |dir|
         basename = dir.basename.to_s
         next if NODE_DIR_SKIP_LIST.include? basename.to_sym
-        target = Pathname.new("#{root.to_s}")
+        target = Pathname.new("#{root.to_s}") + basename
         target.mkpath
         FileUtils.cp_r(dir.to_s,target)
       end
+    end
+
+    def ensure_directories
+      NODE_DIRECTORIES.each do |dir|
+        send(dir).mkpath
+      end
+      if has_snmp?
+        Pathname(env[:snmp][:agent][:db_dir]).mkpath
+        FileUtils.cp_r((etc_source + 'snmp'), etc)
+      end
+      Pathname(env[:riak_repl][:data_root]).mkpath if has_repl?
     end
 
     def write_vm_args
@@ -88,9 +100,8 @@ module Riak
     end
 
     def write_script(target)
-      target.parent.mkpath
       target_base = target.relative_path_from(target.parent.parent)
-      if source.basename == 'sbin'
+      if source.basename.to_s == 'sbin'
         source_script = source.parent + 'sbin' + target_base.basename
       else
         source_script = source.parent + target_base
