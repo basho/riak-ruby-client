@@ -81,7 +81,7 @@ module Riak
 
     def write_scripts
       if version >= '1.4.0'
-        [env_script].each {|s| write_script(s) }
+        [env_script, control_script, admin_script].each {|s| write_script(s) }
       else
         [control_script, admin_script].each {|s| write_script(s) }
       end
@@ -89,9 +89,15 @@ module Riak
 
     def write_script(target)
       target.parent.mkpath
-      source_script = source.parent + target.relative_path_from(target.parent.parent)
+      target_base = target.relative_path_from(target.parent.parent)
+      if source.basename == 'sbin'
+        source_script = source.parent + 'sbin' + target_base.basename
+      else
+        source_script = source.parent + target_base
+      end
       target.open('wb') do |f|
         source_script.readlines.each do |line|
+          line.sub!(/\. (.*)\/env\.sh/, ". #{env_script}")
           line.sub!(/(RUNNER_SCRIPT_DIR=)(.*)/, '\1' + bin.to_s)
           line.sub!(/(RUNNER_ETC_DIR=)(.*)/, '\1' + etc.to_s)
           line.sub!(/(RUNNER_USER=)(.*)/, '\1')
