@@ -88,6 +88,7 @@ module Riak
     end
 
     def write_script(target)
+      target.parent.mkpath
       source_script = source.parent + target.relative_path_from(target.parent.parent)
       target.open('wb') do |f|
         source_script.readlines.each do |line|
