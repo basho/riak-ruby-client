@@ -25,7 +25,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency "beefcake", ">= 1.0.0.pre1"
   gem.add_runtime_dependency "multi_json", "~>1.0"
   gem.add_runtime_dependency "innertube", "~>1.0.2"
-  gem.add_runtime_dependency 'r509-cert-validator', '~> 0.0.4'
+  gem.add_runtime_dependency 'cert_validator', '~> 0.0.1'
 
   # Files
 
