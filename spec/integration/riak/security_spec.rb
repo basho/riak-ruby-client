@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak'
 require 'riak/errors/connection_error'
-require 'r509/cert/validator/errors'
+require 'cert_validator/errors'
 
 describe 'Secure Protobuffs', test_client: true, integration: true do
   let(:config){ test_client_configuration.dup }
