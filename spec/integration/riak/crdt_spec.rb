@@ -20,12 +20,32 @@ describe "CRDTs", integration: true, test_client: true do
     end
   end
 
-  describe 'an anonymous counter' do
-    subject { Riak::Crdt::Counter.new bucket, nil }
-    it 'accepts a Riak-assigned name' do
-      subject.increment
-      expect(subject.key).to be
-      expect(subject.value).to eq 1
+  describe 'Riak-assigned names' do
+    describe 'an anonymous counter' do
+      subject { Riak::Crdt::Counter.new bucket, nil }
+      it 'accepts a Riak-assigned name' do
+        subject.increment
+        expect(subject.key).to be
+        expect(subject.value).to eq 1
+      end
+    end
+
+    describe 'an anonymous set' do
+      subject { Riak::Crdt::Set.new bucket, nil }
+      it 'accepts a Riak-assigned name' do
+        subject.add 'sandwich'
+        expect(subject.key).to be
+        expect(subject).to include 'sandwich'
+      end
+    end
+
+    describe 'an anonymous map' do
+      subject { Riak::Crdt::Map.new bucket, nil }
+      it 'accepts a Riak-assigned name' do
+        subject.registers['coat_pattern'] = 'tabby'
+        expect(subject.key).to be
+        expect(subject.registers['coat_pattern']).to eq 'tabby'
+      end
     end
   end
   

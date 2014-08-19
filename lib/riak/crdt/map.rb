@@ -32,7 +32,11 @@ module Riak
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)
 
-        initialize_collections
+        if key
+          initialize_collections 
+        else
+          initialize_blank_collections
+        end
       end
 
       # Maps are frequently updated in batches. Use this method to get a 
@@ -71,8 +75,12 @@ module Riak
         reload if dirty?
       end
 
+      def initialize_blank_collections
+        vivify counters: {}, flags: {}, maps: {}, registers: {}, sets: {}
+      end
+
       def write_operations(operations, *args)
-        operator do |op|
+        result = operator do |op|
           op.operate(bucket.name,
                      key,
                      bucket_type,
@@ -80,6 +88,9 @@ module Riak
                      *args
                      )
         end
+
+        @key ||= result.key
+
         # collections break dirty tracking
         reload
       end
