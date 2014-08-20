@@ -5,6 +5,7 @@ require 'riak'
 require 'riak/util/translation'
 require 'riak/util/escape'
 require 'riak/errors/failed_request'
+require 'riak/errors/protobuffs_error'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
@@ -43,6 +44,7 @@ module Riak
       Errno::ENETUNREACH,
       SocketError,
       SystemCallError,
+      Riak::ProtobuffsFailedHeader,
     ]
 
     Pool = ::Innertube::Pool
