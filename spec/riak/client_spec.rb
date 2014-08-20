@@ -200,7 +200,7 @@ describe Riak::Client, test_client: true do
     it "should retry on recoverable errors" do
       call_count = 0
       
-      allow(@backend).to receive(:ping) do
+      allow(@backend).to receive(:ping).at_most(2).times do
         call_count +=1
         # Emit ProtobuffsFailedHeader to simulate timedout socket on first call
         raise Riak::ProtobuffsFailedHeader if call_count < 2
