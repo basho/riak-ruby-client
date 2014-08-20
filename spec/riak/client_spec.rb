@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'riak/errors/protobuffs_error'
 
 describe Riak::Client, test_client: true do
   describe "when initializing" do
@@ -26,6 +27,16 @@ describe Riak::Client, test_client: true do
 
     it "should create a client ID if not specified" do
       expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id).not_to be_nil
+    end
+
+    it "should accept multiple nodes" do
+      client = Riak::Client.new :nodes => [
+        {:host => 'riak1.basho.com'},
+        {:host => 'riak2.basho.com', :pb_port => 1234},
+        {:host => 'riak3.basho.com', :pb_port => 5678}
+      ]
+      expect(client.nodes.size).to eq(3)
+      expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
   end
 
@@ -173,4 +184,32 @@ describe Riak::Client, test_client: true do
       expect(buckets.size).to eq(2)
     end
   end
+
+  describe "when client receives an error from the backend"
+    before do
+      @client = Riak::Client.new :nodes => [
+        {:host => 'riak1.basho.com'},
+        {:host => 'riak2.basho.com'}
+      ]
+      @backend = double("ProtobuffsBackend")
+      @backend_node = double("ProtobuffsBackend.Node")
+      allow(@backend).to receive(:node).and_return(@backend_node)
+      allow(@backend_node).to receive(:error_rate).and_return(0)
+    end
+
+    it "should retry on recoverable errors" do
+      call_count = 0
+      
+      allow(@backend).to receive(:ping) do
+        call_count +=1
+        # Emit ProtobuffsFailedHeader to simulate timedout socket on first call
+        raise Riak::ProtobuffsFailedHeader if call_count < 2
+      end
+
+      pool = Innertube::Pool.new( proc { @backend }, proc {|c| nil })
+      @client.instance_variable_set(:@protobuffs_pool, pool)
+
+      expect(@backend).to receive(:ping).at_least(2).times
+      @client.ping
+    end
 end
