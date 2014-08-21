@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'riak/errors/protobuffs_error'
 
 describe Riak::Client, test_client: true do
   describe "when initializing" do
@@ -26,6 +27,16 @@ describe Riak::Client, test_client: true do
 
     it "should create a client ID if not specified" do
       expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id).not_to be_nil
+    end
+
+    it "should accept multiple nodes" do
+      client = Riak::Client.new :nodes => [
+        {:host => 'riak1.basho.com'},
+        {:host => 'riak2.basho.com', :pb_port => 1234},
+        {:host => 'riak3.basho.com', :pb_port => 5678}
+      ]
+      expect(client.nodes.size).to eq(3)
+      expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
   end
 
@@ -173,4 +184,38 @@ describe Riak::Client, test_client: true do
       expect(buckets.size).to eq(2)
     end
   end
+
+  describe "when receiving errors from the backend"
+    before do
+      @client = Riak::Client.new 
+    end
+
+    it "should retry on recoverable errors" do
+      call_count = 0
+      
+      begin
+        @client.backend do |b| 
+          call_count += 1
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError
+      end
+
+      expect(call_count).to eq(3)
+    end
+
+    it "should throw a RuntimeError if it runs out of retries" do
+      error = nil
+      begin
+        @client.backend do |b| 
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError => e
+        error = e
+      end
+
+      expect(error).not_to be_nil
+      expect(error).to be_instance_of(RuntimeError)
+    end
+
 end
