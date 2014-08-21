@@ -26,6 +26,38 @@ module Riak
         end
       end
 
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.text inspect_name
+          pp.comma_breakable
+          pp.text "parent="
+          pp.pp @parent
+          pp.comma_breakable
+          pp.text "contents="
+          pp.pp @contents
+        end
+        # buf = []
+        # buf << inspect_name
+        # buf << 
+        # buf << "contents={#{inspect_contents}}"
+        # "#<#{self.class.name} #{buf.join ' '}>"
+      end
+
+      def inspect_name
+        "contains=#{content_name}"
+      end
+
+      def pretty_print_contents(pp)
+        @contents.map do |k,v|
+          "#{k}=>#{v.inspect}"
+        end.join ', '
+      end
+
+      def content_name
+        @type.name
+      end
+
       # @api private
       def reparent(new_parent)
         reparented = self.class.new(@type,
