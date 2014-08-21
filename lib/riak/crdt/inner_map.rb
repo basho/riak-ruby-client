@@ -39,6 +39,18 @@ module Riak
         end
       end
 
+      def pretty_print_cycle(pp)
+        pp.text "InnerMap"
+      end
+
+      def to_value_h
+        %w{counters flags maps registers sets}.map do |k|
+          [k, send(k).to_value_h]
+        end.to_h
+      end
+
+      alias :value :to_value_h
+
       # @api private
       def self.delete
         Operation::Delete.new.tap do |op|
