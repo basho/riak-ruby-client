@@ -44,6 +44,13 @@ module Riak
         # "#<#{self.class.name} #{buf.join ' '}>"
       end
 
+      def pretty_print_cycle(pp)
+        pp.object_group self do
+          pp.breakable
+          @parent.pretty_print_cycle(pp)
+        end
+      end
+
       def inspect_name
         "contains=#{content_name}"
       end

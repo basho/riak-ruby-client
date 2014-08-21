@@ -77,7 +77,10 @@ module Riak
       end
 
       def pretty_print(pp)
-        pp.pp to_a
+        pp.object_group self do
+          pp.breakable
+          pp.pp to_a
+        end
       end
 
       # @api private
