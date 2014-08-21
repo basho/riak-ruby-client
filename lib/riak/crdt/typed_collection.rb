@@ -32,7 +32,7 @@ module Riak
           pp.text inspect_name
           pp.comma_breakable
           pp.text "parent="
-          pp.pp @parent
+          @parent.pretty_print_cycle(pp)
           pp.comma_breakable
           pp.text "contents="
           pp.pp @contents
