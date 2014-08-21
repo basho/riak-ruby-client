@@ -76,6 +76,10 @@ module Riak
         @parent.context?
       end
 
+      def pretty_print(pp)
+        pp.pp to_a
+      end
+
       # @api private
       def update(changes)
         Operation::Update.new.tap do |op|
