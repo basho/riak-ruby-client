@@ -54,6 +54,13 @@ module Riak
       def decrement(amount=1)
         increment -amount
       end
+
+      def pretty_print(pp)
+        super pp do
+          pp.comma_breakable
+          pp.text "value=#{value}"
+        end
+      end
       
       private
       def vivify(value)
