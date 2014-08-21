@@ -61,6 +61,16 @@ module Riak
           m.operate operation
         end
       end
+
+      def pretty_print(pp)
+        super pp do
+          %w{counters flags maps registers sets}.each do |h|
+            pp.comma_breakable
+            pp.text "#{h}="
+            pp.pp send h
+          end
+        end
+      end
       
       private
       def vivify(data)
