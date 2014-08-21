@@ -185,31 +185,37 @@ describe Riak::Client, test_client: true do
     end
   end
 
-  describe "when client receives an error from the backend"
+  describe "when receiving errors from the backend"
     before do
-      @client = Riak::Client.new :nodes => [
-        {:host => 'riak1.basho.com'},
-        {:host => 'riak2.basho.com'}
-      ]
-      @backend = double("ProtobuffsBackend")
-      @backend_node = double("ProtobuffsBackend.Node")
-      allow(@backend).to receive(:node).and_return(@backend_node)
-      allow(@backend_node).to receive(:error_rate).and_return(0)
+      @client = Riak::Client.new 
     end
 
     it "should retry on recoverable errors" do
       call_count = 0
       
-      allow(@backend).to receive(:ping).at_most(2).times do
-        call_count +=1
-        # Emit ProtobuffsFailedHeader to simulate timedout socket on first call
-        raise Riak::ProtobuffsFailedHeader if call_count < 2
+      begin
+        @client.backend do |b| 
+          call_count += 1
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError
       end
 
-      pool = Innertube::Pool.new( proc { @backend }, proc {|c| nil })
-      @client.instance_variable_set(:@protobuffs_pool, pool)
-
-      expect(@backend).to receive(:ping).at_least(2).times
-      @client.ping
+      expect(call_count).to eq(3)
     end
+
+    it "should throw a RuntimeError if it runs out of retries" do
+      error = nil
+      begin
+        @client.backend do |b| 
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError => e
+        error = e
+      end
+
+      expect(error).not_to be_nil
+      expect(error).to be_instance_of(RuntimeError)
+    end
+
 end
