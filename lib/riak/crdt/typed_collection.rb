@@ -146,6 +146,14 @@ module Riak
         !!@parent.context?
       end
       
+      def to_value_h
+        return @contents unless NEEDS_NAME.include? @type
+
+        @contents.map do |k, v|
+          [k, v.value]
+        end.to_h
+      end
+
       private
       def normalize_key(unnormalized_key)
         unnormalized_key.to_s
