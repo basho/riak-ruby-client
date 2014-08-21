@@ -29,6 +29,16 @@ module Riak
         @parent.operate(name, wrapped_operation)
       end
 
+      def pretty_print(pp)
+        pp.object_group self do
+          %w{counters flags maps registers sets}.each do |h|
+            pp.comma_breakable
+            pp.text "#{h}="
+            pp.pp send h
+          end
+        end
+      end
+
       # @api private
       def self.delete
         Operation::Delete.new.tap do |op|
