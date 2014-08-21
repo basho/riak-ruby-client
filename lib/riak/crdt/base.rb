@@ -56,11 +56,11 @@ module Riak
       def pretty_print(pp)
         pp.object_group self do
           pp.breakable
+          pp.text "bucket_type=#{@bucket_type}"
+          pp.comma_breakable
           pp.text "bucket=#{@bucket.name}"
           pp.comma_breakable
           pp.text "key=#{@key}"
-          pp.comma_breakable
-          pp.text "type=#{@bucket_type}"
 
           yield
         end
