@@ -74,8 +74,8 @@ module Riak
               @context = OpenSSL::SSL::SSLContext.new
 
               # Replace insecure defaults
-              @context.ssl_version = @auth[:ssl_version] || :TLSv1_2_client
-              @context.verify_mode = @auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER
+              @context.ssl_version = (@auth[:ssl_version] || default_ssl_version).to_sym
+              @context.verify_mode = (@auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER).to_i
 
               cert_ify
               key_ify
@@ -84,6 +84,14 @@ module Riak
               %w{ cert key client_ca ca_file ca_path timeout }.each do |k|
                 @context.send(:"#{k}=", @auth[k.to_sym]) if @auth[k.to_sym]
               end
+            end
+
+            # Choose the most secure SSL version available
+            def default_ssl_version
+              available = OpenSSL::SSL::SSLContext::METHODS
+              %w{TLSv1_2_client TLSv1_1_client TLSv1.1 TLSv1_client TLS}.detect do |v|
+                available.include? v.to_sym
+              end.to_sym
             end
 
             # Convert cert and client_ca fields to X509 Certs
