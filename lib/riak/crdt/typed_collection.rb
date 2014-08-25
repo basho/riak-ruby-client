@@ -26,6 +26,45 @@ module Riak
         end
       end
 
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.text inspect_name
+          pp.comma_breakable
+          pp.text "parent="
+          @parent.pretty_print_cycle(pp)
+          pp.comma_breakable
+          pp.text "contents="
+          pp.pp @contents
+        end
+        # buf = []
+        # buf << inspect_name
+        # buf << 
+        # buf << "contents={#{inspect_contents}}"
+        # "#<#{self.class.name} #{buf.join ' '}>"
+      end
+
+      def pretty_print_cycle(pp)
+        pp.object_group self do
+          pp.breakable
+          @parent.pretty_print_cycle(pp)
+        end
+      end
+
+      def inspect_name
+        "contains=#{content_name}"
+      end
+
+      def pretty_print_contents(pp)
+        @contents.map do |k,v|
+          "#{k}=>#{v.inspect}"
+        end.join ', '
+      end
+
+      def content_name
+        @type.name
+      end
+
       # @api private
       def reparent(new_parent)
         reparented = self.class.new(@type,
@@ -114,6 +153,14 @@ module Riak
         !!@parent.context?
       end
       
+      def to_value_h
+        return @contents unless NEEDS_NAME.include? @type
+
+        @contents.map do |k, v|
+          [k, v.value]
+        end.to_h
+      end
+
       private
       def normalize_key(unnormalized_key)
         unnormalized_key.to_s

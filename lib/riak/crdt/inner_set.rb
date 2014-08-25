@@ -76,6 +76,13 @@ module Riak
         @parent.context?
       end
 
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.pp to_a
+        end
+      end
+
       # @api private
       def update(changes)
         Operation::Update.new.tap do |op|

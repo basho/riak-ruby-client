@@ -52,6 +52,30 @@ module Riak
       def context?
         !!@context
       end
+
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.text "bucket_type=#{@bucket_type}"
+          pp.comma_breakable
+          pp.text "bucket=#{@bucket.name}"
+          pp.comma_breakable
+          pp.text "key=#{@key}"
+
+          yield
+        end
+      end
+
+      def pretty_print_cycle(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.text "#{@bucket_type}/#{@bucket.name}/#{@key}"
+        end
+      end
+
+      def inspect_name
+        "#<#{self.class.name} bucket=#{@bucket.name} key=#{@key} type=#{@bucket_type}>"
+      end
       
       private
       def client

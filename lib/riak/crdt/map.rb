@@ -61,6 +61,24 @@ module Riak
           m.operate operation
         end
       end
+
+      def pretty_print(pp)
+        super pp do
+          %w{counters flags maps registers sets}.each do |h|
+            pp.comma_breakable
+            pp.text "#{h}="
+            pp.pp send h
+          end
+        end
+      end
+
+      def to_value_h
+        %w{counters flags maps registers sets}.map do |k|
+          [k, send(k).to_value_h]
+        end.to_h
+      end
+
+      alias :value :to_value_h
       
       private
       def vivify(data)

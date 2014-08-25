@@ -92,6 +92,13 @@ module Riak
 
       alias :delete :remove
       
+      def pretty_print(pp)
+        super pp do
+          pp.comma_breakable
+          pp.pp to_a
+        end
+      end
+
       private
       def vivify(value)
         @members = value

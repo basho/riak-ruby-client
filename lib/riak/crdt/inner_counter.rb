@@ -55,6 +55,13 @@ module Riak
         increment batcher.accumulator
       end
       
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.pp value
+        end
+      end
+
       # @api private
       def self.update(increment)
         Operation::Update.new.tap do |op|
