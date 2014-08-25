@@ -81,6 +81,7 @@ en:
       read_data_error: "Tried to read cert or key from %{candidate}, caught error %{actual}."
       unexpected_during_init: "Expected %{expected}, got %{actual} with body %{body} during SSL/TLS initialization."
       unknown_key_type: "Can't figure out what the client key is. Expected it to be some kind of OpenSSL::PKey::PKey subclass, a filename string, or string data representing the key itself."
+      version_configuration_error: "Couldn't find a supported default ssl_version. Configure one that works with your version of Ruby."
     stale_write_prevented: "Stale write prevented by client."
     stored_function_invalid: "function must have :bucket and :key when a hash"
     streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."

@@ -89,9 +89,13 @@ module Riak
             # Choose the most secure SSL version available
             def default_ssl_version
               available = OpenSSL::SSL::SSLContext::METHODS
-              %w{TLSv1_2_client TLSv1_1_client TLSv1.1 TLSv1_client TLS}.detect do |v|
+              selected = %w{TLSv1_2_client TLSv1_1_client TLSv1.1 TLSv1_client TLS}.detect do |v|
                 available.include? v.to_sym
-              end.to_sym
+              end
+
+              raise TlsError::SslVersionConfigurationError.new unless selected
+
+              return selected
             end
 
             # Convert cert and client_ca fields to X509 Certs
