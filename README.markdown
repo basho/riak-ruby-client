@@ -16,8 +16,8 @@ it is fixed. Additionally, client certificate authentication doesn't work in
 JRuby. [This issue is also being tracked][2], and this document will be updated
 when it works.
 
-1: https://github.com/jruby/jruby-openssl/issues/5
-2: https://github.com/basho/riak_api/issues/65
+[1]: https://github.com/jruby/jruby-openssl/issues/5
+[2]: https://github.com/basho/riak_api/issues/65
 
 `riak-client` requires i18n, builder, beefcake, and multi_json. The
 cache store implementation requires ActiveSupport 3 or later.
