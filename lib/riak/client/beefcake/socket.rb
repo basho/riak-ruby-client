@@ -1,5 +1,5 @@
 require 'openssl'
-require 'r509/cert/validator'
+require 'cert_validator'
 require 'riak/client/beefcake/messages'
 require 'riak/errors/connection_error'
 
@@ -62,7 +62,11 @@ module Riak
 
             private
             def riak_cert
-              @riak_cert ||= R509::Cert.new cert: @tls.peer_cert
+              @riak_cert ||= @tls.peer_cert
+            end
+
+            def ca_cert
+              @ca_cert ||= @tls.peer_cert_chain[1]
             end
 
             # Set up an SSL context with appropriate defaults for Riak TLS
@@ -70,8 +74,8 @@ module Riak
               @context = OpenSSL::SSL::SSLContext.new
 
               # Replace insecure defaults
-              @context.ssl_version = @auth[:ssl_version] || :TLSv1_2_client
-              @context.verify_mode = @auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER
+              @context.ssl_version = (@auth[:ssl_version] || default_ssl_version).to_sym
+              @context.verify_mode = (@auth[:verify_mode] || OpenSSL::SSL::VERIFY_PEER).to_i
 
               cert_ify
               key_ify
@@ -80,6 +84,18 @@ module Riak
               %w{ cert key client_ca ca_file ca_path timeout }.each do |k|
                 @context.send(:"#{k}=", @auth[k.to_sym]) if @auth[k.to_sym]
               end
+            end
+
+            # Choose the most secure SSL version available
+            def default_ssl_version
+              available = OpenSSL::SSL::SSLContext::METHODS
+              selected = %w{TLSv1_2_client TLSv1_1_client TLSv1.1 TLSv1_client TLS}.detect do |v|
+                available.include? v.to_sym
+              end
+
+              raise TlsError::SslVersionConfigurationError.new unless selected
+
+              return selected
             end
 
             # Convert cert and client_ca fields to X509 Certs
@@ -150,23 +166,24 @@ module Riak
             # Validate the TLS session
             def validate_session
               if @auth[:verify_hostname] &&
-                  !OpenSSL::SSL::verify_certificate_identity(riak_cert.cert, @host)
+                  !OpenSSL::SSL::verify_certificate_identity(riak_cert, @host)
                 raise TlsError::CertHostMismatchError.new
               end
 
-              unless riak_cert.valid?
+              unless (riak_cert.not_before..riak_cert.not_after).cover? Time.now
                 raise TlsError::CertNotValidError.new
               end
 
-              validator = R509::Cert::Validator.new riak_cert
+              validator = CertValidator.new riak_cert, ca_cert
 
-              validator_options = {}
-              validator_options[:ocsp] = !!@auth[:ocsp]
-              validator_options[:crl] = !!@auth[:crl]
-              validator_options[:crl_file] = @auth[:crl_file]
+              validator.crl = try_load @auth[:crl_file] if @auth[:crl_file]
 
-              unless validator.validate(validator_options)
-                raise TlsError::CertRevokedError.new
+              if @auth[:crl]
+                raise TlsError::CertRevokedError.new unless validator.crl_valid?
+              end
+
+              if @auth[:ocsp]
+                raise TlsError::CertRevokedError.new unless validator.ocsp_valid?
               end
             end
 

@@ -12,10 +12,6 @@ platforms :mri do
   gem 'yajl-ruby'
 end
 
-platforms :jruby do
-  gem 'jruby-openssl'
-end
-
 platforms :jruby, :rbx do
   gem 'json'
 end

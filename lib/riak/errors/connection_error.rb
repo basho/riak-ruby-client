@@ -5,6 +5,12 @@ module Riak
   end
 
   class TlsError < ConnectionError
+    class SslVersionConfigurationError < TlsError
+      def initialize
+        super t('ssl.version_configuration_error')
+      end
+    end
+
     class CertHostMismatchError < TlsError
       def initialize
         super t('ssl.cert_host_mismatch')

@@ -1,4 +1,4 @@
-# Riak Ruby Client (riak-client) [![Build Status](https://secure.travis-ci.org/basho/riak-ruby-client.png)](http://travis-ci.org/basho/riak-ruby-client)
+# Riak Ruby Client (riak-client)
 
 `riak-client` is a rich Ruby client/toolkit for Riak, Basho's
 distributed database that contains a basic wrapper around typical
@@ -9,6 +9,15 @@ and map-reduce.
 
 Ruby 1.9.3, 2.0, and 2.1 are supported. JRuby in 1.9 and 2.0 modes are
 also supported. `riak-client` is not compatible with Ruby 1.8.
+
+In JRuby 1.7.13, OCSP validation is absent, and CRL validation always
+fails. [This issue is being tracked][1] and this document will be updated when
+it is fixed. Additionally, client certificate authentication doesn't work in
+JRuby. [This issue is also being tracked][2], and this document will be updated
+when it works.
+
+[1]: https://github.com/jruby/jruby-openssl/issues/5
+[2]: https://github.com/basho/riak_api/issues/65
 
 `riak-client` requires i18n, builder, beefcake, and multi_json. The
 cache store implementation requires ActiveSupport 3 or later.
