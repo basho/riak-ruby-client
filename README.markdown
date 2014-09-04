@@ -141,51 +141,33 @@ p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night",
 
 ## Riak Search Examples
 
-For more information about Riak Search, see [the Basho wiki](http://wiki.basho.com/Riak-Search.html).
+This client supports the new Riak Search 2 (codenamed "Yokozuna"). For more information about Riak Search, see [the Riak documentation](http://docs.basho.com/riak/2.0.0beta1/dev/using/search/).
+
+This documentation assumes there's a `yokozuna` bucket type created and activated.
 
 ``` ruby
-# Create a client, specifying the Solr-compatible endpoint
-# When connecting to Riak 0.14 and later, the Solr endpoint configuration option is not necessary.
-client = Riak::Client.new :solr => "/solr"
+# Create a client and bucket.
+client = Riak::Client.new
+bucket = client.bucket 'pizzas'
 
-# Search the default index for documents
-result = client.search("title:Yesterday") # Returns a vivified JSON object
-                                          # containing 'responseHeaders' and 'response' keys
-result['response']['numFound'] # total number of results
-result['response']['start']    # offset into the total result set
-result['response']['docs']     # the list of indexed documents
+# Create an index and add it to a typed bucket. Setting the index on the bucket
+# may fail until the index creation has propagated. 
+client.create_search_index 'pizzas'
+client.set_bucket_props bucket, {search_index: 'pizzas'}, 'yokozuna'
 
-# Search the 'users' index for documents
-client.search("users", "name:Sean")
+# Store some records for indexing
+meat = bucket.new 'meat'
+meat.data = {toppings_ss: %w{pepperoni ham sausage}}
+meat.store type: 'yokozuna'
 
-# Add a document to an index
-client.index("users", {:id => "sean@basho.com", :name => "Sean Cribbs"}) # adds to the 'users' index
+hawaiian = bucket.new 'hawaiian'
+hawaiian.data = {toppings_ss: %w{ham pineapple}}
+hawaiian.store type: 'yokozuna'
 
-client.index({:id => "index.html", :content => "Hello, world!"}) # adds to the default index
-
-client.index({:id => 1, :name => "one"}, {:id => 2, :name => "two"}) # adds multiple docs
-
-# Remove document(s) from an index
-client.remove({:id => 1})             # removes the document with ID 1
-client.remove({:query => "archived"}) # removes all documents matching query
-client.remove({:id => 1}, {:id => 5}) # removes multiple docs
-
-client.remove("users", {:id => "sean@basho.com"}) # removes from the 'users' index
-
-# Seed MapReduce with search results
-Riak::MapReduce.new(client).
-        search("users","email:basho").
-        map("Riak.mapValuesJson", :keep => true).
-        run
-
-# Detect whether a bucket has auto-indexing
-client['users'].is_indexed?
-
-# Enable auto-indexing on a bucket
-client['users'].enable_index!
-
-# Disable auto-indexing on a bucket
-client['users'].disable_index!
+# Search the pizzas index for hashes that have a "ham" entry in the toppings_ss array
+result = client.search('pizzas', 'toppings_ss:ham') # Returns a results hash
+result['num_found'] # total number of results
+result['docs']      # the list of indexed documents
 ```
 
 ## Secondary Index Examples
