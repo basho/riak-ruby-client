@@ -96,7 +96,7 @@ new_one.store
 
 ## Bucket Types
 
-Riak 2 uses [bucket types](http://docs.basho.com/riak/2.0.0pre11/dev/advanced/bucket-types/) to
+Riak 2 uses [bucket types](http://docs.basho.com/riak/latest/dev/advanced/bucket-types/) to
 enable groups of similar buckets to share properties, configuration, and to namespace values 
 within those buckets. Bucket type support is integral to how CRDTs work.
 
@@ -141,7 +141,7 @@ p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night",
 
 ## Riak Search Examples
 
-This client supports the new Riak Search 2 (codenamed "Yokozuna"). For more information about Riak Search, see [the Riak documentation](http://docs.basho.com/riak/2.0.0beta1/dev/using/search/).
+This client supports the new Riak Search 2 (codenamed "Yokozuna"). For more information about Riak Search, see [the Riak documentation](http://docs.basho.com/riak/latest/dev/using/search/).
 
 This documentation assumes there's a `yokozuna` bucket type created and activated.
 
@@ -388,7 +388,7 @@ in the `lib/riak/crdt` directory.
 
 ## Riak 1.4 Counters
 
-For more information about counters in Riak, see [the Basho wiki](http://docs.basho.com/riak/latest/dev/references/http/counters/).
+For more information about 1.4-style counters in Riak, see [the Basho documentation](http://docs.basho.com/riak/latest/dev/references/http/counters/).
 
 Counter records are automatically persisted on increment or decrement. The initial default value is 0.
 
@@ -470,7 +470,7 @@ That's about it. PN Counters in Riak are distributed, so each node will receive 
 
 ## License & Copyright
 
-Copyright &copy;2010-2012 Sean Cribbs and Basho Technologies, Inc.
+Copyright &copy;2010-2014 Sean Cribbs and Basho Technologies, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
