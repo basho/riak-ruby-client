@@ -45,6 +45,8 @@ module Riak
         end
 
         def get_loader_for_value(value)
+          return nil if value.nil?
+
           [CounterLoader, MapLoader, SetLoader].map do |loader|
             loader.for_value value
           end.compact.first
@@ -53,7 +55,6 @@ module Riak
         private
         # Convert the protobuffs response into low-level Ruby objects.
         def rubyfy(response)
-          return nil_rubyfy(response.type) if response.value.nil?
           loader = get_loader_for_value response.value
           return nil_rubyfy(response.type) if loader.nil?
 
