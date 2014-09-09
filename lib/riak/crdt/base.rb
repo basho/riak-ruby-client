@@ -112,9 +112,25 @@ module Riak
 
           break if :empty == response
           @key = response.key if response.key
+          response
         end
 
         @dirty = true
+        vivify_returnbody(result)
+
+        return true
+      end
+
+      def vivify_returnbody(result)
+        loader do |l|
+          specific_loader = l.get_loader_for_value result
+
+          return false if specific_loader.nil?
+
+          vivify specific_loader.rubyfy
+          @context = result.context unless result.context.nil?
+          @dirty = false
+        end
       end
     end
   end
