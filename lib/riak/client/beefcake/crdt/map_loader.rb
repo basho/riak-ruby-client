@@ -3,12 +3,17 @@ module Riak
     class BeefcakeProtobuffsBackend
       class CrdtLoader
         class MapLoader
+          def self.for_value(resp)
+            return nil unless resp.map_value
+            new resp.map_value
+          end
+
           def initialize(map_value)
             @value = map_value
           end
 
           def rubyfy
-            accum = { 
+            accum = {
               counters: {},
               flags: {},
               maps: {},
@@ -32,7 +37,7 @@ module Riak
                 sets: {}
               }
             end
-            
+
             contents_loop map_value.map_value, destination
           end
 

@@ -1,4 +1,6 @@
+require 'riak/client/beefcake/crdt/counter_loader'
 require 'riak/client/beefcake/crdt/map_loader'
+require 'riak/client/beefcake/crdt/set_loader'
 
 module Riak
   class Client
@@ -10,7 +12,7 @@ module Riak
       def crdt_loader
         return CrdtLoader.new self
       end
-      
+
       # Loads, and deserializes CRDTs from protobuffs into Ruby hashes,
       # sets, strings, and integers.
       # @api private
@@ -42,19 +44,20 @@ module Riak
           rubyfy response
         end
 
+        def get_loader_for_value(value)
+          [CounterLoader, MapLoader, SetLoader].map do |loader|
+            loader.for_value value
+          end.compact.first
+        end
+
         private
         # Convert the protobuffs response into low-level Ruby objects.
         def rubyfy(response)
           return nil_rubyfy(response.type) if response.value.nil?
-          case response.type
-          when DtFetchResp::DataType::COUNTER
-            response.value.counter_value
-          when DtFetchResp::DataType::SET
-            ::Set.new response.value.set_value
-          when DtFetchResp::DataType::MAP
-            MapLoader.new(response.value.map_value).rubyfy
-            
-          end
+          loader = get_loader_for_value response.value
+          return nil_rubyfy(response.type) if loader.nil?
+
+          return loader.rubyfy
         end
 
         # Sometimes a CRDT is empty, provide a sane default.
