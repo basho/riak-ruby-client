@@ -1,3 +1,7 @@
+require 'riak/client/beefcake/crdt/counter_loader'
+require 'riak/client/beefcake/crdt/map_loader'
+require 'riak/client/beefcake/crdt/set_loader'
+
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
@@ -8,7 +12,7 @@ module Riak
       def crdt_loader
         return CrdtLoader.new self
       end
-      
+
       # Loads, and deserializes CRDTs from protobuffs into Ruby hashes,
       # sets, strings, and integers.
       # @api private
@@ -40,68 +44,21 @@ module Riak
           rubyfy response
         end
 
+        def get_loader_for_value(value)
+          return nil if value.nil?
+
+          [CounterLoader, MapLoader, SetLoader].map do |loader|
+            loader.for_value value
+          end.compact.first
+        end
+
         private
         # Convert the protobuffs response into low-level Ruby objects.
         def rubyfy(response)
-          return nil_rubyfy(response.type) if response.value.nil?
-          case response.type
-          when DtFetchResp::DataType::COUNTER
-            response.value.counter_value
-          when DtFetchResp::DataType::SET
-            ::Set.new response.value.set_value
-          when DtFetchResp::DataType::MAP
-            rubyfy_map response.value.map_value
-          end
-        end
+          loader = get_loader_for_value response.value
+          return nil_rubyfy(response.type) if loader.nil?
 
-        # Convert a top-level map into a Ruby {Hash} of hashes.
-        def rubyfy_map(map_value)
-          accum = {
-            counters: {},
-            flags: {},
-            maps: {},
-            registers: {},
-            sets: {}
-          }
-
-          rubyfy_map_contents map_value, accum
-        end
-
-        # Convert a map inside another map into a Ruby {Hash}.
-        def rubyfy_inner_map(accum, map_value)
-          destination = accum[:maps][map_value.field.name]
-          if destination.nil?
-            destination = accum[:maps][map_value.field.name] = {
-              counters: {},
-              flags: {},
-              maps: {},
-              registers: {},
-              sets: {}
-            }
-          end
-          
-          rubyfy_map_contents map_value.map_value, destination
-        end
-
-        # Load the contents of a map into Ruby hashes.
-        def rubyfy_map_contents(map_value, destination)
-          return destination if map_value.nil?
-          map_value.each do |inner_mv|
-            case inner_mv.field.type
-            when MapField::MapFieldType::COUNTER
-              destination[:counters][inner_mv.field.name] = inner_mv.counter_value
-            when MapField::MapFieldType::FLAG
-              destination[:flags][inner_mv.field.name] = inner_mv.flag_value
-            when MapField::MapFieldType::MAP
-              rubyfy_inner_map destination, inner_mv
-            when MapField::MapFieldType::REGISTER
-              destination[:registers][inner_mv.field.name] = inner_mv.register_value
-            when MapField::MapFieldType::SET
-              destination[:sets][inner_mv.field.name] = ::Set.new inner_mv.set_value
-            end
-          end
-
-          return destination
+          return loader.rubyfy
         end
 
         # Sometimes a CRDT is empty, provide a sane default.

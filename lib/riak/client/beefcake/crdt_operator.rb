@@ -30,7 +30,8 @@ module Riak
             bucket: bucket,
             key: key,
             type: bucket_type,
-            op: serialized
+            op: serialized,
+            return_body: true,
           }.merge options
           request = DtUpdateReq.new args
           begin

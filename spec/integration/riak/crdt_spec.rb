@@ -7,14 +7,14 @@ describe "CRDTs", integration: true, test_client: true do
   describe 'configuration' do
     it "should allow default bucket-types to be configured for each data type" do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
-      
+
       Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'new_set_default'
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_set_default'
 
       Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'sets'
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
     end
-    
+
     it "should allow override bucket-types for instances" do
       expect(Riak::Crdt::Set.new(bucket, 'set', 'other_bucket_type').bucket_type).to eq 'other_bucket_type'
     end
@@ -48,7 +48,7 @@ describe "CRDTs", integration: true, test_client: true do
       end
     end
   end
-  
+
   describe 'counters' do
     subject { Riak::Crdt::Counter.new bucket, random_key }
     it 'should allow straightforward counter ops' do
@@ -62,7 +62,7 @@ describe "CRDTs", integration: true, test_client: true do
       subject.decrement
       expect(subject.value).to eq(start)
     end
-    
+
     it 'should allow batched counter ops' do
       start = subject.value
       subject.batch do |s|
@@ -73,11 +73,26 @@ describe "CRDTs", integration: true, test_client: true do
       end
       expect(subject.value).to eq(start + 5)
     end
+
+    it 'asks for and accepts a returned body by default' do
+      other = Riak::Crdt::Counter.new subject.bucket, subject.key
+
+      start = subject.value
+
+      expect(subject.value).to eq start
+
+      other.increment 10
+
+      subject.increment 1
+
+      expect(subject.dirty?).to_not be
+      expect(subject.value).to eq(start + 10 + 1)
+    end
   end
   describe 'sets' do
 
     subject { Riak::Crdt::Set.new bucket, random_key }
-    
+
     it 'should allow straightforward set ops' do
       start = subject.members
       addition = random_key
@@ -91,7 +106,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.members).to_not include(addition)
       expect(subject.members).to eq(start)
     end
-    
+
     it 'lets Riak silently accept removals after reload' do
       addition = random_key
       subject.add addition
@@ -107,7 +122,7 @@ describe "CRDTs", integration: true, test_client: true do
     it 'should allow batched set ops' do
       subject.add 'zero'
       subject.reload
-      
+
       subject.batch do |s|
         s.add 'first'
         s.remove 'zero'
@@ -115,10 +130,25 @@ describe "CRDTs", integration: true, test_client: true do
 
       expect(subject.members.to_a).to eq %w{first}
     end
+
+    it 'asks for and accepts a returned body by default' do
+      other = Riak::Crdt::Set.new subject.bucket, subject.key
+
+      expect(subject.include? 'coffee').to_not be
+      expect(other.include? 'coffee').to_not be
+
+      other.add 'coffee'
+      subject.add 'tea'
+
+      expect(subject.dirty?).to_not be
+
+      expect(other.include? 'coffee').to be
+      expect(subject.include? 'coffee').to be
+    end
   end
   describe 'maps' do
     subject { Riak::Crdt::Map.new bucket, random_key }
-    
+
     it 'should allow straightforward map ops' do
       subject.registers['first'] = 'hello'
       expect(subject.registers['first']).to eq('hello')
@@ -150,7 +180,7 @@ describe "CRDTs", integration: true, test_client: true do
         subject.flags.delete 'yes'
       end.to_not raise_error
     end
-    
+
     it 'should allow batched map ops' do
       subject.batch do |s|
         s.registers['condiment'] = 'ketchup'
@@ -160,7 +190,22 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.registers['condiment']).to eq 'ketchup'
       expect(subject.counters['banana'].value).to eq 1
     end
-    
+
+    it 'asks for and accepts a returned body by default' do
+      other = Riak::Crdt::Map.new subject.bucket, subject.key
+
+      expect(subject.sets['bees'].include? 'honey').to_not be
+      expect(other.sets['bees'].include? 'honey').to_not be
+
+      other.sets['bees'].add 'honey'
+      subject.counters['stings'].increment
+
+      expect(subject.dirty?).to_not be
+
+      expect(other.sets['bees'].include? 'honey').to be
+      expect(subject.sets['bees'].include? 'honey').to be
+    end
+
     describe 'containing a map' do
       it 'should bubble straightforward map ops up' do
         street_map = subject.maps['street']
@@ -170,7 +215,7 @@ describe "CRDTs", integration: true, test_client: true do
 
         expect(subject.maps['street'])
       end
-      
+
       it 'should include inner-map ops in the outer-map batch' do
         subject.batch do |m|
           m.maps['road'].counters['speedbumps'].increment 4
