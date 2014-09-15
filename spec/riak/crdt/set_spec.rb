@@ -9,7 +9,7 @@ describe Riak::Crdt::Set do
     end
   end
 
-  it 'should be initialized with bucket, key, and optional bucket-type' do
+  it 'initializes with bucket, key, and optional bucket-type' do
     expect{described_class.new bucket, 'key', 'optional bucket type'}.
       to_not raise_error
   end
@@ -32,7 +32,7 @@ describe Riak::Crdt::Set do
 
     include_examples 'Set CRDT'
 
-    it 'should batch properly' do
+    it 'batches properly' do
       expect(operator).
         to receive(:operate) { |bucket, key, type, operations|
 

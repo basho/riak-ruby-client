@@ -17,13 +17,13 @@ describe Riak::Crdt::InnerMap do
     }
   end
   
-  it 'should be initializable with a nested hash of maps' do
+  it 'is initializable with a nested hash of maps' do
     expect{described_class.new parent, populated_contents}.
       to_not raise_error
   end
 
   describe 'deleting the inner map' do
-    it 'should ask the class for a delete operation' do
+    it 'asks the class for a delete operation' do
       operation = described_class.delete
 
       expect(operation.type).to eq :map
@@ -32,7 +32,7 @@ describe Riak::Crdt::InnerMap do
 
   describe 'receiving an operation' do
     let(:inner_operation){ double 'inner operation' }
-    it 'should wrap the operation in an update operation and pass it to the parent' do
+    it 'wraps the operation in an update operation and pass it to the parent' do
       subject.name = 'name'
       
       expect(parent).to receive(:operate) do |name, op|

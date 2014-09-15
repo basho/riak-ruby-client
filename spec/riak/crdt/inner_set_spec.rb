@@ -12,7 +12,7 @@ describe Riak::Crdt::InnerSet do
 
   include_examples 'Set CRDT'
 
-  it 'should send additions to the parent' do
+  it 'sends additions to the parent' do
     expect(parent).to receive(:operate) do |name, op|
       expect(name).to eq set_name
       expect(op.type).to eq :set

@@ -28,7 +28,7 @@ describe Riak::Crdt::Map do
   include_examples 'Map CRDT'
 
   describe 'batch mode' do
-    it 'should queue up operations' do
+    it 'queues up operations' do
       expect(operator).
         to receive(:operate) do |bucket, key_arg, type, operations|
 
@@ -51,7 +51,7 @@ describe Riak::Crdt::Map do
   end
 
   describe 'immediate mode' do
-    it 'should submit member operations immediately' do
+    it 'submits member operations immediately' do
       expect(operator).
         to receive(:operate) do |bucket, key_arg, type, operations|
 
