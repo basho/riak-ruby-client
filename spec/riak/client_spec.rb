@@ -85,7 +85,7 @@ describe Riak::Client, test_client: true do
 
     it "raises an error when the chosen backend is not valid" do
       expect(Riak::Client::BeefcakeProtobuffsBackend).to receive(:configured?).and_return(false)
-      expect { @client.protobuffs { |x| } }.to raise_error
+      expect { @client.protobuffs { |x| } }.to raise_error Riak::BackendCreationError
     end
   end
 

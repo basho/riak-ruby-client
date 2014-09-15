@@ -6,6 +6,7 @@ require 'riak/util/translation'
 require 'riak/util/escape'
 require 'riak/errors/failed_request'
 require 'riak/errors/protobuffs_error'
+require 'riak/errors/backend_creation'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
@@ -283,7 +284,7 @@ module Riak
 
         klass.new(self, node)
       else
-        raise t('protobuffs_configuration', :backend => @protobuffs_backend)
+        raise BackendCreationError.new @protobuffs_backend
       end
     end
 
