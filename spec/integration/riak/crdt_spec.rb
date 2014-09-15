@@ -5,7 +5,7 @@ describe "CRDTs", integration: true, test_client: true do
   let(:bucket) { random_bucket }
 
   describe 'configuration' do
-    it "should allow default bucket-types to be configured for each data type" do
+    it "allows default bucket-types to be configured for each data type" do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
 
       Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'new_set_default'
@@ -15,7 +15,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
     end
 
-    it "should allow override bucket-types for instances" do
+    it "allows override bucket-types for instances" do
       expect(Riak::Crdt::Set.new(bucket, 'set', 'other_bucket_type').bucket_type).to eq 'other_bucket_type'
     end
   end
@@ -51,7 +51,7 @@ describe "CRDTs", integration: true, test_client: true do
 
   describe 'counters' do
     subject { Riak::Crdt::Counter.new bucket, random_key }
-    it 'should allow straightforward counter ops' do
+    it 'allows straightforward counter ops' do
       start = subject.value
       subject.increment
       expect(subject.value).to eq(start + 1)
@@ -63,7 +63,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.value).to eq(start)
     end
 
-    it 'should allow batched counter ops' do
+    it 'allows batched counter ops' do
       start = subject.value
       subject.batch do |s|
         s.increment
@@ -93,7 +93,7 @@ describe "CRDTs", integration: true, test_client: true do
 
     subject { Riak::Crdt::Set.new bucket, random_key }
 
-    it 'should allow straightforward set ops' do
+    it 'allows straightforward set ops' do
       start = subject.members
       addition = random_key
 
@@ -119,7 +119,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect{ other.remove 'an element not in the set' }.to_not raise_error
     end
 
-    it 'should allow batched set ops' do
+    it 'allows batched set ops' do
       subject.add 'zero'
       subject.reload
 
@@ -149,7 +149,7 @@ describe "CRDTs", integration: true, test_client: true do
   describe 'maps' do
     subject { Riak::Crdt::Map.new bucket, random_key }
 
-    it 'should allow straightforward map ops' do
+    it 'allows straightforward map ops' do
       subject.registers['first'] = 'hello'
       expect(subject.registers['first']).to eq('hello')
 
@@ -181,7 +181,7 @@ describe "CRDTs", integration: true, test_client: true do
       end.to_not raise_error
     end
 
-    it 'should allow batched map ops' do
+    it 'allows batched map ops' do
       subject.batch do |s|
         s.registers['condiment'] = 'ketchup'
         s.counters['banana'].increment
@@ -207,7 +207,7 @@ describe "CRDTs", integration: true, test_client: true do
     end
 
     describe 'containing a map' do
-      it 'should bubble straightforward map ops up' do
+      it 'bubbles straightforward map ops up' do
         street_map = subject.maps['street']
 
         street_map.registers['bird'] = 'avenue'
@@ -216,7 +216,7 @@ describe "CRDTs", integration: true, test_client: true do
         expect(subject.maps['street'])
       end
 
-      it 'should include inner-map ops in the outer-map batch' do
+      it 'includes inner-map ops in the outer-map batch' do
         subject.batch do |m|
           m.maps['road'].counters['speedbumps'].increment 4
           m.maps['road'].sets['signs'].add 'yield'
@@ -228,7 +228,7 @@ describe "CRDTs", integration: true, test_client: true do
     end
 
     describe 'containing a register' do
-      it 'should bubble straightforward register ops up' do
+      it 'bubbles straightforward register ops up' do
         subject.registers['hkey_local_machine'] = 'registry'
 
         expect(subject.registers['hkey_local_machine']).to eq 'registry'
@@ -236,7 +236,7 @@ describe "CRDTs", integration: true, test_client: true do
     end
 
     describe 'containing a flag' do
-      it 'should bubble straightforward flag ops up' do
+      it 'bubbles straightforward flag ops up' do
         subject.flags['enable_magic'] = true
 
         expect(subject.flags['enable_magic']).to be

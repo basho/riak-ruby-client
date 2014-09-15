@@ -10,17 +10,17 @@ describe "Search features" do
     end
 
     describe "searching" do
-      it "should search the default index" do
+      it "searches the default index" do
         expect(@pb).to receive(:search).with(nil, "foo", {}).and_return({})
         @client.search("foo")
       end
 
-      it "should search the default index with additional options" do
+      it "searches the default index with additional options" do
         expect(@pb).to receive(:search).with(nil, 'foo', 'rows' => 30).and_return({})
         @client.search("foo", 'rows' => 30)
       end
 
-      it "should search the specified index" do
+      it "searches the specified index" do
         expect(@pb).to receive(:search).with('search', 'foo', {}).and_return({})
         @client.search("search", "foo")
       end
@@ -41,7 +41,7 @@ describe "Search features" do
       @bucket.instance_variable_set(:@props, {"precommit" => [{"mod" => "riak_search_kv_hook", "fun" => "precommit"}], "search" => true})
     end
 
-    it "should detect whether the indexing hook is installed" do
+    it "detects whether the indexing hook is installed" do
       load_without_index_hook
       expect(@bucket.is_indexed?).to be_falsey
 
@@ -50,13 +50,13 @@ describe "Search features" do
     end
 
     describe "enabling indexing" do
-      it "should add the index hook when not present" do
+      it "adds the index hook when not present" do
         load_without_index_hook
         expect(@bucket).to receive(:props=).with({"precommit" => [Riak::Bucket::SEARCH_PRECOMMIT_HOOK], "search" => true})
         @bucket.enable_index!
       end
 
-      it "should not modify the precommit when the hook is present" do
+      it "doesn't modify the precommit when the hook is present" do
         load_with_index_hook
         expect(@bucket).not_to receive(:props=)
         @bucket.enable_index!
@@ -64,13 +64,13 @@ describe "Search features" do
     end
 
     describe "disabling indexing" do
-      it "should remove the index hook when present" do
+      it "removes the index hook when present" do
         load_with_index_hook
         expect(@bucket).to receive(:props=).with({"precommit" => [], "search" => false})
         @bucket.disable_index!
       end
 
-      it "should not modify the precommit when the hook is missing" do
+      it "doesn't modify the precommit when the hook is missing" do
         load_without_index_hook
         expect(@bucket).not_to receive(:props=)
         @bucket.disable_index!
@@ -85,17 +85,17 @@ describe "Search features" do
     end
 
     describe "using a search query as inputs" do
-      it "should accept a bucket name and query" do
+      it "accepts a bucket name and query" do
         @mr.search("foo", "bar OR baz")
         expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
-      it "should accept a Riak::Bucket and query" do
+      it "accepts a Riak::Bucket and query" do
         @mr.search(Riak::Bucket.new(@client, "foo"), "bar OR baz")
         expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
-      it "should emit the Erlang function and arguments" do
+      it "emits the Erlang function and arguments" do
         @mr.search("foo", "bar OR baz")
         expect(@mr.to_json).to include('"inputs":{')
         expect(@mr.to_json).to include('"module":"riak_search"')
