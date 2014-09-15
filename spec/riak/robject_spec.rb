@@ -7,34 +7,34 @@ describe Riak::RObject do
   end
 
   describe "initialization" do
-    it "should set the bucket" do
+    it "sets the bucket" do
       @object = Riak::RObject.new(@bucket)
       expect(@object.bucket).to eq(@bucket)
     end
 
-    it "should set the key" do
+    it "sets the key" do
       @object = Riak::RObject.new(@bucket, "bar")
       expect(@object.key).to eq("bar")
     end
 
-    it "should initialize the links to an empty set" do
+    it "initializes the links to an empty set" do
       @object = Riak::RObject.new(@bucket, "bar")
       expect(@object.links).to eq(Set.new)
     end
 
-    it "should initialize the meta to an empty hash" do
+    it "initializes the meta to an empty hash" do
       @object = Riak::RObject.new(@bucket, "bar")
       expect(@object.meta).to eq({})
     end
 
-    it "should initialize indexes to an empty hash with a Set for the default value" do
+    it "initializes indexes to an empty hash with a Set for the default value" do
       @object = Riak::RObject.new(@bucket, "bar")
       expect(@object.indexes).to be_kind_of(Hash)
       expect(@object.indexes).to be_empty
       expect(@object.indexes['foo_bin']).to be_kind_of(Set)
     end
 
-    it "should yield itself to a given block" do
+    it "yields itself to a given block" do
       Riak::RObject.new(@bucket, "bar") do |r|
         expect(r.key).to eq("bar")
       end
@@ -73,19 +73,19 @@ describe Riak::RObject do
           @object.data = { 'some' => 'data' }
         end
 
-        it "should reset unserialized forms when stored" do
+        it "resets unserialized forms when stored" do
           @object.raw_data = value = '{ "raw": "json" }'
 
           expect(@object.raw_data).to eq(value)
           expect(@object.data).to eq({ "raw" => "json" })
         end
 
-        it "should lazily serialize when read" do
+        it "lazily serializes when read" do
           expect(@object.raw_data).to eq('{"some":"data"}')
         end
       end
 
-      it "should not unnecessarily marshal/demarshal" do
+      it "only marshal/demarshals when necessary" do
         expect(@object).not_to receive(:serialize)
         expect(@object).not_to receive(:deserialize)
         @object.raw_data = value = "{not even valid json!}}"
@@ -99,13 +99,13 @@ describe Riak::RObject do
           @object.raw_data = '{"some":"data"}'
         end
 
-        it "should reset previously stored raw data" do
+        it "resets previously stored raw data" do
           @object.data = value = { "new" => "data" }
           expect(@object.raw_data).to eq('{"new":"data"}')
           expect(@object.data).to eq(value)
         end
 
-        it "should lazily deserialize when read" do
+        it "lazily deserializes when read" do
           expect(@object.data).to eq({ "some" => "data" })
         end
 
@@ -118,7 +118,8 @@ describe Riak::RObject do
             expect(@object.data).to eq('deserialized')
           end
 
-          it 'does not allow it to be assigned directly to data since it should be assigned to raw_data instead' do
+          it 'does not allow it to be assigned directly to data' do
+            # it should be assigned to raw_data instead
             expect {
               @object.data = io_object
             }.to raise_error(ArgumentError)
@@ -126,7 +127,7 @@ describe Riak::RObject do
         end
       end
 
-      it "should not unnecessarily marshal/demarshal" do
+      it "only marshal/demarshals when necessary" do
         expect(@object).not_to receive(:serialize)
         expect(@object).not_to receive(:deserialize)
         @object.data = value = { "some" => "data" }
@@ -166,55 +167,55 @@ describe Riak::RObject do
       expect(@object).to be_kind_of(Riak::RObject)
     end
 
-    it "should load the content type" do
+    it "loads the content type" do
       expect(@object.content_type).to eq("application/json")
     end
 
-    it "should load the body data" do
+    it "loads the body data" do
       expect(@object.data).to be_present
     end
 
-    it "should deserialize the body data" do
+    it "deserializes the body data" do
       expect(@object.data).to eq({"email" => "mail@test.com", "_type" => "User"})
     end
 
-    it "should set the vclock" do
+    it "sets the vclock" do
       expect(@object.vclock).to eq("a85hYGBgzmDKBVIsCfs+fc9gSN9wlA8q/hKosDpIOAsA")
     end
 
-    it "should load and parse links" do
+    it "loads and parse links" do
       expect(@object.links.size).to eq(1)
       expect(@object.links.first.url).to eq("/riak/addresses/A2cbUQ2KEMbeyWGtdz97LoTi1DN")
       expect(@object.links.first.rel).to eq("home_address")
     end
 
-    it "should load and parse indexes" do
+    it "loads and parse indexes" do
       expect(@object.indexes.size).to eq(2)
       expect(@object.indexes['email_bin'].size).to eq(2)
       expect(@object.indexes['rank_int'].size).to eq(1)
     end
 
-    it "should set the ETag" do
+    it "sets the ETag" do
       expect(@object.etag).to eq("5bnavU3rrubcxLI8EvFXhB")
     end
 
-    it "should set modified date" do
+    it "sets modified date" do
       expect(@object.last_modified.to_i).to eq(Time.httpdate("Mon, 12 Jul 2010 21:37:43 GMT").to_i)
     end
 
-    it "should load meta information" do
+    it "loads meta information" do
       expect(@object.meta["King-Of-Robots"]).to eq(["I"])
     end
 
-    it "should set the key" do
+    it "sets the key" do
       expect(@object.key).to eq("A2IbUQ2KEMbe4WGtdL97LoTi1DN[(\\/)]")
     end
 
-    it "should not set conflict when there is none" do
+    it "doesn't set conflict when there is none" do
       expect(@object.conflict?).to be_falsey
     end
 
-    it 'should return [RContent] for siblings' do
+    it 'returns [RContent] for siblings' do
       expect(@object.siblings).to eq([@object.content])
     end
 
@@ -234,27 +235,27 @@ describe Riak::RObject do
         @object = Riak::RObject.load_from_mapreduce( @client, response ).first
       end
 
-      it "should expose siblings" do
+      it "exposes siblings" do
         expect(@object.siblings.size).to eq(2)
         expect(@object.siblings[0].etag).to eq("5bnavU3rrubcxLI8EvFXhB")
         expect(@object.siblings[1].etag).to eq("7jDZLdu0fIj2iRsjGD8qq8")
       end
 
-      it "should be in conflict" do
+      it "raises the conflict? flag when in conflict" do
         expect { @object.data }.to raise_error(Riak::Conflict)
         expect(@object).to be_conflict
       end
     end
   end
 
-  it "should not allow duplicate links" do
+  it "doesn't allow duplicate links" do
     @object = Riak::RObject.new(@bucket, "foo")
     @object.links << Riak::Link.new("/riak/foo/baz", "next")
     @object.links << Riak::Link.new("/riak/foo/baz", "next")
     expect(@object.links.length).to eq(1)
   end
 
-  it "should allow mass-overwriting indexes while preserving default behavior" do
+  it "allows mass-overwriting indexes while preserving default behavior" do
     @object = described_class.new(@bucket, 'foo')
     @object.indexes = {"ts_int" => [12345], "foo_bin" => "bar"}
     expect(@object.indexes['ts_int']).to eq(Set.new([12345]))
@@ -272,21 +273,21 @@ describe Riak::RObject do
       # @headers = @object.store_headers
     end
 
-    it "should raise an error when the content_type is blank" do
+    it "raises an error when the content_type is blank" do
       expect { @object.content_type = nil; @object.store }.to raise_error(ArgumentError)
       expect { @object.content_type = "   "; @object.store }.to raise_error(ArgumentError)
     end
 
-    it "should raise an error when given an empty string as key" do
+    it "raises an error when given an empty string as key" do
       expect { @object.key = ''; @object.store }.to raise_error(ArgumentError)
     end
 
-    it "should pass along quorum parameters and returnbody to the backend" do
+    it "passes quorum parameters and returnbody to the backend" do
       expect(@backend).to receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
       @object.store(:returnbody => false, :w => 3, :dw => 2)
     end
 
-    it "should raise an error if the object is in conflict" do
+    it "raises an error if the object is in conflict" do
       @object.siblings << Riak::RContent.new(@object)
       expect { @object.store }.to raise_error(Riak::Conflict)
     end
@@ -300,29 +301,29 @@ describe Riak::RObject do
       @object.vclock = "somereallylongstring"
     end
 
-    it "should return without requesting if the key is blank" do
+    it "returns without requesting if the key is blank" do
       @object.key = nil
       expect(@backend).not_to receive(:reload_object)
       @object.reload
     end
 
-    it "should return without requesting if the vclock is blank" do
+    it "returns without requesting if the vclock is blank" do
       @object.vclock = nil
       expect(@backend).not_to receive(:reload_object)
       @object.reload
     end
 
-    it "should reload the object if the key is present" do
+    it "reloads the object if the key is present" do
       expect(@backend).to receive(:reload_object).with(@object, {}).and_return(@object)
       @object.reload
     end
 
-    it "should pass along the requested R quorum" do
+    it "passes the requested R quorum to the backend" do
       expect(@backend).to receive(:reload_object).with(@object, :r => 2).and_return(@object)
       @object.reload :r => 2
     end
 
-    it "should disable matching conditions if the key is present and the :force option is given" do
+    it "disables matching conditions if the key is present and the :force option is given" do
       expect(@backend).to receive(:reload_object) do |obj, _|
         expect(obj.etag).to be_nil
         expect(obj.last_modified).to be_nil
@@ -339,42 +340,42 @@ describe Riak::RObject do
       @object = Riak::RObject.new(@bucket, "bar")
     end
 
-    it "should make a DELETE request to the Riak server and freeze the object" do
+    it "makes a DELETE request to the Riak server and freeze the object" do
       expect(@backend).to receive(:delete_object).with(@bucket, "bar", {})
       @object.delete
       expect(@object).to be_frozen
     end
 
-    it "should do nothing when the key is blank" do
+    it "does nothing when the key is blank" do
       expect(@backend).not_to receive(:delete_object)
       @object.key = nil
       @object.delete
     end
 
-    it "should pass through a failed request exception" do
+    it "raises a failed request exception when the backend returns a server error" do
       expect(@backend).to receive(:delete_object).
         and_raise(Riak::ProtobuffsFailedRequest.new(:server_error, "server error"))
       expect { @object.delete }.to raise_error(Riak::FailedRequest)
     end
 
-    it "should send the vector clock if present" do
+    it "sends the vector clock to the backend if present" do
       @object.vclock = "somevclock"
       expect(@backend).to receive(:delete_object).with(@bucket, "bar", {:vclock => "somevclock"})
       @object.delete
     end
   end
 
-  it "should not convert to link without a tag" do
+  it "doesn't convert to link without a tag" do
     @object = Riak::RObject.new(@bucket, "bar")
     expect { @object.to_link }.to raise_error
   end
 
-  it "should convert to a link having the same url and a supplied tag" do
+  it "converts to a link having the same url and a supplied tag" do
     @object = Riak::RObject.new(@bucket, "bar")
     expect(@object.to_link("next")).to eq(Riak::Link.new("/riak/foo/bar", "next"))
   end
 
-  it "should escape the bucket and key when converting to a link" do
+  it "escapes the bucket and key when converting to a link" do
     @object = Riak::RObject.new(@bucket, "deep/path")
     expect(@bucket).to receive(:name).and_return("bucket spaces")
     expect(@object.to_link("bar").url).to eq("/riak/bucket%20spaces/deep%2Fpath")

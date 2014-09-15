@@ -5,7 +5,7 @@ describe Riak::Crdt::InnerFlag do
   describe 'a truthy flag' do
     subject { described_class.new parent, true }
 
-    it 'should feel truthy' do
+    it 'feels truthy' do
       expect(subject).to be
     end
   end
@@ -13,7 +13,7 @@ describe Riak::Crdt::InnerFlag do
   describe 'a falsey flag' do
     subject { described_class.new parent, false }
 
-    it 'should feel falsey' do
+    it 'feels falsey' do
       expect(subject).to_not be
     end
   end
@@ -21,7 +21,7 @@ describe Riak::Crdt::InnerFlag do
   describe 'updating' do
     let(:new_value){ false }
     
-    it 'should ask the class for an update operation' do
+    it '\asks the class for an update operation' do
       operation = described_class.update(new_value)
 
       expect(operation.value).to eq new_value
@@ -30,7 +30,7 @@ describe Riak::Crdt::InnerFlag do
   end
 
   describe 'deleting' do
-    it 'should ask the class for a delete operation' do
+    it 'asks the class for a delete operation' do
       operation = described_class.delete
 
       expect(operation.type).to eq :flag

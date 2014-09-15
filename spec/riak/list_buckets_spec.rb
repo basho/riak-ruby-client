@@ -13,7 +13,7 @@ describe Riak::ListBuckets do
   end
 
   describe "non-streaming" do
-    it 'should call the backend without a block' do
+    it 'calls the backend without a block' do
       @expect_list.with({}).and_return(%w{a b c d})
 
       @client.list_buckets
@@ -21,7 +21,7 @@ describe Riak::ListBuckets do
   end
 
   describe "streaming" do
-    it 'should call the backend with a block' do
+    it 'calls the backend with a block' do
       @expect_list.
         and_yield(%w{abc abd abe}).
         and_yield(%w{bbb ccc ddd})

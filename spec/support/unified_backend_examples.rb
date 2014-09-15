@@ -1,6 +1,6 @@
 shared_examples_for "Unified backend API" do
   # ping
-  it "should ping the server" do
+  it "pings the server" do
     expect(@backend.ping).to be_truthy
   end
 
@@ -28,14 +28,14 @@ shared_examples_for "Unified backend API" do
       @backend.store_object(@robject)
     end
 
-    it "should find a stored object" do
+    it "finds a stored object" do
       robj = @backend.fetch_object(@bucket.name, "fetch")
       expect(robj).to be_kind_of(Riak::RObject)
       expect(robj.data).to eq({ "test" => "pass" })
       expect(robj.links).to be_a Set
     end
 
-    it "should raise an error when the object is not found" do
+    it "raises an error when the object is not found" do
       begin
         @backend.fetch_object(@bucket.name, "notfound")
       rescue Riak::FailedRequest => exception
@@ -46,13 +46,13 @@ shared_examples_for "Unified backend API" do
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
-      it "should accept a R value of #{q.inspect} for the request" do
+      it "accepts a R value of #{q.inspect} for the request" do
         robj = @backend.fetch_object(@bucket.name, "fetch", :r => q)
         expect(robj).to be_kind_of(Riak::RObject)
         expect(robj.data).to eq({ "test" => "pass" })
       end
 
-      it "should accept a PR value of #{q.inspect} for the request" do
+      it "accepts a PR value of #{q.inspect} for the request" do
         robj = @backend.fetch_object(@bucket.name, "fetch", :pr => q)
         expect(robj).to be_kind_of(Riak::RObject)
         expect(robj.data).to eq({ "test" => "pass" })
@@ -78,16 +78,16 @@ shared_examples_for "Unified backend API" do
       @backend.store_object(@robject2, :returnbody => true)
     end
 
-    it "should modify the object with the reloaded data" do
+    it "modifies the object with the reloaded data" do
       @backend.reload_object(@robject)
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
-      it "should accept a valid R value of #{q.inspect} for the request" do
+      it "accepts a valid R value of #{q.inspect} for the request" do
         @backend.reload_object(@robject, :r => q)
       end
 
-      it "should accept a valid PR value of #{q.inspect} for the request" do
+      it "accepts a valid PR value of #{q.inspect} for the request" do
         @backend.reload_object(@robject, :pr => q)
       end
     end
@@ -108,31 +108,31 @@ shared_examples_for "Unified backend API" do
       @robject.data = {"test" => "pass"}
     end
 
-    it "should save the object" do
+    it "saves the object" do
       @backend.store_object(@robject)
     end
 
-    it "should modify the object with the returned data if returnbody" do
+    it "modifies the object with the returned data if returnbody" do
       @backend.store_object(@robject, :returnbody => true)
       expect(@robject.vclock).to be_present
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
-      it "should accept a W value of #{q.inspect} for the request" do
+      it "accepts a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
         expect(@bucket.exists?(@robject.key)).to be_truthy
       end
 
-      it "should accept a DW value of #{q.inspect} for the request" do
+      it "accepts a DW value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => :all, :dw => q)
       end
 
-      it "should accept a PW value of #{q.inspect} for the request" do
+      it "accepts a PW value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :pw => q)
       end
     end
 
-    it "should store an object with indexes" do
+    it "stores an object with indexes" do
       @robject.indexes['foo_bin'] << 'bar'
       @backend.store_object(@robject, :returnbody => true)
       expect(@robject.indexes).to include('foo_bin')
@@ -153,18 +153,18 @@ shared_examples_for "Unified backend API" do
       @backend.store_object(@obj)
     end
 
-    it "should remove the object" do
+    it "removes the object" do
       @backend.delete_object("test", "delete")
       expect(@obj.bucket.exists?("delete")).to be_falsey
     end
 
     [1,2,3,:one,:quorum,:all,:default].each do |q|
-      it "should accept an RW value of #{q.inspect} for the request" do
+      it "accepts an RW value of #{q.inspect} for the request" do
         @backend.delete_object("test", "delete", :rw => q)
       end
     end
 
-    it "should accept a vclock value for the request" do
+    it "accepts a vclock value for the request" do
       @backend.delete_object("test", "delete", :vclock => @obj.vclock)
     end
 
@@ -175,7 +175,7 @@ shared_examples_for "Unified backend API" do
 
   # get_bucket_props
   context "fetching bucket properties" do
-    it "should fetch a hash of bucket properties" do
+    it "fetches a hash of bucket properties" do
       props = @backend.get_bucket_props("test")
       expect(props).to be_kind_of(Hash)
       expect(props).to include("n_val")
@@ -184,7 +184,7 @@ shared_examples_for "Unified backend API" do
 
   # set_bucket_props
   context "setting bucket properties" do
-    it "should store properties for the bucket" do
+    it "stores properties for the bucket" do
       @backend.set_bucket_props("test", {"n_val" => 3})
       expect(@backend.get_bucket_props("test")["n_val"]).to eq(3)
     end
@@ -200,12 +200,12 @@ shared_examples_for "Unified backend API" do
       @backend.store_object(obj)
     end
 
-    it "should fetch an array of string keys" do
+    it "fetches an array of string keys" do
       expect(@backend.list_keys(@list_bucket)).to eq(["keys"])
     end
 
     context "streaming through a block" do
-      it "should handle a large number of keys" do
+      it "handles a large number of keys" do
         obj = Riak::RObject.new(@list_bucket)
         obj.content_type = "application/json"
         obj.data = [1]
@@ -218,13 +218,13 @@ shared_examples_for "Unified backend API" do
         end
       end
 
-      it "should pass an array of keys to the block" do
+      it "passes an array of keys to the block" do
         @backend.list_keys(@list_bucket) do |keys|
           expect(keys).to eq(["keys"]) unless keys.empty?
         end
       end
 
-      it "should allow requests issued inside the block to execute" do
+      it "allows requests issued inside the block to execute" do
         errors = []
         @backend.list_keys(@list_bucket) do |keys|
           keys.each do |key|
@@ -249,7 +249,7 @@ shared_examples_for "Unified backend API" do
       @backend.store_object(obj)
     end
 
-    it "should fetch a list of string bucket names" do
+    it "fetches a list of string bucket names" do
       list = @backend.list_buckets
       expect(list).to be_kind_of(Array)
       expect(list).to include("test")
@@ -268,15 +268,15 @@ shared_examples_for "Unified backend API" do
       end
     end
 
-    it "should find keys for an equality query" do
+    it "finds keys for an equality query" do
       expect(@backend.get_index('test', 'index_int', 20)).to eq(["20"])
     end
 
-    it "should find keys for a range query" do
+    it "finds keys for a range query" do
       expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(["19","20", "21"])
     end
 
-    it "should return an empty array for a query that does not match any keys" do
+    it "returns an empty array for a query that does not match any keys" do
       expect(@backend.get_index('test', 'index_int', 10000)).to eq([])
     end
   end
@@ -294,27 +294,27 @@ shared_examples_for "Unified backend API" do
         map("Riak.mapValuesJson", :keep => true)
     end
 
-    it "should not raise an error without phases" do
+    it "doesn't raise an error without phases" do
       @mapred.query.clear
       @backend.mapred(@mapred)
     end
 
-    it "should perform a simple MapReduce request" do
+    it "performs a simple MapReduce request" do
       expect(@backend.mapred(@mapred)).to eq([{"value" => "1"}])
     end
 
-    it "should return an ordered array of results when multiple phases are kept" do
+    it "returns an ordered array of results when multiple phases are kept" do
       @mapred.reduce("function(objects){ return objects; }", :keep => true)
       expect(@backend.mapred(@mapred)).to eq([[{"value" => "1"}], [{"value" => "1"}]])
     end
 
-    it "should not remove empty phase results when multiple phases are kept" do
+    it "doesn't remove empty phase results when multiple phases are kept" do
       @mapred.reduce("function(){ return []; }", :keep => true)
       expect(@backend.mapred(@mapred)).to eq([[{"value" => "1"}], []])
     end
 
     context "streaming results through a block" do
-      it "should pass phase number and result to the block" do
+      it "passes phase number and result to the block" do
         @backend.mapred(@mapred) do |phase, result|
           unless result.empty?
             expect(phase).to eq(0)
@@ -323,7 +323,7 @@ shared_examples_for "Unified backend API" do
         end
       end
 
-      it "should allow requests issued inside the block to execute" do
+      it "allows requests issued inside the block to execute" do
         errors = []
         @backend.mapred(@mapred) do |phase, result|
           unless result.empty?

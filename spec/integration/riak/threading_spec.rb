@@ -62,7 +62,7 @@ describe "Multithreaded client", :test_client => true do
         @bucket = random_bucket 'threading'
       end
 
-      it 'should get in parallel' do
+      it 'gets in parallel' do
         data = "the gun is good"
         ro = @bucket.new('test')
         ro.content_type = "application/json"
@@ -76,7 +76,7 @@ describe "Multithreaded client", :test_client => true do
         end
       end
 
-      it 'should put in parallel' do
+      it 'puts in parallel' do
         data = "the tabernacle is indestructible and everlasting"
 
         n = 10
@@ -97,7 +97,7 @@ describe "Multithreaded client", :test_client => true do
       # This is a 1.0+ spec because putting with the same client ID
       # will not create siblings on 0.14 in the same way. This will
       # also likely fail for nodes with vnode_vclocks = false.
-      it 'should put conflicts in parallel' do
+      it 'puts conflicts in parallel' do
         @bucket.allow_mult = true
         expect(@bucket.allow_mult).to eq(true)
 
@@ -123,7 +123,7 @@ describe "Multithreaded client", :test_client => true do
         end.to_set).to eq((0...n).to_set)
       end
 
-      it 'should list-keys and get in parallel', :slow => true do
+      it 'lists-keys and gets in parallel', :slow => true do
         count = 100
         threads = 2
 

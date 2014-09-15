@@ -5,7 +5,7 @@ describe Riak::Crdt::TypedCollection do
   let(:operation){ double 'operation' }
 
   describe 'initialization' do
-    it "should accept a type, parent, and hash of values" do
+    it "accepts a type, parent, and hash of values" do
       expect{ described_class.new Riak::Crdt::Counter, parent, {} }.to_not raise_error
     end
   end
@@ -17,7 +17,7 @@ describe Riak::Crdt::TypedCollection do
         described_class.new register_class, parent, existing: 'existing'
       end
       
-      it 'should expose them as frozen strings that are really Registers' do
+      it 'exposes them as frozen strings that are really Registers' do
         expect(subject[:existing]).to eq 'existing'
         expect(subject['existing']).to eq 'existing'
         expect(subject[:existing]).to be_an_instance_of register_class
@@ -29,10 +29,7 @@ describe Riak::Crdt::TypedCollection do
 
         let(:new_value){ 'the new value' }
         
-        it <<-EOD.gsub(/\s+/, ' ') do
-          should ask the register class for an operation with the new value,
-          add a name to it, and pass it up to the parent
-          EOD
+        it 'asks the register class for an operation' do
           expect(register_class).to receive(:update).
             with(new_value).
             and_return(operation)
@@ -51,10 +48,7 @@ describe Riak::Crdt::TypedCollection do
 
       describe 'removing' do
 
-        it <<-EOD.gsub(/\s+/, ' ') do
-          should ask the register class for a remove operation, add a name to
-          it, and pass it up to the parent
-          EOD
+        it 'asks the register class for a remove operation' do
           expect(register_class).
             to receive(:delete).
             and_return(operation)
@@ -77,12 +71,12 @@ describe Riak::Crdt::TypedCollection do
         described_class.new flag_class, parent, truthy: true, falsey: false
       end
       
-      it 'should expose them as booleans' do
+      it 'exposes them as booleans' do
         expect(subject[:truthy]).to eq true
         expect(subject['falsey']).to eq false
       end
 
-      it 'should update them' do
+      it 'updates them' do
         expect(flag_class).
           to receive(:update).
           with(true).
@@ -99,7 +93,7 @@ describe Riak::Crdt::TypedCollection do
         subject['become_truthy'] = true
       end
       
-      it 'should delete them' do
+      it 'deletes them' do
         expect(flag_class).
           to receive(:delete).
           and_return(operation)
@@ -120,19 +114,19 @@ describe Riak::Crdt::TypedCollection do
 
       subject{ described_class.new counter_class, parent, zero: 0, one: 1 }
       
-      it 'should expose existing ones as Counter instances' do
+      it 'exposes existing ones as Counter instances' do
         expect(subject['zero']).to be_an_instance_of counter_class
         expect(subject['zero'].to_i).to eq 0
         
         expect(subject['one'].to_i).to eq 1
       end
       
-      it 'should expose new ones as Counter instances' do
+      it 'exposes new ones as Counter instances' do
         expect(subject['new_zero']).to be_an_instance_of counter_class
         expect(subject['new_zero'].to_i).to eq 0
       end
       
-      it 'should allow incrementing and decrementing' do
+      it 'allows incrementing and decrementing' do
         counter_name = 'counter'
         
         expect(parent).to receive(:operate) do |op|
@@ -156,17 +150,17 @@ describe Riak::Crdt::TypedCollection do
 
       subject{ described_class.new set_class, parent, brewers: %w{aeropress clever v60}}
       
-      it 'should expose existing ones as Set instances' do
+      it 'exposes existing ones as Set instances' do
         expect(subject['brewers']).to be_an_instance_of set_class
         expect(subject['brewers']).to include 'aeropress'
       end
       
-      it 'should expose new ones as empty Set instances' do
+      it 'exposes new ones as empty Set instances' do
         expect(subject['filters']).to be_an_instance_of set_class
         expect(subject['filters']).to be_empty
       end
       
-      it 'should allow adding and removing' do
+      it 'allows adding and removing' do
         set_name = 'brewers'
 
         expect(parent).to receive(:operate) do |op|
@@ -205,17 +199,17 @@ describe Riak::Crdt::TypedCollection do
         described_class.new map_class, parent, contents
       end
       
-      it 'should expose existing ones as populated Map instances' do
+      it 'exposes existing ones as populated Map instances' do
         expect(subject['a']).to be_an_instance_of map_class
         expect(subject['a'].registers['hello']).to eq 'world'
       end
       
-      it 'should expose new ones as empty Map instances' do
+      it 'exposes new ones as empty Map instances' do
         expect(subject['b']).to be_an_instance_of map_class
         expect(subject['b'].registers['hello']).to be_nil
       end
       
-      it 'should cascade operations to a parent map' do
+      it 'cascades operations to a parent map' do
         expect(operation).
           to receive(:name=).
           with(inner_map_name)

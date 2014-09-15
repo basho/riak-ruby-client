@@ -19,7 +19,7 @@ describe "Protocol Buffers", test_client: true do
         describe "searching yokozuna" do
           include_context "search corpus setup"
 
-          it 'should return documents with UTF-8 fields (GH #75)' do
+          it 'returns documents with UTF-8 fields (GH #75)' do
             utf8 = Encoding.find('UTF-8')
             results = @backend.search @search_bucket.name, 'fearless elephant rushed', df: 'text'
             results['docs'].each do |d|

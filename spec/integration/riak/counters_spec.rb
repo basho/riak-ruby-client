@@ -9,7 +9,7 @@ describe Riak::Counter, test_client: true, integration: true do
     @counter = Riak::Counter.new @bucket, 'counter_spec'
   end
 
-  it 'should read and update' do
+  it 'reads and updates' do
     initial = @counter.value
 
     @counter.increment

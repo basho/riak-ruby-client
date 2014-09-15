@@ -10,7 +10,7 @@ describe Riak::Client::FeatureDetection do
   subject { klass.new }
 
   context "when the get_server_version is unimplemented" do
-    it "should raise a NotImplementedError" do
+    it "raises a NotImplementedError" do
       expect { subject.server_version }.to raise_error(NotImplementedError)
     end
   end

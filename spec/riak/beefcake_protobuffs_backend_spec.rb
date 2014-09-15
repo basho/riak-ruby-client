@@ -17,7 +17,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       allow(TCPSocket).to receive(:new).and_return(@socket)
     end
 
-    it 'should raise an appropriate error when 2i is not available' do
+    it 'raises an appropriate error when 2i is not available' do
       expect(protocol).to receive(:write)
       expect(protocol).to receive(:expect).
         and_raise(
@@ -34,7 +34,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
     end
     
     context 'when streaming' do
-      it "should stream when a block is given" do 
+      it "streams when a block is given" do 
         expect(protocol).to receive(:write) do |msg, req|
           expect(msg).to eq(:IndexReq)
           expect(req[:stream]).to eq(true)
@@ -47,7 +47,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         backend.get_index('bucket', 'words', 'asdf'..'hjkl', &blk)
       end
 
-      it "should send batches of results to the block" do
+      it "sends batches of results to the block" do
         expect(protocol).to receive(:write)
         
         response_sets = [%w{asdf asdg asdh}, %w{gggg gggh gggi}]
@@ -68,7 +68,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       end
     end
 
-    it "should return a full batch of results when not streaming" do
+    it "returns a full batch of results when not streaming" do
       expect(protocol).to receive(:write) do |msg, req|
         expect(msg).to eq(:IndexReq)
         expect(req[:stream]).not_to be
@@ -85,7 +85,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       expect(results).to eq(%w{asdf asdg asdh})
     end
 
-    it "should not crash out when no keys or terms are returned" do
+    it "returns no results when no keys or terms are returned" do
       expect(protocol).to receive(:write) do |msg, req|
         expect(msg).to eq(:IndexReq)
         expect(req[:stream]).not_to be
@@ -109,7 +109,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
   context "#mapred" do
     let(:mapred) { Riak::MapReduce.new(client).add('test').map("function(){}").map("function(){}") }
 
-    it "should not return nil for previous phases that don't return anything" do
+    it "returns empty sets for previous phases that don't return anything" do
       expect(protocol).to receive(:write)
 
       message = double(:message, :phase => 1, :response => [{}].to_json)
@@ -137,7 +137,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       end
     end
 
-    it "should set the if_none_match field when the object is new" do
+    it "sets the if_none_match field when the object is new" do
       expect(protocol).to receive(:write) do |msg, req|
         expect(msg).to eq(:PutReq)
         expect(req.if_none_match).to be_truthy
@@ -148,7 +148,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
       backend.store_object(robject)
     end
 
-    it "should set the if_not_modified field when the object has a vclock" do
+    it "sets the if_not_modified field when the object has a vclock" do
       robject.vclock = Base64.encode64("foo")
       expect(protocol).to receive(:write) do |msg, req|
         expect(msg).to eq(:PutReq)

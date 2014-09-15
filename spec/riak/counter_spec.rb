@@ -10,13 +10,13 @@ describe Riak::Counter do
       allow(@bucket).to receive('is_a?').and_return(true)
     end
 
-    it "should set the bucket and key" do
+    it "sets the bucket and key" do
       ctr = Riak::Counter.new @bucket, @key
       expect(ctr.bucket).to eq(@bucket)
       expect(ctr.key).to eq(@key)
     end
 
-    it "should require allow_mult" do
+    it "requires allow_mult" do
       @bad_bucket = Riak::Bucket.allocate
       allow(@bad_bucket).to receive(:allow_mult).and_return(false)
       allow(@bad_bucket).to receive(:client).and_return(double('client'))
@@ -44,37 +44,37 @@ describe Riak::Counter do
       @increment_expectation = proc{|n| expect(@backend).to receive(:post_counter).with(@bucket, @key, n, {})}
     end
 
-    it "should increment by 1 by default" do
+    it "increments by 1 by default" do
       @increment_expectation[1]
       @ctr.increment
     end
 
-    it "should support incrementing by positive numbers" do
+    it "increments by positive numbers" do
       @increment_expectation[15]
       @ctr.increment 15
     end
 
-    it "should support incrementing by negative numbers" do
+    it "increments by negative numbers" do
       @increment_expectation[-12]
       @ctr.increment -12
     end
 
-    it "should decrement by 1 by default" do
+    it "decrements by 1 by default" do
       @increment_expectation[-1]
       @ctr.decrement
     end
 
-    it "should support decrementing by positive numbers" do
+    it "decrements by positive numbers" do
       @increment_expectation[-30]
       @ctr.decrement 30
     end
 
-    it "should support decrementing by negative numbers" do
+    it "decrements by negative numbers" do
       @increment_expectation[41]
       @ctr.decrement -41
     end
 
-    it "should forbid incrementing by non-integers" do
+    it "forbids incrementing by non-integers" do
       [1.1, nil, :'1', '1', 2.0/2, [1]].each do |candidate|
         expect do
           @ctr.increment candidate
@@ -109,12 +109,12 @@ describe Riak::Counter do
       @ctr = Riak::Counter.new @bucket, @key
     end
 
-    it "should not retry on timeout" do
+    it "doesn't retry on timeout" do
       @expect_post.once.and_raise('timeout')
       expect(proc { @ctr.increment }).to raise_error
     end
     
-    it "should not retry on quorum failure" do
+    it "doesn't retry on quorum failure" do
       @expect_post.once.and_raise('quorum not satisfied')
       expect(proc { @ctr.increment }).to raise_error
     end
