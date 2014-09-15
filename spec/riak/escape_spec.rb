@@ -7,7 +7,7 @@ describe Riak::Util::Escape do
     @object.extend(Riak::Util::Escape)
   end
 
-  it "should use URI by default for escaping" do
+  it "uses URI by default for escaping" do
     expect(Riak.escaper).to eq(URI)
   end
 
@@ -15,21 +15,21 @@ describe Riak::Util::Escape do
     before { @oldesc, Riak.escaper = Riak.escaper, CGI }
     after { Riak.escaper = @oldesc }
 
-    it "should escape standard non-safe characters" do
+    it "escapes standard non-safe characters" do
       expect(@object.escape("some string")).to eq("some%20string")
       expect(@object.escape("another^one")).to eq("another%5Eone")
       expect(@object.escape("bracket[one")).to eq("bracket%5Bone")
     end
 
-    it "should escape slashes" do
+    it "escapes slashes" do
       expect(@object.escape("some/inner/path")).to eq("some%2Finner%2Fpath")
     end
 
-    it "should convert the bucket or key to a string before escaping" do
+    it "converts the bucket or key to a string before escaping" do
       expect(@object.escape(125)).to eq('125')
     end
 
-    it "should unescape escaped strings" do
+    it "unescapes escaped strings" do
       expect(@object.unescape("some%20string")).to eq("some string")
       expect(@object.unescape("another%5Eone")).to eq("another^one")
       expect(@object.unescape("bracket%5Bone")).to eq("bracket[one")
@@ -41,26 +41,26 @@ describe Riak::Util::Escape do
     before { @oldesc, Riak.escaper = Riak.escaper, URI }
     after { Riak.escaper = @oldesc }
 
-    it "should escape standard non-safe characters" do
+    it "escapes standard non-safe characters" do
       expect(@object.escape("some string")).to eq("some%20string")
       expect(@object.escape("another^one")).to eq("another%5Eone")
       expect(@object.escape("--one+two--")).to eq("--one%2Btwo--")
     end
 
-    it "should allow URI-safe characters" do
+    it "allows URI-safe characters" do
       expect(@object.escape("bracket[one")).to eq("bracket[one")
       expect(@object.escape("sean@basho")).to eq("sean@basho")
     end
 
-    it "should escape slashes" do
+    it "escapes slashes" do
       expect(@object.escape("some/inner/path")).to eq("some%2Finner%2Fpath")
     end
 
-    it "should convert the bucket or key to a string before escaping" do
+    it "converts the bucket or key to a string before escaping" do
       expect(@object.escape(125)).to eq('125')
     end
 
-    it "should unescape escaped strings" do
+    it "unescapes escaped strings" do
       expect(@object.unescape("some%20string")).to eq("some string")
       expect(@object.unescape("another%5Eone")).to eq("another^one")
       expect(@object.unescape("bracket%5Bone")).to eq("bracket[one")

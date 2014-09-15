@@ -7,12 +7,12 @@ describe Riak::SecondaryIndex do
   end
 
   describe "initialization" do
-    it "should accept a bucket, index name, and scalar" do
+    it "accepts a bucket, index name, and scalar" do
       expect { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa' }.not_to raise_error
       expect { Riak::SecondaryIndex.new @bucket, 'asdf', 12345 }.not_to raise_error
     end
 
-    it "should accept a bucket, index name, and a range" do
+    it "accepts a bucket, index name, and a range" do
       expect { Riak::SecondaryIndex.new @bucket, 'asdf', 'aaaa'..'zzzz' }.not_to raise_error
       expect { Riak::SecondaryIndex.new @bucket, 'asdf', 1..5 }.not_to raise_error
     end
@@ -28,12 +28,12 @@ describe Riak::SecondaryIndex do
       expect(@backend).to receive(:get_index).with(*@args).and_return(%w{abcd efgh})
     end
 
-    it "should return an array of keys" do
+    it "returns an array of keys" do
       @results = @index.keys
       expect(@results).to be_a Array
       expect(@results.first).to be_a String
     end
-    it "should return an array of values" do
+    it "returns an array of values" do
       expect(@backend).to receive(:fetch_object).with(@bucket, 'abcd', {}).and_return('abcd')
       expect(@backend).to receive(:fetch_object).with(@bucket, 'efgh', {}).and_return('efgh')
 
@@ -44,7 +44,7 @@ describe Riak::SecondaryIndex do
   end
 
   describe "streaming" do
-    it "should stream keys into a block" do
+    it "streams keys into a block" do
       @backend = double 'Backend'
       allow(@client).to receive(:backend).and_yield(@backend)
       @args = [@bucket, 'asdf', 'aaaa'..'zzzz', {stream: true}]
@@ -57,7 +57,7 @@ describe Riak::SecondaryIndex do
   end
 
   describe "pagination" do
-    it "should support max_results" do
+    it "supports max_results" do
       @max_results = 5
 
       @expected_collection = Riak::IndexCollection.new_from_json({
@@ -92,7 +92,7 @@ describe Riak::SecondaryIndex do
       expect(@results.length).to eq(@max_results)
     end
 
-    it "should support continuations" do
+    it "supports continuations" do
       @max_results = 5
 
       @expected_collection = Riak::IndexCollection.new_from_json({
@@ -127,7 +127,7 @@ describe Riak::SecondaryIndex do
       expect(@results).to eq(@expected_collection)
     end
 
-    it "should support a next_page method" do
+    it "supports a next_page method" do
       @max_results = 5
 
       @expected_collection = Riak::IndexCollection.new_from_json({
@@ -182,7 +182,7 @@ describe Riak::SecondaryIndex do
   end
 
   describe "return_terms" do
-    it "should optionally give the index value" do
+    it "optionally gives the index value" do
       @expected_collection = Riak::IndexCollection.new_from_json({
         'results' => [
           {'aaaa' => 'aaaa'},

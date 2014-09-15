@@ -8,13 +8,13 @@ describe Riak::Multiget do
   end
 
   describe "initialization" do
-    it "should accept a client and an array of bucket/key pairs" do
+    it "accepts a client and an array of bucket/key pairs" do
       expect { Riak::Multiget.new(@client, @pairs) }.not_to raise_error
     end
   end
 
   describe "operation" do
-    it "should fetch both keys from the bucket" do
+    it "fetches both keys from the bucket" do
       expect(@bucket).to receive(:[]).with('key1')
       expect(@bucket).to receive(:[]).with('key2')
 
@@ -23,7 +23,7 @@ describe Riak::Multiget do
       @multiget.wait_for_finish
     end
 
-    it "should asynchronously fetch" do
+    it "fetches asynchronously" do
       # make fetches slow
       @slow_mtx = Mutex.new
       @slow_mtx.lock
@@ -50,7 +50,7 @@ describe Riak::Multiget do
       expect(@results).to be_a Hash
     end
 
-    it "should not die when objects aren't found" do
+    it "returns found objects when only some objects are found" do
       expect(@bucket).to receive(:[]).
         with('key1').
         and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
@@ -67,7 +67,7 @@ describe Riak::Multiget do
   end
 
   describe "results" do
-    it "should return a hash of pairs to values" do
+    it "returns a hash of pairs to values" do
       expect(@bucket).to receive(:[]).with('key1')
       expect(@bucket).to receive(:[]).with('key2')
       
