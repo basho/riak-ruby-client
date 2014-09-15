@@ -73,13 +73,12 @@ describe "Yokozuna queries", test_client: true, integration: true do
       expect(resp['docs'].size).to eq(2)
     end
 
-    # TODO: run this when pb utf8 works
-    it "should support utf8" do
+    it "supports utf8" do
       build_json_obj(@bucket, "ja", {"text_ja"=>"私はハイビスカスを食べるのが 大好き"})
-      # sleep 1.1  # pause for index commit to trigger
-      # resp = @client.search(@index, "text_ja:大好き")
-      # resp.should include('docs')
-      # resp['docs'].size.should == 1
+      sleep 1.1  # pause for index commit to trigger
+      resp = @client.search(@index, "text_ja:大好き")
+      expect(resp).to include('docs')
+      expect(resp['docs'].size).to eq 1
     end
 
     context "using parameters" do
