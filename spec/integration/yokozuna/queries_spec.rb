@@ -31,43 +31,43 @@ describe "Yokozuna queries", test_client: true, integration: true do
       wait_until { @client.search(@index, "username_s:Z")['docs'].length > 0 }
     end
 
-    it "should produce results on single term queries" do
+    it "produces results on single term queries" do
       resp = @client.search(@index, "username_s:Z")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(1)
     end
 
-    it "should produce results on multiple term queries" do
+    it "produces results on multiple term queries" do
       resp = @client.search(@index, "username_s:(F OR H)")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(2)
     end
 
-    it "should produce results on queries with boolean logic" do
+    it "produces results on queries with boolean logic" do
       resp = @client.search(@index, "username_s:Z AND name_s:ryan")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(1)
     end
 
-    it "should produce results on range queries" do
+    it "produces results on range queries" do
       resp = @client.search(@index, "age_i:[30 TO 33]")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(2)
     end
 
-    it "should produce results on phrase queries" do
+    it "produces results on phrase queries" do
       resp = @client.search(@index, 'name_s:"bryan fink"')
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(1)
     end
 
-    it "should produce results on wildcard queries" do
+    it "produces results on wildcard queries" do
       resp = @client.search(@index, "name_s:*ryan*")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(2)
     end
 
-    it "should produce results on regexp queries" do
+    it "produces results on regexp queries" do
       resp = @client.search(@index, "name_s:/br.*/")
       expect(resp).to include('docs')
       expect(resp['docs'].size).to eq(2)
@@ -82,20 +82,20 @@ describe "Yokozuna queries", test_client: true, integration: true do
     end
 
     context "using parameters" do
-      it "should search one row" do
+      it "searches one row" do
         resp = @client.search(@index, "*:*", {:rows => 1})
         expect(resp).to include('docs')
         expect(resp['docs'].size).to eq(1)
       end
 
-      it "should search with df" do
+      it "searches with df" do
         resp = @client.search(@index, "Olive", {:rows => 1, :df => 'dog_ss'})
         expect(resp).to include('docs')
         expect(resp['docs'].size).to eq(1)
         resp['docs'].first['dog_ss']
       end
 
-      it "should produce top result on sort" do
+      it "produces top result on sort" do
         resp = @client.search(@index, "username_s:*", {:sort => "age_i asc"})
         expect(resp).to include('docs')
         expect(resp['docs'].first['age_i'].to_i).to eq(14)

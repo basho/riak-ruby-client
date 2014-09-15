@@ -10,14 +10,14 @@ describe "Yokozuna", test_client: true, integration: true do
   end
 
   context 'with no schema' do
-    it 'should allow schema creation' do
+    it 'allows schema creation' do
       @client.create_search_schema(@schema, SCHEMA_CONTENT)
       wait_until{ !@client.get_search_schema(@schema).nil? }
       expect(@client.get_search_schema(@schema)).not_to be_nil
     end
   end
   context 'with a schema' do
-    it 'should have a readable schema' do
+    it 'has a readable schema' do
       @client.create_search_schema(@schema, SCHEMA_CONTENT)
       wait_until{ !@client.get_search_schema(@schema).nil? }
       schema_resp = @client.get_search_schema(@schema)

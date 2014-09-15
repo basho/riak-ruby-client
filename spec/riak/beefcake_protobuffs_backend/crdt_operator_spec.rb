@@ -17,7 +17,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
     end
     
-    it 'should serialize a counter operation into protobuffs' do
+    it 'serializes a counter operation into protobuffs' do
       result = subject.serialize operation
       
       expect(result).to be_a backend_class::DtOp
@@ -25,7 +25,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(result.counter_op.increment).to eq increment
     end
 
-    it 'should serialize multiple counter operations into protobuffs' do
+    it 'serializes multiple counter operations into protobuffs' do
       result = subject.serialize [operation, operation]
 
       expect{result.encode}.to_not raise_error
@@ -49,7 +49,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       end
     end
 
-    it 'should serialize a set operation into protobuffs' do
+    it 'serializes a set operation into protobuffs' do
       result = subject.serialize operation
 
       expect{result.encode}.to_not raise_error

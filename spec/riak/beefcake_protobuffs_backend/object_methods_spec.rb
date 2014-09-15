@@ -11,7 +11,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::ObjectMethods do
   end
 
   describe "loading object data from the response" do
-    it "should load the key" do
+    it "loads the key" do
       content = double(:value => '', :vtag => nil, :content_type => nil, :links => nil, :usermeta => nil, :last_mod => nil, :indexes => nil, :charset => nil)
       pbuf = double(:vclock => nil, :content => [content], :value => nil, :key => 'akey')
       o = @backend.load_object(pbuf, @object)
