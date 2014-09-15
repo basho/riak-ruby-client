@@ -62,7 +62,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
   end
 
   describe 'operating on a map' do
-    it 'should serialize inner counter operations' do
+    it 'serializes inner counter operations' do
       counter_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_counter'
         op.type = :counter
@@ -85,7 +85,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(map_update.counter_op.increment).to eq 12345
     end
     
-    it 'should serialize inner flag operations' do
+    it 'serializes inner flag operations' do
       flag_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_flag'
         op.type = :flag
@@ -127,7 +127,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(map_update.flag_op).to eq backend_class::MapUpdate::FlagOp::DISABLE
     end
 
-    it 'should serialize inner register operations' do
+    it 'serializes inner register operations' do
       register_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_register'
         op.type = :register
@@ -169,7 +169,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(map_delete.type).to eq backend_class::MapField::MapFieldType::REGISTER
     end
     
-    it 'should serialize inner set operations' do
+    it 'serializes inner set operations' do
       set_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_set'
         op.type = :set
@@ -191,7 +191,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect(map_update.set_op.adds).to eq 'added_member'
     end
     
-    it 'should serialize inner map operations' do
+    it 'serializes inner map operations' do
       register_op = Riak::Crdt::Operation::Update.new.tap do |op|
         op.name = 'inner_inner_register'
         op.type = :register
