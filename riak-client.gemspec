@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "rack", ">=1.0"
   gem.add_development_dependency "excon", ">=0.6.1"
   gem.add_development_dependency 'rake'
+  gem.add_development_dependency "instrumentable", "~> 1.0.0"
   gem.add_runtime_dependency "i18n", ">=0.4.0"
   gem.add_runtime_dependency "builder", ">= 2.1.2"
   gem.add_runtime_dependency "beefcake", "~>0.3.7"
