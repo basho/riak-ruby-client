@@ -47,4 +47,10 @@ RSpec.configure do |config|
   end
 
   config.raise_errors_for_deprecations!
+
+  begin
+    require 'instrumentable'
+  rescue LoadError => e
+    config.filter_run_excluding instrumentation: true
+  end
 end
