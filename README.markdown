@@ -282,7 +282,7 @@ Events are propogated using [ActiveSupport::Notifications](http://api.rubyonrail
 Instrumentation is opt-in. If `instrumentable` is not available, instrumentation will not be available. To turn on instrumentation, simply require the `instrumentable` gem in your app's Gemfile:
 
 ```ruby
-gem 'instrumentable', '~> 1.0.0'
+gem 'instrumentable', '~> 1.1.0'
 ```
 
 Then, to subscribe to events:
