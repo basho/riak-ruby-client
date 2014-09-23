@@ -4,6 +4,7 @@ require 'riak/client'
 require 'riak/map_reduce'
 require 'riak/util/translation'
 require 'riak/crdt'
+require 'riak/instrumentation'
 
 # The Riak module contains all aspects of the client interface to
 # Riak.

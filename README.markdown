@@ -50,7 +50,7 @@ client = Riak::Client.new(authentication: {
 
       # username, required
       user: 'zedo',
-      
+
       # password for password-based authentication
       password: 'catnip',
 
@@ -97,7 +97,7 @@ new_one.store
 ## Bucket Types
 
 Riak 2 uses [bucket types](http://docs.basho.com/riak/latest/dev/advanced/bucket-types/) to
-enable groups of similar buckets to share properties, configuration, and to namespace values 
+enable groups of similar buckets to share properties, configuration, and to namespace values
 within those buckets. Bucket type support is integral to how CRDTs work.
 
 Many operations take `type` options to perform them with a specific bucket type.
@@ -133,9 +133,9 @@ results = Riak::MapReduce.new(client).
                 link(:bucket => "albums").
                 map("function(v){ return [JSON.parse(v.values[0].data).title]; }", :keep => true).run
 
-p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night", 
+p results # => ["Please Please Me", "With The Beatles", "A Hard Day's Night",
           #     "Beatles For Sale", "Help!", "Rubber Soul",
-          #     "Revolver", "Sgt. Pepper's Lonely Hearts Club Band", "Magical Mystery Tour", 
+          #     "Revolver", "Sgt. Pepper's Lonely Hearts Club Band", "Magical Mystery Tour",
           #     "The Beatles", "Yellow Submarine", "Abbey Road", "Let It Be"]
 ```
 
@@ -151,7 +151,7 @@ client = Riak::Client.new
 bucket = client.bucket 'pizzas'
 
 # Create an index and add it to a typed bucket. Setting the index on the bucket
-# may fail until the index creation has propagated. 
+# may fail until the index creation has propagated.
 client.create_search_index 'pizzas'
 client.set_bucket_props bucket, {search_index: 'pizzas'}, 'yokozuna'
 
@@ -172,7 +172,7 @@ result['docs']      # the list of indexed documents
 
 ## Secondary Index Examples
 
-Riak supports secondary indexes. Secondary indexing, or "2i," gives you the 
+Riak supports secondary indexes. Secondary indexing, or "2i," gives you the
 ability to tag objects with multiple queryable values at write time, and then
 query them later.
 
@@ -187,7 +187,7 @@ storage logic is in `lib/riak/rcontent.rb`.
 ```ruby
 object = bucket.get_or_new 'cobb.salad'
 
-# Indexes end with the "_bin" suffix to indicate they're binary or string 
+# Indexes end with the "_bin" suffix to indicate they're binary or string
 # indexes. They can have multiple values.
 object.indexes['ingredients_bin'] = %w{lettuce tomato bacon egg chives}
 
@@ -201,7 +201,7 @@ object.store
 
 ### Finding Objects
 
-Secondary index queries return a list of keys exactly matching a scalar or 
+Secondary index queries return a list of keys exactly matching a scalar or
 within a range.
 
 ```ruby
@@ -238,12 +238,12 @@ q2 = q.next_page
 
 ## Riak 2 Data Types
 
-Riak 2 features new distributed data structures: counters, sets, and maps 
-(containing counters, flags, maps, registers, and sets).  These are implemented 
+Riak 2 features new distributed data structures: counters, sets, and maps
+(containing counters, flags, maps, registers, and sets).  These are implemented
 by the Riak database as Convergent Replicated Data Types.
 
 Riak data type support requires bucket types to be configured to support each
-top-level data type. If you're just playing around, use the 
+top-level data type. If you're just playing around, use the
 [Riak Ruby Vagrant](https://github.com/basho-labs/riak-ruby-vagrant) setup to
 get started with the appropriate configuration and bucket types quickly.
 
@@ -438,6 +438,49 @@ ArgumentError: Counters can only be incremented or decremented by integers.
 
 That's about it. PN Counters in Riak are distributed, so each node will receive the proper increment/decrement operation. Enjoy using them.
 
+## Instrumentation
+
+The Riak client has built-in event hooks for all major over-the-wire operations including:
+
+* riak.list_buckets
+* riak.list_keys
+* riak.set_bucket_props
+* riak.get_bucket_props
+* riak.clear_bucket_props
+* riak.get_index
+* riak.store_object
+* riak.get_object
+* riak.reload_object
+* riak.delete_object
+* riak.map_reduce
+* riak.ping
+
+Events are propogated using [ActiveSupport::Notifications](http://api.rubyonrails.org/classes/ActiveSupport/Notifications.html), provided by the [Instrumentable](https://github.com/siyegen/instrumentable) gem.
+
+### Enabling
+
+Instrumentation is opt-in. If `instrumentable` is not available, instrumentation will not be available. To turn on instrumentation, simply require the `instrumentable` gem in your app's Gemfile:
+
+```ruby
+gem 'instrumentable', '~> 1.1.0'
+```
+
+Then, to subscribe to events:
+
+```ruby
+ActiveSupport::Notifications.subscribe(/^riak\.*/) do |name, start, finish, id, payload|
+  name    # => String, name of the event (such as 'riak.get_object' from above)
+  start   # => Time, when the instrumented block started execution
+  finish  # => Time, when the instrumented block ended execution
+  id      # => String, unique ID for this notification
+  payload # => Hash, the payload
+end
+```
+
+The payload for each event contains the following keys:
+
+* `:client_id`: The client_id of the Riak client
+* `:_method_args`: The array of method arguments for the instrumented method. For instance, for `riak.get_object`, this value would resemble `[<Riak::Bucket ...>, 'key', {}]`
 
 ## How to Contribute
 
@@ -480,5 +523,5 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 ## Auxillary Licenses
 
-The included photo (spec/fixtures/cat.jpg) is Copyright &copy;2009 [Sean Cribbs](http://seancribbs.com/), and is licensed under the [Creative Commons Attribution Non-Commercial 3.0](http://creativecommons.org/licenses/by-nc/3.0) license. 
+The included photo (spec/fixtures/cat.jpg) is Copyright &copy;2009 [Sean Cribbs](http://seancribbs.com/), and is licensed under the [Creative Commons Attribution Non-Commercial 3.0](http://creativecommons.org/licenses/by-nc/3.0) license.
 !["Creative Commons"](http://i.creativecommons.org/l/by-nc/3.0/88x31.png)
