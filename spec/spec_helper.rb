@@ -49,4 +49,10 @@ RSpec.configure do |config|
   else
     config.order = :random
   end
+
+  begin
+    require 'instrumentable'
+  rescue LoadError => e
+    config.filter_run_excluding instrumentation: true
+  end
 end

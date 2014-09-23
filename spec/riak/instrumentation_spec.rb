@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'instrumentable'
 
 describe Riak::Client do
 
@@ -15,7 +14,7 @@ describe Riak::Client do
     @notifier.subscribe { |*args| (@events ||= []) << event(*args) }
   end
 
-  describe "instrumentation" do
+  describe "instrumentation", instrumentation: true do
 
     it "should notify on the 'buckets' operation" do
       @backend.should_receive(:list_buckets).and_return(%w{test test2})
