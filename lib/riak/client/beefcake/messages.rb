@@ -248,7 +248,6 @@ module Riak
 
       class RpbResetBucketReq
         include Beefcake::Message
-        required :bucket, :bytes, 1
       end
 
       class RpbMapRedReq
