@@ -13,6 +13,7 @@ preconfigure:
 	echo "ssl.cacertfile = ${CERTS_DIR}/ca.crt" >> ${RIAK_CONF}
 	echo "tls_protocols.tlsv1.1 = on" >> ${RIAK_CONF}
 	@cat ${RIAK_CONF}
+	@ls ${CERTS_DIR}
 
 configure:
 	@${RIAK_ADMIN} bucket-type create counters '{"props":{"datatype":"counter", "allow_mult":true}}'
