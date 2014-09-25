@@ -35,6 +35,8 @@ compile:
 
 lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
+	@openssl verify -CAfile ${CERTS_DIR}/ca.crt ${CERTS_DIR}/client.crt
+	@openssl verify -CAfile ${CERTS_DIR}/ca.crt ${CERTS_DIR}/server.crt
 
 test: test-normal test-security
 
