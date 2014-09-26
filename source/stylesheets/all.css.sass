@@ -1,0 +1,30 @@
+@charset "utf-8"
+
+body
+  margin: 1em
+
+header nav ul
+  padding: 0.5em
+  list-style-type: none
+  margin-bottom: -2em
+  li
+    display: inline-block
+    margin-right: 0.5em
+    margin-bottom: 2em
+    &.space
+      margin-left: 2em
+    a
+      &:link, &:visited
+        padding: 0.5em
+        text-decoration: none
+        color: white
+        background-color: #88c
+        border-radius: 0.25em
+      &:hover
+        background-color: #44d
+
+.content
+  width: 40em
+  margin-right: auto
+
+@import "code"
