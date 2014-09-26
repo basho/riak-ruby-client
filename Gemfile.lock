@@ -80,6 +80,9 @@ GEM
       sprockets (~> 2.12.1)
       sprockets-helpers (~> 1.1.0)
       sprockets-sass (~> 1.2.0)
+    middleman-syntax (2.0.0)
+      middleman-core (~> 3.2)
+      rouge (~> 1.0)
     minitest (5.4.1)
     multi_json (1.10.1)
     padrino-helpers (0.12.3)
@@ -96,6 +99,8 @@ GEM
     rb-fsevent (0.9.4)
     rb-inotify (0.9.5)
       ffi (>= 0.5.0)
+    redcarpet (3.1.2)
+    rouge (1.7.1)
     sass (3.4.5)
     sprockets (2.12.2)
       hike (~> 1.2)
@@ -125,5 +130,7 @@ PLATFORMS
 DEPENDENCIES
   middleman (~> 3.3.6)
   middleman-livereload (~> 3.1.0)
+  middleman-syntax
+  redcarpet
   tzinfo-data
   wdm (~> 0.1.0)
