@@ -39,7 +39,8 @@ activate :syntax
 #
 # set :markdown_engine, :kramdown
 set :markdown_engine, :redcarpet
-set :markdown, :fenced_code_blocks => true, :smartypants => true
+
+set :markdown, fenced_code_blocks: true, smartypants: true
 set :haml, { ugly: true }
 
 # Reload the browser automatically whenever files change
