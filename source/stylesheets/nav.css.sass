@@ -1,0 +1,39 @@
+header nav ul
+  padding: 0.5em
+  list-style-type: none
+  margin-bottom: -2em
+  li
+    display: inline-block
+    margin-right: 0.25em
+    margin-bottom: 2em
+    &.space
+      margin-left: 2em
+    a
+      &:link, &:visited
+        padding: 0.5em
+        text-decoration: none
+        color: white
+        background-color: $button-idle
+        border-radius: 0.25em
+      &:hover
+        background-color: $button-hover
+  @media screen and (max-width: 960px)
+    font-size: smaller
+    li
+      margin-right: 0.1em
+      &.space
+        margin-left: 1em
+  @media screen and (max-width: 760px)
+    float: right
+    text-align: right
+    margin-top: 0
+    li
+      display: block
+      margin-bottom: 1.25em
+      &.title
+        margin-right: 0.5em
+      &.space
+        margin-bottom: 2em
+      a
+        &:link, &:visited
+          margin: 0.25em
