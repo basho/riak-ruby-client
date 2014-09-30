@@ -43,6 +43,7 @@ GEM
     i18n (0.6.11)
     json (1.8.1)
     kramdown (1.4.2)
+    libv8 (3.16.14.3)
     listen (2.7.9)
       celluloid (>= 0.15.2)
       rb-fsevent (>= 0.9.3)
@@ -108,6 +109,7 @@ GEM
     rb-inotify (0.9.5)
       ffi (>= 0.5.0)
     redcarpet (3.1.2)
+    ref (1.0.5)
     rouge (1.7.1)
     sass (3.4.5)
     sprockets (2.12.2)
@@ -120,6 +122,9 @@ GEM
     sprockets-sass (1.2.0)
       sprockets (~> 2.0)
       tilt (~> 1.1)
+    therubyracer (0.12.1)
+      libv8 (~> 3.16.14.0)
+      ref
     thor (0.19.1)
     thread_safe (0.3.4)
     tilt (1.4.1)
@@ -141,5 +146,6 @@ DEPENDENCIES
   middleman-livereload (~> 3.1.0)
   middleman-syntax
   redcarpet
+  therubyracer
   tzinfo-data
   wdm (~> 0.1.0)
