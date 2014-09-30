@@ -5,7 +5,7 @@ configure:
 	@cd ..; bundle install --binstubs --path=vendor
 
 compile:
-	bin/middleman build
+	@cd ..; bin/middleman build
 
 lint:
 	echo 'no lint'
