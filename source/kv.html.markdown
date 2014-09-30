@@ -1,8 +1,6 @@
 ---
 title: Key-Value
 ---
-# Key-Value
-
 ## tl;dr
 
 ``` ruby

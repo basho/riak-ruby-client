@@ -1,4 +1,6 @@
-# Riak Ruby Client
+---
+title: Riak Ruby Client
+---
 
 `riak-client` is a rich Ruby client/toolkit for Riak, Basho's
 distributed database that contains a basic wrapper around typical

@@ -11,4 +11,6 @@
     %header
       = partial 'nav'
     .content
-      = yield
+      %h1.title= current_page.data.title
+      #toc
+      #yielded= yield

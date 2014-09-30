@@ -1,8 +1,6 @@
 ---
-title: Installation
+title: Installation and Dependencies
 ---
-# Installation and Dependencies
-
 `riak-client` requires i18n, builder, beefcake, and multi_json. The
 cache store implementation requires ActiveSupport 3 or later.
 
