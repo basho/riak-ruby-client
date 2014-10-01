@@ -12,6 +12,7 @@ preconfigure:
 	echo "ssl.certfile = ${CERTS_DIR}/server.crt" >> ${RIAK_CONF}
 	echo "ssl.cacertfile = ${CERTS_DIR}/ca.crt" >> ${RIAK_CONF}
 	echo "tls_protocols.tlsv1.1 = on" >> ${RIAK_CONF}
+	echo "check_crl = off" >> ${RIAK_CONF}
 	@cat ${RIAK_CONF}
 	@ls ${CERTS_DIR}
 
