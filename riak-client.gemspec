@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "instrumentable", "~> 1.1.0"
   gem.add_runtime_dependency "i18n", ">=0.4.0"
   gem.add_runtime_dependency "builder", ">= 2.1.2"
-  gem.add_runtime_dependency "beefcake", "~>0.3.7"
+  gem.add_runtime_dependency "beefcake", "~>1.0.0"
   gem.add_runtime_dependency "multi_json", "~>1.0"
   gem.add_runtime_dependency "innertube", "~>1.0.2"
 
