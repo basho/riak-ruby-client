@@ -8,7 +8,7 @@ describe Riak::Util::Escape do
   end
 
   it "should use URI by default for escaping" do
-    Riak.escaper.should == URI
+    Riak.escaper.should == CGI
   end
 
   context "when using CGI for escaping" do
