@@ -7,7 +7,7 @@ describe Riak::Util::Escape do
     @object.extend(Riak::Util::Escape)
   end
 
-  it "should use URI by default for escaping" do
+  it "uses URI by default for escaping" do
     Riak.escaper.should == CGI
   end
 
@@ -15,21 +15,21 @@ describe Riak::Util::Escape do
     before { @oldesc, Riak.escaper = Riak.escaper, CGI }
     after { Riak.escaper = @oldesc }
 
-    it "should escape standard non-safe characters" do
+    it "escapes standard non-safe characters" do
       @object.escape("some string").should == "some%20string"
       @object.escape("another^one").should == "another%5Eone"
       @object.escape("bracket[one").should == "bracket%5Bone"
     end
 
-    it "should escape slashes" do
+    it "escapes slashes" do
       @object.escape("some/inner/path").should == "some%2Finner%2Fpath"
     end
 
-    it "should convert the bucket or key to a string before escaping" do
+    it "converts the bucket or key to a string before escaping" do
       @object.escape(125).should == '125'
     end
 
-    it "should unescape escaped strings" do
+    it "unescapes escaped strings" do
       @object.unescape("some%20string").should == "some string"
       @object.unescape("another%5Eone").should == "another^one"
       @object.unescape("bracket%5Bone").should == "bracket[one"
@@ -41,30 +41,30 @@ describe Riak::Util::Escape do
     before { @oldesc, Riak.escaper = Riak.escaper, URI }
     after { Riak.escaper = @oldesc }
 
-    it "should escape standard non-safe characters" do
+    it "escapes standard non-safe characters" do
       @object.escape("some string").should == "some%20string"
       @object.escape("another^one").should == "another%5Eone"
       @object.escape("--one+two--").should == "--one%2Btwo--"
     end
 
-    it "should allow URI-safe characters" do
+    it "allows URI-safe characters" do
       @object.escape("sean@basho").should == "sean@basho"
     end
 
-    it "should escape slashes" do
+    it "escapes slashes" do
       @object.escape("some/inner/path").should == "some%2Finner%2Fpath"
     end
 
-    it "should escape square brackets" do
+    it "escapes square brackets" do
       @object.escape("bracket[one").should == "bracket%5Bone"
       @object.escape("bracket]two").should == "bracket%5Dtwo"
     end
 
-    it "should convert the bucket or key to a string before escaping" do
+    it "converts the bucket or key to a string before escaping" do
       @object.escape(125).should == '125'
     end
 
-    it "should unescape escaped strings" do
+    it "unescapes escaped strings" do
       @object.unescape("some%20string").should == "some string"
       @object.unescape("another%5Eone").should == "another^one"
       @object.unescape("bracket%5Bone").should == "bracket[one"
