@@ -1,5 +1,21 @@
 # Riak Ruby Client Release Notes
 
+## 1.4.5 Feature and Bugfix Release - 2014-10-03
+
+Release 1.4.5 includes:
+
+Feature:
+
+* Instrumentation: if the `instrumentable` gem is loaded, the client exposes
+  several event hooks to `ActiveSupport::Notifications`. Read the README for
+  more information, and if you'd like other events to be instrumented, please
+  file GitHub issues. Instrumentation was developed by Ryan Daigle.
+
+Bugfix:
+
+* URI escaping now uses the CGI escaper. Thanks to Sean McKibben for 
+  reporting this bug.
+
 ## 1.4.4.1 Bugfix Release - 2014-04-17
 
 Release 1.4.4.1 includes the intended 1.4.4 bugfix:
