@@ -18,6 +18,7 @@ module Riak
       unless exist?
         touch_ssl_distribution_args
         copy_directories
+        ensure_directories
         write_scripts
         write_vm_args
         write_app_config
@@ -59,10 +60,21 @@ module Riak
       base_dir.each_child do |dir|
         basename = dir.basename.to_s
         next if NODE_DIR_SKIP_LIST.include? basename.to_sym
-        target = Pathname.new("#{root.to_s}")
+        target = Pathname.new("#{root.to_s}") + basename
         target.mkpath
         FileUtils.cp_r(dir.to_s,target)
       end
+    end
+
+    def ensure_directories
+      NODE_DIRECTORIES.each do |dir|
+        send(dir).mkpath
+      end
+      if has_snmp?
+        Pathname(env[:snmp][:agent][:db_dir]).mkpath
+        FileUtils.cp_r((etc_source + 'snmp'), etc)
+      end
+      Pathname(env[:riak_repl][:data_root]).mkpath if has_repl?
     end
 
     def write_vm_args
@@ -81,16 +93,22 @@ module Riak
 
     def write_scripts
       if version >= '1.4.0'
-        [env_script].each {|s| write_script(s) }
+        [env_script, control_script, admin_script].each {|s| write_script(s) }
       else
         [control_script, admin_script].each {|s| write_script(s) }
       end
     end
 
     def write_script(target)
-      source_script = source.parent + target.relative_path_from(target.parent.parent)
+      target_base = target.relative_path_from(target.parent.parent)
+      if source.basename.to_s == 'sbin'
+        source_script = source.parent + 'sbin' + target_base.basename
+      else
+        source_script = source.parent + target_base
+      end
       target.open('wb') do |f|
         source_script.readlines.each do |line|
+          line.sub!(/\. (.*)\/env\.sh/, ". #{env_script}")
           line.sub!(/(RUNNER_SCRIPT_DIR=)(.*)/, '\1' + bin.to_s)
           line.sub!(/(RUNNER_ETC_DIR=)(.*)/, '\1' + etc.to_s)
           line.sub!(/(RUNNER_USER=)(.*)/, '\1')

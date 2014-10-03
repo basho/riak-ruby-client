@@ -5,7 +5,7 @@ module Riak
   class Node
 
     # do not copy these directories to the test node
-    NODE_DIR_SKIP_LIST = [:data, :pipe]
+    NODE_DIR_SKIP_LIST = [:data, :pipe, :lib]
 
     # The directories (and accessor methods) that will be created
     # under the generated node.
@@ -150,6 +150,7 @@ module Riak
       configure_settings
       configure_logging
       configure_data
+      configure_ee
       configure_ports(hash[:interface], hash[:min_port])
       configure_name(hash[:interface])
     end
@@ -247,6 +248,28 @@ module Riak
         env[:riak_core][:handoff_port] = min_port
         min_port += 1
       end
+      if has_repl?
+        env[:riak_core][:cluster_mgr] = Tuple[interface, min_port]
+        min_port += 1
+      end
+    end
+
+    # Configures Riak EE Settings
+    def configure_ee
+      if has_repl?
+        env[:riak_repl] = {}
+        env[:riak_repl][:data_root] = (data + 'riak_repl').expand_path.to_s
+      end
+      if has_snmp?
+        env[:snmp] = {
+          :agent => {
+            :net_if => {:options => {:bind_to => true}},
+            :config => {:force_load => true}
+          }
+        }
+        env[:snmp][:agent][:db_dir] = (data + 'snmp/agent/db').expand_path.to_s
+        env[:snmp][:agent][:config][:dir] = (etc + 'snmp/agent/conf').expand_path.to_s
+      end
     end
 
     # Implements a deep-merge of two {Hash} instances.
@@ -298,6 +321,28 @@ module Riak
         "[" << v.map {|i| value_to_erlang(i, depth+1) }.join(", ") << "]"
       else
         v.to_s
+      end
+    end
+
+    def has_snmp?
+      (etc_source + 'snmp').directory?
+    end
+
+    def has_repl?
+      @has_repl ||= (etc_source + 'app.config').read.include? "riak_repl"
+    end
+
+    def etc_source
+      @etc_source ||= configure_etc_source
+    end
+
+    def configure_etc_source
+      source_control_script_contents.match /RUNNER_ETC_DIR=(.*)/ do |m|
+        if m[1].include? "$"
+          source.parent + 'etc'
+        else
+          Pathname.new(m[1].strip)
+        end
       end
     end
   end
