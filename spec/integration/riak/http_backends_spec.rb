@@ -110,7 +110,9 @@ describe "HTTP" do
             'hash' => 'hashtag#riak',
             'slash' => 'slash/fiction',
             'space' => 'space opera',
-            'plus' => 'plus+one'
+            'plus' => 'plus+one',
+            'caret' => 'caret^top',
+            'square bracket' => 'square[]meal',
           }.each do |k, v|
             it "doesn't mangle keys with a #{k} in them" do
               obj = default_bucket.new v
