@@ -1,6 +1,25 @@
 # Riak Ruby Client Release Notes
 
-## 2.0.0 Release - TBD
+## 2.1.0 Release - 2014-10-03
+
+Version 2.1.0 is a feature release.
+
+New features:
+
+* Instrumentation: if the `instrumentable` gem is loaded, the client exposes
+  several event hooks to `ActiveSupport::Notifications`. Read the README for
+  more information, and if you'd like other events to be instrumented, please
+  file GitHub issues. Instrumentation was developed by Ryan Daigle.
+* CRDTs support the `returnbody` option, and use it by default. This means that
+  unless specified otherwise, CRDTs will update themselves on a write.
+
+Small changes:
+
+* UTF-8 support is now tested against.
+* RSpec 3.1 is now supported, although RSpec 3.0 still works.
+* Specs no longer use gratuitous "should"s.
+
+## 2.0.0 Release - 2014-09-05
 
 Version 2.0.0 is a major new version with many new features, API changes,
 and feature removals.
