@@ -102,6 +102,42 @@ describe "HTTP" do
             stored_file.size.should == string.bytesize
           end
         end
+
+        describe 'key and bucket escaping' do
+          let(:default_bucket){ @client[rand(36**10).to_s(36)] }
+
+          { 'question mark' => 'question?marks',
+            'hash' => 'hashtag#riak',
+            'slash' => 'slash/fiction',
+            'space' => 'space opera',
+            'plus' => 'plus+one',
+            'caret' => 'caret^top',
+            'square bracket' => 'square[]meal',
+          }.each do |k, v|
+            it "doesn't mangle keys with a #{k} in them" do
+              obj = default_bucket.new v
+              obj.content_type = 'text/plain'
+              obj.data = rand(36**10).to_s(36)
+              obj.store
+              
+              o2 = nil
+              expect{ o2 = default_bucket.get v }.to_not raise_error
+              expect(o2.data).to eq obj.data
+            end
+            
+            it "doesn't mangle buckets with a #{k} in them" do
+              bucket = @client[v]
+              obj = bucket.new rand(36**10).to_s(36)
+              obj.content_type = 'text/plain'
+              obj.data = rand(36**10).to_s(36)
+              obj.store
+
+              o2 = nil
+              expect{ o2 = bucket.get obj.key }.to_not raise_error
+              expect(o2.data).to eq obj.data
+            end
+          end
+        end
       end
     end
   end

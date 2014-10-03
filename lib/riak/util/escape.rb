@@ -30,7 +30,7 @@ module Riak
     attr_accessor :url_decoding
   end
 
-  self.escaper = URI
+  self.escaper = CGI
   self.url_decoding = false
 
   module Util
