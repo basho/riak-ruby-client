@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>
+<title>Key-Value</title>
+<link href="stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="stylesheets/all.css" rel="stylesheet" type="text/css" />
+<script src="javascripts/all.js" type="text/javascript"></script>
+</head>
+<body class='kv'>
+<header>
+<nav>
+<ul>
+<li class='title'>riak-ruby-client</li>
+<li><a href="./">Home</a></li>
+<li><a href="kv.html">Key-Value</a></li>
+<li><a href="yz.html">Search</a></li>
+<li><a href="2i.html">Secondary Indexes</a></li>
+<li class='space'><a href="install.html">Installation</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="https://github.com/basho/riak-ruby-client">Source</a></li>
+<li><a href="https://rubygems.org/gems/riak-client">Gem</a></li>
+</ul>
+</nav>
+
+</header>
+<div class='content'>
+<h1 class='title'>Key-Value</h1>
+<div id='toc'></div>
+<div id='yielded'><h2>tl;dr</h2>
+<pre><code class="highlight ruby"><span class="nb">require</span> <span class="s1">'riak'</span>
+
+<span class="c1"># Create a client interface</span>
+<span class="n">client</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
+
+<span class="c1"># Retrieve a bucket</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span><span class="p">(</span><span class="s2">"doc"</span><span class="p">)</span>  <span class="c1"># a Riak::Bucket</span>
+
+<span class="c1"># Get an object from the bucket</span>
+<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_or_new</span><span class="p">(</span><span class="s2">"index.html"</span><span class="p">)</span>   <span class="c1"># a Riak::RObject</span>
+
+<span class="c1"># Change the object's data and save</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">raw_data</span> <span class="o">=</span> <span class="s2">"&lt;html&gt;&lt;body&gt;Hello, world!&lt;/body&gt;&lt;/html&gt;"</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">content_type</span> <span class="o">=</span> <span class="s2">"text/html"</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">store</span>
+
+<span class="c1"># Reload an object you already have</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">reload</span>                  <span class="c1"># Works if you have the key and vclock, using conditional GET</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">reload</span> <span class="ss">:force</span> <span class="o">=&gt;</span> <span class="kp">true</span>   <span class="c1"># Reloads whether you have the vclock or not</span>
+
+<span class="c1"># Access more like a hash, client[bucket][key]</span>
+<span class="n">client</span><span class="p">[</span><span class="s1">'doc'</span><span class="p">][</span><span class="s1">'index.html'</span><span class="p">]</span>   <span class="c1"># the Riak::RObject</span>
+
+<span class="c1"># Create a new object</span>
+<span class="n">new_one</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">RObject</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="s2">"application.js"</span><span class="p">)</span>
+<span class="n">new_one</span><span class="p">.</span><span class="nf">content_type</span> <span class="o">=</span> <span class="s2">"application/javascript"</span> <span class="c1"># You must set the content type.</span>
+<span class="n">new_one</span><span class="p">.</span><span class="nf">raw_data</span> <span class="o">=</span> <span class="s2">"alert('Hello, World!')"</span>
+<span class="n">new_one</span><span class="p">.</span><span class="nf">store</span>
+</code></pre>
+
+<h2>Objects</h2>
+
+<p>Riak&rsquo;s key-value system stores objects. You can think of an object as:</p>
+<pre><code class="highlight ruby">  <span class="p">{</span><span class="n">bucket</span> <span class="n">type</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">value</span><span class="p">}</span>
+</code></pre>
+
+<p>A bucket type and bucket identify a collection of objects, and the set of
+bucket type, bucket, and key identify a single object.</p>
+</div>
+</div>
+</body>
+</html>
