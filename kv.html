@@ -16,6 +16,7 @@
 <li><a href="kv.html">Key-Value</a></li>
 <li><a href="yz.html">Search</a></li>
 <li><a href="2i.html">Secondary Indexes</a></li>
+<li><a href="crdt.html">CRDTs</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="https://github.com/basho/riak-ruby-client">Source</a></li>
@@ -32,7 +33,7 @@
 <ul>
 <li>A <strong>bucket type</strong> is a set of configration information used to read and write
 values in Riak. Bucket types are complex and can be unintuitive, so
-<a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34">please read the bucket type documentation</a>.</li>
+<a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">please read the bucket type documentation</a>.</li>
 <li>A <strong>bucket</strong> is a named collection of keys. It&rsquo;s similar to a table in a SQL
 database: it has a name that&rsquo;s a string, zero or more members, and members
 can be quickly looked up by their key (primary key in SQL).</li>
@@ -43,43 +44,38 @@ bucket, and key. It works similarly to a BLOB column in SQL. Riak objects
 can have more than one value, which requires conflict resolution.</li>
 </ul>
 
-<p>For more about buckets, keys, and values, read the <a href="http://docs.basho.com/riak/latest/dev/using/basics/">object/key operations</a>
+<p>For more about buckets, keys, and values, read the <a href="/crdt.html">object/key operations</a>
 documentation.</p>
 
 <h2>tl;dr</h2>
-<pre><code class="highlight ruby"><span class="nb">require</span> <span class="s1">'riak'</span>
 
-<span class="c1"># Create a client interface</span>
-<span class="n">client</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
+<p>Get an object:</p>
+<pre><code class="highlight ruby"><span class="c1"># get an object</span>
+<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get</span> <span class="s1">'index.html'</span>
+<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">[</span><span class="s1">'index.html'</span><span class="p">]</span>
 
-<span class="c1"># Retrieve a bucket</span>
-<span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span><span class="p">(</span><span class="s2">"doc"</span><span class="p">)</span>  <span class="c1"># a Riak::Bucket</span>
+<span class="c1"># get or create an object</span>
+<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_or_new</span> <span class="s1">'index.html'</span>
 
-<span class="c1"># Get an object from the bucket</span>
-<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_or_new</span><span class="p">(</span><span class="s2">"index.html"</span><span class="p">)</span>   <span class="c1"># a Riak::RObject</span>
+<span class="c1"># create a new object</span>
+<span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">new</span> <span class="s1">'index.html'</span>
 
-<span class="c1"># Change the object's data and save</span>
+<span class="c1"># change the object's data and save</span>
 <span class="n">object</span><span class="p">.</span><span class="nf">raw_data</span> <span class="o">=</span> <span class="s2">"&lt;html&gt;&lt;body&gt;Hello, world!&lt;/body&gt;&lt;/html&gt;"</span>
 <span class="n">object</span><span class="p">.</span><span class="nf">content_type</span> <span class="o">=</span> <span class="s2">"text/html"</span>
 <span class="n">object</span><span class="p">.</span><span class="nf">store</span>
 
-<span class="c1"># Reload an object you already have</span>
-<span class="n">object</span><span class="p">.</span><span class="nf">reload</span>                  <span class="c1"># Works if you have the key and vclock, using conditional GET</span>
-<span class="n">object</span><span class="p">.</span><span class="nf">reload</span> <span class="ss">:force</span> <span class="o">=&gt;</span> <span class="kp">true</span>   <span class="c1"># Reloads whether you have the vclock or not</span>
+<span class="c1"># reload an object you already have the vclock of</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">reload</span>
 
-<span class="c1"># Access more like a hash, client[bucket][key]</span>
-<span class="n">client</span><span class="p">[</span><span class="s1">'doc'</span><span class="p">][</span><span class="s1">'index.html'</span><span class="p">]</span>   <span class="c1"># the Riak::RObject</span>
-
-<span class="c1"># Create a new object</span>
-<span class="n">new_one</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">RObject</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span> <span class="s2">"application.js"</span><span class="p">)</span>
-<span class="n">new_one</span><span class="p">.</span><span class="nf">content_type</span> <span class="o">=</span> <span class="s2">"application/javascript"</span> <span class="c1"># You must set the content type.</span>
-<span class="n">new_one</span><span class="p">.</span><span class="nf">raw_data</span> <span class="o">=</span> <span class="s2">"alert('Hello, World!')"</span>
-<span class="n">new_one</span><span class="p">.</span><span class="nf">store</span>
+<span class="c1"># reload an object without the vclock</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">reload</span> <span class="ss">:force</span> <span class="o">=&gt;</span> <span class="kp">true</span>
 </code></pre>
 
 <h2>Objects</h2>
 
-<p>Riak&rsquo;s key-value interface maniuplates objects. You can think of an object as:</p>
+<p>Riak&rsquo;s key-value interface maniuplates objects. You can think of an object as
+a tuple:</p>
 <pre><code class="highlight ruby">  <span class="p">{</span><span class="n">bucket</span> <span class="n">type</span><span class="p">,</span> <span class="n">bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">metadata</span><span class="p">,</span> <span class="n">values</span><span class="p">}</span>
 </code></pre>
 
@@ -129,6 +125,16 @@ will raise a <code>Riak::FailedRequest</code> error with the <code>not_found?</c
 
 <h3>Manipulating and Storing Objects</h3>
 
+<h4>Raw Data, No Serialization</h4>
+
+<p>Use the <code>RObject#raw_data</code> accessors to manipulate the raw blob/string that
+represents the value of a Riak object. The client will not transform or parse
+this data.</p>
+<pre><code class="highlight ruby"><span class="n">robject</span><span class="p">.</span><span class="nf">content_type</span> <span class="o">=</span> <span class="s1">'image/jpeg'</span>
+<span class="n">robject</span><span class="p">.</span><span class="nf">raw_data</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">read</span> <span class="s1">'cat.jpg'</span>
+<span class="n">robject</span><span class="p">.</span><span class="nf">store</span>
+</code></pre>
+
 <h4>Serializing and Deserializing Data</h4>
 
 <p>Frequently, you&rsquo;ll store objects you want to be serialized and deserialized
@@ -156,10 +162,35 @@ content-types:</p>
 <code>YAML</code> in the Ruby standard library.</li>
 </ul>
 
+<h5>Other Content Types</h5>
+
 <p>Support for other content-types can be added: write a module with <code>dump(object)</code>
 and <code>load(string)</code> methods, and configure it with the <code>Riak::Serializers[]</code>
 method. For an example, note how the <code>TextPlain</code> and <code>ApplicationJSON</code>
-serializers are written and configured in the <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34"><code>Riak::Serializer</code> module.</a></p>
+serializers are written and configured in the <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64"><code>Riak::Serializer</code> module.</a></p>
+
+<h2>Content</h2>
+
+<p>Riak objects can have more than one value. If you have an eventually-consistent
+bucket (i.e. not strongly consistent) with <code>allow_mult</code> enabled and
+<code>last_write_wins</code> disabled (<a href="/crdt.html">choose wisely</a>, <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">it&rsquo;s important</a>), multiple
+values for a given object are common.</p>
+
+<p>Resolving conflicts can be tricky! <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">Riak&rsquo;s CRDT implementation</a> and how the
+<a href="/crdt.html">Ruby client CRDT support</a> works may lead you to a better solution than
+relying on client-side conflict resolution.</p>
+
+<p>The <code>Riak::RContent</code> class handles properties of an individual value. Without
+conflict, <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64"><code>Riak::RObject</code> delegates many of its apparent properties</a> to an
+<code>RContent</code> instance. With conflict, attempts to access these properties will
+raise a <code>Riak::Conflict</code> error.</p>
+<pre><code class="highlight ruby"><span class="n">robject</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; true</span>
+<span class="n">robject</span><span class="p">.</span><span class="nf">raw_data</span> <span class="c1"># raises Riak::Conflict</span>
+</code></pre>
+
+<h2>Attempting Conflict Resolution</h2>
+
+<p><code>Riak::RObject</code> keeps a list of <code>on_conflict_hooks</code> that can be used</p>
 </div>
 </div>
 </body>
