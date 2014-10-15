@@ -33,7 +33,7 @@
 <ul>
 <li>A <strong>bucket type</strong> is a set of configration information used to read and write
 values in Riak. Bucket types are complex and can be unintuitive, so
-<a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">please read the bucket type documentation</a>.</li>
+<a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">please read the bucket type documentation</a>.</li>
 <li>A <strong>bucket</strong> is a named collection of keys. It&rsquo;s similar to a table in a SQL
 database: it has a name that&rsquo;s a string, zero or more members, and members
 can be quickly looked up by their key (primary key in SQL).</li>
@@ -167,30 +167,83 @@ content-types:</p>
 <p>Support for other content-types can be added: write a module with <code>dump(object)</code>
 and <code>load(string)</code> methods, and configure it with the <code>Riak::Serializers[]</code>
 method. For an example, note how the <code>TextPlain</code> and <code>ApplicationJSON</code>
-serializers are written and configured in the <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64"><code>Riak::Serializer</code> module.</a></p>
+serializers are written and configured in the <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict"><code>Riak::Serializer</code> module.</a></p>
 
-<h2>Content</h2>
+<h2>Content and Conflict</h2>
 
 <p>Riak objects can have more than one value. If you have an eventually-consistent
 bucket (i.e. not strongly consistent) with <code>allow_mult</code> enabled and
-<code>last_write_wins</code> disabled (<a href="/crdt.html">choose wisely</a>, <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">it&rsquo;s important</a>), multiple
+<code>last_write_wins</code> disabled (<a href="/crdt.html">choose wisely</a>, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">it&rsquo;s important</a>), multiple
 values for a given object are common.</p>
 
-<p>Resolving conflicts can be tricky! <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64">Riak&rsquo;s CRDT implementation</a> and how the
+<p>Resolving conflicts can be tricky! <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">Riak&rsquo;s CRDT implementation</a> and how the
 <a href="/crdt.html">Ruby client CRDT support</a> works may lead you to a better solution than
 relying on client-side conflict resolution.</p>
 
 <p>The <code>Riak::RContent</code> class handles properties of an individual value. Without
-conflict, <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64"><code>Riak::RObject</code> delegates many of its apparent properties</a> to an
+conflict, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict"><code>Riak::RObject</code> delegates many of its apparent properties</a> to an
 <code>RContent</code> instance. With conflict, attempts to access these properties will
 raise a <code>Riak::Conflict</code> error.</p>
 <pre><code class="highlight ruby"><span class="n">robject</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; true</span>
 <span class="n">robject</span><span class="p">.</span><span class="nf">raw_data</span> <span class="c1"># raises Riak::Conflict</span>
 </code></pre>
 
-<h2>Attempting Conflict Resolution</h2>
+<h3>Manual Conflict Resolution</h3>
 
-<p><code>Riak::RObject</code> keeps a list of <code>on_conflict_hooks</code> that can be used</p>
+<p>If a <code>Riak::RObject</code> is in conflict, you can resolve the conflict by setting its
+<code>siblings</code> array to an array with one element. Ideally, you&rsquo;ll loop through the
+array of siblings and accumulate a correct one.</p>
+
+<p>In this case, assume we have objects that store a single number, and we want to
+resolve them to the maximum.</p>
+<pre><code class="highlight ruby"><span class="n">robject</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; true</span>
+
+<span class="n">max_sibling</span> <span class="o">=</span> <span class="n">robject</span><span class="p">.</span><span class="nf">siblings</span><span class="p">.</span><span class="nf">inject</span> <span class="k">do</span> <span class="o">|</span><span class="n">max_sibling</span><span class="p">,</span> <span class="n">current_sibling</span><span class="o">|</span>
+    <span class="k">next</span> <span class="n">max_sibling</span> <span class="k">if</span> <span class="n">max_sibling</span><span class="p">.</span><span class="nf">data</span> <span class="o">&gt;</span> <span class="n">current_sibling</span><span class="p">.</span><span class="nf">data</span>
+    <span class="k">next</span> <span class="n">current_sibling</span>
+<span class="k">end</span>
+
+<span class="n">robject</span><span class="p">.</span><span class="nf">siblings</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_sibling</span><span class="p">.</span><span class="nf">dup</span><span class="p">]</span>
+<span class="n">robject</span><span class="p">.</span><span class="nf">store</span>
+
+<span class="n">robject</span><span class="p">.</span><span class="nf">reload</span>
+<span class="n">robject</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; false</span>
+</code></pre>
+
+<h3>Conflict Resolution Callbacks</h3>
+
+<p><code>Riak::RObject</code> also has <code>on_conflict</code> hooks. These hooks work much like manual
+conflict resolution. Register them with <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict"><code>Riak::RObject.on_conflict</code></a>, and
+trigger then on a conflicted object with <code>RObject#attempt_conflict_resolution</code>.</p>
+
+<p>With the same scenario as above:</p>
+<pre><code class="highlight ruby"><span class="no">Riak</span><span class="o">::</span><span class="no">RObject</span><span class="p">.</span><span class="nf">on_conflict</span> <span class="k">do</span> <span class="o">|</span><span class="n">robject</span><span class="o">|</span>
+    <span class="n">max_sibling</span> <span class="o">=</span> <span class="n">robject</span><span class="p">.</span><span class="nf">siblings</span><span class="p">.</span><span class="nf">inject</span> <span class="k">do</span> <span class="o">|</span><span class="n">max_sibling</span><span class="p">,</span> <span class="n">current_sibling</span><span class="o">|</span>
+        <span class="k">next</span> <span class="n">max_sibling</span> <span class="k">if</span> <span class="n">max_sibling</span><span class="p">.</span><span class="nf">data</span> <span class="o">&gt;</span> <span class="n">current_sibling</span><span class="p">.</span><span class="nf">data</span>
+        <span class="k">next</span> <span class="n">current_sibling</span>
+    <span class="k">end</span>
+
+    <span class="n">robject</span><span class="p">.</span><span class="nf">siblings</span> <span class="o">=</span> <span class="p">[</span><span class="n">max_sibling</span><span class="p">.</span><span class="nf">dup</span><span class="p">]</span>
+<span class="k">end</span>
+
+<span class="n">object</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; true</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">attempt_conflict_resolution</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">store</span>
+<span class="n">object</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; false</span>
+</code></pre>
+
+<p>You can have multiple conflict resolution callbacks. If they return <code>nil</code> the
+next one in the list will fire. If you want different callbacks for different
+buckets, simply make the first thing they do check if the bucket is the expected
+one:</p>
+<pre><code class="highlight ruby"><span class="no">Riak</span><span class="o">::</span><span class="no">RObject</span><span class="p">.</span><span class="nf">on_conflict</span> <span class="k">do</span> <span class="o">|</span><span class="n">robject</span><span class="o">|</span>
+  <span class="k">next</span> <span class="kp">nil</span> <span class="k">unless</span> <span class="n">robject</span><span class="p">.</span><span class="nf">bucket</span><span class="p">.</span><span class="nf">name</span> <span class="o">==</span> <span class="s1">'robots'</span>
+  <span class="c1"># actually resolve the robot conflict</span>
+<span class="k">end</span>
+</code></pre>
+
+<p>If none of the handlers resolve the conflict, the object will remain in
+conflict.</p>
 </div>
 </div>
 </body>
