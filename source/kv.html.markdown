@@ -23,40 +23,35 @@ documentation.
 
 ## tl;dr
 
+Get an object:
+
 ``` ruby
-require 'riak'
+# get an object
+object = bucket.get 'index.html'
+object = bucket['index.html']
 
-# Create a client interface
-client = Riak::Client.new
+# get or create an object
+object = bucket.get_or_new 'index.html'
 
-# Retrieve a bucket
-bucket = client.bucket("doc")  # a Riak::Bucket
+# create a new object
+object = bucket.new 'index.html'
 
-# Get an object from the bucket
-object = bucket.get_or_new("index.html")   # a Riak::RObject
-
-# Change the object's data and save
+# change the object's data and save
 object.raw_data = "<html><body>Hello, world!</body></html>"
 object.content_type = "text/html"
 object.store
 
-# Reload an object you already have
-object.reload                  # Works if you have the key and vclock, using conditional GET
-object.reload :force => true   # Reloads whether you have the vclock or not
+# reload an object you already have the vclock of
+object.reload
 
-# Access more like a hash, client[bucket][key]
-client['doc']['index.html']   # the Riak::RObject
-
-# Create a new object
-new_one = Riak::RObject.new(bucket, "application.js")
-new_one.content_type = "application/javascript" # You must set the content type.
-new_one.raw_data = "alert('Hello, World!')"
-new_one.store
+# reload an object without the vclock
+object.reload :force => true
 ```
 
 ## Objects
 
-Riak's key-value interface maniuplates objects. You can think of an object as:
+Riak's key-value interface maniuplates objects. You can think of an object as
+a tuple:
 
 ```ruby
   {bucket type, bucket, key, metadata, values}
@@ -120,6 +115,18 @@ bucket.get_or_new 'Revenge of Boatname'
 
 ### Manipulating and Storing Objects
 
+#### Raw Data, No Serialization
+
+Use the `RObject#raw_data` accessors to manipulate the raw blob/string that
+represents the value of a Riak object. The client will not transform or parse
+this data.
+
+```ruby
+robject.content_type = 'image/jpeg'
+robject.raw_data = File.read 'cat.jpg'
+robject.store
+```
+
 #### Serializing and Deserializing Data
 
 Frequently, you'll store objects you want to be serialized and deserialized
@@ -147,9 +154,44 @@ content-types:
 * `text/yaml`, `text/x-yaml`, `application/yaml`, `application/x-yaml`: use
   `YAML` in the Ruby standard library.
 
+##### Other Content Types
+
 Support for other content-types can be added: write a module with `dump(object)`
 and `load(string)` methods, and configure it with the `Riak::Serializers[]`
 method. For an example, note how the `TextPlain` and `ApplicationJSON`
 serializers are written and configured in the [`Riak::Serializer` module.][1]
 
 [1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34
+
+## Content
+
+Riak objects can have more than one value. If you have an eventually-consistent
+bucket (i.e. not strongly consistent) with `allow_mult` enabled and
+`last_write_wins` disabled ([choose wisely][2], [it's important][1]), multiple
+values for a given object are common.
+
+[1]: http://aphyr.com/posts/285-call-me-maybe-riak
+[2]: http://docs.basho.com/riak/latest/dev/using/conflict-resolution/
+
+Resolving conflicts can be tricky! [Riak's CRDT implementation][1] and how the
+[Ruby client CRDT support][2] works may lead you to a better solution than
+relying on client-side conflict resolution.
+
+[1]: http://docs.basho.com/riak/latest/dev/using/data-types/
+[2]: /crdt.html
+
+The `Riak::RContent` class handles properties of an individual value. Without
+conflict, [`Riak::RObject` delegates many of its apparent properties][1] to an
+`RContent` instance. With conflict, attempts to access these properties will
+raise a `Riak::Conflict` error.
+
+[1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64
+
+```ruby
+robject.conflict? #=> true
+robject.raw_data # raises Riak::Conflict
+```
+
+## Attempting Conflict Resolution
+
+`Riak::RObject` keeps a list of `on_conflict_hooks` that can be used
