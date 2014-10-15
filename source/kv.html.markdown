@@ -163,7 +163,7 @@ serializers are written and configured in the [`Riak::Serializer` module.][1]
 
 [1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34
 
-## Content
+## Content and Conflict
 
 Riak objects can have more than one value. If you have an eventually-consistent
 bucket (i.e. not strongly consistent) with `allow_mult` enabled and
@@ -192,6 +192,67 @@ robject.conflict? #=> true
 robject.raw_data # raises Riak::Conflict
 ```
 
-## Attempting Conflict Resolution
+### Manual Conflict Resolution
 
-`Riak::RObject` keeps a list of `on_conflict_hooks` that can be used
+If a `Riak::RObject` is in conflict, you can resolve the conflict by setting its
+`siblings` array to an array with one element. Ideally, you'll loop through the
+array of siblings and accumulate a correct one.
+
+In this case, assume we have objects that store a single number, and we want to
+resolve them to the maximum.
+
+```ruby
+robject.conflict? #=> true
+
+max_sibling = robject.siblings.inject do |max_sibling, current_sibling|
+    next max_sibling if max_sibling.data > current_sibling.data
+    next current_sibling
+end
+
+robject.siblings = [max_sibling.dup]
+robject.store
+
+robject.reload
+robject.conflict? #=> false
+```
+
+### Conflict Resolution Callbacks
+
+`Riak::RObject` also has `on_conflict` hooks. These hooks work much like manual
+conflict resolution. Register them with [`Riak::RObject.on_conflict`][1], and
+trigger then on a conflicted object with `RObject#attempt_conflict_resolution`.
+
+[1]: http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict
+
+With the same scenario as above:
+
+```ruby
+Riak::RObject.on_conflict do |robject|
+    max_sibling = robject.siblings.inject do |max_sibling, current_sibling|
+        next max_sibling if max_sibling.data > current_sibling.data
+        next current_sibling
+    end
+
+    robject.siblings = [max_sibling.dup]
+end
+
+object.conflict? #=> true
+object.attempt_conflict_resolution
+object.store
+object.conflict? #=> false
+```
+
+You can have multiple conflict resolution callbacks. If they return `nil` the
+next one in the list will fire. If you want different callbacks for different
+buckets, simply make the first thing they do check if the bucket is the expected
+one:
+
+```ruby
+Riak::RObject.on_conflict do |robject|
+  next nil unless robject.bucket.name == 'robots'
+  # actually resolve the robot conflict
+end
+```
+
+If none of the handlers resolve the conflict, the object will remain in
+conflict.
