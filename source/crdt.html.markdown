@@ -8,7 +8,7 @@ and should also be enjoyable.
 
 [1]: http://localhost:4566/riak/2.0.1/theory/concepts/crdts/#Riak-Data-Types-Under-the-Hood
 
-# tl;dr
+## tl;dr
 
 These examples assume you have bucket types named `counters`, `maps`, and `sets`.
 
@@ -39,7 +39,7 @@ set.remove "London"
 set.include? "Leeds" #=> true
 ```
 
-# CRDTs and Bucket Types
+## CRDTs and Bucket Types
 
 CRDTs require appropriate bucket types to be configured. For more information,
 check out the [Riak CRDT usage documentation][1].
@@ -56,7 +56,7 @@ Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] #=> "sets"
 Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = "a_cooler_set"
 ```
 
-# Creating and Loading CRDTs
+## Creating and Loading CRDTs
 
 CRDTs aren't strictly "created" per se. If multiple parties create a CRDT
 with the same bucket and key at the same time, they will merge correctly. If
@@ -110,7 +110,7 @@ counter.value # does hit Riak
 counter.increment # does hit Riak
 ```
 
-# Immediate and Batched Changes
+## Immediate and Batched Changes
 
 Altering CRDTs directly sends changes to Riak immediately, and refreshes the
 local copy as part of the update:
@@ -142,7 +142,7 @@ map.batch do |m|
 end
 ```
 
-# Counters
+## Counters
 
 Riak 2 supports counters in the same way as other CRDTs. Counters are basically
 an integer you can increment or decrement.
@@ -169,7 +169,7 @@ c.decrement # value is 6
 c.decrement 4 # value is 2
 ```
 
-# Sets
+## Sets
 
 Riak 2 has sets of strings of bytes. In cases of conflict, 
 
@@ -196,7 +196,7 @@ set.remove 'gruyere'
 set.members #=> #<Set: {"manchego", "cheddar"}>
 ```
 
-# Maps
+## Maps
 
 Riak 2 Map CRDTs are the most complicated of the three top-level CRDTs. They
 can contain any of five different inner CRDTs:
@@ -218,7 +218,7 @@ separate. There's nothing stopping you from having both an inner counter named
 `cats` and an inner set named `cats`. Nested maps don't conflict either, so
 feel free to store maps in maps in maps.
 
-## Creating and Updating Map Contents
+### Creating and Updating Map Contents
 
 Maps have five methods you'll be interacting with most of the time: `#counters`,
 `#flags`, `#maps`, `#registers`, and `#sets`.
@@ -227,17 +227,38 @@ Maps have five methods you'll be interacting with most of the time: `#counters`,
 `Riak::Crdt::TypedCollection` class, which does some tricks to make the user
 API work.
 
-```ruby
-m = Riak::Crdt::Map.new maps_bucket, key
+Flags and registers let you assign their values directly:
 
+```ruby
+m.flags['yes'] = true
+m.flags['no'] = false
+
+m.registers['singular'] = 'potato'
+m.registers['cat'] = File.read 'cat.jpg'
+```
+
+Counters, maps, and sets have the same API as their top-level types:
+
+```ruby
 m.counters['emacs'].increment
 m.counters['emacs'].value #=> 1
 
 m.maps['racks'].sets['snacks'].add 'scooby snacks'
+
 m.sets['garage'].add 'maybach'
 ```
 
-# Legacy Counters
+### Deleting Map Contents
+
+Map entries can be deleted from their collection:
+
+```ruby
+m.counters.delete 'emacs'
+m.maps.delete 'racks'
+m.sets.delete 'garage'
+```
+
+## Legacy Counters
 
 Riak 1.4 also supported counters, but through the key-value API instead of the
 CRDT API.
