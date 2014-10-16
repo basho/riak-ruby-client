@@ -1,0 +1,46 @@
+---
+title: Secondary Indexes
+---
+Secondary indexes, commonly called "2i," are a way to add and query specific
+tags on objects. It requires the `memory` or `leveldb` backend. It will work
+with the `multi` backend configured to use `memory` or `leveldb` for your
+specific objects.
+
+Check out the Riak docuentation on [using secondary indexes][1] and a few
+[notes about 2i implementation][2].
+
+[1]: http://docs.basho.com/riak/latest/dev/using/2i/
+[2]: http://docs.basho.com/riak/latest/dev/advanced/2i/
+
+## tl;dr
+
+Tagging and simple querying:
+
+```ruby
+# #indexes is a hash of arrays
+# keys are postfixed with _bin for binary/string indexes, _int for integers
+# values are arrays
+cobb_salad.indexes['ingredients_bin'] = %w{lettuce tomato bacon egg chives}
+cobb_salad.indexes['calories_int'] = [220]
+cobb_salad.store
+
+# integer indexes can be queried for match or range
+bucket.get_index 'calories_int', 220 #=> ['cobb_salad']
+bucket.get_index 'calories_int', (0..300) #=> ['cobb_salad']
+
+# bin indexes can be queried for match or range too
+bucket.get_index 'ingredients_bin', 'lettuce' #=> ['cobb_salad']
+bucket.get_index 'ingredients_bin', 'tomata'..'tomatz' #=> ['cobb_salad']
+```
+
+Paginated queries:
+
+```ruby
+r = bucket.get_index 'ingredients_bin', 'lettuce', max_results: 5
+r.length #=> 5
+r.continuation #=> "g2gCbQAAA="
+
+r2 = bucket.get_index('ingredients_bin', 'lettuce',
+                      max_results: 5,
+                      continuation: r.continuation)
+```
