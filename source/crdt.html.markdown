@@ -3,6 +3,10 @@ title: CRDTs
 ---
 Convergent Replicated Data Types, or CRDTs, are data structures that remain
 coherent and make sense even in eventually-consistent environments like Riak.
+An understanding of the [Riak CRDT theory and implementation][1] will be useful
+and should also be enjoyable.
+
+[1]: http://localhost:4566/riak/2.0.1/theory/concepts/crdts/#Riak-Data-Types-Under-the-Hood
 
 # tl;dr
 
@@ -38,7 +42,7 @@ set.include? "Leeds" #=> true
 # CRDTs and Bucket Types
 
 CRDTs require appropriate bucket types to be configured. For more information,
-check out the [Riak CRDT documentation][1].
+check out the [Riak CRDT usage documentation][1].
 
 [1]: http://docs.basho.com/riak/latest/dev/using/data-types/#Setting-Up-Buckets-to-Use-Riak-Data-Types
 
@@ -165,7 +169,73 @@ c.decrement # value is 6
 c.decrement 4 # value is 2
 ```
 
-# 
+# Sets
+
+Riak 2 has sets of strings of bytes. In cases of conflict, 
+
+**PROTIP:** Ruby's standard library and the Riak client both have classes named
+`Set`, and the Riak client uses the Ruby version copiously. Be careful to refer
+to the Ruby version as `::Set` and the Riak client version as `Riak::Crdt::Set`.
+
+```ruby
+s = Riak::Crdt::Set.new set_bucket, nil
+
+# Riak::Crdt::Set#members returns a ::Set instance
+set.members #=> #<Set: {}>
+
+# the #to_a method returns an Array
+set.to_a #=> []
+
+set.add 'manchego'
+set.add 'gruyere'
+set.add 'cheddar'
+
+set.members #=> #<Set: {"manchego", "gruyere", "cheddar"}>
+
+set.remove 'gruyere'
+set.members #=> #<Set: {"manchego", "cheddar"}>
+```
+
+# Maps
+
+Riak 2 Map CRDTs are the most complicated of the three top-level CRDTs. They
+can contain any of five different inner CRDTs:
+
+* *Counters:* integers that can be incremented or decremented, same as the
+  top-level counters.
+* *Flags:* boolean values that can be updated to `true` or `false`. A flag
+  prefers to be `true` in cases where it could be either.
+* *Maps:* a map can contain maps, and those maps can contain maps, and so
+  on.
+* *Registers:* a register is a string of bytes. In a conflict, the most-recent
+  version of the register is picked, based on timestamps.
+* *Sets:* just like the top-level set CRDT, sets inside maps are sets of strings
+  of bytes.
+
+Each inner CRDT is in a collection of its own, keyed by strings. Maps don't have
+naming conflicts internally: the namespaces for each kind of inner CRDT is
+separate. There's nothing stopping you from having both an inner counter named
+`cats` and an inner set named `cats`. Nested maps don't conflict either, so
+feel free to store maps in maps in maps.
+
+## Creating and Updating Map Contents
+
+Maps have five methods you'll be interacting with most of the time: `#counters`,
+`#flags`, `#maps`, `#registers`, and `#sets`.
+
+*Implementation detail:* these collections are instances of the
+`Riak::Crdt::TypedCollection` class, which does some tricks to make the user
+API work.
+
+```ruby
+m = Riak::Crdt::Map.new maps_bucket, key
+
+m.counters['emacs'].increment
+m.counters['emacs'].value #=> 1
+
+m.maps['racks'].sets['snacks'].add 'scooby snacks'
+m.sets['garage'].add 'maybach'
+```
 
 # Legacy Counters
 
