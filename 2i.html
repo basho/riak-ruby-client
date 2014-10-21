@@ -68,9 +68,9 @@ specific objects.</p>
 <h2>Tagging</h2>
 
 <p>Each <code>RObject</code> has an <code>indexes</code> accessor that&rsquo;s a Hash of <code>String</code> keys to
-<code>Array</code> values. Keys must end with an underscore and the type of index they are:
+<code>Set</code> values. Keys must end with an underscore and the type of index they are:
 <code>_bin</code> for binary/<code>String</code> indexes, or <code>_int</code> for <code>Integer</code> indexes. The values
-must be an array of the appropriate index members. One object can have multiple
+must be a set of the appropriate index members. One object can have multiple
 keys in the same index.</p>
 
 <p>Indexes are not saved until the entire object is stored.</p>
@@ -101,10 +101,125 @@ otherwise process conflicting indexes during <a href="kv.html#toc-content-and-co
   <span class="k">end</span>
 <span class="k">end</span>
 </code></pre>
+
+<h2>Querying</h2>
+
+<p>There are two different Ruby client APIs for querying secondary indexes: directly
+on the bucket, or through a <code>SecondaryIndex</code> object. These use the same Riak
+server API, they just provide different levels of convenience based on how
+complex your needs are.</p>
+
+<h3>Querying on the Bucket</h3>
+
+<p>Use the <code>Bucket#get_index</code> method for straightforward 2i queries. It returns a
+<code>Riak::IndexCollection</code> instance, which is a subclass of <code>Array</code> with a few
+extra accessors and methods for results.</p>
+
+<p>You can query for a scalar or a range, of either integers or strings:</p>
+<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">200</span><span class="p">.</span><span class="nf">.</span><span class="mi">240</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomato'</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomata'</span><span class="p">.</span><span class="nf">.</span><span class="s1">'tomatz'</span>
+</code></pre>
+
+<p><code>Bucket#get_index</code> takes other options too:</p>
+
+<ul>
+<li><code>max_results</code>: controls how many results Riak will return</li>
+<li><code>continuation</code>: returned from a paginated query to allow access to consecutive
+pages</li>
+<li><code>return_terms</code>: include matched index terms in the <code>IndexCollection</code> results</li>
+</ul>
+
+<h3>Querying with a <code>SecondaryIndex</code> object</h3>
+
+<p>The <code>Riak::SecondaryIndex</code> object is constructed with:</p>
+
+<ul>
+<li><code>Bucket</code> instance</li>
+<li>index name (i.e. <code>ingredients_bin</code>)</li>
+<li>query (scalar or range)</li>
+<li>options hash (optional)</li>
+</ul>
+<pre><code class="highlight ruby"><span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
+<span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">200</span><span class="p">.</span><span class="nf">.</span><span class="mi">240</span>
+
+<span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomato'</span>
+<span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomata'</span><span class="p">.</span><span class="nf">.</span><span class="s1">'tomatz'</span>
+</code></pre>
+
+<p>Just like <code>Bucket#get_index</code>, <code>Riak::SecondaryIndex.new</code> takes options:</p>
+
+<ul>
+<li><code>max_results</code>: control how many results are returned from Riak</li>
+<li><code>continuation</code>: opaque string that provides access to additional pages of
+results</li>
+<li><code>return_terms</code>: return a hash of keys to terms they matched</li>
+</ul>
+
+<p>Queries are lazy: they&rsquo;re not sent to the server until absolutely necessary.</p>
+
+<h4>Getting a Collection of Keys or Values</h4>
+
+<p>Simply ask a <code>SecondaryIndex</code> instance for keys and it will return an
+<code>IndexCollection</code>:</p>
+<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="c1">#=&gt; an IndexCollection</span>
+</code></pre>
+
+<p>The collection is memoized; the first time it&rsquo;s requested will round-trip to
+Riak, after that it&rsquo;s cached.</p>
+
+<p>If you want to materialize those keys into values, invoking the <code>#values</code>
+method will perform a multi-threaded multi-get to load them for you:</p>
+<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">values</span> <span class="c1">#=&gt; an Array of RObjects</span>
+</code></pre>
+
+<h4>Streaming Keys</h4>
+
+<p>Performing a large enough query can take some time. The Riak node handling the
+query has to sort and collate the results before sending them over the wire en
+masse. Performing a streaming query obviates this: the Riak node will return
+chunks of results as they become available.</p>
+
+<p>Pass a block to the <code>keys</code> method during its first invocation to perform a
+streaming query:</p>
+<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+  <span class="nb">puts</span> <span class="s2">"The key is </span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span>
+<span class="k">end</span>
+</code></pre>
+
+<h4>Pagination</h4>
+
+<p>When a next page is available, calling the <code>next_page</code> method on a
+<code>SecondaryIndex</code> instance will return a new instance for the next page.</p>
+<pre><code class="highlight ruby"><span class="n">page_1</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span>
+                                  <span class="s1">'ingredients_bin'</span><span class="p">,</span>
+                                  <span class="s1">'lettuce'</span><span class="p">,</span>
+                                  <span class="ss">max_results: </span><span class="mi">5</span><span class="p">)</span>
+<span class="n">page_2</span> <span class="o">=</span> <span class="n">page_1</span><span class="p">.</span><span class="nf">next_page</span>
+<span class="n">page_3</span> <span class="o">=</span> <span class="n">page_2</span><span class="p">.</span><span class="nf">next_page</span>
+</code></pre>
+
+<p>When a next page is not available, calling the <code>next_page</code> method rasises an
+error.</p>
+
+<h2>The <code>IndexCollection</code> Class</h2>
+
+<p><code>Bucket#get_index</code> and <code>Riak::SecondaryIndex#keys</code> both return <code>IndexCollection</code>
+instances. These are simply <code>Array</code>s of keys with a few extra methods.</p>
+
+<ul>
+<li><code>continuation</code>: an opaque <code>String</code> used for pagination. If it&rsquo;s not present,
+there is no next page.</li>
+<li><code>with_terms</code>: a <code>Hash</code> of keys to the index value they matched against. This
+can be used with a range query to materialize a bit of result without
+requiring a full key load.</li>
+</ul>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-10-21 19:32:44 UTC from repo version 3142889c830acd3e7724822144cfe9b8cda6948e.
+Documentation generated at 2014-10-21 23:02:38 UTC from repo version d5e43079643824900266b92ba2a6e26f31e60682.
 </footer>
 </body>
 </html>
