@@ -48,9 +48,9 @@ page_2 = bucket.get_index('ingredients_bin', 'lettuce',
 ## Tagging
 
 Each `RObject` has an `indexes` accessor that's a Hash of `String` keys to
-`Array` values. Keys must end with an underscore and the type of index they are:
+`Set` values. Keys must end with an underscore and the type of index they are:
 `_bin` for binary/`String` indexes, or `_int` for `Integer` indexes. The values
-must be an array of the appropriate index members. One object can have multiple
+must be a set of the appropriate index members. One object can have multiple
 keys in the same index.
 
 Indexes are not saved until the entire object is stored.
@@ -87,3 +87,122 @@ if salad.conflict?
   end
 end
 ```
+
+## Querying
+
+There are two different Ruby client APIs for querying secondary indexes: directly
+on the bucket, or through a `SecondaryIndex` object. These use the same Riak
+server API, they just provide different levels of convenience based on how
+complex your needs are.
+
+### Querying on the Bucket
+
+Use the `Bucket#get_index` method for straightforward 2i queries. It returns a
+`Riak::IndexCollection` instance, which is a subclass of `Array` with a few
+extra accessors and methods for results.
+
+You can query for a scalar or a range, of either integers or strings:
+
+```ruby
+c = bucket.get_index 'calories_int', 220
+c = bucket.get_index 'calories_int', 200..240
+
+c = bucket.get_index 'ingredients_bin', 'tomato'
+c = bucket.get_index 'ingredients_bin', 'tomata'..'tomatz'
+```
+
+`Bucket#get_index` takes other options too:
+
+* `max_results`: controls how many results Riak will return
+* `continuation`: returned from a paginated query to allow access to consecutive
+  pages
+* `return_terms`: include matched index terms in the `IndexCollection` results
+
+### Querying with a `SecondaryIndex` object
+
+The `Riak::SecondaryIndex` object is constructed with:
+
+* `Bucket` instance
+* index name (i.e. `ingredients_bin`)
+* query (scalar or range)
+* options hash (optional)
+
+```ruby
+q = Riak::SecondaryIndex.new bucket, 'calories_int', 220
+q = Riak::SecondaryIndex.new bucket, 'calories_int', 200..240
+
+q = Riak::SecondaryIndex.new bucket, 'ingredients_bin', 'tomato'
+q = Riak::SecondaryIndex.new bucket, 'ingredients_bin', 'tomata'..'tomatz'
+```
+
+Just like `Bucket#get_index`, `Riak::SecondaryIndex.new` takes options:
+
+* `max_results`: control how many results are returned from Riak
+* `continuation`: opaque string that provides access to additional pages of
+  results
+* `return_terms`: return a hash of keys to terms they matched
+
+Queries are lazy: they're not sent to the server until absolutely necessary.
+
+#### Getting a Collection of Keys or Values
+
+Simply ask a `SecondaryIndex` instance for keys and it will return an
+`IndexCollection`:
+
+```ruby
+q.keys #=> an IndexCollection
+```
+
+The collection is memoized; the first time it's requested will round-trip to
+Riak, after that it's cached.
+
+If you want to materialize those keys into values, invoking the `#values`
+method will perform a multi-threaded multi-get to load them for you:
+
+```ruby
+q.values #=> an Array of RObjects
+```
+
+#### Streaming Keys
+
+Performing a large enough query can take some time. The Riak node handling the
+query has to sort and collate the results before sending them over the wire en
+masse. Performing a streaming query obviates this: the Riak node will return
+chunks of results as they become available.
+
+Pass a block to the `keys` method during its first invocation to perform a
+streaming query:
+
+```ruby
+q.keys do |key|
+  puts "The key is #{key}"
+end
+```
+
+#### Pagination
+
+When a next page is available, calling the `next_page` method on a
+`SecondaryIndex` instance will return a new instance for the next page.
+
+```ruby
+page_1 = Riak::SecondaryIndex.new(bucket,
+                                  'ingredients_bin',
+                                  'lettuce',
+                                  max_results: 5)
+page_2 = page_1.next_page
+page_3 = page_2.next_page
+```
+
+When a next page is not available, calling the `next_page` method rasises an
+error.
+
+## The `IndexCollection` Class
+
+`Bucket#get_index` and `Riak::SecondaryIndex#keys` both return `IndexCollection`
+instances. These are simply `Array`s of keys with a few extra methods.
+
+* `continuation`: an opaque `String` used for pagination. If it's not present,
+  there is no next page.
+* `with_terms`: a `Hash` of keys to the index value they matched against. This
+  can be used with a range query to materialize a bit of result without
+  requiring a full key load.
