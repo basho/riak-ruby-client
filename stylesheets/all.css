@@ -98,11 +98,18 @@ code {
     #toc ul li.toc-h5 {
       padding-left: 3em; }
 
-/* line 8, /Users/bkerley/Documents/riak-ruby-client-docs/source/stylesheets/all.css.sass */
+/* line 1, /Users/bkerley/Documents/riak-ruby-client-docs/source/stylesheets/_footer.css.sass */
+footer {
+  font-size: 0.8em;
+  padding: 1em 1em 0 1em;
+  margin-top: 2em;
+  margin-bottom: 0; }
+
+/* line 9, /Users/bkerley/Documents/riak-ruby-client-docs/source/stylesheets/all.css.sass */
 body {
   margin: 1em; }
 
-/* line 11, /Users/bkerley/Documents/riak-ruby-client-docs/source/stylesheets/all.css.sass */
+/* line 12, /Users/bkerley/Documents/riak-ruby-client-docs/source/stylesheets/all.css.sass */
 .content {
   width: 40em;
   margin-right: auto; }

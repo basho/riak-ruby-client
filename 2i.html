@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge,chrome=1' http-equiv='X-UA-Compatible'>
+<title>Secondary Indexes</title>
+<link href="stylesheets/normalize.css" rel="stylesheet" type="text/css" /><link href="stylesheets/all.css" rel="stylesheet" type="text/css" />
+<script src="javascripts/all.js" type="text/javascript"></script>
+</head>
+<body class='x2i'>
+<header>
+<nav>
+<ul>
+<li class='title'>riak-ruby-client</li>
+<li><a href="./">Home</a></li>
+<li><a href="kv.html">Key-Value</a></li>
+<li><a href="yz.html">Search</a></li>
+<li><a href="2i.html">Secondary Indexes</a></li>
+<li><a href="crdt.html">CRDTs</a></li>
+<li class='space'><a href="install.html">Installation</a></li>
+<li><a href="config.html">Configuration</a></li>
+<li><a href="https://github.com/basho/riak-ruby-client">Source</a></li>
+<li><a href="https://rubygems.org/gems/riak-client">Gem</a></li>
+</ul>
+</nav>
+
+</header>
+<div class='content'>
+<h1 class='title'>Secondary Indexes</h1>
+<div id='toc'></div>
+<div id='yielded'><p>Secondary indexes, commonly called &ldquo;2i,&rdquo; are a way to add and query specific
+tags on objects. It requires the <code>memory</code> or <code>leveldb</code> backend. It will work
+with the <code>multi</code> backend configured to use <code>memory</code> or <code>leveldb</code> for your
+specific objects.</p>
+
+<p>Check out the Riak docuentation on <a href="kv.html#toc-content-and-conflict">using secondary indexes</a> and a few
+<a href="http://docs.basho.com/riak/latest/dev/advanced/2i/">notes about 2i implementation</a>.</p>
+
+<h2>tl;dr</h2>
+
+<p>Tagging and simple querying:</p>
+<pre><code class="highlight ruby"><span class="c1"># #indexes is a hash of arrays</span>
+<span class="c1"># keys are postfixed with _bin for binary/string indexes, _int for integers</span>
+<span class="c1"># values are arrays</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">=</span> <span class="sx">%w{lettuce tomato bacon egg chives}</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'calories_int'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">220</span><span class="p">]</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">store</span>
+
+<span class="c1"># integer indexes can be queried for match or range</span>
+<span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span> <span class="c1">#=&gt; ['cobb_salad']</span>
+<span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="nf">.</span><span class="mi">300</span><span class="p">)</span> <span class="c1">#=&gt; ['cobb_salad']</span>
+
+<span class="c1"># bin indexes can be queried for match or range too</span>
+<span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'lettuce'</span> <span class="c1">#=&gt; ['cobb_salad']</span>
+<span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomata'</span><span class="p">.</span><span class="nf">.</span><span class="s1">'tomatz'</span> <span class="c1">#=&gt; ['cobb_salad']</span>
+</code></pre>
+
+<p>Paginated queries:</p>
+<pre><code class="highlight ruby"><span class="n">page_1</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'lettuce'</span><span class="p">,</span> <span class="ss">max_results: </span><span class="mi">5</span>
+<span class="n">page_1</span><span class="p">.</span><span class="nf">length</span> <span class="c1">#=&gt; 5</span>
+<span class="n">page_1</span><span class="p">.</span><span class="nf">continuation</span> <span class="c1">#=&gt; "g2gCbQAAA="</span>
+
+<span class="n">page_2</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span><span class="p">(</span><span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'lettuce'</span><span class="p">,</span>
+                      <span class="ss">max_results: </span><span class="mi">5</span><span class="p">,</span>
+                      <span class="ss">continuation: </span><span class="n">page_1</span><span class="p">.</span><span class="nf">continuation</span><span class="p">)</span>
+</code></pre>
+
+<h2>Tagging</h2>
+
+<p>Each <code>RObject</code> has an <code>indexes</code> accessor that&rsquo;s a Hash of <code>String</code> keys to
+<code>Array</code> values. Keys must end with an underscore and the type of index they are:
+<code>_bin</code> for binary/<code>String</code> indexes, or <code>_int</code> for <code>Integer</code> indexes. The values
+must be an array of the appropriate index members. One object can have multiple
+keys in the same index.</p>
+
+<p>Indexes are not saved until the entire object is stored.</p>
+<pre><code class="highlight ruby"><span class="c1"># allow finding this salad by any of its ingredients</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">=</span> <span class="sx">%w{lettuce tomato bacon egg chives}</span>
+
+<span class="c1"># allow finding this salad by how many calories it has per serving</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'calories_int'</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">220</span><span class="p">]</span>
+
+<span class="c1"># actually store the indexes</span>
+<span class="n">cobb_salad</span><span class="p">.</span><span class="nf">store</span>
+</code></pre>
+
+<h3>Tagging and Conflict Resolution</h3>
+
+<p>The <code>indexes</code> hash is actually on the <code>RContent</code> object. You can merge or
+otherwise process conflicting indexes during <a href="kv.html#toc-content-and-conflict">conflict resolution:</a></p>
+<pre><code class="highlight ruby"><span class="k">if</span> <span class="n">salad</span><span class="p">.</span><span class="nf">conflict?</span>
+  <span class="n">salad</span><span class="p">.</span><span class="nf">siblings</span><span class="p">.</span><span class="nf">inject</span> <span class="k">do</span> <span class="o">|</span><span class="n">merged_salad</span><span class="p">,</span> <span class="n">current_salad</span><span class="o">|</span>
+    <span class="c1"># merging the salad data is left as an exercise for the reader</span>
+
+    <span class="n">merged_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+      <span class="n">merged_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">+</span>
+      <span class="n">current_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span>
+      <span class="p">).</span><span class="nf">uniq</span>
+
+    <span class="k">next</span> <span class="n">merged_salad</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</code></pre>
+</div>
+</div>
+<footer>
+Documentation generated at 2014-10-21 19:32:44 UTC from repo version 3142889c830acd3e7724822144cfe9b8cda6948e.
+</footer>
+</body>
+</html>

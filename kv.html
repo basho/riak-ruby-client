@@ -44,7 +44,7 @@ bucket, and key. It works similarly to a BLOB column in SQL. Riak objects
 can have more than one value, which requires conflict resolution.</li>
 </ul>
 
-<p>For more about buckets, keys, and values, read the <a href="/crdt.html">object/key operations</a>
+<p>For more about buckets, keys, and values, read the <a href="crdt.html">object/key operations</a>
 documentation.</p>
 
 <h2>tl;dr</h2>
@@ -173,11 +173,11 @@ serializers are written and configured in the <a href="http://www.rubydoc.info/g
 
 <p>Riak objects can have more than one value. If you have an eventually-consistent
 bucket (i.e. not strongly consistent) with <code>allow_mult</code> enabled and
-<code>last_write_wins</code> disabled (<a href="/crdt.html">choose wisely</a>, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">it&rsquo;s important</a>), multiple
+<code>last_write_wins</code> disabled (<a href="crdt.html">choose wisely</a>, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">it&rsquo;s important</a>), multiple
 values for a given object are common.</p>
 
 <p>Resolving conflicts can be tricky! <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">Riak&rsquo;s CRDT implementation</a> and how the
-<a href="/crdt.html">Ruby client CRDT support</a> works may lead you to a better solution than
+<a href="crdt.html">Ruby client CRDT support</a> works may lead you to a better solution than
 relying on client-side conflict resolution.</p>
 
 <p>The <code>Riak::RContent</code> class handles properties of an individual value. Without
@@ -246,5 +246,8 @@ one:</p>
 conflict.</p>
 </div>
 </div>
+<footer>
+Documentation generated at 2014-10-21 19:32:45 UTC from repo version 3142889c830acd3e7724822144cfe9b8cda6948e.
+</footer>
 </body>
 </html>
