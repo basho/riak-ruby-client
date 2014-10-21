@@ -36,11 +36,54 @@ bucket.get_index 'ingredients_bin', 'tomata'..'tomatz' #=> ['cobb_salad']
 Paginated queries:
 
 ```ruby
-r = bucket.get_index 'ingredients_bin', 'lettuce', max_results: 5
-r.length #=> 5
-r.continuation #=> "g2gCbQAAA="
+page_1 = bucket.get_index 'ingredients_bin', 'lettuce', max_results: 5
+page_1.length #=> 5
+page_1.continuation #=> "g2gCbQAAA="
 
-r2 = bucket.get_index('ingredients_bin', 'lettuce',
+page_2 = bucket.get_index('ingredients_bin', 'lettuce',
                       max_results: 5,
-                      continuation: r.continuation)
+                      continuation: page_1.continuation)
+```
+
+## Tagging
+
+Each `RObject` has an `indexes` accessor that's a Hash of `String` keys to
+`Array` values. Keys must end with an underscore and the type of index they are:
+`_bin` for binary/`String` indexes, or `_int` for `Integer` indexes. The values
+must be an array of the appropriate index members. One object can have multiple
+keys in the same index.
+
+Indexes are not saved until the entire object is stored.
+
+```ruby
+# allow finding this salad by any of its ingredients
+cobb_salad.indexes['ingredients_bin'] = %w{lettuce tomato bacon egg chives}
+
+# allow finding this salad by how many calories it has per serving
+cobb_salad.indexes['calories_int'] = [220]
+
+# actually store the indexes
+cobb_salad.store
+```
+
+### Tagging and Conflict Resolution
+
+The `indexes` hash is actually on the `RContent` object. You can merge or
+otherwise process conflicting indexes during [conflict resolution:][1]
+
+[1]:kv.html#toc-content-and-conflict
+
+```ruby
+if salad.conflict?
+  salad.siblings.inject do |merged_salad, current_salad|
+    # merging the salad data is left as an exercise for the reader
+
+    merged_salad.indexes['ingredients_bin'] = (
+      merged_salad.indexes['ingredients_bin'] +
+      current_salad.indexes['ingredients_bin']
+      ).uniq
+
+    next merged_salad
+  end
+end
 ```
