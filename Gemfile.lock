@@ -1,5 +1,6 @@
-PATH
-  remote: /Users/bkerley/Documents/basho_client_middleman
+GIT
+  remote: git://github.com/basho-labs/basho_client_middleman.git
+  revision: fc8ef073a16d6291b1f27345a717429ba379707f
   specs:
     basho_client_middleman (0.0.1)
       middleman (~> 3.3)

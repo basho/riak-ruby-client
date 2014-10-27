@@ -21,4 +21,4 @@ gem "tzinfo-data", platforms: [:mswin, :mingw]
 # v8 for buildbot's benefit
 gem 'therubyracer'
 
-gem 'basho_client_middleman', path: '/Users/bkerley/Documents/basho_client_middleman'
+gem 'basho_client_middleman', github: 'basho-labs/basho_client_middleman'
