@@ -1,0 +1,1 @@
+//= require basho_client
