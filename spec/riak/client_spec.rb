@@ -45,6 +45,13 @@ describe Riak::Client, test_client: true do
     expect(subject.stamp).to be_kind_of(Riak::Stamp)
   end
 
+  it 'exposes bucket types' do
+    bucket_type = nil
+    expect{ bucket_type = subject.bucket_type('example') }.to_not raise_error
+    expect(bucket_type).to be_a Riak::BucketType
+    expect(bucket_type.name).to eq 'example'
+  end
+
   describe "reconfiguring" do
     before :each do
       @client = Riak::Client.new
