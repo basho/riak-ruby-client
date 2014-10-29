@@ -3,7 +3,7 @@ require 'riak/bucket_typed/bucket'
 
 describe Riak::BucketTyped::Bucket do
   let(:client){ Riak::Client.allocate }
-  let(:type){ Riak::BucketType.allocate }
+  let(:type){ client.bucket_type 'type' }
   let(:name){ 'bucket_typed_bucket_spec' }
 
   subject{ described_class.new client, name, type }

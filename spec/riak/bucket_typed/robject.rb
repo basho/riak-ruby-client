@@ -3,9 +3,9 @@ require 'riak/bucket_typed/robject'
 
 describe Riak::BucketTyped::RObject do
   let(:client){ Riak::Client.allocate }
-  let(:type){ Riak::BucketType.allocate }
-  let(:bucket){ Riak::BucketTyped::Bucket.allocate }
-  let(:key){ 'bucket_typed_robject_spec' }
+  let(:type){ client.bucket_type 'bucket_typed_robject_spec' }
+  let(:bucket){ type.bucket 'fruits' }
+  let(:key){ 'plantain' }
 
   subject{ described_class.new bucket, key }
 
