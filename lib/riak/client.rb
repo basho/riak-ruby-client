@@ -131,6 +131,10 @@ module Riak
     end
     alias :[] :bucket
 
+    def bucket_type(name)
+      BucketType.new self, name
+    end
+
     # Lists buckets which have keys stored in them.
     # @note This is an expensive operation and should be used only
     #       in development.
