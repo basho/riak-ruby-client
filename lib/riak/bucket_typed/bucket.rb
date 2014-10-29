@@ -1,4 +1,5 @@
 require 'riak/bucket'
+require 'riak/bucket_typed/robject'
 
 module Riak
   module BucketTyped
@@ -8,6 +9,10 @@ module Riak
         @type = type
 
         super client, name
+      end
+
+      def new(key=nil)
+        BucketTyped::RObject.new self, key
       end
     end
   end
