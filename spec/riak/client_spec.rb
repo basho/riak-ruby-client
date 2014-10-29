@@ -185,36 +185,37 @@ describe Riak::Client, test_client: true do
     end
   end
 
-  describe "when receiving errors from the backend"
-  before do
-    @client = Riak::Client.new 
-  end
-
-  it "retries on recoverable errors" do
-    call_count = 0
-    
-    begin
-      @client.backend do |b| 
-        call_count += 1
-        raise Riak::ProtobuffsFailedHeader
-      end
-    rescue RuntimeError
+  describe "when receiving errors from the backend" do
+    before do
+      @client = Riak::Client.new 
     end
 
-    expect(call_count).to eq(3)
-  end
-
-  it "throws a RuntimeError if it runs out of retries" do
-    error = nil
-    begin
-      @client.backend do |b| 
-        raise Riak::ProtobuffsFailedHeader
+    it "retries on recoverable errors" do
+      call_count = 0
+      
+      begin
+        @client.backend do |b| 
+          call_count += 1
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError
       end
-    rescue RuntimeError => e
-      error = e
+
+      expect(call_count).to eq(3)
     end
 
-    expect(error).not_to be_nil
-    expect(error).to be_instance_of(RuntimeError)
+    it "throws a RuntimeError if it runs out of retries" do
+      error = nil
+      begin
+        @client.backend do |b| 
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError => e
+        error = e
+      end
+
+      expect(error).not_to be_nil
+      expect(error).to be_instance_of(RuntimeError)
+    end
   end
 end
