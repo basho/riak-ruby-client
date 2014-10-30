@@ -6,11 +6,11 @@ describe 'Bucket Types', test_client: true, integration: true do
   describe 'nested bucket types API' do
     describe 'performing key-value operations' do
       let(:bucket_type){ test_client.bucket_type 'yokozuna' }
-      let(:bucket){ bucket_type.bucket(random_key 'bucket_type_spec') }
+      let(:bucket){ bucket_type.bucket(random_key) }
       let(:untyped_bucket){ test_client.bucket bucket.name }
 
       let(:object) do
-        object = bucket_type.new random_key
+        object = bucket.new random_key
         object.data = 'hello'
         object.content_type = 'text/plain'
         object.store
