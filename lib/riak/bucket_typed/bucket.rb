@@ -1,5 +1,4 @@
 require 'riak/bucket'
-require 'riak/bucket_typed/robject'
 
 module Riak
   module BucketTyped
@@ -12,7 +11,8 @@ module Riak
       end
 
       def new(key=nil)
-        BucketTyped::RObject.new self, key
+        RObject.new self, key
+      end
       end
     end
   end

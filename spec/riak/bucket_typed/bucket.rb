@@ -11,7 +11,6 @@ describe Riak::BucketTyped::Bucket do
   it 'initializes a typed RObject' do
     typed_robject = subject.new 'panther'
     expect(typed_robject).to be_a Riak::RObject
-    expect(typed_robject).to be_a Riak::BucketTyped::RObject
     expect(typed_robject.key).to eq 'panther'
     expect(typed_robject.type).to eq type
   end
