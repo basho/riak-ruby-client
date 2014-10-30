@@ -13,6 +13,9 @@ module Riak
       def new(key=nil)
         RObject.new self, key
       end
+
+      def get(key, options={  })
+        super key, { type: type.name }.merge(options)
       end
     end
   end
