@@ -14,4 +14,9 @@ describe Riak::BucketTyped::Bucket do
     expect(typed_robject.key).to eq 'panther'
     expect(typed_robject.type).to eq type
   end
+
+  it 'has a bucket type' do
+    expect(subject.type).to eq type
+    expect(subject.type.name).to eq 'type'
+  end
 end
