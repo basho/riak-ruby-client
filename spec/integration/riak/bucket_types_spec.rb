@@ -21,6 +21,15 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect{ bucket.get object.key }.to_not raise_error
         expect{ untyped_bucket.get object.key }.to raise_error /not_found/
       end
+
+      it 'reloads with a bucket type' do
+        expect{ object.reload }.to_not raise_error
+      end
+
+      it 'self-deletes with a bucket type' do
+        expect(object.delete).to be
+        expect{ object.reload }.to raise_error /not_found/
+      end
     end
   end
 
