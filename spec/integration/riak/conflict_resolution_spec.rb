@@ -2,7 +2,12 @@ require 'spec_helper'
 require 'riak'
 
 describe 'Conflict resolution', integration: true, test_client: true do
-  let(:bucket){ random_bucket }
+  let(:bucket) do
+    bucket = random_bucket
+    bucket.allow_mult = true
+
+    bucket
+  end
 
   subject do
     robj = bucket.new
