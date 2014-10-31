@@ -1,4 +1,3 @@
-require 'pp'
 require 'openssl'
 require 'cert_validator'
 require 'riak/client/beefcake/messages'
@@ -84,8 +83,6 @@ module Riak
               # Defer to defaults
               %w{ cert key client_ca ca_file ca_path timeout }.each do |k|
                 @context.send(:"#{k}=", @auth[k.to_sym]) if @auth[k.to_sym]
-                pp k
-                pp @auth[k.to_sym]
               end
             end
 
