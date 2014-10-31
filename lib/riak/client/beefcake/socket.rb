@@ -30,7 +30,7 @@ module Riak
             tcp = start_tcp_socket(host, port)
             TlsInitiator.new(tcp, host, authentication).tls_socket
           end
-          
+
           # Wrap up the logic to turn a TCP socket into a TLS socket.
           # Depends on Beefcake, which should be relatively safe.
           class TlsInitiator
@@ -104,7 +104,7 @@ module Riak
                 candidate = @auth[k.to_sym]
                 next if candidate.nil?
                 next if candidate.is_a? OpenSSL::X509::Certificate
-                
+
                 @auth[k.to_sym] = OpenSSL::X509::Certificate.new try_load candidate
               end
             end
@@ -144,7 +144,7 @@ module Riak
                 # couldn't read the file, it might be a string containing
                 # a key
               rescue Errno::ENAMETOOLONG
-                # the filename is too long, it's almost certainly a string 
+                # the filename is too long, it's almost certainly a string
                 # containing a key
               rescue => e
                 raise TlsError::ReadDataError.new e, data_or_path
@@ -192,7 +192,7 @@ module Riak
                 ocsp: !!@auth[:ocsp],
                 crl: !!@auth[:crl]
               }
-              
+
               if @auth[:crl_file]
                 o[:crl_file] = @auth[:crl_file]
                 o[:crl] = true
@@ -232,7 +232,7 @@ module Riak
               len, code = header.unpack 'NC'
               decode = BeefcakeMessageCodes[code]
               return decode, '' if len == 1
-              
+
               message = @sock.read(len - 1)
               return decode, message
             end
@@ -250,7 +250,7 @@ module Riak
                                    actual: candidate_code.inspect,
                                    body: message.inspect
                                    ))
-              
+
             end
           end
         end
