@@ -13,8 +13,6 @@ preconfigure:
 	echo "ssl.cacertfile = ${CERTS_DIR}/ca.crt" >> ${RIAK_CONF}
 	echo "tls_protocols.tlsv1.1 = on" >> ${RIAK_CONF}
 	echo "check_crl = off" >> ${RIAK_CONF}
-	@cat ${RIAK_CONF}
-	@ls ${CERTS_DIR}
 
 configure:
 	@${RIAK_ADMIN} bucket-type create counters '{"props":{"datatype":"counter", "allow_mult":true}}'
@@ -36,8 +34,6 @@ compile:
 
 lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
-	@openssl verify -CAfile ${CERTS_DIR}/ca.crt ${CERTS_DIR}/client.crt
-	@openssl verify -CAfile ${CERTS_DIR}/ca.crt ${CERTS_DIR}/server.crt
 
 test: test-normal test-security
 
