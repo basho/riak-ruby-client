@@ -17,6 +17,14 @@ describe 'Bucket Types', test_client: true, integration: true do
         object
       end
 
+      let(:untyped_object) do
+        untyped_object = untyped_bucket.new object.key
+        untyped_object.data = 'oooops'
+        untyped_object.content_type = 'text/plain'
+        untyped_object.store
+        untyped_object
+      end
+
       it 'only retrieves with a bucket type' do
         expect{ bucket.get object.key }.to_not raise_error
         expect{ untyped_bucket.get object.key }.to raise_error /not_found/
@@ -24,11 +32,14 @@ describe 'Bucket Types', test_client: true, integration: true do
 
       it 'reloads with a bucket type' do
         expect{ object.reload }.to_not raise_error
+        expect(object.data).to eq 'hello'
       end
 
       it 'self-deletes with a bucket type' do
         expect(object.delete).to be
         expect{ object.reload }.to raise_error /not_found/
+        expect(untyped_object).to be
+        expect{ untyped_object.reload }.to_not raise_error
       end
     end
   end
