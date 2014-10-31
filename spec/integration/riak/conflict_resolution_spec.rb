@@ -50,7 +50,6 @@ describe 'Conflict resolution', integration: true, test_client: true do
         obj
       end
 
-      subject.attempt_conflict_resolution
       subject.reload
       
       expect(subject).to_not be_conflict
@@ -65,7 +64,7 @@ describe 'Conflict resolution', integration: true, test_client: true do
         nil
       end
 
-      subject.attempt_conflict_resolution
+      subject.reload
 
       expect(subject).to be_conflict
     end
