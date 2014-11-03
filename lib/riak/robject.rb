@@ -96,6 +96,10 @@ module Riak
     # @see Bucket#get
     def initialize(bucket, key=nil)
       @bucket, @key = bucket, key
+
+      # fix a require-loop
+      require 'riak/bucket_typed/bucket'
+
       if @bucket.is_a? BucketTyped::Bucket
         @type = @bucket.type.name
       end

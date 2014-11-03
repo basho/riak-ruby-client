@@ -1,4 +1,5 @@
 require 'riak/bucket'
+require 'riak/bucket_type'
 
 module Riak
   module BucketTyped

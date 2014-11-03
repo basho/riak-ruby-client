@@ -1,4 +1,6 @@
 require 'riak/index_collection'
+require 'riak/bucket_typed/bucket'
+
 module Riak
   class SecondaryIndex
     include Util::Translation
