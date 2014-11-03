@@ -18,6 +18,7 @@ module Riak
       def get(key, options={  })
         super key, { type: type.name }.merge(options)
       end
+      alias :[] :get
     end
   end
 end
