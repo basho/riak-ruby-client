@@ -18,6 +18,10 @@ module Riak
       @query = query
       @options = options
 
+      if @bucket.is_a? Riak::BucketTyped::Bucket
+        @options = { type: @bucket.type.name }.merge @options
+      end
+
       validate_options
     end
 
