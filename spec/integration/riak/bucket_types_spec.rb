@@ -26,7 +26,7 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
 
       it 'only retrieves with a bucket type' do
-        expect{ bucket.get object.key }.to_not raise_error
+        expect(bucket.get(object.key).data).to eq object.data
         expect{ untyped_bucket.get object.key }.to raise_error /not_found/
       end
 
@@ -40,6 +40,23 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect{ object.reload }.to raise_error /not_found/
         expect(untyped_object).to be
         expect{ untyped_object.reload }.to_not raise_error
+      end
+
+      it 'multigets keys' do
+        results = bucket.get_many [object.key]
+        expect(results[object.key]).to be
+        expect(results[object.key].data).to eq object.data
+      end
+
+      describe 'secondary indexes' do
+        it 'finds the correct object with a SecondaryIndex instance' do
+          expect(untyped_object).to be
+          q = Riak::SecondaryIndex.new bucket, '$key', object.key
+
+          expect(q.keys).to include object.key
+          candidate = q.values.first
+          expect(candidate.data).to eq object.data
+        end
       end
     end
   end
