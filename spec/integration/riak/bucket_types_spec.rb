@@ -25,6 +25,16 @@ describe 'Bucket Types', test_client: true, integration: true do
         untyped_object
       end
 
+      it 'initializes with a bucket type' do
+        o = bucket.new 'lawnmower'
+        o.data = 'reel'
+        o.content_type = 'text/plain'
+        o.store
+
+        expect(bucket.get('lawnmower').data).to eq o.data
+        expect(bucket.exists?('lawnmower')).to be
+      end
+
       it 'only retrieves with a bucket type' do
         expect(bucket.get(object.key).data).to eq object.data
         expect{ untyped_bucket.get object.key }.to raise_error /not_found/
