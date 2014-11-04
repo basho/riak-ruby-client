@@ -2,8 +2,12 @@ require 'riak/bucket'
 require 'riak/bucket_type'
 
 module Riak
+  
+  # Container module for subclasses of objects with bucket type data attached.
+  # Currently only used for {BucketTyped::Bucket}.
   module BucketTyped
-    # A bucket that has a [BucketType] attached to it. Normally created using
+  
+    # A bucket that has a {BucketType} attached to it. Normally created using
     # the {BucketType#bucket} method. Inherits most of its behavior from the
     # {Riak::Bucket} class.
     class Bucket < Riak::Bucket
