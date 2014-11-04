@@ -35,11 +35,23 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect(object.data).to eq 'hello'
       end
 
-      it 'self-deletes with a bucket type' do
-        expect(object.delete).to be
-        expect{ object.reload }.to raise_error /not_found/
-        expect(untyped_object).to be
-        expect{ untyped_object.reload }.to_not raise_error
+      describe 'deletion' do
+        it 'self-deletes with a bucket type' do
+          expect(untyped_object).to be # ensure existence
+          
+          expect(object.delete).to be
+          expect{ object.reload }.to raise_error /not_found/
+          expect(untyped_object).to be
+          expect{ untyped_object.reload }.to_not raise_error
+        end
+
+        it 'deletes from the typed bucket' do
+          expect(untyped_object).to be # ensure existence
+
+          expect(bucket.delete object.key).to be
+          expect{ object.reload }.to raise_error /not_found/
+          expect{ untyped_object.reload }.to_not raise_error
+        end
       end
 
       it 'multigets keys' do
