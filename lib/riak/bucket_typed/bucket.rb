@@ -70,6 +70,17 @@ module Riak
         "#<Riak::BucketTyped::Bucket {#{ type.name }/#{ name }}>"
       end
 
+      # Pretty prints the bucket for `pp` or `pry`.
+      def pretty_print(pp)
+        pp.object_group self do
+          pp.breakable
+          pp.text "bucket_type="
+          type.pretty_print(pp)
+          pp.breakable
+          pp.text "name=#{name}"
+        end
+      end
+
       private
       # merge in the type name with options
       def o(options)

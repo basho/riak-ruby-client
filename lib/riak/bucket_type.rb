@@ -17,5 +17,13 @@ module Riak
     def bucket(bucket_name)
       BucketTyped::Bucket.new client, bucket_name, self
     end
+
+    # Pretty prints the bucket for `pp` or `pry`.
+    def pretty_print(pp)
+      pp.object_group self do
+        pp.breakable
+        pp.text "name=#{name}"
+      end
+    end
   end
 end
