@@ -65,6 +65,11 @@ module Riak
         super o(options), &block
       end
 
+      # @return [String] a friendly representation of this bucket-typed bucket
+      def inspect
+        "#<Riak::BucketTyped::Bucket {#{ type.name }/#{ name }}>"
+      end
+
       private
       # merge in the type name with options
       def o(options)
