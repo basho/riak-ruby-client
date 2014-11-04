@@ -38,7 +38,7 @@ module Riak
       # @return [Riak::RObject] the object
       # @raise [FailedRequest] if the object is not found or some other error occurs
       def get(key, options={  })
-        super key, { type: type.name }.merge(options)
+        super key, o(options)
       end
       alias :[] :get
 
@@ -50,7 +50,25 @@ module Riak
       # @option options [String] :vclock - the vector clock of the
       #   object being deleted
       def delete(key, options={  })
-        super key, { type: type.name }.merge(options)
+        super key, o(options)
+      end
+
+      # Retrieves a list of keys in this bucket.
+      # If a block is given, keys will be streamed through
+      # the block (useful for large buckets). When streaming,
+      # results of the operation will not be returned to the caller.
+      # @yield [Array<String>] a list of keys from the current chunk
+      # @return [Array<String>] Keys in this bucket
+      # @note This operation has serious performance implications and
+      #    should not be used in production applications.
+      def keys(options={  }, &block)
+        super o(options), &block
+      end
+
+      private
+      # merge in the type name with options
+      def o(options)
+        { type: type.name }.merge options
       end
     end
   end

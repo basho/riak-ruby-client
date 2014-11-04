@@ -35,6 +35,14 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect(object.data).to eq 'hello'
       end
 
+      it 'lists keys only for the type' do
+        expect(untyped_bucket).to be # ensure existence
+        expect(object).to be
+
+        expect(untyped_bucket.keys).to be_empty
+        expect(bucket.keys).to include object.key
+      end
+
       describe 'deletion' do
         it 'self-deletes with a bucket type' do
           expect(untyped_object).to be # ensure existence
