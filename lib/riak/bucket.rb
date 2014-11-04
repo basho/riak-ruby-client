@@ -239,7 +239,7 @@ module Riak
 
     # @return [String] a representation suitable for IRB and debugging output
     def inspect
-      "#<Riak::Bucket {#{name}}#{" keys=[#{keys.join(',')}]" if defined?(@keys)}>"
+      "#<Riak::Bucket {#{name}}>"
     end
 
     # @return [true,false] whether the other is equivalent
