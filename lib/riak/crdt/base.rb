@@ -25,7 +25,7 @@ module Riak
 
         @bucket = bucket
         @key = key
-        @bucket_type = bucket_type
+        set_bucket_type bucket_type
         @options = options
 
         @dirty = true
@@ -131,6 +131,16 @@ module Riak
           @context = result.context unless result.context.nil?
           @dirty = false
         end
+      end
+
+      def set_bucket_type(constructor_type)
+        @bucket_type = if constructor_type.is_a? String
+                         constructor_type
+                       elsif @bucket.is_a? BucketTyped::Bucket
+                         @bucket.type.name
+                       elsif constructor_type.is_a? Symbol
+                         DEFAULT_BUCKET_TYPES[constructor_type]
+                       end
       end
     end
   end
