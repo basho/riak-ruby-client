@@ -71,7 +71,7 @@ module Riak
         when Bucket
           @inputs = bucket_input(p)
         when RObject
-          @inputs << [maybe_escape(p.bucket.name), maybe_escape(p.key)]
+          @inputs << robject_input(p)
         when String
           warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
           @inputs = maybe_escape(p)
@@ -232,6 +232,20 @@ module Riak
       end
 
       maybe_escape(bucket.name)
+    end
+
+    def robject_input(obj, key_data='')
+      bucket = obj.bucket
+      if bucket.is_a?(BucketTyped::Bucket) && !bucket.type.default?
+        return [
+                maybe_escape(bucket.name), 
+                maybe_escape(obj.key), 
+                key_data, 
+                bucket.type.name
+               ]
+      end
+
+      [maybe_escape(obj.bucket.name), maybe_escape(obj.key)]
     end
   end
 end
