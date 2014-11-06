@@ -78,13 +78,20 @@ module Riak
         end
       when 2..3
         bucket = params.shift
-        bucket = bucket.name if Bucket === bucket
+
         if Array === params.first
+          if bucket.is_a? Bucket
+            bucket = bucket_input(bucket)
+          else
+            bucket = maybe_escape(bucket)
+          end
+          
           warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-          @inputs = {:bucket => maybe_escape(bucket), :key_filters => params.first }
+          @inputs = {:bucket => bucket, :key_filters => params.first }
         else
           key = params.shift
-          @inputs << params.unshift(maybe_escape(key)).unshift(maybe_escape(bucket))
+          key_data = params.shift || ''
+          @inputs << key_input(key, bucket, key_data)
         end
       end
       self
@@ -224,10 +231,11 @@ module Riak
     end
 
     private
+
     def bucket_input(bucket)
       warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
 
-      if bucket.is_a?(BucketTyped::Bucket) && !bucket.type.default?
+      if bucket.needs_type?
         return [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]
       end
 
@@ -236,16 +244,40 @@ module Riak
 
     def robject_input(obj, key_data='')
       bucket = obj.bucket
-      if bucket.is_a?(BucketTyped::Bucket) && !bucket.type.default?
+      if bucket.needs_type?
         return [
                 maybe_escape(bucket.name), 
                 maybe_escape(obj.key), 
                 key_data, 
-                bucket.type.name
+                maybe_escape(bucket.type.name)
                ]
       end
 
       [maybe_escape(obj.bucket.name), maybe_escape(obj.key)]
+    end
+
+    def key_input(key, bucket, key_data='')     
+      kd = []
+      kd << key_data unless key_data.blank?
+
+      if bucket.is_a? String
+        return [
+                maybe_escape(bucket), 
+                maybe_escape(key)
+               ] + kd
+      elsif bucket.needs_type?
+        return [
+                maybe_escape(bucket.name),
+                maybe_escape(key),
+                key_data,
+                maybe_escape(bucket.type.name)
+               ]
+      else
+        return [
+                maybe_escape(bucket.name),
+                maybe_escape(key)
+               ] + kd
+      end
     end
   end
 end
