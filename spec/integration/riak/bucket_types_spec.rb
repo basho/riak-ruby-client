@@ -90,7 +90,33 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
 
       describe 'map-reduce' do
-        it 'map-reduces correctly with a typed bucket'
+        let(:mapred) do
+          Riak::MapReduce.new(test_client) do |mr|
+            mr.map 'function(obj){return [obj.values[0].data];}', keep: true
+          end
+        end
+
+        it 'map-reduces correctly with a typed bucket' do
+          expect(object).to be
+          expect(untyped_object).to be
+
+          mapred.add bucket
+          result = mapred.run
+
+          expect(result).to include object.data
+          expect(result).to_not include untyped_object.data
+        end
+
+        it 'map-reduces correctly with a robject in a typed bucket' do
+          expect(object).to be
+          expect(untyped_object).to be
+          
+          mapred.add object
+          result = mapred.run
+
+          expect(result).to include object.data
+          expect(result).to_not include untyped_object.data
+        end
       end
     end
 

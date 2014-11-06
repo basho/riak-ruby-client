@@ -12,9 +12,11 @@ describe Riak::MapReduce do
 
   let(:bucket_type){ client.bucket_type 'type' }
   let(:typed_bucket){ bucket_type.bucket 'bucket' }
+  let(:typed_object){ Riak::RObject.new typed_bucket, 'key' }
 
   let(:default_type){ client.bucket_type Riak::BucketType::DEFAULT_NAME }
   let(:default_bucket){ default_type.bucket 'bucket' }
+  let(:default_object){ Riak::RObject.new default_bucket, 'key' }
 
   it "requires a client" do
     expect { Riak::MapReduce.new }.to raise_error
@@ -54,6 +56,15 @@ describe Riak::MapReduce do
       obj = Riak::RObject.new(bucket, "bar")
       mr.add(obj)
       expect(mr.inputs).to eq([["foo", "bar"]])
+    end
+
+    it 'adds a bucket-typed object to the inputs' do
+      mr.add typed_object
+      expect(mr.inputs).to eq [[typed_bucket.name,
+                                typed_object.key,
+                                '',
+                                typed_bucket.type.name
+                               ]]
     end
 
     it "adds an array containing a bucket/key/key-data triple to the inputs" do
