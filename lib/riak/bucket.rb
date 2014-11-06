@@ -243,12 +243,16 @@ module Riak
     end
 
     # Pretty prints the bucket for `pp` or `pry`.
-      def pretty_print(pp)
-        pp.object_group self do
-          pp.breakable
-          pp.text "name=#{name}"
-        end
+    def pretty_print(pp)
+      pp.object_group self do
+        pp.breakable
+        pp.text "name=#{name}"
       end
+    end
+
+    def needs_type?
+      false
+    end
 
     # @return [true,false] whether the other is equivalent
     def ==(other)

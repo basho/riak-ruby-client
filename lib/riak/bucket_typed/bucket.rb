@@ -81,6 +81,11 @@ module Riak
         end
       end
 
+      def needs_type?
+        return true unless type.default?
+        return false
+      end
+
       private
       # merge in the type name with options
       def o(options)
