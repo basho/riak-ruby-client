@@ -30,7 +30,7 @@ module Riak
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:map]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
-        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)
+        super(bucket, key, bucket_type || :map, options)
 
         if key
           initialize_collections 

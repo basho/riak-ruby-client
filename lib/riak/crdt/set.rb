@@ -17,7 +17,7 @@ module Riak
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
-        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:set], options)
+        super(bucket, key, bucket_type || :set, options)
       end
 
       # Yields a `BatchSet` to proxy multiple set operations into a single

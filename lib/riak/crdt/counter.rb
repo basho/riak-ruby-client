@@ -16,7 +16,7 @@ module Riak
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:counter]`.
       # @param [Hash] options
       def initialize(bucket, key, bucket_type=nil, options={})
-        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:counter], options)
+        super(bucket, key, bucket_type || :counter, options)
       end
       
       # The current value of the counter; hits the server if the value has
