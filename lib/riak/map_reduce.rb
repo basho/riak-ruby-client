@@ -4,6 +4,7 @@ require 'riak/json'
 require 'riak/client'
 require 'riak/bucket'
 require 'riak/robject'
+require 'riak/bucket_typed/bucket'
 require 'riak/walk_spec'
 require 'riak/errors/failed_request'
 require 'riak/map_reduce_error'
@@ -68,8 +69,7 @@ module Riak
         p = params.first
         case p
         when Bucket
-          warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-          @inputs = maybe_escape(p.name)
+          @inputs = bucket_input(p)
         when RObject
           @inputs << [maybe_escape(p.bucket.name), maybe_escape(p.key)]
         when String
@@ -221,6 +221,18 @@ module Riak
       else
         raise fr
       end
+    end
+
+    private
+    def bucket_input(bucket)
+      warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+
+      if bucket.is_a?(BucketTyped::Bucket) && !bucket.type.default?
+        return { bucket: [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]}
+      end
+
+      maybe_escape(bucket.name)
+
     end
   end
 end
