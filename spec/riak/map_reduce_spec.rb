@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe Riak::MapReduce do
+  
   let(:backend){ double 'Backend' }
   let(:client) do
     Riak::Client.new.tap do |c|
@@ -9,7 +10,11 @@ describe Riak::MapReduce do
   end
   let(:mr) { Riak::MapReduce.new(client) }
 
-  let(:bucket_type){ client.bucket_type 'yokozuna' }
+  let(:bucket_type){ client.bucket_type 'type' }
+  let(:typed_bucket){ bucket_type.bucket 'bucket' }
+
+  let(:default_type){ client.bucket_type Riak::BucketType::DEFAULT_NAME }
+  let(:default_bucket){ default_type.bucket 'bucket' }
 
   it "requires a client" do
     expect { Riak::MapReduce.new }.to raise_error
@@ -24,7 +29,7 @@ describe Riak::MapReduce do
   it "yields itself when given a block on initializing" do
     mapred2 = nil
     mapred = Riak::MapReduce.new(client) do |mr|
-      mapred = mr
+      mapred2 = mr
     end
     expect(mapred2).to eq(mapred)
   end
@@ -61,6 +66,16 @@ describe Riak::MapReduce do
       expect(mr.inputs).to eq("foo")
       mr.add("docs")
       expect(mr.inputs).to eq("docs")
+    end
+
+    it 'accepts a bucket typed bucket as a single input' do
+      mr.add typed_bucket
+      expect(mr.inputs).to eq({ bucket: [bucket_type.name, typed_bucket.name ]})
+    end
+
+    it "doesn't pass a default bucket type name" do
+      mr.add default_bucket
+      expect(mr.inputs).to eq default_bucket.name
     end
 
     it "accepts a list of key-filters along with a bucket" do
