@@ -70,7 +70,7 @@ describe Riak::MapReduce do
 
     it 'accepts a bucket typed bucket as a single input' do
       mr.add typed_bucket
-      expect(mr.inputs).to eq({ bucket: [bucket_type.name, typed_bucket.name ]})
+      expect(mr.inputs).to eq([bucket_type.name, typed_bucket.name ])
     end
 
     it "doesn't pass a default bucket type name" do

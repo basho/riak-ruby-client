@@ -228,11 +228,10 @@ module Riak
       warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
 
       if bucket.is_a?(BucketTyped::Bucket) && !bucket.type.default?
-        return { bucket: [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]}
+        return [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]
       end
 
       maybe_escape(bucket.name)
-
     end
   end
 end
