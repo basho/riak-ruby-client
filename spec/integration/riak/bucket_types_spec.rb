@@ -88,6 +88,30 @@ describe 'Bucket Types', test_client: true, integration: true do
           expect(candidate.data).to eq object.data
         end
       end
+
+      describe 'map-reduce' do
+        it 'map-reduces correctly with a typed bucket'
+      end
+    end
+
+    describe 'performing CRDT operations' do
+      let(:bucket_type){ test_client.bucket_type 'other_counters' }
+      let(:bucket){ bucket_type.bucket random_key }
+      let(:counter){ Riak::Crdt::Counter.new bucket, random_key }
+
+      let(:untyped_bucket){ test_client.bucket bucket.name }
+      let(:untyped_counter){ Riak::Crdt::Counter.new untyped_bucket, random_key }
+
+      it 'overrides default bucket types for CRDTs' do
+        expect(untyped_counter.value).to eq 0
+        expect(untyped_counter.bucket_type).to eq Riak::Crdt::DEFAULT_BUCKET_TYPES[:counter]
+
+        untyped_counter.increment
+        counter.reload
+
+        expect(counter.value).to eq 0
+        expect(counter.bucket_type).to eq 'other_counters'
+      end
     end
   end
 
