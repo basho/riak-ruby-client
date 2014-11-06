@@ -5,7 +5,8 @@ describe Riak::Crdt::Counter do
   let(:bucket) do
     double('bucket').tap do |b|
       allow(b).to receive(:name).and_return('bucket')
-      allow(b).to receive(:is_a?).and_return(true)
+      allow(b).to receive(:is_a?).with(Riak::Bucket).and_return(true)
+      allow(b).to receive(:is_a?).with(Riak::BucketTyped::Bucket).and_return(false)
     end
   end
   it 'initializes with bucket, key, and optional bucket-type' do
