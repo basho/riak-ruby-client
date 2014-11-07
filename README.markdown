@@ -96,15 +96,40 @@ new_one.store
 
 ## Bucket Types
 
-Riak 2 uses [bucket types](http://docs.basho.com/riak/latest/dev/advanced/bucket-types/) to
-enable groups of similar buckets to share properties, configuration, and to namespace values
-within those buckets. Bucket type support is integral to how CRDTs work.
+Riak 2 uses [bucket types][1] to enable groups of similar buckets to share
+properties, configuration, and to namespace values within those buckets. Bucket
+type support is integral to how CRDTs work.
 
-Many operations take `type` options to perform them with a specific bucket type.
+[1]: http://docs.basho.com/riak/latest/dev/advanced/bucket-types
+
+In versions 2.2.0 and newer of this client, bucket types have a first-class
+representation, and can be used to create `BucketTyped::Bucket` objects that are
+namespaced differently from regular `Riak::Bucket` objects.
 
 ```ruby
 # This example assumes you have a "beverages" bucket type.
+beverages = client.bucket_type 'beverages'
 
+coffees = beverages.bucket 'coffees'
+untyped_coffees = client.bucket 'coffees'
+
+chapadao = coffees.new 'chapadao'
+chapadao.data = "Chapadao de Ferro"
+chapadao.store # stores this in the "beverages" bucket type
+
+untyped_coffees.get 'chapadao' # raises error, not found
+coffees.get 'chapadao' # succeeds
+
+chapadao.reload # succeeds
+
+untyped_coffees.delete 'chapadao' # silently fails to delete it
+chapadao.delete # deletes it
+coffees.delete 'chapadao' # deletes it
+```
+
+Client 2.0 and 2.1 code that uses the `type` argument to methods still works:
+
+```ruby
 coffees = client.bucket 'coffees'
 
 chapadao = coffees.new 'chapadao'
