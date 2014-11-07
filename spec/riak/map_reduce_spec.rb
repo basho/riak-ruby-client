@@ -94,6 +94,22 @@ describe Riak::MapReduce do
       expect(mr.inputs).to eq({:bucket => "foo", :key_filters => [[:tokenize, "-", 3], [:string_to_int], [:between, 2009, 2010]]})
     end
 
+    it 'accepts a list of key-filters along with a bucket-typed bucket' do
+      filters = [
+                 [:tokenize, '-', 3],
+                 [:string_to_int],
+                 [:between, 2009, 2010]
+                ]
+
+      mr.add(typed_bucket, filters)
+
+      expect(mr.inputs).to eq(
+                              bucket: [typed_bucket.type.name, 
+                                       typed_bucket.name],
+                              key_filters: filters
+                              )
+    end
+
     it "adds a bucket and filter list via a builder block" do
       mr.filter("foo") do
         tokenize "-", 3
