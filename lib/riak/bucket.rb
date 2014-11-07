@@ -250,6 +250,9 @@ module Riak
       end
     end
 
+    # Does this {Bucket} have a non-default bucket type? {BucketTyped::Bucket}
+    # instances with non-default types return `true`.
+    # @return [Boolean] false
     def needs_type?
       false
     end

@@ -5,6 +5,7 @@ module Riak
   class BucketType
     attr_reader :client, :name
 
+    # The name of Riak's default bucket type.
     DEFAULT_NAME = 'default'
 
     # Create a bucket type object manually.
@@ -14,6 +15,8 @@ module Riak
       @client, @name = client, name
     end
 
+    # Is this bucket type the default?
+    # @return [Boolean]
     def default?
       name == DEFAULT_NAME
     end

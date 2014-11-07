@@ -232,6 +232,8 @@ module Riak
 
     private
 
+    # Processes a {Bucket} or {BucketTyped::Bucket} into a whole-bucket
+    # {MapReduce} input.
     def bucket_input(bucket)
       warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
 
@@ -242,6 +244,8 @@ module Riak
       maybe_escape(bucket.name)
     end
 
+    # Processes a {RObject} into a single-object {MapReduce} input, whether it
+    # has a bucket type or not.
     def robject_input(obj, key_data='')
       bucket = obj.bucket
       if bucket.needs_type?
@@ -256,6 +260,9 @@ module Riak
       [maybe_escape(obj.bucket.name), maybe_escape(obj.key)]
     end
 
+    # Processes a key into a single-object {MapReduce} input, doing the correct
+    # thing if the bucket argument is a {String}, {Bucket}, or a
+    # {BucketTyped::Bucket}.
     def key_input(key, bucket, key_data='')     
       kd = []
       kd << key_data unless key_data.blank?
