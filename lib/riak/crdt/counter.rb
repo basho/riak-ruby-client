@@ -6,8 +6,12 @@ module Riak
     # Riak 1.4 Counters, see {Riak::Counter}.
     class Counter < Base
 
-      # Create a counter instance. If not provided, the default bucket type
-      # from {Riak::Crdt} will be used.
+      # Create a counter instance.The bucket type is determined by the first of
+      # these sources:
+      #
+      # 1. The `bucket_type` String argument
+      # 2. A {BucketTyped::Bucket} as the `bucket` argument
+      # 3. The `Crdt::Base::DEFAULT_BUCKET_TYPES[:counter]` entry
       #
       # @param [Bucket] bucket the {Riak::Bucket} for this counter
       # @param [String, nil] key The name of the counter. A nil key makes

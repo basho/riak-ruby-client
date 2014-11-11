@@ -7,14 +7,17 @@ module Riak
     # be used frequently.
     class Set < Base
       
-      # Create a set instance. If not provided, the default bucket type from
-      # {Riak::Crdt} will be used.
+      # Create a set instance. The bucket type is determined by the first of
+      # these sources:
+      #
+      # 1. The `bucket_type` String argument
+      # 2. A {BucketTyped::Bucket} as the `bucket` argument
+      # 3. The `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]` entry
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this set
       # @param [String, nil] key The name of the set. A nil key makes
       #        Riak assign a key.
       # @param [String] bucket_type The optional bucket type for this set.
-      #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
         super(bucket, key, bucket_type || :set, options)
