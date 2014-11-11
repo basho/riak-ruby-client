@@ -6,7 +6,7 @@ module Riak
     # Riak 1.4 Counters, see {Riak::Counter}.
     class Counter < Base
 
-      # Create a counter instance.The bucket type is determined by the first of
+      # Create a counter instance. The bucket type is determined by the first of
       # these sources:
       #
       # 1. The `bucket_type` String argument
