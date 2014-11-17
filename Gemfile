@@ -5,7 +5,7 @@ gemspec
 group :guard do
   gem 'guard-rspec'
   gem 'rb-fsevent'
-  gem 'ruby_gntp'
+  gem 'terminal-notifier-guard'
 end
 
 platforms :mri do
