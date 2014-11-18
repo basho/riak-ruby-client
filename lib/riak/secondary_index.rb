@@ -1,4 +1,6 @@
 require 'riak/index_collection'
+require 'riak/bucket_typed/bucket'
+
 module Riak
   class SecondaryIndex
     include Util::Translation
@@ -15,6 +17,10 @@ module Riak
       @index = index
       @query = query
       @options = options
+
+      if @bucket.is_a? Riak::BucketTyped::Bucket
+        @options = { type: @bucket.type.name }.merge @options
+      end
 
       validate_options
     end

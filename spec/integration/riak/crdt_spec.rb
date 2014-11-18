@@ -15,8 +15,25 @@ describe "CRDTs", integration: true, test_client: true do
       expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
     end
 
-    it "allows override bucket-types for instances" do
-      expect(Riak::Crdt::Set.new(bucket, 'set', 'other_bucket_type').bucket_type).to eq 'other_bucket_type'
+    describe 'overriding bucket-types' do
+      let(:name){ 'other_counters' }
+      let(:type){ test_client.bucket_type name }
+      let(:typed_bucket){ type.bucket bucket.name }
+
+      it "overrides with a string" do
+        ctr = Riak::Crdt::Counter.new(bucket, 'ctr', name)
+        expect(ctr.bucket_type).to eq name
+      end
+
+      it "overrides with a typed bucket" do
+        ctr = Riak::Crdt::Counter.new(typed_bucket, 'ctr')
+        expect(ctr.bucket_type).to eq name
+      end
+
+      it "overrides with a bucket type object" do
+        ctr = Riak::Crdt::Counter.new(bucket, 'ctr', type)
+        expect(ctr.bucket_type).to eq name
+      end
     end
   end
 

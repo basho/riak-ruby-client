@@ -20,8 +20,12 @@ module Riak
     class Map < Base
       attr_reader :counters, :flags, :maps, :registers, :sets
       
-      # Create a map instance. If not provided, the default bucket type
-      # from {Riak::Crdt} will be used.
+      # Create a map instance. The bucket type is determined by the first of
+      # these sources:
+      #
+      # 1. The `bucket_type` String argument
+      # 2. A {BucketTyped::Bucket} as the `bucket` argument
+      # 3. The `Crdt::Base::DEFAULT_BUCKET_TYPES[:map]` entry
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this map
       # @param [String, nil] key The name of the map. A nil key makes
@@ -30,7 +34,7 @@ module Riak
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:map]`.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type=nil, options={})
-        super(bucket, key, bucket_type || DEFAULT_BUCKET_TYPES[:map], options)
+        super(bucket, key, bucket_type || :map, options)
 
         if key
           initialize_collections 

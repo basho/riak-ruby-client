@@ -14,6 +14,7 @@ require 'riak/client/yokozuna'
 require 'riak/client/protobuffs_backend'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
+require 'riak/bucket_type'
 require 'riak/multiget'
 require 'riak/secondary_index'
 require 'riak/stamp'
@@ -130,6 +131,10 @@ module Riak
       end
     end
     alias :[] :bucket
+
+    def bucket_type(name)
+      BucketType.new self, name
+    end
 
     # Lists buckets which have keys stored in them.
     # @note This is an expensive operation and should be used only

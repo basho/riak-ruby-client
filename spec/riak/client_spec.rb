@@ -31,10 +31,10 @@ describe Riak::Client, test_client: true do
 
     it "accepts multiple nodes" do
       client = Riak::Client.new :nodes => [
-        {:host => 'riak1.basho.com'},
-        {:host => 'riak2.basho.com', :pb_port => 1234},
-        {:host => 'riak3.basho.com', :pb_port => 5678}
-      ]
+                                           {:host => 'riak1.basho.com'},
+                                           {:host => 'riak2.basho.com', :pb_port => 1234},
+                                           {:host => 'riak3.basho.com', :pb_port => 5678}
+                                          ]
       expect(client.nodes.size).to eq(3)
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
@@ -43,6 +43,13 @@ describe Riak::Client, test_client: true do
   it "exposes a Stamp object" do
     expect(subject).to respond_to(:stamp)
     expect(subject.stamp).to be_kind_of(Riak::Stamp)
+  end
+
+  it 'exposes bucket types' do
+    bucket_type = nil
+    expect{ bucket_type = subject.bucket_type('example') }.to_not raise_error
+    expect(bucket_type).to be_a Riak::BucketType
+    expect(bucket_type.name).to eq 'example'
   end
 
   describe "reconfiguring" do
@@ -108,9 +115,9 @@ describe Riak::Client, test_client: true do
       expect(@bucket).to receive(:[]).with('value1').and_return(double('robject'))
       expect(@bucket).to receive(:[]).with('value2').and_return(double('robject'))
       @pairs = [
-        [@bucket, 'value1'],
-        [@bucket, 'value2']
-      ]
+                [@bucket, 'value1'],
+                [@bucket, 'value2']
+               ]
     end
 
     it 'accepts an array of bucket and key pairs' do
@@ -185,7 +192,7 @@ describe Riak::Client, test_client: true do
     end
   end
 
-  describe "when receiving errors from the backend"
+  describe "when receiving errors from the backend" do
     before do
       @client = Riak::Client.new 
     end
@@ -217,4 +224,5 @@ describe Riak::Client, test_client: true do
       expect(error).not_to be_nil
       expect(error).to be_instance_of(RuntimeError)
     end
+  end
 end

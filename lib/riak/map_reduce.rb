@@ -4,6 +4,7 @@ require 'riak/json'
 require 'riak/client'
 require 'riak/bucket'
 require 'riak/robject'
+require 'riak/bucket_typed/bucket'
 require 'riak/walk_spec'
 require 'riak/errors/failed_request'
 require 'riak/map_reduce_error'
@@ -68,23 +69,29 @@ module Riak
         p = params.first
         case p
         when Bucket
-          warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-          @inputs = maybe_escape(p.name)
+          @inputs = bucket_input(p)
         when RObject
-          @inputs << [maybe_escape(p.bucket.name), maybe_escape(p.key)]
+          @inputs << robject_input(p)
         when String
           warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
           @inputs = maybe_escape(p)
         end
       when 2..3
         bucket = params.shift
-        bucket = bucket.name if Bucket === bucket
+
         if Array === params.first
+          if bucket.is_a? Bucket
+            bucket = bucket_input(bucket)
+          else
+            bucket = maybe_escape(bucket)
+          end
+          
           warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-          @inputs = {:bucket => maybe_escape(bucket), :key_filters => params.first }
+          @inputs = {:bucket => bucket, :key_filters => params.first }
         else
           key = params.shift
-          @inputs << params.unshift(maybe_escape(key)).unshift(maybe_escape(bucket))
+          key_data = params.shift || ''
+          @inputs << key_input(key, bucket, key_data)
         end
       end
       self
@@ -220,6 +227,63 @@ module Riak
         raise MapReduceError.new(fr.body)
       else
         raise fr
+      end
+    end
+
+    private
+
+    # Processes a {Bucket} or {BucketTyped::Bucket} into a whole-bucket
+    # {MapReduce} input.
+    def bucket_input(bucket)
+      warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+
+      if bucket.needs_type?
+        return [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]
+      end
+
+      maybe_escape(bucket.name)
+    end
+
+    # Processes a {RObject} into a single-object {MapReduce} input, whether it
+    # has a bucket type or not.
+    def robject_input(obj, key_data='')
+      bucket = obj.bucket
+      if bucket.needs_type?
+        return [
+                maybe_escape(bucket.name), 
+                maybe_escape(obj.key), 
+                key_data, 
+                maybe_escape(bucket.type.name)
+               ]
+      end
+
+      [maybe_escape(obj.bucket.name), maybe_escape(obj.key)]
+    end
+
+    # Processes a key into a single-object {MapReduce} input, doing the correct
+    # thing if the bucket argument is a {String}, {Bucket}, or a
+    # {BucketTyped::Bucket}.
+    def key_input(key, bucket, key_data='')     
+      kd = []
+      kd << key_data unless key_data.blank?
+
+      if bucket.is_a? String
+        return [
+                maybe_escape(bucket), 
+                maybe_escape(key)
+               ] + kd
+      elsif bucket.needs_type?
+        return [
+                maybe_escape(bucket.name),
+                maybe_escape(key),
+                key_data,
+                maybe_escape(bucket.type.name)
+               ]
+      else
+        return [
+                maybe_escape(bucket.name),
+                maybe_escape(key)
+               ] + kd
       end
     end
   end

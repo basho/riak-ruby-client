@@ -239,7 +239,22 @@ module Riak
 
     # @return [String] a representation suitable for IRB and debugging output
     def inspect
-      "#<Riak::Bucket {#{name}}#{" keys=[#{keys.join(',')}]" if defined?(@keys)}>"
+      "#<Riak::Bucket {#{name}}>"
+    end
+
+    # Pretty prints the bucket for `pp` or `pry`.
+    def pretty_print(pp)
+      pp.object_group self do
+        pp.breakable
+        pp.text "name=#{name}"
+      end
+    end
+
+    # Does this {Bucket} have a non-default bucket type? {BucketTyped::Bucket}
+    # instances with non-default types return `true`.
+    # @return [Boolean] false
+    def needs_type?
+      false
     end
 
     # @return [true,false] whether the other is equivalent

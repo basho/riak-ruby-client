@@ -1,5 +1,7 @@
 en:
   riak:
+    argument_error:
+      bucket_type: "invalid argument %{bucket_type} is not a Riak::BucketType or a String"
     backwards_clock: "System clock moved backwards, ID generation will fail for %{delay} more milliseconds."
     bucket_link_conversion: "Can't convert a bucket link to a walk spec"
     bucket_type: "invalid argument %{bucket} is not a Riak::Bucket"

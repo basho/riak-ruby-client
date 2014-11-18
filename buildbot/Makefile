@@ -15,10 +15,12 @@ preconfigure:
 	echo "check_crl = off" >> ${RIAK_CONF}
 
 configure:
+	@${RIAK_ADMIN} bucket-type create other_counters '{"props":{"datatype":"counter", "allow_mult":true}}'
 	@${RIAK_ADMIN} bucket-type create counters '{"props":{"datatype":"counter", "allow_mult":true}}'
 	@${RIAK_ADMIN} bucket-type create maps '{"props":{"datatype":"map", "allow_mult":true}}'
 	@${RIAK_ADMIN} bucket-type create sets '{"props":{"datatype":"set", "allow_mult":true}}'
 	@${RIAK_ADMIN} bucket-type create yokozuna '{"props":{}}'
+	@${RIAK_ADMIN} bucket-type activate other_counters
 	@${RIAK_ADMIN} bucket-type activate counters
 	@${RIAK_ADMIN} bucket-type activate maps
 	@${RIAK_ADMIN} bucket-type activate sets

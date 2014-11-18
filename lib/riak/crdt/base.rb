@@ -16,6 +16,22 @@ module Riak
       # Riak-assigned key.
       attr_reader :key
 
+
+      # Base CRDT initialization The bucket type is determined by the first of
+      # these sources:
+      #
+      # 1. The `bucket_type` String argument
+      # 2. A {BucketTyped::Bucket} as the `bucket` argument
+      # 3. A `bucket_type` Symbol argument is looked up in the
+      #    `Crdt::Base::DEFAULT_BUCKET_TYPES` hash
+      # @api private
+      #
+      # @param [Bucket] bucket the {Riak::Bucket} for this counter
+      # @param [String, nil] key The name of the counter. A nil key makes
+      #        Riak assign a key.
+      # @param [String] bucket_type The optional bucket type for this counter.
+      #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:counter]`.
+      # @param [Hash] options
       def initialize(bucket, key, bucket_type, options={})
         raise ArgumentError, t("bucket_type", bucket: bucket.inspect) unless bucket.is_a? Bucket
 
@@ -25,7 +41,7 @@ module Riak
 
         @bucket = bucket
         @key = key
-        @bucket_type = bucket_type
+        set_bucket_type bucket_type
         @options = options
 
         @dirty = true
@@ -131,6 +147,18 @@ module Riak
           @context = result.context unless result.context.nil?
           @dirty = false
         end
+      end
+
+      def set_bucket_type(constructor_type)
+        @bucket_type = if constructor_type.is_a? String
+                         constructor_type
+                       elsif constructor_type.is_a? BucketType
+                         constructor_type.name
+                       elsif @bucket.is_a? BucketTyped::Bucket
+                         @bucket.type.name
+                       elsif constructor_type.is_a? Symbol
+                         DEFAULT_BUCKET_TYPES[constructor_type]
+                       end
       end
     end
   end

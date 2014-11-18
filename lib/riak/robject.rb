@@ -96,6 +96,13 @@ module Riak
     # @see Bucket#get
     def initialize(bucket, key=nil)
       @bucket, @key = bucket, key
+
+      # fix a require-loop
+      require 'riak/bucket_typed/bucket'
+
+      if @bucket.is_a? BucketTyped::Bucket
+        @type = @bucket.type.name
+      end
       @siblings = [ RContent.new(self) ]
       yield self if block_given?
     end
@@ -128,7 +135,7 @@ module Riak
       raise Conflict, self if conflict?
       raise ArgumentError, t("content_type_undefined") unless content_type.present?
       raise ArgumentError, t("zero_length_key") if key == ''
-      @bucket.client.store_object(self, options)
+      @bucket.client.store_object(self, default(options))
       self
     end
 
@@ -143,7 +150,7 @@ module Riak
       force = options.delete(:force)
       return self unless @key && (@vclock || force)
       self.etag = self.last_modified = nil if force
-      bucket.client.reload_object(self, options)
+      bucket.client.reload_object(self, default(options))
     end
 
     alias :fetch :reload
@@ -154,7 +161,7 @@ module Riak
     def delete(options={})
       return if key.blank?
       options[:vclock] = vclock if vclock
-      @bucket.delete(key, options)
+      @bucket.delete(key, default(options))
       freeze
     end
 
@@ -188,6 +195,15 @@ module Riak
     # @param [String] tag the tag to apply to the link
     def to_link(tag)
       Link.new(@bucket.name, @key, tag)
+    end
+
+    private
+
+    def default(options)
+      return options unless options.is_a? Hash
+      return options unless @type
+
+      {type: @type}.merge options
     end
   end
 end
