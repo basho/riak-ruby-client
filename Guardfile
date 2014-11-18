@@ -12,6 +12,7 @@
 guard :rspec, cmd: 'bundle exec rspec', all_after_pass: true, all_on_start: true do
   watch(%r{^spec/.+_spec\.rb$})
   watch(%r{^lib/riak/(.+)\.rb$})     { |m| "spec/riak/#{m[1]}_spec.rb" }
+  watch(%r{^lib/riak/client/}) { 'spec/riak/beefcake_protobuffs_backend' }
   watch('spec/spec_helper.rb')  { "spec" }
 
   watch(/^spec\/integration/) { 'spec:integration' }
