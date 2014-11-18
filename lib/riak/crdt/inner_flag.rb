@@ -6,7 +6,7 @@ module Riak
     #
     # @api private
     class InnerFlag
-      def self.new(parent, value)
+      def self.new(parent, value=false)
         ensure_boolean value
         
         return value

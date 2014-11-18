@@ -163,6 +163,7 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.include? 'coffee').to be
     end
   end
+
   describe 'maps' do
     subject { Riak::Crdt::Map.new bucket, random_key }
 
@@ -250,6 +251,11 @@ describe "CRDTs", integration: true, test_client: true do
 
         expect(subject.registers['hkey_local_machine']).to eq 'registry'
       end
+
+      it "doesn't error on an unset register" do
+        expect{ subject.registers['unset'] }.to_not raise_error
+        expect(subject.registers['other_unset']).to_not be
+      end
     end
 
     describe 'containing a flag' do
@@ -257,6 +263,11 @@ describe "CRDTs", integration: true, test_client: true do
         subject.flags['enable_magic'] = true
 
         expect(subject.flags['enable_magic']).to be
+      end
+
+      it "doesn't error on an unset flag" do
+        expect{ subject.flags['unset'] }.to_not raise_error
+        expect(subject.flags['other_unset']).to_not be
       end
     end
   end
