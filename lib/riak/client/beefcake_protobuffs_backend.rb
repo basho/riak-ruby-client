@@ -240,6 +240,18 @@ module Riak
         end
       end
 
+      def get_bucket_type_props(bucket_type)
+        bucket_type = bucket_type.name if bucket_type.is_a? BucketType
+        req = RpbGetBucketTypeReq.new type: bucket_type
+
+        resp = protocol do |p|
+          p.write :GetBucketTypeReq, req
+          p.expect(:GetBucketResp, RpbGetBucketResp)
+        end
+
+        resp.props.to_hash
+      end
+
       def list_keys(bucket, options={}, &block)
         bucket = bucket.name if Bucket === bucket
         req = RpbListKeysReq.new(options.merge(:bucket => maybe_encode(bucket)))
