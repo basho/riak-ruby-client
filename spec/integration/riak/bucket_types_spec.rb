@@ -4,8 +4,14 @@ require 'riak'
 describe 'Bucket Types', test_client: true, integration: true do
 
   describe 'nested bucket types API' do
+    let(:bucket_type){ test_client.bucket_type 'yokozuna' }
+
+    it 'exposes bucket type properties' do
+      expect(props = bucket_type.properties).to be_a Hash
+      expect(props[:allow_mult]).to be
+    end
+
     describe 'performing key-value operations' do
-      let(:bucket_type){ test_client.bucket_type 'yokozuna' }
       let(:bucket){ bucket_type.bucket(random_key) }
       let(:untyped_bucket){ test_client.bucket bucket.name }
 
