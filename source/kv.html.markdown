@@ -274,24 +274,13 @@ with objects scoped to bucket types, there are two APIs for handling them.
 The 2.2 version of the client introduces a bucket types, buckets, and key-value
 objects that know what bucket type they have.
 
-`BucketType` instances consist of their name, and have a properties accessor:
+`BucketType` instances create `BucketTyped::Bucket` instances:
 
 ```ruby
 # Instantiate a Riak::BucketType from the client
 my_cool_type = client.bucket_type 'my_cool_type'
 
-my_cool_type.name #=> 'my_cool_type'
-my_cool_type.properties
-#=> {:allow_mult => true, :n_val => 1}
-
-default_type = client.bucket_type Riak::BucketType::DEFAULT_NAME
-my_cool_type.default? #=> false
-default_type.default? #=> true
-```
-
-You can use a `BucketType` to get a `BucketTyped::Bucket`:
-
-```ruby
+# Create a Riak::BucketTyped::Bucket
 cool_pages = my_cool_type.bucket 'pages'
 
 # BucketTyped::Bucket is a Bucket subclass
