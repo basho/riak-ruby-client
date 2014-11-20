@@ -56,7 +56,10 @@ Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] #=> "sets"
 Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = "a_cooler_set"
 ```
 
-Using a non-default bucket type is easy:
+Using a non-default bucket type is easy. The third argument for CRDT
+constructors accepts a `String` that's a bucket type name, or in 2.2 and newer
+clients, a `Riak::BucketType` instance. Additionally, if the first argument is
+a `BucketTyped::Bucket`, it'll grab the type from that:
 
 ```ruby
 other_counters_type = client.bucket_type 'other_counters'
@@ -64,12 +67,9 @@ typed_bucket = other_counters.bucket 'cool_counters'
 
 untyped_bucket = client.bucket 'cool_counters'
 
-# The third argument for CRDT constructors accepts a Riak::BucketType or a
-# String that is the name of a bucket type
+# These three are equivalent:
 c = Riak::Crdt::Counter.new untyped_bucket, 'shades', other_counters_type
 c = Riak::Crdt::Counter.new untyped_bucket, 'shades', 'other_counters'
-
-# The first argument accepts and takes a type from a Riak::BucketTyped::Bucket
 c = Riak::Crdt::Counter.new typed_bucket, 'shades'
 ```
 
