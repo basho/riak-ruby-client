@@ -26,6 +26,13 @@ documentation.
 Get an object:
 
 ``` ruby
+# get a bucket
+bucket = client.bucket 'pages'
+
+# …or get a bucket-typed bucket
+type = client.bucket_type 'my_cool_type'
+bucket = type.bucket 'pages'
+
 # get an object
 object = bucket.get 'index.html'
 object = bucket['index.html']
@@ -256,3 +263,69 @@ end
 
 If none of the handlers resolve the conflict, the object will remain in
 conflict.
+
+## Working with Bucket Types
+
+Bucket types are used to configure and scope bucket behavior. If you are working
+with objects scoped to bucket types, there are two APIs for handling them.
+
+### 2.2 Bucket-Typed Bucket API
+
+The 2.2 version of the client introduces a bucket types, buckets, and key-value
+objects that know what bucket type they have.
+
+`BucketType` instances consist of their name, and have a properties accessor:
+
+```ruby
+# Instantiate a Riak::BucketType from the client
+my_cool_type = client.bucket_type 'my_cool_type'
+
+my_cool_type.name #=> 'my_cool_type'
+my_cool_type.properties
+#=> {:allow_mult => true, :n_val => 1}
+
+default_type = client.bucket_type Riak::BucketType::DEFAULT_NAME
+my_cool_type.default? #=> false
+default_type.default? #=> true
+```
+
+You can use a `BucketType` to get a `BucketTyped::Bucket`:
+
+```ruby
+cool_pages = my_cool_type.bucket 'pages'
+
+# BucketTyped::Bucket is a Bucket subclass
+cool_pages.is_a? Riak::Bucket #=> true
+cool_pages.is_a? Riak::BucketTyped::Bucket #=> true
+```
+
+Bucket-typed buckets are a subclass of untyped buckets (which are handled as
+default-typed buckets in Riak). Just like regular buckets, they can create
+key-value objects:
+
+```ruby
+my_homepage = cool_pages.get_or_new 'index.html'
+under_construction = cool_pages.new 'under_construction.gif'
+background_music = cool_pages.get 'STAIRW~1.MID'
+```
+
+### Options-hash-based Bucket Type API
+
+**This API is difficult to work with and requires care with passing in options.
+We do not recommend using it for new development.**
+
+2.0 and 2.1 versions of the client do not have special support for bucket
+types. Key-value operations that require a bucket type must have the type
+passed in with the options hash.
+
+```ruby
+my_homepage = cool_pages.get 'index.html', type: 'my_cool_type'
+my_homepage.data = my_homepage.data +
+  "&lt;marquee&gt;welcome to the last line of my homepage&lt;/marquee&gt;"
+my_homepage.store type: 'my_cool_type'
+my_homepage.reload type: 'my_cool_type'
+```
+
+If the type is omitted from these methods, the operation will interact with the
+object in the default type instead of `my_cool_type`. This is why we recommend
+the easier Bucket-Typed Bucket API.
