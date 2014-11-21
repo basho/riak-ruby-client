@@ -17,6 +17,8 @@
 <li><a href="yz.html">Search</a></li>
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
+<li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="https://github.com/basho/riak-ruby-client">Source</a></li>
@@ -50,7 +52,14 @@ documentation.</p>
 <h2>tl;dr</h2>
 
 <p>Get an object:</p>
-<pre><code class="highlight ruby"><span class="c1"># get an object</span>
+<pre><code class="highlight ruby"><span class="c1"># get a bucket</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'pages'</span>
+
+<span class="c1"># …or get a bucket-typed bucket</span>
+<span class="n">type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'my_cool_type'</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">type</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'pages'</span>
+
+<span class="c1"># get an object</span>
 <span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get</span> <span class="s1">'index.html'</span>
 <span class="n">object</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">[</span><span class="s1">'index.html'</span><span class="p">]</span>
 
@@ -244,10 +253,59 @@ one:</p>
 
 <p>If none of the handlers resolve the conflict, the object will remain in
 conflict.</p>
+
+<h2>Working with Bucket Types</h2>
+
+<p>Bucket types are used to configure and scope bucket behavior. If you are working
+with objects scoped to bucket types, there are two APIs for handling them.</p>
+
+<h3>2.2 Bucket-Typed Bucket API</h3>
+
+<p>The 2.2 version of the client introduces a bucket types, buckets, and key-value
+objects that know what bucket type they have.</p>
+
+<p><code>BucketType</code> instances create <code>BucketTyped::Bucket</code> instances:</p>
+<pre><code class="highlight ruby"><span class="c1"># Instantiate a Riak::BucketType from the client</span>
+<span class="n">my_cool_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'my_cool_type'</span>
+
+<span class="c1"># Create a Riak::BucketTyped::Bucket</span>
+<span class="n">cool_pages</span> <span class="o">=</span> <span class="n">my_cool_type</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'pages'</span>
+
+<span class="c1"># BucketTyped::Bucket is a Bucket subclass</span>
+<span class="n">cool_pages</span><span class="p">.</span><span class="nf">is_a?</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Bucket</span> <span class="c1">#=&gt; true</span>
+<span class="n">cool_pages</span><span class="p">.</span><span class="nf">is_a?</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketTyped</span><span class="o">::</span><span class="no">Bucket</span> <span class="c1">#=&gt; true</span>
+</code></pre>
+
+<p>Bucket-typed buckets are a subclass of untyped buckets (which are handled as
+default-typed buckets in Riak). Just like regular buckets, they can create
+key-value objects:</p>
+<pre><code class="highlight ruby"><span class="n">my_homepage</span> <span class="o">=</span> <span class="n">cool_pages</span><span class="p">.</span><span class="nf">get_or_new</span> <span class="s1">'index.html'</span>
+<span class="n">under_construction</span> <span class="o">=</span> <span class="n">cool_pages</span><span class="p">.</span><span class="nf">new</span> <span class="s1">'under_construction.gif'</span>
+<span class="n">background_music</span> <span class="o">=</span> <span class="n">cool_pages</span><span class="p">.</span><span class="nf">get</span> <span class="s1">'STAIRW~1.MID'</span>
+</code></pre>
+
+<h3>Options-hash-based Bucket Type API</h3>
+
+<p><strong>This API is difficult to work with and requires care with passing in options.
+We do not recommend using it for new development.</strong></p>
+
+<p>2.0 and 2.1 versions of the client do not have special support for bucket
+types. Key-value operations that require a bucket type must have the type
+passed in with the options hash.</p>
+<pre><code class="highlight ruby"><span class="n">my_homepage</span> <span class="o">=</span> <span class="n">cool_pages</span><span class="p">.</span><span class="nf">get</span> <span class="s1">'index.html'</span><span class="p">,</span> <span class="ss">type: </span><span class="s1">'my_cool_type'</span>
+<span class="n">my_homepage</span><span class="p">.</span><span class="nf">data</span> <span class="o">=</span> <span class="n">my_homepage</span><span class="p">.</span><span class="nf">data</span> <span class="o">+</span>
+  <span class="s2">"&amp;lt;marquee&amp;gt;welcome to the last line of my homepage&amp;lt;/marquee&amp;gt;"</span>
+<span class="n">my_homepage</span><span class="p">.</span><span class="nf">store</span> <span class="ss">type: </span><span class="s1">'my_cool_type'</span>
+<span class="n">my_homepage</span><span class="p">.</span><span class="nf">reload</span> <span class="ss">type: </span><span class="s1">'my_cool_type'</span>
+</code></pre>
+
+<p>If the type is omitted from these methods, the operation will interact with the
+object in the default type instead of <code>my_cool_type</code>. This is why we recommend
+the easier Bucket-Typed Bucket API.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-10-27 19:33:25 UTC from repo version 1dfa00c688460e5fee6e66e2fe9099a344b83022.
+Documentation generated at 2014-11-21 22:26:54 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
 </footer>
 </body>
 </html>

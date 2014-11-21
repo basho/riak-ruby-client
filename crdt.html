@@ -17,6 +17,8 @@
 <li><a href="yz.html">Search</a></li>
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
+<li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
 <li><a href="https://github.com/basho/riak-ruby-client">Source</a></li>
@@ -73,6 +75,21 @@ changed in the <code>Riak::Crdt::DEFAULT_BUCKET_TYPES</code> hash:</p>
 <pre><code class="highlight ruby"><span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">DEFAULT_BUCKET_TYPES</span><span class="p">[</span><span class="ss">:set</span><span class="p">]</span> <span class="c1">#=&gt; "sets"</span>
 
 <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">DEFAULT_BUCKET_TYPES</span><span class="p">[</span><span class="ss">:set</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"a_cooler_set"</span>
+</code></pre>
+
+<p>Using a non-default bucket type is easy. The third argument for CRDT
+constructors accepts a <code>String</code> that&rsquo;s a bucket type name, or in 2.2 and newer
+clients, a <code>Riak::BucketType</code> instance. Additionally, if the first argument is
+a <code>BucketTyped::Bucket</code>, it&rsquo;ll grab the type from that:</p>
+<pre><code class="highlight ruby"><span class="n">other_counters_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'other_counters'</span>
+<span class="n">typed_bucket</span> <span class="o">=</span> <span class="n">other_counters</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'cool_counters'</span>
+
+<span class="n">untyped_bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'cool_counters'</span>
+
+<span class="c1"># These three are equivalent:</span>
+<span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">untyped_bucket</span><span class="p">,</span> <span class="s1">'shades'</span><span class="p">,</span> <span class="n">other_counters_type</span>
+<span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">untyped_bucket</span><span class="p">,</span> <span class="s1">'shades'</span><span class="p">,</span> <span class="s1">'other_counters'</span>
+<span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">typed_bucket</span><span class="p">,</span> <span class="s1">'shades'</span>
 </code></pre>
 
 <h2>Creating and Loading CRDTs</h2>
@@ -142,7 +159,7 @@ local copy as part of the update:</p>
 </code></pre>
 
 <p>When doing multiple changes to a CRDT in quick succession, it will be faster
-to batch them up into a single write. </p>
+to batch them up into a single write.</p>
 <pre><code class="highlight ruby"><span class="n">map</span><span class="p">.</span><span class="nf">batch</span> <span class="k">do</span> <span class="o">|</span><span class="n">m</span><span class="o">|</span>
   <span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">[</span><span class="s1">'hits'</span><span class="p">].</span><span class="nf">increment</span>
   <span class="n">m</span><span class="p">.</span><span class="nf">sets</span><span class="p">[</span><span class="s1">'followers'</span><span class="p">].</span><span class="nf">add</span> <span class="s1">'basho_elevator'</span>
@@ -176,7 +193,7 @@ once or more than once.</p>
 
 <h2>Sets</h2>
 
-<p>Riak 2 has sets of strings of bytes. In cases of conflict, </p>
+<p>Riak 2 has sets of strings of bytes. In cases of conflict,</p>
 
 <p><strong>PROTIP:</strong> Ruby&rsquo;s standard library and the Riak client both have classes named
 <code>Set</code>, and the Riak client uses the Ruby version copiously. Be careful to refer
@@ -302,7 +319,7 @@ initial default value is 0.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-10-27 19:33:25 UTC from repo version 1dfa00c688460e5fee6e66e2fe9099a344b83022.
+Documentation generated at 2014-11-21 22:26:53 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
 </footer>
 </body>
 </html>
