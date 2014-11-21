@@ -507,6 +507,78 @@ The payload for each event contains the following keys:
 * `:client_id`: The client_id of the Riak client
 * `:_method_args`: The array of method arguments for the instrumented method. For instance, for `riak.get_object`, this value would resemble `[<Riak::Bucket ...>, 'key', {}]`
 
+## Running Specs
+
+We aim to have a comprehensive and fast set of tests, implemented using a modern,
+well-supported version of RSpec. These tests include both unit specs for
+individual classes, and integration specs that ensure the client works properly
+with an actual Riak instance.
+
+The [Riak Ruby Vagrant][1] virtual machine's Riak configuration is normally
+used to test this client in development. Once it's up and running, configure
+the Ruby `test_client.yml` on the host machine to connect to `pb_port: 17017`
+and test away.
+
+[1]: https://github.com/basho-labs/riak-ruby-vagrant
+
+Configuring the Riak node the tests connect to is done via the
+`spec/support/test_client.yml` file, which is loaded into a Ruby hash with
+symbolized keys, and passed to `Riak::Client.new`.
+
+```yml
+# test_client.yml
+pb_port: 10017
+# UNCOMMENT AUTHENTICATION SECTION WHEN RIAK HAS SECURITY ENABLED
+# authentication:
+#   user: user
+#   password: password
+#   ca_file: spec/support/certs/ca.crt
+```
+
+### Spec dependencies
+
+Specs depend on the following Riak configurations:
+
+* The **LevelDB backend** is necessary for testing secondary indexes.
+* **allow_mult** is required for many features: conflict resolution, and legacy
+  counters among them.
+* **Riak Search 2.0** ("Yokozuna") must be configured for testing full-text
+  search.
+
+The following bucket types are used during testing:
+
+```shell
+riak-admin bucket-type create counters '{"props":{"datatype":"counter", "allow_mult":true}}'
+riak-admin bucket-type create other_counters '{"props":{"datatype":"counter", "allow_mult":true}}'
+riak-admin bucket-type create maps '{"props":{"datatype":"map", "allow_mult":true}}'
+riak-admin bucket-type create sets '{"props":{"datatype":"set", "allow_mult":true}}'
+riak-admin bucket-type create yokozuna '{"props":{}}'
+
+riak-admin bucket-type activate other_counters
+riak-admin bucket-type activate counters
+riak-admin bucket-type activate maps
+riak-admin bucket-type activate sets
+riak-admin bucket-type activate yokozuna
+```
+
+Client tests run both with and without security enabled, as we have to test
+several positive and negative paths. The tests broadly depend on these users
+and roles:
+
+```shell
+riak-admin security add-user user password=password
+riak-admin security add-user certuser
+
+riak-admin security add-source user 0.0.0.0/0 password
+riak-admin security add-source certuser 0.0.0.0/0 certificate
+
+riak-admin security grant riak_kv.get,riak_kv.put,riak_kv.delete,\
+riak_kv.index,riak_kv.list_keys,riak_kv.list_buckets,\
+riak_core.get_bucket,riak_core.set_bucket,\
+riak_core.get_bucket_type,riak_core.set_bucket_type,\
+search.admin,search.query,riak_kv.mapreduce on any to user
+```
+
 ## How to Contribute
 
 * Fork the project on [Github](http://github.com/basho/riak-ruby-client).  If you have already forked, use `git pull --rebase` to reapply your changes on top of the mainline. Example:
