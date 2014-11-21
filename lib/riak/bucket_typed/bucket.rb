@@ -70,6 +70,21 @@ module Riak
         "#<Riak::BucketTyped::Bucket {#{ type.name }/#{ name }}>"
       end
 
+      def props=(new_props)
+        raise ArgumentError, t('hash_type', hash: new_props.inspect) unless new_props.is_a? Hash
+        complete_props = props.merge new_props
+        @client.set_bucket_props(self, properties, self.type.name)
+      end
+
+      def props
+        @props ||= @client.get_bucket_props(self, type: self.type.name)
+      end
+
+      def clear_props
+        @props = nil
+        @client.clear_bucket_props(self, type: self.type.name)
+      end
+
       # Pretty prints the bucket for `pp` or `pry`.
       def pretty_print(pp)
         pp.object_group self do

@@ -374,9 +374,9 @@ module Riak
     end
 
     # Clears the properties on a bucket. See Bucket#clear_props
-    def clear_bucket_props(bucket)
+    def clear_bucket_props(bucket, options={  })
       backend do |b|
-        b.reset_bucket_props(bucket)
+        b.reset_bucket_props(bucket, options)
       end
     end
 
