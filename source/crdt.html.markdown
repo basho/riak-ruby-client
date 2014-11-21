@@ -56,6 +56,23 @@ Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] #=> "sets"
 Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = "a_cooler_set"
 ```
 
+Using a non-default bucket type is easy. The third argument for CRDT
+constructors accepts a `String` that's a bucket type name, or in 2.2 and newer
+clients, a `Riak::BucketType` instance. Additionally, if the first argument is
+a `BucketTyped::Bucket`, it'll grab the type from that:
+
+```ruby
+other_counters_type = client.bucket_type 'other_counters'
+typed_bucket = other_counters.bucket 'cool_counters'
+
+untyped_bucket = client.bucket 'cool_counters'
+
+# These three are equivalent:
+c = Riak::Crdt::Counter.new untyped_bucket, 'shades', other_counters_type
+c = Riak::Crdt::Counter.new untyped_bucket, 'shades', 'other_counters'
+c = Riak::Crdt::Counter.new typed_bucket, 'shades'
+```
+
 ## Creating and Loading CRDTs
 
 CRDTs aren't strictly "created" per se. If multiple parties create a CRDT
@@ -133,7 +150,7 @@ c1.value #=> 7
 ```
 
 When doing multiple changes to a CRDT in quick succession, it will be faster
-to batch them up into a single write. 
+to batch them up into a single write.
 
 ```ruby
 map.batch do |m|
@@ -171,7 +188,7 @@ c.decrement 4 # value is 2
 
 ## Sets
 
-Riak 2 has sets of strings of bytes. In cases of conflict, 
+Riak 2 has sets of strings of bytes. In cases of conflict,
 
 **PROTIP:** Ruby's standard library and the Riak client both have classes named
 `Set`, and the Riak client uses the Ruby version copiously. Be careful to refer
