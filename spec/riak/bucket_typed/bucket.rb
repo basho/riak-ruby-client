@@ -19,4 +19,25 @@ describe Riak::BucketTyped::Bucket do
     expect(subject.type).to eq type
     expect(subject.type.name).to eq 'type'
   end
+
+  describe 'bucket properties' do
+    it 'returns properties scoped by bucket and type' do
+      expect(client).to receive(:get_bucket_props).with(subject, { type: subject.type.name }).and_return('allow_mult' => true)
+
+      expect(props = subject.props).to be_a Hash
+      expect(props['allow_mult']).to be
+    end
+
+    it 'clears properties scoped by bucket and type' do
+      expect(client).to receive(:clear_bucket_props).with(subject, { type: subject.type.name })
+
+      expect{ subject.clear_props }.to_not raise_error
+    end
+
+    it 'sets properties scoped by bucket and type' do
+      expect(client).to receive(:set_bucket_props).with(subject, { 'allow_mult' => true }, subject.type.name)
+
+     expect{ subject.props = { 'allow_mult' => true } }.to_not raise_error
+    end
+  end
 end
