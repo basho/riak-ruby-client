@@ -73,7 +73,7 @@ module Riak
       def props=(new_props)
         raise ArgumentError, t('hash_type', hash: new_props.inspect) unless new_props.is_a? Hash
         complete_props = props.merge new_props
-        @client.set_bucket_props(self, properties, self.type.name)
+        @client.set_bucket_props(self, complete_props, self.type.name)
       end
 
       def props
