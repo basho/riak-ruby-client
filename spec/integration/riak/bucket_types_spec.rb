@@ -133,9 +133,8 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect{ bucket.props = {'last_write_wins' => true} }.to_not raise_error
 
         # make sure setting doesn't leak to untyped bucket
-        # use on-bucket props method to test accessor
-        expect(bucket.props['last_write_wins']).to be
-        expect(untyped_bucket.props['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to be
+        expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
 
         # add canary setting on untyped bucket
         expect{ untyped_bucket.props = { 'n_val' => 1} }.to_not raise_error
