@@ -66,8 +66,7 @@ describe 'Secondary indexes', test_client: true, integration: true do
                                    'tuxedo')
       end.to_not raise_error
 
-      expect(results.first).to be
-      expect(results.first.key).to eq obj.key
+      expect(results.first).to eq obj.key
     end
   end
 end
