@@ -334,7 +334,7 @@ module Riak
           }
         end
 
-        options.merge!(:bucket => bucket, :index => index)
+        options.merge!(:bucket => bucket, :index => index.to_s)
         options.merge!(query_options)
         options[:stream] = block_given?
 
