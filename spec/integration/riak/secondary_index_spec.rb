@@ -51,4 +51,23 @@ describe 'Secondary indexes', test_client: true, integration: true do
     expect(terms['20']).to be
     expect(terms['19']).to be_empty
   end
+
+  describe "with symbolized index names" do
+    it "stores and queries indexes correctly" do
+      obj = bucket.new random_key
+      obj.indexes[:coat_pattern_bin] << "tuxedo"
+      obj.data = "tuxedo"
+
+      expect{ obj.store }.to_not raise_error
+
+      results = nil
+      expect do
+        results = bucket.get_index(:coat_pattern_bin,
+                                   'tuxedo')
+      end.to_not raise_error
+
+      expect(results.first).to be
+      expect(results.first.key).to eq obj.key
+    end
+  end
 end
