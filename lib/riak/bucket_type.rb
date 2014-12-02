@@ -34,5 +34,15 @@ module Riak
         pp.text "name=#{name}"
       end
     end
+
+    # Get the properties of this bucket type
+    # @return [Hash<Symbol,Object>]
+    def properties
+      @properties ||= client.backend do |be|
+        be.get_bucket_type_props name
+      end
+    end
+    alias :props :properties
+
   end
 end
