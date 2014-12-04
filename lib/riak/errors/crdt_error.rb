@@ -14,5 +14,11 @@ module Riak
         super t('crdt.precondition', message: message)
       end
     end
+
+    class UnrecognizedDataType
+      def initialize(given_type)
+        super t('crdt.unrecognized_type', type: given_type)
+      end
+    end
   end
 end

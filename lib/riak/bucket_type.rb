@@ -1,4 +1,5 @@
 require 'riak/bucket_typed/bucket'
+require 'riak/errors/crdt_error'
 
 module Riak
   # A representation of a bucket type
@@ -44,5 +45,25 @@ module Riak
     end
     alias :props :properties
 
+    # Return the data type used for handling the CRDT stored in this bucket type.
+    # Returns `nil` for a non-CRDT bucket type.
+    # @raise [Riak::CrdtError::UnrecognizedDataType] if the bucket type has an 
+    #   unknown datatype
+    # @return [Class<Riak::Crdt::Base>] CRDT subclass to use with this bucket
+    #   type
+    def data_type_class
+      return nil unless dt = properties[:datatype]
+      parent = Riak::Crdt
+      case dt
+      when 'counter'
+        parent::Counter
+      when 'map'
+        parent::Map
+      when 'set'
+        parent::Set
+      else
+        raise CrdtError::UnrecognizedDataType.new dt
+      end
+    end
   end
 end

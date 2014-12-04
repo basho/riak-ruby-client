@@ -16,6 +16,7 @@ en:
       set_removal_without_context: "CRDT Sets do not support removal without context. Store and reload the set before removing members."
       unknown_field: "Unknown field type %{symbol}, expected one of :counter, :map, or :set."
       unknown_inner_field: "Unknown field type %{symbol}, expected one of :counter, :flag, :map, :register, or :set."
+      unrecognized_type: "Couldn't determine CRDT class for datatype %{type}"
       serialize_no_ops: "Can't serialize an empty list of CRDT operations."
       flag:
         not_boolean: "Flags can only be true or false."
