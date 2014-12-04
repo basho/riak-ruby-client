@@ -126,6 +126,38 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
     end
 
+    describe 'manipulating bucket properties' do
+      let(:bucket_type){ test_client.bucket_type 'yokozuna' }
+      let(:bucket){ bucket_type.bucket random_key }
+      let(:untyped_bucket){ test_client.bucket bucket.name }
+      
+      it 'allows reading and writing bucket properties' do
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
+        
+        # test setting
+        expect{ bucket.props = {'last_write_wins' => true} }.to_not raise_error
+
+        # make sure setting doesn't leak to untyped bucket
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to be
+        expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
+
+        # add canary setting on untyped bucket
+        expect{ untyped_bucket.props = { 'n_val' => 1} }.to_not raise_error
+
+        # make sure canary setting doesn't leak to typed bucket
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['n_val']).to_not eq 1
+        expect(test_client.get_bucket_props(untyped_bucket)['n_val']).to eq 1
+
+        # test clearing
+        expect{ bucket.clear_props }.to_not raise_error
+
+        # make sure clearing doesn't leak to canary setting on untyped bucket 
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(untyped_bucket)['n_val']).to eq 1
+      end
+    end
+
     describe 'performing CRDT operations' do
       let(:bucket_type){ test_client.bucket_type 'other_counters' }
       let(:bucket){ bucket_type.bucket random_key }

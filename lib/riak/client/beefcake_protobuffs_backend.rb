@@ -219,9 +219,10 @@ module Riak
 
       def set_bucket_props(bucket, props, type=nil)
         bucket = bucket.name if Bucket === bucket
+        new_props = RpbBucketProps.new(normalize_quorums(props.symbolize_keys))
         req = RpbSetBucketReq.new(
                                   bucket: maybe_encode(bucket),
-                                  props: RpbBucketProps.new(props.symbolize_keys),
+                                  props: new_props,
                                   type: type)
 
         protocol do |p|
@@ -230,9 +231,10 @@ module Riak
         end
       end
 
-      def reset_bucket_props(bucket)
+      def reset_bucket_props(bucket, options)
         bucket = bucket.name if Bucket === bucket
-        req = RpbResetBucketReq.new(:bucket => maybe_encode(bucket))
+        req = RpbResetBucketReq.new(bucket: maybe_encode(bucket),
+                                    type: options[:type])
 
         protocol do |p|
           p.write :ResetBucketReq, req
