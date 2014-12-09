@@ -70,6 +70,9 @@ en:
     protobuffs_failed_request: "Expected success from Riak but received %{code}. %{body}"
     protobuffs_configuration: "The %{backend} Protobuffs backend cannot be used. Please check its requirements."
     request_body_type: "Request body must be a String or respond to :read."
+    search:
+      index_exists: "The index %{name} already exists."
+      schema_exists: "The schema %{name} already exists."
     search_unsupported: "Riak server does not support search."
     search_docs_require_id: "Search index documents must include the 'id' field."
     search_remove_requires_id_or_query: "Search index documents to be removed must have 'id' or 'query' keys."
