@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'riak/search/index'
 
 describe Riak::Search::Index do
   it 'creates index objects with a client and index name'

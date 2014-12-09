@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'riak/search/schema'
 
 describe Riak::Search::Schema do
   it 'creates schema objects with a client and schema name'

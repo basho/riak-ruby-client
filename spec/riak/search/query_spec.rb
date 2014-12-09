@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'riak/search/query'
 
 describe Riak::Search::Query do
   it 'creates query objects with a client, index, and query string'
