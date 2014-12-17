@@ -1,10 +1,12 @@
 require 'spec_helper'
-require 'riak'
+require 'riak/search'
 
-describe 'Object-oriented Search API', test_client: true, integration: true do
-  include_context 'search corpus setup'
-  let(:bucket){ @search_bucket }
-  let(:index_name){ bucket.name }
+describe 'Object-oriented Search API', test_client: true, integration: true, search_config: true do
+  before :all do
+    create_index
+    configure_bucket
+    load_corpus
+  end
 
   describe 'queries' do
     let(:index){ Riak::Search::Index.new test_client, index_name }
@@ -32,13 +34,12 @@ describe 'Object-oriented Search API', test_client: true, integration: true do
       existing_index = Riak::Search::Index.new test_client, index_name
       expect(existing_index).to be_exists # auto predicate matcher
 
-      nonexistent_index = Riak::Search::Index.new(test_client, 
-                                                  random_key('nonexist'))
+      nonexistent_index = Riak::Search::Index.new(test_client, "nonexist-#{random_key}")
       expect(nonexistent_index).to_not be_exists
     end
 
     it 'creates indexes' do
-      new_index = Riak::Search::Index.new test_client, random_key('search_spec')
+      new_index = Riak::Search::Index.new test_client, "search-spec-#{random_key}"
       expect(new_index).to_not be_exist
       expect{ new_index.create! }.to_not raise_error
 
@@ -55,13 +56,12 @@ describe 'Object-oriented Search API', test_client: true, integration: true do
       existing_schema = Riak::Search::Schema.new test_client, '_yz_default'
       expect(existing_schema).to be_exists
 
-      nonexistent_schema = Riak::Search::Schema.new(test_client,
-                                                    random_key('nonexist'))
+      nonexistent_schema = Riak::Search::Schema.new(test_client, "nonexist-#{random_key}")
       expect(nonexistent_schema).to_not be_exists
     end
 
     it 'creates schemas' do
-      new_schema = Riak::Search::Schema.new test_client, random_key('search_spec')
+      new_schema = Riak::Search::Schema.new test_client, "search-spec-#{random_key}"
       expect(new_schema).to_not be_exist
       expect{ new_schema.create! }.to_not raise_error
 
