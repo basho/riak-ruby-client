@@ -63,13 +63,13 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
     it 'creates schemas' do
       new_schema = Riak::Search::Schema.new test_client, "search-spec-#{random_key}"
       expect(new_schema).to_not be_exist
-      expect{ new_schema.create! }.to_not raise_error
+      expect{ new_schema.create! schema_xml(new_schema.name) }.to_not raise_error
 
       wait_until{ new_schema.exists? }
 
       expect(new_schema).to be_exists
 
-      expect{ new_schema.create! }.to raise_error Riak::SearchError::SchemaExistsError
+      expect{ new_schema.create! schema_xml(new_schema.name) }.to raise_error Riak::SearchError::SchemaExistsError
     end
   end
 end
