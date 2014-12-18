@@ -26,6 +26,8 @@ module SearchConfig
   def configure_bucket
     return if defined? @bucket_configured
 
+    create_index
+
     test_client.set_bucket_props(search_bucket, 
                                  { search_index: index_name },
                                  'yokozuna')
@@ -40,6 +42,8 @@ module SearchConfig
 
   def load_corpus
     return if defined? @corpus_loaded
+
+    configure_bucket
 
     old_encoding = Encoding.default_external
     Encoding.default_external = Encoding::UTF_8
