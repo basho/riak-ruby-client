@@ -418,9 +418,17 @@ module Riak
       def get_search_schema(name)
         req = RpbYokozunaSchemaGetReq.new(:name => name)
 
-        resp = protocol do |p|
-          p.write :YokozunaSchemaGetReq, req
-          p.expect :YokozunaSchemaGetResp, RpbYokozunaSchemaGetResp
+        begin
+          resp = protocol do |p|
+            p.write :YokozunaSchemaGetReq, req
+            p.expect :YokozunaSchemaGetResp, RpbYokozunaSchemaGetResp
+          end
+        rescue ProtobuffsErrorResponse => e
+          if e.code == 0 && e.original_message =~ /notfound/
+            raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+          end
+
+          raise e
         end
 
         resp.schema ? resp.schema : resp
