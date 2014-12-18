@@ -70,6 +70,10 @@ module SearchConfig
 
     @corpus_loaded = true
   end
+
+  def schema_xml(schema_name)
+    File.read('spec/fixtures/yz_schema_template.xml').sub('SCHEMA_NAME', schema_name)
+  end
 end
 
 RSpec.configure do |config|
