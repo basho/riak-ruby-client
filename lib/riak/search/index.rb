@@ -30,6 +30,8 @@ module Riak::Search
       end
 
       @index_data = nil
+
+      true
     end
 
     private
