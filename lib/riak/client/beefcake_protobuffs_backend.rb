@@ -379,20 +379,20 @@ module Riak
 
       def get_search_index(name)
         req = RpbYokozunaIndexGetReq.new(:name => name)
-        resp = protocol do |p|
-          p.write :YokozunaIndexGetReq, req
-          p.expect :YokozunaIndexGetResp, RpbYokozunaIndexGetResp, empty_body_acceptable: true
-        end
-        
-        if :empty == resp
-          raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+        begin 
+          resp = protocol do |p|
+            p.write :YokozunaIndexGetReq, req
+            p.expect :YokozunaIndexGetResp, RpbYokozunaIndexGetResp, empty_body_acceptable: true
+          end
+        rescue ProtobuffsErrorResponse => e
+          if e.code == 0 && e.original_message =~ /notfound/
+            raise Riak::ProtobuffsFailedRequest.new(:not_found, t('not_found'))
+          end
+
+          raise e
         end
 
-        if resp.index && Array === resp
-          resp.index.map{|index| {:name => index.name, :schema => index.schema, :n_val => index.n_val} }
-        else
-          resp
-        end
+        resp
       end
 
       def delete_search_index(name)
