@@ -10,26 +10,29 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
 
   describe 'queries' do
     let(:index){ Riak::Search::Index.new test_client, index_name }
+    let(:term){ 'operations' }
+    subject { Riak::Search::Query.new test_client, index, term }
 
     it 'performs queries' do
-      query = Riak::Search::Query.new test_client, index, 'operations'
       results = nil
-      expect{ results = query.results }.to_not raise_error
+      expect{ results = subject.results }.to_not raise_error
       expect(results.raw).to_not be_empty 
       expect(results).to_not be_empty
     end
 
     it 'performs limited and sorted queries' do
-      query = Riak::Search::Query.new test_client, index, 'operations'
-      query.rows = 5
+      subject.rows = 5
       results = nil
-      expect{ results = query.results }.to_not raise_error
+      expect{ results = subject.results }.to_not raise_error
       expect(results.raw).to_not be_empty
       expect(results.length).to eq 5
     end
   end
 
   describe 'results from queries' do
+    let(:query){ Riak::Search::Query.new test_client, index, 'operations' }
+    subject { query.results }
+    
     it 'exposes search-result documents' do
       expect(subject).to_not be_empty
 
