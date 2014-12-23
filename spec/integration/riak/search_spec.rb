@@ -29,6 +29,30 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
     end
   end
 
+  describe 'results from queries' do
+    it 'exposes search-result documents' do
+      expect(subject).to_not be_empty
+
+      expect(subject.docs).to_not be_empty
+      expect(first = subject.docs.first).to be
+
+      expect(first.score).to be_a Numeric
+
+      expect(first.bucket_type).to be_a Riak::BucketType
+      expect(first.bucket).to be_a Riak::Bucket
+      expect(first.key).to be_a String
+    end
+
+    it 'exposes RObjects' do
+      expect(subject).to_not be_empty
+      
+      expect(first = subject.first).to be_a Riak::RObject
+      expect(first).to eq subject.docs.first.robject
+
+      expect(first.key).to eq subject.docs.first.key
+    end
+  end
+
   describe 'indexes' do
     it 'tests for index existence and content' do
       existing_index = Riak::Search::Index.new test_client, index_name
