@@ -32,7 +32,7 @@ module Riak::Search
 
     def validate_arguments
       unless @index.is_a?(String) || @index.is_a?(Riak::Search::Index)
-        raise IndexArgumentError.new @index
+        raise Riak::SearchError::IndexArgumentError.new @index
       end
     end
 
