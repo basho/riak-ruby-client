@@ -39,10 +39,13 @@ module Riak::Search
     def set_defaults
       @fl = %w{_yz_rb _yz_rk _yz_rt score}
       @df = %w{text}
+      @start = 0
+      @rows = nil
     end
 
     def consume_options
-      @rows = @options[:rows]
+      @start = @options[:start] if @options[:start]
+      @rows = @options[:rows] if @options[:rows]
       @fl = @options[:fl] if @options[:fl]
       @df = @options[:df] if @options[:df]
     end

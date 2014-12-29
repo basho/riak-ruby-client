@@ -7,12 +7,14 @@ module Riak::Search
     attr_reader :raw
     attr_reader :max_score
     attr_reader :length
+    attr_reader :num_found
 
     def initialize(client, raw_results)
       @client = client
       @raw = raw_results
       @max_score = raw['max_score']
-      @length = raw['num_found']
+      @num_found = raw['num_found']
+      @length = raw['docs'].length
     end
 
     def docs
