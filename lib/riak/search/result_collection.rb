@@ -19,18 +19,7 @@ module Riak::Search
 
     def docs
       @docs ||= raw['docs'].map do |result|
-
-        num_score = Float(result['score'])
-
-        type = client.bucket_type result['_yz_rt']
-        bucket = type.bucket result['_yz_rb']
-
-        intermediate = result.merge('score' => num_score,
-                                    'bucket' => bucket, 
-                                    'bucket_type' => type,
-                                    'key' => result['_yz_rk'])
-
-        OpenStruct.new intermediate
+        ResultDocument.new client, result
       end
     end
 
