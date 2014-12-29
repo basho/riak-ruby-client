@@ -32,6 +32,10 @@ module Riak::Search
       end
     end
 
+    def empty?
+      length == 0
+    end
+
     def [](index)
       doc = docs[index]
       return nil if doc.nil?
