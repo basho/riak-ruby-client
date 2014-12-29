@@ -44,7 +44,12 @@ describe Riak::Search::Query do
     expect{ described_class.new client, index, term }.to_not raise_error
   end
 
-  it 'creates query objects with a client, index name, and query string' do
+  it 'creates query objects with a client, index name, and query string' do   
+    double = class_double 'Riak::Search::Index', new: index
+    hide_const 'Riak::Search::Index'
+    Riak::Search::Index = double
+    allow(index).to receive(:is_a?).with(Riak::Search::Index).and_return(true)
+
     expect{ described_class.new client, index_name, term }.to_not raise_error
   end
 
