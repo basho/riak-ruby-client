@@ -6,7 +6,8 @@ describe Riak::Search::Query do
   let(:index) do 
     instance_double(
                     'Riak::Search::Index',
-                    name: index_name).tap do |i|
+                    name: index_name, 
+                    'exists?' => true).tap do |i|
       allow(i).to receive(:is_a?).with(String).and_return(false)
       allow(i).to receive(:is_a?).with(Riak::Search::Index).and_return(true)
     end
@@ -47,7 +48,10 @@ describe Riak::Search::Query do
     expect{ described_class.new client, index_name, term }.to_not raise_error
   end
 
-  it 'errors when querying with a non-existent index'
+  it 'errors when querying with a non-existent index' do
+    expect(index).to receive(:exists?).and_return(false)
+    expect{ described_class.new client, index, term }.to raise_error(Riak::SearchError::IndexNonExistError)
+  end
   it 'allows specifying other query options on creation'
   it 'allows specifying query options with accessors'
 

@@ -4,15 +4,15 @@ module Riak::Search
   class Query
     attr_accessor :rows
 
+    attr_accessor :fl
     attr_accessor :df
 
     def initialize(client, index, term, options={  })
       @client = client
-      @index = index
+      validate_index index
       @term = term
       @options = options.symbolize_keys
 
-      validate_arguments
       set_defaults
       consume_options
     end
@@ -30,10 +30,20 @@ module Riak::Search
       return @index.name
     end
 
-    def validate_arguments
-      unless @index.is_a?(String) || @index.is_a?(Riak::Search::Index)
-        raise Riak::SearchError::IndexArgumentError.new @index
+    def validate_index(index)
+      if index.is_a? String
+        index = Riak::Search::Index.new @client, index
       end
+
+      unless index.is_a? Riak::Search::Index
+        raise Riak::SearchError::IndexArgumentError.new index
+      end
+
+      unless index.exists?
+        raise Riak::SearchError::IndexNonExistError.new index.name
+      end
+
+      @index = index
     end
 
     def set_defaults
