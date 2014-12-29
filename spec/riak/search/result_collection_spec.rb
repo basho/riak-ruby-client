@@ -84,8 +84,4 @@ describe Riak::Search::ResultCollection do
     
     expect(subject.first).to eq first_result
   end
-
-  it 'multi-gets all returned documents' do
-    expect{ subject.get_all! }.to_not raise_error
-  end
 end
