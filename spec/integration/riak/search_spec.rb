@@ -8,9 +8,10 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
     load_corpus
   end
 
+  let(:term){ 'bitcask' }
+
   describe 'queries' do
     let(:index){ Riak::Search::Index.new test_client, index_name }
-    let(:term){ 'operations' }
     subject { Riak::Search::Query.new test_client, index, term }
 
     it 'performs queries' do
@@ -30,7 +31,8 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
   end
 
   describe 'results from queries' do
-    let(:query){ Riak::Search::Query.new test_client, index, 'operations' }
+    let(:index){ Riak::Search::Index.new test_client, index_name }
+    let(:query){ Riak::Search::Query.new test_client, index, term }
     subject { query.results }
     
     it 'exposes search-result documents' do
