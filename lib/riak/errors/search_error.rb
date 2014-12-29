@@ -13,5 +13,11 @@ module Riak
         super t('search.schema_exists', name: name)
       end
     end
+
+    class IndexArgumentError < SearchError
+      def initialize(index)
+        super t('search.index_argument_error', index: index)
+      end
+    end
   end
 end

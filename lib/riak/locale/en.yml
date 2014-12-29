@@ -72,6 +72,7 @@ en:
     request_body_type: "Request body must be a String or respond to :read."
     search:
       index_exists: "The index %{name} already exists."
+      index_argument_error: "invalid argument %{index} is not a Riak::Search::Index or a String"
       schema_exists: "The schema %{name} already exists."
     search_unsupported: "Riak server does not support search."
     search_docs_require_id: "Search index documents must include the 'id' field."
