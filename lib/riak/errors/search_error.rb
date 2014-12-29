@@ -19,5 +19,11 @@ module Riak
         super t('search.index_argument_error', index: index)
       end
     end
+
+    class IndexNonExistError < SearchError
+      def initialize(index)
+        super t('search.index_non_exist', index: index)
+      end
+    end
   end
 end
