@@ -12,9 +12,10 @@ describe Riak::Search::Index do
   end
 
   let(:index_exists_response) do
-    d = instance_double 'Riak::Client::BeefcakeProtobuffsBackend::RpbYokozunaIndexGetResp'
-    allow(d).to receive(:index).and_return([{ name: index_name, schema: schema_name, n_val: 3 }])
-    d
+    instance_double(
+                    'Riak::Client::BeefcakeProtobuffsBackend::RpbYokozunaIndexGetResp',
+                    index: [{ name: index_name, schema: schema_name, n_val: 3 }]
+                    )
   end
 
   let(:client){ instance_double 'Riak::Client' }
