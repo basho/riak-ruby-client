@@ -3,9 +3,16 @@ require 'riak/search'
 module Riak::Search
   class Query
     attr_accessor :rows
+    attr_accessor :start
 
-    attr_accessor :fl
+    attr_accessor :sort
+    attr_accessor :filter
+
     attr_accessor :df
+    attr_accessor :op
+    attr_accessor :fl
+
+    attr_accessor :presort
 
     def initialize(client, index, term, options={  })
       @client = client
@@ -47,21 +54,45 @@ module Riak::Search
     end
 
     def set_defaults
-      @fl = %w{_yz_rb _yz_rk _yz_rt score}
-      @df = %w{text}
-      @start = 0
       @rows = nil
+      @start = nil
+
+      @sort = nil
+      @filter = nil
+
+      @df = %w{text}
+      @op = nil
+      @fl = %w{_yz_rb _yz_rk _yz_rt score}
+      
+      @presort = nil
     end
 
     def consume_options
-      @start = @options[:start] if @options[:start]
       @rows = @options[:rows] if @options[:rows]
-      @fl = @options[:fl] if @options[:fl]
+      @start = @options[:start] if @options[:start]
+      
+      @sort = @options[:sort] if @options[:sort]
+      @filter = @options[:filter] if @options[:filter]
+
       @df = @options[:df] if @options[:df]
+      @op = @options[:op] if @options[:op]
+      @fl = @options[:fl] if @options[:fl]
+
+      @presort = @options[:presort] if @options[:presort]
     end
 
     def prepare_options
-      @options.merge rows: @rows, fl: @fl.join(' '), df: @df.join(' ')
+      configured_options = { 
+        rows: @rows,
+        start: @start,
+        sort: @sort,
+        filter: @filter,
+        df: @df.join(' '),
+        op: @op,
+        fl: @fl,
+        presort: @presort
+      }
+      @options.merge configured_options
     end
 
     def raw_results
