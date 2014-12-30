@@ -2,7 +2,11 @@ require 'spec_helper'
 require 'riak/search/query'
 
 describe Riak::Search::Query do
-  let(:client){ instance_double 'Riak::Client' }
+  let(:client) do 
+    instance_double('Riak::Client').tap do |c|
+      allow(c).to receive(:backend).and_yield(backend)
+    end
+  end
   let(:index) do 
     instance_double(
                     'Riak::Search::Index',
@@ -45,9 +49,7 @@ describe Riak::Search::Query do
   end
 
   it 'creates query objects with a client, index name, and query string' do   
-    double = class_double 'Riak::Search::Index', new: index
-    hide_const 'Riak::Search::Index'
-    Riak::Search::Index = double
+    class_double('Riak::Search::Index', new: index).as_stubbed_const
     allow(index).to receive(:is_a?).with(Riak::Search::Index).and_return(true)
 
     expect{ described_class.new client, index_name, term }.to_not raise_error
@@ -57,11 +59,26 @@ describe Riak::Search::Query do
     expect(index).to receive(:exists?).and_return(false)
     expect{ described_class.new client, index, term }.to raise_error(Riak::SearchError::IndexNonExistError)
   end
-  it 'allows specifying other query options on creation'
-  it 'allows specifying query options with accessors'
+
+  it 'allows specifying other query options on creation' do
+    expect(backend).to receive(:search).
+      with(index_name, term, hash_including(rows: 5)).
+      and_return(raw_results)
+
+    q = described_class.new client, index, term, rows: 5
+    expect{ q.results }.to_not raise_error
+  end
+
+  it 'allows specifying query options with accessors' do
+    expect(backend).to receive(:search).
+      with(index_name, term, hash_including(rows: 5)).
+      and_return(raw_results)
+
+    subject.rows = 5
+    expect{ subject.results }.to_not raise_error
+  end
 
   it 'returns a ResultCollection' do
-    expect(client).to receive(:backend).and_yield(backend)
     expect(backend).to receive(:search).
       with(index_name, term, instance_of(Hash)).
       and_return(raw_results)
