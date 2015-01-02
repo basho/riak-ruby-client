@@ -31,7 +31,7 @@ module Riak::Search
       doc = docs[index]
       return nil if doc.nil?
 
-      doc.robject ||= doc.bucket.get doc.key
+      doc.robject
     end
 
     def first
