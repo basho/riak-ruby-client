@@ -3,21 +3,32 @@ require 'riak/errors/search_error'
 
 module Riak::Search
   class Schema
+    # @return [String] the name of the schema
     attr_reader :name
 
+    # Initializes a schema object, that may or may not exist.
+    #
+    # @param [Riak::Client] client the client connected to the Riak cluster
+    #   you wish to operate on
+    # @param [String] name the name of the schema
     def initialize(client, name)
       @client = client
       @name = name
     end
 
+    # @return [Boolean] does this schema exist on Riak?
     def exists?
       !!schema_data
     end
 
+    # @return [String] the XML content of this schema
     def content
       schema_data.content
     end
-
+    
+    # @param [String] content the XML content of this schema
+    # @raise [Riak::SearchError::SchemaExistsError] if a schema with the given
+    #   name already exists
     def create!(content)
       raise Riak::SearchError::SchemaExistsError.new name if exists?
 
