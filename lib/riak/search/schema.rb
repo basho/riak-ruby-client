@@ -2,6 +2,8 @@ require 'riak/search'
 require 'riak/errors/search_error'
 
 module Riak::Search
+  # A schema is a Riak Search 2 concept that describes how to index documents.
+  # They're implemented as a standard Solr XML schema.
   class Schema
     # @return [String] the name of the schema
     attr_reader :name
