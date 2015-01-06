@@ -2,6 +2,9 @@ require 'riak/search'
 require 'riak/errors/search_error'
 
 module Riak::Search
+  # A {Riak::Search::Index} is how Solr finds documents in Riak Search 2. A
+  # bucket or bucket type property must be configured to use the index in order
+  # for new and updated documents to be indexed and searchable.
   class Index
     # @return [String] the name of the index
     attr_reader :name
