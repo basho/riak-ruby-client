@@ -19,10 +19,19 @@ module Riak
       true
     end
 
+    # Write bucket properties and invalidate the cache in this object.
     def store
       client.backend do |be|
         be.set_bucket_props bucket, cached_props, type_argument
       end
+      @cached_props = nil
+      return true
+    end
+
+    # Take bucket properties from a given {Hash} or {Riak::BucketProperties} 
+    # object.
+    def merge!(other)
+      cached_props.merge! other
     end
 
     # Read a bucket property
