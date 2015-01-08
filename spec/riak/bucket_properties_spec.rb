@@ -1,3 +1,6 @@
+require 'spec_helper'
+require 'riak/bucket_properties'
+
 describe Riak::BucketProperties do
   let(:client){ instance_double 'Riak::Client' }
   let(:backend) do
@@ -5,6 +8,17 @@ describe Riak::BucketProperties do
       allow(client).to receive(:backend).and_yield be
     end
   end
+  let(:bucket) do
+    instance_double('Riak::Bucket').tap do |b|
+      allow(b).to receive(:needs_type?).and_return(false)
+    end
+  end
+
+  let(:typed_bucket) do
+    instance_double('Riak::BucketTyped::Bucket')
+  end
+
+  subject{ described_class.new client, bucket }
 
   it 'is initialized with a client and bucket' do
     p = nil
@@ -22,7 +36,7 @@ describe Riak::BucketProperties do
 
   it 'provides hash-like access to properties' do
     expect(backend).to receive(:get_bucket_props).
-      with(bucket).
+      with(bucket, hash_excluding(:type)).
       and_return('allow_mult' => true)
 
     expect(subject['allow_mult']).to be
@@ -30,7 +44,7 @@ describe Riak::BucketProperties do
     subject['allow_mult'] = false
 
     expect(backend).to receive(:set_bucket_props).
-      with(bucket, hash_including(allow_mult: false))
+      with(bucket, hash_including('allow_mult' => false), nil)
 
     subject.store
   end
@@ -38,6 +52,19 @@ describe Riak::BucketProperties do
   it 'merges properties from hashes'
   it 'merges properties from other bucket properties objects'
 
-  it 'reloads'
-  it 'stores'
+  it 'reloads' do
+    expect(backend).to receive(:get_bucket_props).
+      with(bucket, hash_excluding(:type)).
+      and_return('allow_mult' => true)
+    
+    expect(subject['allow_mult']).to be
+
+    expect(backend).to receive(:get_bucket_props).
+      with(bucket, hash_excluding(:type)).
+      and_return('allow_mult' => false)
+
+    expect{ subject.reload }.to_not raise_error
+
+    expect(subject['allow_mult']).to_not be
+  end
 end
