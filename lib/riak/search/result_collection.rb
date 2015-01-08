@@ -23,8 +23,6 @@ module Riak::Search
     #   not returned due to row-limiting
     attr_reader :num_found
 
-    include Enumerable
-
     # Initialize a {ResultCollection} with the client queried and the raw
     # JSON returned from the search API.
     #
@@ -75,7 +73,7 @@ module Riak::Search
     # {Enumerator} over each {Riak::RObject in the collection.
     # @yieldparam robject [Riak::RObject]
     # @return [Enumerator<Riak::RObject>]
-    def each
+    def each_robject
       enum = docs.each_with_index
 
       if block_given?
