@@ -1,5 +1,4 @@
 require 'riak/search'
-require 'ostruct'
 
 module Riak::Search
 
