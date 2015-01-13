@@ -65,7 +65,24 @@ describe Riak::BucketProperties do
     subject.store
   end
 
-  it 'merges properties from other bucket properties objects'
+  it 'merges properties from other bucket properties objects' do
+    expect(backend).to receive(:get_bucket_props).
+      with(bucket, hash_excluding(:type)).
+      and_return('allow_mult' => true)
+
+    expect(subject['allow_mult']).to be
+
+    other_props = described_class.new client, typed_bucket
+    other_props.
+      instance_variable_set :@cached_props, { 'allow_mult' => false}
+
+    expect{ subject.merge! other_props }.to_not raise_error
+    
+    expect(backend).to receive(:set_bucket_props).
+      with(bucket, hash_including('allow_mult' => false), nil)
+
+    subject.store
+  end
 
   it 'reloads' do
     expect(backend).to receive(:get_bucket_props).
