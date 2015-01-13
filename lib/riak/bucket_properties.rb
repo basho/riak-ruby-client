@@ -34,6 +34,11 @@ module Riak
       cached_props.merge! other
     end
 
+    # Convert the cached properties into a hash for merging.
+    def to_hash
+      cached_props
+    end
+
     # Read a bucket property
     def [](property_name)
       cached_props[property_name.to_s]
