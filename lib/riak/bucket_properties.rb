@@ -7,6 +7,8 @@ module Riak
     attr_reader :client
     attr_reader :bucket
 
+    # Create a properties object for a bucket (including bucket-typed buckets).
+    # @param [Riak::Bucket, Riak::BucketTyped::Bucket] bucket
     def initialize(bucket)
       @bucket = bucket
       @client = bucket.client
@@ -30,21 +32,27 @@ module Riak
 
     # Take bucket properties from a given {Hash} or {Riak::BucketProperties} 
     # object.
+    # @param [Hash<String, Object>, Riak::BucketProperties] other
     def merge!(other)
       cached_props.merge! other
     end
 
     # Convert the cached properties into a hash for merging.
+    # @return [Hash<String, Object>] the bucket properties in a {Hash}
     def to_hash
       cached_props
     end
 
     # Read a bucket property
+    # @param [String] property_name
+    # @return [Object] the bucket property's value
     def [](property_name)
       cached_props[property_name.to_s]
     end
 
     # Write a bucket property
+    # @param [String] property_name
+    # @param [Object] value
     def []=(property_name, value)
       cached_props[property_name.to_s] = value
     end
