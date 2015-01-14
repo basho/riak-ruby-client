@@ -7,9 +7,9 @@ module Riak
     attr_reader :client
     attr_reader :bucket
 
-    def initialize(client, bucket)
-      @client = client
+    def initialize(bucket)
       @bucket = bucket
+      @client = bucket.client
     end
 
     # Clobber the cached properties, and reload them from Riak.

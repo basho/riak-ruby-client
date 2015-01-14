@@ -10,26 +10,29 @@ describe Riak::BucketProperties do
   end
   let(:bucket) do
     instance_double('Riak::Bucket').tap do |b|
+      allow(b).to receive(:client).and_return(client)
       allow(b).to receive(:needs_type?).and_return(false)
     end
   end
 
   let(:typed_bucket) do
-    instance_double('Riak::BucketTyped::Bucket')
+    instance_double('Riak::BucketTyped::Bucket').tap do |b|
+      allow(b).to receive(:client).and_return(client)
+    end
   end
 
-  subject{ described_class.new client, bucket }
+  subject{ described_class.new bucket }
 
-  it 'is initialized with a client and bucket' do
+  it 'is initialized with a bucket' do
     p = nil
-    expect{ p = described_class.new client, bucket }.to_not raise_error
+    expect{ p = described_class.new bucket }.to_not raise_error
     expect(p.client).to eq client
     expect(p.bucket).to eq bucket
   end
 
   it 'initialzies correctly with a bucket-typed bucket' do
     p = nil
-    expect{ p = described_class.new client, typed_bucket }.to_not raise_error
+    expect{ p = described_class.new typed_bucket }.to_not raise_error
     expect(p.client).to eq client
     expect(p.bucket).to eq typed_bucket
   end
@@ -72,7 +75,7 @@ describe Riak::BucketProperties do
 
     expect(subject['allow_mult']).to be
 
-    other_props = described_class.new client, typed_bucket
+    other_props = described_class.new typed_bucket
     other_props.
       instance_variable_set :@cached_props, { 'allow_mult' => false}
 
