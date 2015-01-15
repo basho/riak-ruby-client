@@ -54,5 +54,16 @@ describe Riak::BucketProperties, test_client: true, integration: true do
 
       expect(subject['r']).to eq 1
     end
+
+    let(:modfun){ { 'mod' => 'validate_json', 'fun' => 'validate' } }
+
+    it 'works with composite/modfun properties' do
+      expect{ subject['precommit'] = modfun }.to_not raise_error
+
+      subject.store
+      subject.reload
+
+      expect(subject['precommit']).to eq modfun
+    end
   end
 end
