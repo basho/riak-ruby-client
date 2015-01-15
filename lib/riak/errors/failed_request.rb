@@ -9,9 +9,11 @@ module Riak
 
   # Exception raised when receiving an unexpected Protocol Buffers response from Riak
   class ProtobuffsFailedRequest < FailedRequest
+    attr_reader :code, :original_message
     def initialize(code, message)
       super t('protobuffs_failed_request', :code => code, :body => message)
       @original_message = message
+      @code = code
       @not_found = code == :not_found
       @server_error = code == :server_error
     end

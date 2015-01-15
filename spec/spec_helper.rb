@@ -19,7 +19,8 @@ Riak.disable_list_keys_warnings = true
    wait_until
    search_corpus_setup
    unified_backend_examples
-   test_client].each do |file|
+   test_client
+   search_config].each do |file|
   require File.join("support", file)
 end
 

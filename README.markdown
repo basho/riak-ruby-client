@@ -173,11 +173,14 @@ This documentation assumes there's a `yokozuna` bucket type created and activate
 ``` ruby
 # Create a client and bucket.
 client = Riak::Client.new
-bucket = client.bucket 'pizzas'
+bucket_type = client.bucket_type 'yokozuna'
+bucket = bucket_type.bucket 'pizzas'
 
 # Create an index and add it to a typed bucket. Setting the index on the bucket
 # may fail until the index creation has propagated.
-client.create_search_index 'pizzas'
+index = Riak::Search::Index.new 'pizzas'
+index.exist? #=> false
+index.create!
 client.set_bucket_props bucket, {search_index: 'pizzas'}, 'yokozuna'
 
 # Store some records for indexing
@@ -190,9 +193,18 @@ hawaiian.data = {toppings_ss: %w{ham pineapple}}
 hawaiian.store type: 'yokozuna'
 
 # Search the pizzas index for hashes that have a "ham" entry in the toppings_ss array
-result = client.search('pizzas', 'toppings_ss:ham') # Returns a results hash
-result['num_found'] # total number of results
-result['docs']      # the list of indexed documents
+query = Riak::Search::Query.new client, index, 'toppings_ss:ham'
+query.rows = 5 # return the first five pizzas
+
+result = query.results # returns a ResultsCollection object
+result.length # number of results returned
+result.num_found # total number of results found, including ones not returned
+
+pizza_result = result.first # a ResultDocument of the first pizza
+pizza_result.score # score of the match
+pizza_result.key # also pizza.bucket and pizza.bucket_type
+
+pizza = pizza_result.robject # load the actual RObject for the match
 ```
 
 ## Secondary Index Examples
