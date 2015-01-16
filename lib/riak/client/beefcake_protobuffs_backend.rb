@@ -219,7 +219,7 @@ module Riak
 
       def set_bucket_props(bucket, props, type=nil)
         bucket = bucket.name if Bucket === bucket
-        new_props = RpbBucketProps.new(normalize_quorums(props.symbolize_keys))
+        new_props = serialize_bucket_props props
         req = RpbSetBucketReq.new(
                                   bucket: maybe_encode(bucket),
                                   props: new_props,
@@ -524,19 +524,57 @@ module Riak
       def normalize_hooks(message)
         message.dup.tap do |o|
           %w{chash_keyfun linkfun}.each do |k|
-            o[k] = {'mod' => message[k].module, 'fun' => message[k].function}
+            if message[k].is_a? Hash
+              o[k] = {
+                'mod' => message[k][:module],
+                'fun' => message[k][:function],
+              }
+            else
+              o[k] = {'mod' => message[k].module, 'fun' => message[k].function}
+            end
           end
           %w{precommit postcommit}.each do |k|
             orig = message[k]
             o[k] = orig.map do |hook|
-              if hook.modfun
-                {'mod' => hook.modfun.module, 'fun' => hook.modfun.function}
+              modfun = hook[:modfun] rescue hook.modfun
+              if modfun.is_a? Hash
+                { 'mod' => modfun[:module], 'fun' => modfun[:function]}
+              elsif modfun
+                {'mod' => modfun.module, 'fun' => modfun.function}
               else
-                hook.name
+                hook[:name] rescue hook.name
               end
             end
           end
         end
+      end
+
+      def serialize_bucket_props(props)
+        props = normalize_quorums props.symbolize_keys
+
+        %w{chash_keyfun linkfun}.each do |k|
+          orig = props[k.to_sym].symbolize_keys
+          next if orig.nil?
+          orig[:module] = orig[:mod] if orig[:mod]
+          orig[:function] = orig[:fun] if orig[:fun]
+          props[k.to_sym] = orig
+        end
+
+        %w{precommit postcommit}.each do |k|
+          if props[k.to_sym].blank?
+            props[k.to_sym] = nil
+            next
+          end
+          orig = props[k.to_sym].symbolize_keys
+          orig[:modfun] ||= {}
+          orig[:modfun][:module] = orig[:mod] if orig[:mod]
+          orig[:modfun][:function] = orig[:fun] if orig[:fun]
+          orig.delete :mod
+          orig.delete :fun
+          props[k.to_sym] = orig
+        end
+
+        RpbBucketProps.new props
       end
     end
   end
