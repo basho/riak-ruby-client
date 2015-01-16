@@ -63,7 +63,7 @@ describe Riak::BucketProperties, test_client: true, integration: true do
       subject.store
       subject.reload
 
-      expect(subject['precommit']).to eq modfun
+      expect(subject['precommit']).to eq [modfun]
     end
   end
 end
