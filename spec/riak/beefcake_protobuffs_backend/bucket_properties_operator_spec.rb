@@ -2,6 +2,7 @@ require 'spec_helper'
 Riak::Client::BeefcakeProtobuffsBackend.configured?
 
 describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
+  let(:backend_class){ Riak::Client::BeefcakeProtobuffsBackend }
   let(:backend) { instance_double('Riak::Client::BeefcakeProtobuffsBackend') }
   
   let(:protocol) do
@@ -15,15 +16,13 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   let(:bucket) do
     instance_double('Riak::Bucket').tap do |b|
       allow(b).to receive(:name).and_return(bucket_name)
+      allow(b).to receive(:is_a?).with(Riak::Bucket).and_return(true)
+      allow(b).to receive(:needs_type?).and_return(false)
     end
   end
 
-  let(:get_bucket_request) do
-    { bucket: bucket_name }
-  end
-  
-  let(:get_bucket_response) do
-    props = Riak::Client::BeefcakeProtobuffsBackend::RpbBucketProps.
+  let(:test_props) do
+    backend_class::RpbBucketProps.
       new(
           n_val: 3,
           pr: 0xffffffff - 1,
@@ -33,10 +32,17 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
           dw: 0,
           rw: 1
           )
-    Riak::Client::BeefcakeProtobuffsBackend::RpbGetBucketResp.
-      new(props: props)
   end
-    
+
+  let(:get_bucket_request) do
+    backend_class::RpbGetBucketReq.new bucket: bucket_name
+  end
+  
+  let(:get_bucket_response) do
+    backend_class::RpbGetBucketResp.
+      new(props: test_props)
+  end
+
   subject{ described_class.new backend }
 
   it 'is initialized with a backend' do
@@ -48,7 +54,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
       with(:GetBucketReq, get_bucket_request)
 
     expect(protocol).to receive(:expect).
-      with(:GetBucketResp).
+      with(:GetBucketResp,
+           backend_class::RpbGetBucketResp).
       and_return(get_bucket_response)
 
     resp = nil
@@ -57,16 +64,14 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
     expect(resp['n_val']).to eq 3
   end
 
-  # "normalization" converts from riak naming to ruby-client naming
-  # and quorums from strings into numbers
-
   describe 'quorums' do
-    it 'normalizes' do
+    it 'rubyfies' do
       expect(protocol).to receive(:write).
         with(:GetBucketReq, get_bucket_request)
 
       expect(protocol).to receive(:expect).
-        with(:GetBucketResp).
+        with(:GetBucketResp,
+             backend_class::RpbGetBucketResp).
         and_return(get_bucket_response)
 
       resp = nil
@@ -80,22 +85,54 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
       expect(resp['rw']).to eq 1
     end
 
-    it 'denormalizes'
+    it 'riakifies' do
+      expected_props = backend_class::RpbBucketProps.
+        new(
+            pr: 0xffffffff - 1,
+            r: 0xffffffff - 2,
+            w: 0xffffffff - 3,
+            pw: 0xffffffff - 4,
+            dw: 0,
+            rw: 1
+            )
+
+      set_bucket_request = backend_class::RpbSetBucketReq.new
+      set_bucket_request.bucket = bucket_name
+      set_bucket_request.props = expected_props
+
+      expect(protocol).to receive(:write).
+        with(:SetBucketReq, set_bucket_request)
+
+      expect(protocol).to receive(:expect).
+        with(:SetBucketResp)
+
+      # support both strings and symbols for quorum names
+      write_props = { 
+        pr: 'one',
+        r: :quorum,
+        w: 'all',
+        pw: :default, 
+        dw: 0,
+        rw: 1
+      }
+
+      expect{ subject.put bucket, write_props }.to_not raise_error
+    end
   end
 
   describe 'commit hooks' do
-    it 'normalizes modfuns'
-    it 'denormalizes modfuns'
+    it 'rubyfies modfuns'
+    it 'riakifies modfuns'
 
     it 'handles names'
   end
 
   describe 'modfuns' do
-    it 'normalizes'
-    it 'denormalizes'
+    it 'rubyfies'
+    it 'riakifies'
   end
 
   describe 'repl modes' do
-    it 'denormalizes symbols'
+    it 'riakifies symbols'
   end
 end

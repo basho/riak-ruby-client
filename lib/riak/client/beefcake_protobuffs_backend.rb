@@ -19,7 +19,7 @@ module Riak
           require 'riak/client/beefcake/protocol'
           require 'riak/client/beefcake/socket'
           true
-        rescue LoadError, NameError
+        rescue LoadError, NameError => e
           false
         end
       end
