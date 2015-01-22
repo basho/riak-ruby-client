@@ -132,7 +132,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   end
 
   describe 'commit hooks' do
-    it 'rubyfies modfuns and names' do
+    it 'rubyfies' do
       expect(protocol).to receive(:write).
         with(:GetBucketReq, get_bucket_request)
       
@@ -151,7 +151,37 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
 
       expect(resp['postcommit'].first).to eq 'piper'
     end
-    it 'riakifies modfuns'
+
+    it 'riakifies' do
+      modfun = backend_class::RpbModFun.new(
+                                            module: 'validate_json',
+                                            function: 'validate'
+                                            )
+      expected_props = backend_class::RpbBucketProps.
+        new(
+            precommit:  [backend_class::RpbCommitHook.
+                         new(modfun: modfun)],
+            postcommit: [backend_class::RpbCommitHook.
+                         new(name: 'piper')]
+            )
+
+      set_bucket_request = backend_class::RpbSetBucketReq.new
+      set_bucket_request.bucket = bucket_name
+      set_bucket_request.props = expected_props
+
+      expect(protocol).to receive(:write).
+        with(:SetBucketReq, set_bucket_request)
+
+      expect(protocol).to receive(:expect).
+        with(:SetBucketResp)
+
+      write_props = { 
+        precommit: { mod: 'validate_json', fun: 'validate' },
+        postcommit: ['piper']
+      }
+
+      expect{ subject.put bucket, write_props }.to_not raise_error
+    end
   end
 
   describe 'modfuns' do

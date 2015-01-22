@@ -49,6 +49,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
       props = requested_properties.stringify_keys
 
       riakify_quorums(props)
+      riakify_hooks(props)
 
       return props
     end
@@ -83,6 +84,36 @@ class Riak::Client::BeefcakeProtobuffsBackend
           }
         end
       end
+    end
+
+    def riakify_hooks(props)
+      %w{precommit postcommit}.each do |k|
+        next unless v = props[k]
+
+        if v.is_a? Array
+          props[k] = v.map{ |e| riakify_single_hook(e) }
+        else
+          props[k] = [riakify_single_hook(v)]
+        end
+      end
+    end
+
+    def riakify_single_hook(hook)
+      message = RpbCommitHook.new
+
+      if hook.is_a? String
+        message.name = hook
+      elsif hook['name']
+        message.name = hook['name']
+      else
+        h = hook.stringify_keys
+        mf = RpbModFun.new(
+                           module: h['mod'],
+                           function: h['fun']
+                           )
+        message.modfun = mf
+      end
+      return message
     end
 
     def name_options(bucket)
