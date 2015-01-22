@@ -225,6 +225,23 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   end
 
   describe 'repl modes' do
-    it 'riakifies symbols'
+    it 'riakifies symbols' do
+      expected_props = backend_class::RpbBucketProps.
+        new(repl: 2)
+
+      set_bucket_request = backend_class::RpbSetBucketReq.new
+      set_bucket_request.bucket = bucket_name
+      set_bucket_request.props = expected_props
+
+      expect(protocol).to receive(:write).
+        with(:SetBucketReq, set_bucket_request)
+
+      expect(protocol).to receive(:expect).
+        with(:SetBucketResp)
+
+      write_props = { repl: :fullsync }
+
+      expect{ subject.put bucket, write_props }.to_not raise_error
+    end
   end
 end

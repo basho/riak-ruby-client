@@ -41,12 +41,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       rubyfy_quorums(props)
       rubyfy_hooks(props)
-
-      %w{chash_keyfun linkfun}.each do |k|
-        next if props[k].nil?
-        props[k] = rubyfy_modfun(props[k])
-      end
-
+      rubyfy_modfuns(props)
+      
       return props
     end
 
@@ -55,11 +51,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       riakify_quorums(props)
       riakify_hooks(props)
-
-      %w{chash_keyfun linkfun}.each do |k|
-        next if props[k].nil?
-        props[k] = riakify_modfun(props[k])
-      end
+      riakify_modfuns(props)
+      riakify_repl_mode(props)
 
       return props
     end
@@ -118,6 +111,20 @@ class Riak::Client::BeefcakeProtobuffsBackend
       return message
     end
 
+    def rubyfy_modfuns(props)
+      %w{chash_keyfun linkfun}.each do |k|
+        next if props[k].nil?
+        props[k] = rubyfy_modfun(props[k])
+      end
+    end
+
+    def riakify_modfuns(props)
+      %w{chash_keyfun linkfun}.each do |k|
+        next if props[k].nil?
+        props[k] = riakify_modfun(props[k])
+      end
+    end
+
     def rubyfy_modfun(modfun)
       { 
         'mod' => modfun[:module],
@@ -130,6 +137,21 @@ class Riak::Client::BeefcakeProtobuffsBackend
       RpbModFun.new(module: m['mod'], function: m['fun'])
     end
 
+    def riakify_repl_mode(props)
+      return unless props['repl'].is_a? Symbol
+
+      props['repl'] = case props['repl']
+                      when :false
+                        0
+                      when :realtime
+                        1
+                      when :fullsync
+                        2
+                      when :true
+                        3
+                      end
+    end
+    
     def name_options(bucket)
       o = {}
       if bucket.is_a? Riak::Bucket
