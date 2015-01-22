@@ -73,6 +73,16 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     def rubyfy_hooks(props)
+      %w{precommit postcommit}.each do |k|
+        next unless props[k]
+        props[k] = props[k].map do |v|
+          next v[:name] if v[:name]
+          {
+            'mod' => v[:modfun][:module],
+            'fun' => v[:modfun][:function]
+          }
+        end
+      end
     end
 
     def name_options(bucket)
