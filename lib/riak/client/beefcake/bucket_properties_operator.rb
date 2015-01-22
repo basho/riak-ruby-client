@@ -42,6 +42,11 @@ class Riak::Client::BeefcakeProtobuffsBackend
       rubyfy_quorums(props)
       rubyfy_hooks(props)
 
+      %w{chash_keyfun linkfun}.each do |k|
+        next if props[k].nil?
+        props[k] = rubyfy_modfun(props[k])
+      end
+
       return props
     end
 
@@ -50,6 +55,11 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       riakify_quorums(props)
       riakify_hooks(props)
+
+      %w{chash_keyfun linkfun}.each do |k|
+        next if props[k].nil?
+        props[k] = riakify_modfun(props[k])
+      end
 
       return props
     end

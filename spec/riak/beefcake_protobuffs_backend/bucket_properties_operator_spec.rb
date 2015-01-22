@@ -32,7 +32,9 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
           dw: 0,
           rw: 1,
           precommit: precommit,
-          postcommit: backend_class::RpbCommitHook.new(name: 'piper')
+          postcommit: backend_class::RpbCommitHook.new(name: 'piper'),
+          linkfun: backend_class::RpbModFun.new(module: 'nachos',
+                                                function: 'galacticos')
           )
   end
 
@@ -54,6 +56,16 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
       new(props: test_props)
   end
 
+  let(:get_bucket_expectation) do    
+    expect(protocol).to receive(:write).
+      with(:GetBucketReq, get_bucket_request)
+    
+    expect(protocol).to receive(:expect).
+      with(:GetBucketResp,
+           backend_class::RpbGetBucketResp).
+      and_return(get_bucket_response)
+  end
+
   subject{ described_class.new backend }
 
   it 'is initialized with a backend' do
@@ -61,13 +73,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   end
 
   it 'passes through scalar properties' do
-    expect(protocol).to receive(:write).
-      with(:GetBucketReq, get_bucket_request)
-
-    expect(protocol).to receive(:expect).
-      with(:GetBucketResp,
-           backend_class::RpbGetBucketResp).
-      and_return(get_bucket_response)
+    get_bucket_expectation
 
     resp = nil
     expect{ resp = subject.get bucket }.to_not raise_error
@@ -77,13 +83,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
 
   describe 'quorums' do
     it 'rubyfies' do
-      expect(protocol).to receive(:write).
-        with(:GetBucketReq, get_bucket_request)
-
-      expect(protocol).to receive(:expect).
-        with(:GetBucketResp,
-             backend_class::RpbGetBucketResp).
-        and_return(get_bucket_response)
+      get_bucket_expectation
 
       resp = nil
       expect{ resp = subject.get bucket }.to_not raise_error
@@ -185,8 +185,43 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   end
 
   describe 'modfuns' do
-    it 'rubyfies'
-    it 'riakifies'
+    it 'rubyfies' do
+      get_bucket_expectation
+
+      resp = nil
+      expect{ resp = subject.get bucket }.to_not raise_error
+
+      expect(resp['linkfun']).to eq({
+                                           'mod' => 'nachos',
+                                           'fun' => 'galacticos'
+                                         })
+
+      expect(resp['chash_keyfun']).to_not be
+    end
+
+    it 'riakifies' do
+      expected_props = backend_class::RpbBucketProps.
+        new(
+            linkfun: backend_class::RpbModFun.new(module: 'nachos',
+                                                  function: 'galacticos')
+            )
+
+      set_bucket_request = backend_class::RpbSetBucketReq.new
+      set_bucket_request.bucket = bucket_name
+      set_bucket_request.props = expected_props
+
+      expect(protocol).to receive(:write).
+        with(:SetBucketReq, set_bucket_request)
+
+      expect(protocol).to receive(:expect).
+        with(:SetBucketResp)
+
+      write_props = { 
+        linkfun: { mod: 'nachos', fun: 'galacticos' }
+      }
+
+      expect{ subject.put bucket, write_props }.to_not raise_error
+    end
   end
 
   describe 'repl modes' do
