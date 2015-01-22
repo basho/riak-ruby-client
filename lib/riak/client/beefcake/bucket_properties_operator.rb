@@ -78,10 +78,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
         next unless props[k]
         props[k] = props[k].map do |v|
           next v[:name] if v[:name]
-          {
-            'mod' => v[:modfun][:module],
-            'fun' => v[:modfun][:function]
-          }
+          rubyfy_modfun(v[:modfun])
         end
       end
     end
@@ -106,14 +103,21 @@ class Riak::Client::BeefcakeProtobuffsBackend
       elsif hook['name']
         message.name = hook['name']
       else
-        h = hook.stringify_keys
-        mf = RpbModFun.new(
-                           module: h['mod'],
-                           function: h['fun']
-                           )
-        message.modfun = mf
+        message.modfun = riakify_modfun(hook)
       end
       return message
+    end
+
+    def rubyfy_modfun(modfun)
+      { 
+        'mod' => modfun[:module],
+        'fun' => modfun[:function]
+      }
+    end
+
+    def riakify_modfun(modfun)
+      m = modfun.stringify_keys
+      RpbModFun.new(module: m['mod'], function: m['fun'])
     end
 
     def name_options(bucket)
