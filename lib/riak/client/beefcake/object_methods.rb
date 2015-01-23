@@ -88,7 +88,7 @@ module Riak
 
         def encode_index(key, set)
           set.map do |v|
-            RpbPair.new(:key => maybe_encode(key),
+            RpbPair.new(:key => maybe_encode(key.to_s),
                         :value => maybe_encode(v.to_s))
           end
         end
