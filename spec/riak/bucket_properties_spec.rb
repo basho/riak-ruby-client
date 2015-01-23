@@ -8,6 +8,15 @@ describe Riak::BucketProperties do
       allow(client).to receive(:backend).and_yield be
     end
   end
+  
+  let(:props_operator) do
+    instance_double('Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator').
+      tap do |po|
+      allow(backend).to receive(:bucket_properties_operator).
+        and_return(po)
+    end
+  end
+
   let(:bucket) do
     instance_double('Riak::Bucket').tap do |b|
       allow(b).to receive(:client).and_return(client)
@@ -38,23 +47,23 @@ describe Riak::BucketProperties do
   end
 
   it 'provides hash-like access to properties' do
-    expect(backend).to receive(:get_bucket_props).
-      with(bucket, hash_excluding(:type)).
+    expect(props_operator).to receive(:get).
+      with(bucket).
       and_return('allow_mult' => true)
 
     expect(subject['allow_mult']).to be
 
     subject['allow_mult'] = false
 
-    expect(backend).to receive(:set_bucket_props).
-      with(bucket, hash_including('allow_mult' => false), nil)
+    expect(props_operator).to receive(:put).
+      with(bucket, hash_including('allow_mult' => false))
 
     subject.store
   end
 
   it 'merges properties from hashes' do
-    expect(backend).to receive(:get_bucket_props).
-      with(bucket, hash_excluding(:type)).
+    expect(props_operator).to receive(:get).
+      with(bucket).
       and_return('allow_mult' => true)
 
     expect(subject['allow_mult']).to be
@@ -62,15 +71,15 @@ describe Riak::BucketProperties do
     property_hash = { 'allow_mult' => false }
     expect{ subject.merge! property_hash }.to_not raise_error
     
-    expect(backend).to receive(:set_bucket_props).
-      with(bucket, hash_including('allow_mult' => false), nil)
+    expect(props_operator).to receive(:put).
+      with(bucket, hash_including('allow_mult' => false))
 
     subject.store
   end
 
   it 'merges properties from other bucket properties objects' do
-    expect(backend).to receive(:get_bucket_props).
-      with(bucket, hash_excluding(:type)).
+    expect(props_operator).to receive(:get).
+      with(bucket).
       and_return('allow_mult' => true)
 
     expect(subject['allow_mult']).to be
@@ -81,21 +90,21 @@ describe Riak::BucketProperties do
 
     expect{ subject.merge! other_props }.to_not raise_error
     
-    expect(backend).to receive(:set_bucket_props).
-      with(bucket, hash_including('allow_mult' => false), nil)
+    expect(props_operator).to receive(:put).
+      with(bucket, hash_including('allow_mult' => false))
 
     subject.store
   end
 
   it 'reloads' do
-    expect(backend).to receive(:get_bucket_props).
-      with(bucket, hash_excluding(:type)).
+    expect(props_operator).to receive(:get).
+      with(bucket).
       and_return('allow_mult' => true)
     
     expect(subject['allow_mult']).to be
 
-    expect(backend).to receive(:get_bucket_props).
-      with(bucket, hash_excluding(:type)).
+    expect(props_operator).to receive(:get).
+      with(bucket).
       and_return('allow_mult' => false)
 
     expect{ subject.reload }.to_not raise_error

@@ -24,7 +24,7 @@ module Riak
     # Write bucket properties and invalidate the cache in this object.
     def store
       client.backend do |be|
-        be.set_bucket_props bucket, cached_props, type_argument
+        be.bucket_properties_operator.put bucket, cached_props
       end
       @cached_props = nil
       return true
@@ -60,18 +60,8 @@ module Riak
     private
     def cached_props
       @cached_props ||= client.backend do |be|
-        be.get_bucket_props bucket, type_option
+        be.bucket_properties_operator.get bucket
       end
-    end
-
-    def type_argument
-      return nil unless bucket.needs_type?
-      bucket.type.name
-    end
-
-    def type_option
-      return Hash.new unless bucket.needs_type?
-      { type: bucket.type.name }
     end
   end
 end
