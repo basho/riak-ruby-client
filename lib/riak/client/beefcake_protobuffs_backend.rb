@@ -203,33 +203,11 @@ module Riak
       end
 
       def get_bucket_props(bucket, options = {  })
-        bucket = bucket.name if Bucket === bucket
-
-        req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
-        req.type = options[:type] if options[:type]
-
-        resp_message = protocol do |p|
-          p.write :GetBucketReq, req
-          p.expect :GetBucketResp, RpbGetBucketResp
-        end
-
-        resp = normalize_quorums resp_message.props.to_hash.stringify_keys
-        normalized = normalize_hooks resp
-        normalized.stringify_keys
+        bucket_properties_operator.get bucket, options
       end
 
       def set_bucket_props(bucket, props, type=nil)
-        bucket = bucket.name if Bucket === bucket
-        new_props = serialize_bucket_props props
-        req = RpbSetBucketReq.new(
-                                  bucket: maybe_encode(bucket),
-                                  props: new_props,
-                                  type: type)
-
-        protocol do |p|
-          p.write :SetBucketReq, req
-          p.expect :SetBucketResp
-        end
+        bucket_properties_operator.put bucket, props, type: type
       end
 
       def reset_bucket_props(bucket, options)
@@ -520,62 +498,6 @@ module Riak
       def force_utf8(str)
         # Search returns strings that should always be valid UTF-8
         ObjectMethods::ENCODING ? str.force_encoding('UTF-8') : str
-      end
-
-      def normalize_hooks(message)
-        message.dup.tap do |o|
-          %w{chash_keyfun linkfun}.each do |k|
-            if message[k].is_a? Hash
-              o[k] = {
-                'mod' => message[k][:module],
-                'fun' => message[k][:function],
-              }
-            else
-              o[k] = {'mod' => message[k].module, 'fun' => message[k].function}
-            end
-          end
-          %w{precommit postcommit}.each do |k|
-            orig = message[k]
-            o[k] = orig.map do |hook|
-              modfun = hook[:modfun] rescue hook.modfun
-              if modfun.is_a? Hash
-                { 'mod' => modfun[:module], 'fun' => modfun[:function]}
-              elsif modfun
-                {'mod' => modfun.module, 'fun' => modfun.function}
-              else
-                hook[:name] rescue hook.name
-              end
-            end
-          end
-        end
-      end
-
-      def serialize_bucket_props(props)
-        props = normalize_quorums props.symbolize_keys
-
-        %w{chash_keyfun linkfun}.each do |k|
-          orig = props[k.to_sym].symbolize_keys
-          next if orig.nil?
-          orig[:module] = orig[:mod] if orig[:mod]
-          orig[:function] = orig[:fun] if orig[:fun]
-          props[k.to_sym] = orig
-        end
-
-        %w{precommit postcommit}.each do |k|
-          if props[k.to_sym].blank?
-            props[k.to_sym] = nil
-            next
-          end
-          orig = props[k.to_sym].symbolize_keys
-          orig[:modfun] ||= {}
-          orig[:modfun][:module] = orig[:mod] if orig[:mod]
-          orig[:modfun][:function] = orig[:fun] if orig[:fun]
-          orig.delete :mod
-          orig.delete :fun
-          props[k.to_sym] = orig
-        end
-
-        RpbBucketProps.new props
       end
     end
   end
