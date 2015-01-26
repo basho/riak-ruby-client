@@ -127,6 +127,20 @@ counter.value # does hit Riak
 counter.increment # does hit Riak
 ```
 
+### Deleting CRDTs
+
+Riak doesn't directly support deleting a CRDT object. Instead, delete it through
+the KV interface.
+
+```ruby
+counter_robject = counter_bucket.get(key)
+counter_robject.delete
+```
+
+Deleting it this way ensures that the delete operation includes the causal
+context, which prevents non-deterministic results when the CRDT is modified
+concurrent to its deletion.
+
 ## Immediate and Batched Changes
 
 Altering CRDTs directly sends changes to Riak immediately, and refreshes the
