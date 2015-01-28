@@ -110,7 +110,7 @@ will raise a `Riak::FailedRequest` error with the `not_found?` flag set.
 
 ```ruby
 bucket['S. S. Boatname']
-bucket.get 'S.S. Boatname'
+bucket.get 'S. S. Boatname'
 ```
 
 If you want to load or create an object with a given key, you can use
