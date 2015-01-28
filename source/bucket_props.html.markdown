@@ -26,3 +26,9 @@ props.store
 New in the 2.2 version of the Ruby client is the `Riak::BucketProperties` class.
 This class provides a `Hash`-like interface to bucket properties with
 predictable semantics for when it reads and writes to Riak.
+
+The `reload` method fetches new data from Riak:
+
+```ruby
+props.reload
+```
