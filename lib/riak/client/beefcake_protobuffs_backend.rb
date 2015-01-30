@@ -20,6 +20,7 @@ module Riak
           require 'riak/client/beefcake/socket'
           true
         rescue LoadError, NameError => e
+          # put exception into a variable for debugging
           false
         end
       end
