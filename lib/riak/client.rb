@@ -368,6 +368,9 @@ module Riak
 
     # Sets the properties on a bucket. See Bucket#props=
     def set_bucket_props(bucket, properties, type=nil)
+      if bucket.needs_type? && type.nil?
+        type = bucket.type.name
+      end
       backend do |b|
         b.set_bucket_props(bucket, properties, type)
       end
