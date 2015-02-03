@@ -1,8 +1,12 @@
+# This module is used for search testing, and other testing activities that may
+# take time to "settle" in Riak.
 module WaitUntil
-  def wait_until(attempts=10)
+  def wait_until(attempts = 10)
     (0..attempts).each do |a|
-      break if yield rescue nil
-      
+      begin
+        break if yield
+      end
+
       sleep a
     end
   end
