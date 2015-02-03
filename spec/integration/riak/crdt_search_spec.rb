@@ -1,5 +1,10 @@
-describe 'CRDT Search API' do
+require 'spec_helper'
+require 'riak/search'
+
+describe 'CRDT Search API', crdt_search_config: true do
   describe 'querying maps' do
+    subject { Riak::Search::Query.new test_client, index_name, 'frijoles' }
+
     it 'finds maps' do
       expect(subject.length).to be > 0
     end
