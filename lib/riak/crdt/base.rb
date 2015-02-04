@@ -1,6 +1,5 @@
 module Riak
   module Crdt
-
     # Basic and shared code used by the top-level CRDTs. In particular, dirty-
     # tracking, loading, and operating is implemented by this class, and
     # the {Riak::Crdt::Set}, {Riak::Crdt::Counter}, and {Riak::Crdt::Map}
@@ -12,10 +11,9 @@ module Riak
       attr_reader :bucket
       attr_reader :bucket_type
 
-      # Returns the key of this CRDT. Extremely useful when using a 
+      # Returns the key of this CRDT. Extremely useful when using a
       # Riak-assigned key.
       attr_reader :key
-
 
       # Base CRDT initialization The bucket type is determined by the first of
       # these sources:
@@ -32,16 +30,10 @@ module Riak
       # @param [String] bucket_type The optional bucket type for this counter.
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:counter]`.
       # @param [Hash] options
-      def initialize(bucket, key, bucket_type, options={})
-        raise ArgumentError, t("bucket_type", bucket: bucket.inspect) unless bucket.is_a? Bucket
-
-        unless key.is_a? String or key.nil?
-          raise ArgumentError, t("string_type", string: key.inspect)
-        end
-
-        @bucket = bucket
-        @key = key
-        set_bucket_type bucket_type
+      def initialize(bucket, key, bucket_type, options = {})
+        configure_bucket bucket
+        configure_key key
+        configure_bucket_type bucket_type
         @options = options
 
         @dirty = true
@@ -50,7 +42,7 @@ module Riak
       def dirty?
         @dirty
       end
-      
+
       # Force a reload of this structure from Riak.
       def reload
         loader do |l|
@@ -66,7 +58,7 @@ module Riak
       #
       # @return [Boolean] if the set has a defined context
       def context?
-        !!@context
+        defined? @context && !@context.nil?
       end
 
       def pretty_print(pp)
@@ -90,16 +82,18 @@ module Riak
       end
 
       def inspect_name
-        "#<#{self.class.name} bucket=#{@bucket.name} key=#{@key} type=#{@bucket_type}>"
+        "#<#{self.class.name} bucket=#{@bucket.name} " \
+        "key=#{@key} type=#{@bucket_type}>"
       end
-      
+
       private
+
       def client
         @bucket.client
       end
 
       def backend(&blk)
-        client.backend &blk
+        client.backend(&blk)
       end
 
       def loader
@@ -107,7 +101,7 @@ module Riak
           yield be.crdt_loader
         end
       end
-      
+
       def operator
         backend do |be|
           yield be.crdt_operator
@@ -115,7 +109,7 @@ module Riak
       end
 
       def operate(*args)
-        options = Hash.new
+        options = {}
         options = args.pop if args.last.is_a? Hash
         options[:context] ||= @context
         result = operator do |op|
@@ -134,7 +128,7 @@ module Riak
         @dirty = true
         vivify_returnbody(result)
 
-        return true
+        true
       end
 
       def vivify_returnbody(result)
@@ -149,7 +143,7 @@ module Riak
         end
       end
 
-      def set_bucket_type(constructor_type)
+      def configure_bucket_type(constructor_type)
         @bucket_type = if constructor_type.is_a? String
                          constructor_type
                        elsif constructor_type.is_a? BucketType
@@ -159,6 +153,22 @@ module Riak
                        elsif constructor_type.is_a? Symbol
                          DEFAULT_BUCKET_TYPES[constructor_type]
                        end
+      end
+
+      def configure_bucket(bucket)
+        unless bucket.is_a? Bucket
+          fail ArgumentError, t('bucket_type', bucket: bucket.inspect)
+        end
+
+        @bucket = bucket
+      end
+
+      def configure_ley(key)
+        unless key.is_a?(String) || key.nil?
+          fail ArgumentError, t('string_type', string: key.inspect)
+        end
+
+        @key = key
       end
     end
   end
