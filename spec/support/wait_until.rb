@@ -5,6 +5,8 @@ module WaitUntil
     (0..attempts).each do |a|
       begin
         break if yield
+      rescue
+        nil
       end
 
       sleep a
