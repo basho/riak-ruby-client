@@ -58,7 +58,7 @@ module Riak
       #
       # @return [Boolean] if the set has a defined context
       def context?
-        defined? @context && !@context.nil?
+        !!@context
       end
 
       def pretty_print(pp)
