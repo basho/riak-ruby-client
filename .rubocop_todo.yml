@@ -373,12 +373,6 @@ Style/RegexpLiteral:
 Style/SelfAssignment:
   Enabled: false
 
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAsExpressionSeparator.
-Style/Semicolon:
-  Enabled: false
-
 # Offense count: 86
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -388,28 +382,6 @@ Style/SignalException:
 # Offense count: 2
 # Configuration parameters: Methods.
 Style/SingleLineBlockParams:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: AllowIfMethodIsEmpty.
-Style/SingleLineMethods:
-  Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SingleSpaceBeforeFirstArg:
-  Enabled: false
-
-# Offense count: 88
-# Cop supports --auto-correct.
-Style/SpaceAfterComma:
-  Enabled: false
-
-# Offense count: 83
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/SpaceAroundEqualsInParameterDefault:
   Enabled: false
 
 # Offense count: 76
@@ -468,21 +440,10 @@ Style/StringLiteralsInInterpolation:
 Style/SymbolProc:
   Enabled: false
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/TrailingBlankLines:
-  Enabled: false
-
 # Offense count: 4
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyleForMultiline, SupportedStyles.
 Style/TrailingComma:
-  Enabled: false
-
-# Offense count: 232
-# Cop supports --auto-correct.
-Style/TrailingWhitespace:
   Enabled: false
 
 # Offense count: 7
