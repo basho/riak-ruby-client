@@ -163,7 +163,7 @@ module Riak
         @bucket = bucket
       end
 
-      def configure_ley(key)
+      def configure_key(key)
         unless key.is_a?(String) || key.nil?
           fail ArgumentError, t('string_type', string: key.inspect)
         end
