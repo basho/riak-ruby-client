@@ -31,7 +31,7 @@ module Riak
       # @option options [String, Array, Hash] :function In the case of Javascript, a literal function in a string, or a hash with :bucket and :key. In the case of Erlang, an Array of [module, function].  For a :link phase, a hash including any of :bucket, :tag or a WalkSpec.
       # @option options [Boolean] :keep (false) whether to return the results of this phase
       # @option options [Array] :arg (nil) any extra static arguments to pass to the phase
-      def initialize(options={})
+      def initialize(options = {})
         self.type = options[:type]
         self.language = options[:language] || "javascript"
         self.function = options[:function]
@@ -70,7 +70,7 @@ module Riak
 
       # Converts the phase to its JSON-compatible representation for job invocation.
       # @return [Hash] a Hash-equivalent of the phase
-      def as_json(options=nil)
+      def as_json(options = nil)
         obj = case type
               when :map, :reduce
                 defaults = {"language" => language, "keep" => keep}

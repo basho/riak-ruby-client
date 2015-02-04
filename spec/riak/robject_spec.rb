@@ -153,7 +153,7 @@ describe Riak::RObject do
                                             "X-Riak-Last-Modified"=>"Mon, 12 Jul 2010 21:37:43 GMT",
                                             "X-Riak-Meta"=>{"X-Riak-Meta-King-Of-Robots"=>"I"},
                                             "index" => {
-                                              "email_bin" => ["sean@basho.com","seancribbs@gmail.com"],
+                                              "email_bin" => ["sean@basho.com", "seancribbs@gmail.com"],
                                               "rank_int" => 50
                                             }
                                           },
@@ -163,7 +163,7 @@ describe Riak::RObject do
                                        ]
                           }
                          ]
-      @object = Riak::RObject.load_from_mapreduce(@client,@sample_response).first
+      @object = Riak::RObject.load_from_mapreduce(@client, @sample_response).first
       expect(@object).to be_kind_of(Riak::RObject)
     end
 
@@ -274,17 +274,31 @@ describe Riak::RObject do
     end
 
     it "raises an error when the content_type is blank" do
-      expect { @object.content_type = nil; @object.store }.to raise_error(ArgumentError)
-      expect { @object.content_type = "   "; @object.store }.to raise_error(ArgumentError)
+      expect do
+        @object.content_type = nil
+        @object.store
+      end.to raise_error(ArgumentError)
+      expect do
+        @object.content_type = '   '
+        @object.store
+      end.to raise_error(ArgumentError)
     end
 
     it "raises an error when given an empty string as key" do
-      expect { @object.key = ''; @object.store }.to raise_error(ArgumentError)
+      expect do
+        @object.key = ''
+        @object.store
+      end.to raise_error(ArgumentError)
     end
 
     it "passes quorum parameters and returnbody to the backend" do
-      expect(@backend).to receive(:store_object).with(@object, :returnbody => false, :w => 3, :dw => 2).and_return(true)
-      @object.store(:returnbody => false, :w => 3, :dw => 2)
+      expect(@backend).to receive(:store_object).
+                           with(@object,
+                                returnbody: false,
+                                w: 3,
+                                dw: 2).
+                           and_return(true)
+      @object.store(returnbody: false, w: 3, dw: 2)
     end
 
     it "raises an error if the object is in conflict" do
@@ -393,7 +407,9 @@ describe Riak::RObject do
       object.raw_data = { 'a' => 7 }
       object.content_type = 'inspect/type'
       Riak::Serializers['inspect/type'] = Object.new.tap do |o|
-        def o.load(object); "serialize for inspect"; end
+        def o.load(object)
+          "serialize for inspect"
+        end
       end
 
       expect(object.inspect).to match(/serialize for inspect/)
@@ -412,13 +428,37 @@ describe Riak::RObject do
   end
 
   describe '#attempt_conflict_resolution' do
-    let(:conflicted_robject) { Riak::RObject.new(@bucket, "conflicted") { |r| r.siblings = [ Riak::RContent.new(r), Riak::RContent.new(r)] } }
+    let(:conflicted_robject) do
+      Riak::RObject.new(@bucket, "conflicted") do |r|
+        r.siblings = [ Riak::RContent.new(r), Riak::RContent.new(r)]
+      end
+    end
     let(:resolved_robject) { Riak::RObject.new(@bucket, "resolved") }
     let(:invoked_resolvers) { [] }
-    let(:resolver_1) { lambda { |r| invoked_resolvers << :resolver_1; nil } }
-    let(:resolver_2) { lambda { |r| invoked_resolvers << :resolver_2; :not_an_robject } }
-    let(:resolver_3) { lambda { |r| invoked_resolvers << :resolver_3; r } }
-    let(:resolver_4) { lambda { |r| invoked_resolvers << :resolver_4; resolved_robject } }
+    let(:resolver_1) do
+      lambda do |r|
+        invoked_resolvers << :resolver_1
+        nil
+      end
+    end
+    let(:resolver_2) do
+      lambda do |r|
+        invoked_resolvers << :resolver_2
+        :not_an_robject
+      end
+    end
+    let(:resolver_3) do
+      lambda do |r|
+        invoked_resolvers << :resolver_3
+        r
+      end
+    end
+    let(:resolver_4) do
+      lambda do |r|
+        invoked_resolvers << :resolver_4
+        resolved_robject
+      end
+    end
 
     before(:each) do
       described_class.on_conflict(&resolver_1)

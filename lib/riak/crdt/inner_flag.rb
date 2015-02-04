@@ -6,15 +6,15 @@ module Riak
     #
     # @api private
     class InnerFlag
-      def self.new(parent, value=false)
+      def self.new(parent, value = false)
         ensure_boolean value
-        
+
         return value
       end
 
       def self.update(value)
         ensure_boolean value
-        
+
         Operation::Update.new.tap do |op|
           op.value = value
           op.type = :flag

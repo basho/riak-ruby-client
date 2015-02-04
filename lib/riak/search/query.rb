@@ -3,7 +3,7 @@ require 'riak/search'
 module Riak::Search
   # A {Riak::Search::Query} wraps a Solr query for Riak Search 2.
   class Query
-    
+
     # @!attribute rows
     # @return [Numeric] the number of rows to return from the query
     attr_accessor :rows
@@ -43,7 +43,7 @@ module Riak::Search
     #   {Riak::Search::Index} instance or a {String}
     # @param [String] term the query term
     # @param [Hash] options a hash of options to quickly set attributes
-    def initialize(client, index, term, options={  })
+    def initialize(client, index, term, options = {  })
       @client = client
       validate_index index
       @term = term
@@ -63,7 +63,7 @@ module Riak::Search
     end
 
     private
-    
+
     def index_name
       return @index if @index.is_a? String
       return @index.name
@@ -95,14 +95,14 @@ module Riak::Search
       @df = %w{text}
       @op = nil
       @fl = %w{_yz_rb _yz_rk _yz_rt score}
-      
+
       @presort = nil
     end
 
     def consume_options
       @rows = @options[:rows] if @options[:rows]
       @start = @options[:start] if @options[:start]
-      
+
       @sort = @options[:sort] if @options[:sort]
       @filter = @options[:filter] if @options[:filter]
 
@@ -112,7 +112,7 @@ module Riak::Search
     end
 
     def prepare_options
-      configured_options = { 
+      configured_options = {
         rows: @rows,
         start: @start,
         sort: @sort,

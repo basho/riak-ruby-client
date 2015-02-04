@@ -1,6 +1,6 @@
 module Riak
   class Client
-    def create_search_index(name, schema=nil, n_val=nil)
+    def create_search_index(name, schema = nil, n_val = nil)
       raise ArgumentError, t("zero_length_index") if name.nil? || name.empty?
       backend do |b|
         b.create_search_index(name, schema, n_val)

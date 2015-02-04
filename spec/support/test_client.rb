@@ -7,7 +7,7 @@ module TestClient
     candidate_client = Riak::Client.new test_client_configuration
 
     live = candidate_client.ping
-    
+
     return $test_client = candidate_client if live
   end
 
@@ -31,7 +31,7 @@ module TestClient
     $test_client_configuration = config
   end
 
-  def random_bucket(name='test_client')
+  def random_bucket(name = 'test_client')
     bucket_name = [name, Time.now.to_i, random_key].join('-')
     test_client.bucket bucket_name
   end

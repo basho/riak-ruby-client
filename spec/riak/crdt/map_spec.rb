@@ -15,7 +15,7 @@ describe Riak::Crdt::Map do
   let(:backend){ double 'backend' }
   let(:client){ double 'client' }
   let(:key){ 'map' }
-  
+
   before(:each) do
     allow(client).to receive(:backend).and_yield(backend)
     allow(backend).to receive(:crdt_operator).and_return(operator)
@@ -23,9 +23,9 @@ describe Riak::Crdt::Map do
     allow(loader).to receive(:load).and_return({})
     allow(loader).to receive(:context).and_return('context')
   end
-  
+
   subject{ described_class.new bucket, key }
-  
+
   include_examples 'Map CRDT'
 
   describe 'batch mode' do
@@ -38,7 +38,7 @@ describe Riak::Crdt::Map do
         expect(type).to eq subject.bucket_type
 
         expect(operations.length).to eq 2
-        
+
         expect(operations.first).to be_a Riak::Crdt::Operation::Update
 
         expect(operations.first.value).to be_a Riak::Crdt::Operation::Update

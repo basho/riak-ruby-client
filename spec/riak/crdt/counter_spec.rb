@@ -22,14 +22,14 @@ describe Riak::Crdt::Counter do
     let(:loader){ double 'loader', get_loader_for_value: nil }
     let(:backend){ double 'backend' }
     let(:client){ double 'client' }
-    
+
     before(:each) do
       allow(bucket).to receive(:client).and_return(client)
       allow(client).to receive(:backend).and_yield(backend)
       allow(backend).to receive(:crdt_operator).and_return(operator)
       allow(backend).to receive(:crdt_loader).and_return(loader)
     end
-    
+
     include_examples 'Counter CRDT'
 
     it 'batches properly' do

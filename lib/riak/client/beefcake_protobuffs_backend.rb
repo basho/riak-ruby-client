@@ -79,7 +79,7 @@ module Riak
         return true
       end
 
-      def fetch_object(bucket, key, options={})
+      def fetch_object(bucket, key, options = {})
         options = prune_unsupported_options(:GetReq, normalize_quorums(options))
         bucket = Bucket === bucket ? bucket.name : bucket
         req = RpbGetReq.new(options.merge(:bucket => maybe_encode(bucket), :key => maybe_encode(key)))
@@ -97,7 +97,7 @@ module Riak
         load_object(resp, template)
       end
 
-      def reload_object(robject, options={})
+      def reload_object(robject, options = {})
         options = normalize_quorums(options)
         options[:bucket] = maybe_encode(robject.bucket.name)
         options[:key] = maybe_encode(robject.key)
@@ -116,7 +116,7 @@ module Riak
         load_object(resp, robject)
       end
 
-      def store_object(robject, options={})
+      def store_object(robject, options = {})
         options[:return_body] ||= options[:returnbody]
         options = normalize_quorums(options)
         if robject.prevent_stale_writes
@@ -142,7 +142,7 @@ module Riak
         load_object resp, robject
       end
 
-      def delete_object(bucket, key, options={})
+      def delete_object(bucket, key, options = {})
         bucket = Bucket === bucket ? bucket.name : bucket
         options = normalize_quorums(options)
         options[:bucket] = maybe_encode(bucket)
@@ -154,24 +154,24 @@ module Riak
           p.write :DelReq, req
           p.expect :DelResp
         end
-        
+
         return true
       end
 
-      def get_counter(bucket, key, options={})
-        bucket = bucket.name if bucket.is_a? Bucket 
+      def get_counter(bucket, key, options = {})
+        bucket = bucket.name if bucket.is_a? Bucket
 
         options = normalize_quorums(options)
         options[:bucket] = bucket
         options[:key] = key
-        
+
         request = RpbCounterGetReq.new options
-        
+
         resp = protocol do |p|
           p.write :CounterGetReq, request
           p.expect :CounterGetResp, RpbCounterGetResp, empty_body_acceptable: true
         end
-        
+
         if :empty == resp
           return 0
         end
@@ -179,7 +179,7 @@ module Riak
         return resp.value || 0
       end
 
-      def post_counter(bucket, key, amount, options={})
+      def post_counter(bucket, key, amount, options = {})
         bucket = bucket.name if bucket.is_a? Bucket
 
         options = normalize_quorums(options)
@@ -188,7 +188,7 @@ module Riak
         # TODO: raise if amount doesn't fit in sint64
         options[:amount] = amount
         options[:returnvalue] = options[:returnvalue] || options[:return_value]
-        
+
         request = RpbCounterUpdateReq.new options
 
         resp = protocol do |p|
@@ -197,7 +197,7 @@ module Riak
         end
 
         return nil if :empty == resp
-        
+
         return resp.value
       end
 
@@ -217,7 +217,7 @@ module Riak
         normalized.stringify_keys
       end
 
-      def set_bucket_props(bucket, props, type=nil)
+      def set_bucket_props(bucket, props, type = nil)
         bucket = bucket.name if Bucket === bucket
         new_props = RpbBucketProps.new(normalize_quorums(props.symbolize_keys))
         req = RpbSetBucketReq.new(
@@ -254,7 +254,7 @@ module Riak
         resp.props.to_hash
       end
 
-      def list_keys(bucket, options={}, &block)
+      def list_keys(bucket, options = {}, &block)
         bucket = bucket.name if Bucket === bucket
         req = RpbListKeysReq.new(options.merge(:bucket => maybe_encode(bucket)))
 
@@ -279,13 +279,13 @@ module Riak
       end
 
       # override the simple list_buckets
-      def list_buckets(options={}, &blk)
-        if block_given? 
+      def list_buckets(options = {}, &blk)
+        if block_given?
           return streaming_list_buckets options, &blk
         end
-        
+
         raise t("streaming_bucket_list_without_block") if options[:stream]
-        
+
         request = RpbListBucketsReq.new options
 
         resp = protocol do |p|
@@ -302,9 +302,9 @@ module Riak
       def mapred(mr, &block)
         raise MapReduceError.new(t("empty_map_reduce_query")) if mr.query.empty? && !mapred_phaseless?
         req = RpbMapRedReq.new(:request => mr.to_json, :content_type => "application/json")
-        
+
         results = MapReduce::Results.new(mr)
-        
+
         protocol do |p|
           p.write :MapRedReq, req
           while msg = p.expect(:MapRedResp, RpbMapRedResp)
@@ -316,11 +316,11 @@ module Riak
             end
           end
         end
-        
+
         block_given? || results.report
       end
 
-      def get_index(bucket, index, query, query_options={}, &block)
+      def get_index(bucket, index, query, query_options = {}, &block)
         return super unless pb_indexes?
         bucket = bucket.name if Bucket === bucket
         if Range === query
@@ -348,7 +348,7 @@ module Riak
         end
       end
 
-      def search(index, query, options={})
+      def search(index, query, options = {})
         return super unless pb_search?
         options = options.symbolize_keys
         options[:op] = options.delete(:'q.op') if options[:'q.op']
@@ -367,7 +367,7 @@ module Riak
         return ret
       end
 
-      def create_search_index(name, schema=nil, n_val=nil)
+      def create_search_index(name, schema = nil, n_val = nil)
         index = RpbYokozunaIndex.new(:name => name, :schema => schema, :n_val => n_val)
         req = RpbYokozunaIndexPutReq.new(:index => index)
 
@@ -379,7 +379,7 @@ module Riak
 
       def get_search_index(name)
         req = RpbYokozunaIndexGetReq.new(:name => name)
-        begin 
+        begin
           resp = protocol do |p|
             p.write :YokozunaIndexGetReq, req
             p.expect :YokozunaIndexGetResp, RpbYokozunaIndexGetResp, empty_body_acceptable: true
@@ -447,7 +447,7 @@ module Riak
         msglen, msgcode = header.unpack("NC")
         if msglen == 1
           case MESSAGE_CODES[msgcode]
-          when :ListBucketsResp,  
+          when :ListBucketsResp,
                :IndexResp
             []
           when :GetResp,
@@ -503,16 +503,16 @@ module Riak
           if !block_given?
             return IndexCollection.new_from_protobuf(resp)
           end
-          
+
           content = resp.keys || resp.results || []
           yield content
-          
+
           return if resp.done
         end
       rescue ProtobuffsErrorResponse => err
         if match = err.message.match(/indexes_not_supported,(\w+)/)
           old_err = err
-          err = ProtobuffsFailedRequest.new(:indexes_not_supported, 
+          err = ProtobuffsFailedRequest.new(:indexes_not_supported,
                                             t('index.wrong_backend', backend: match[1])
                                             )
         end

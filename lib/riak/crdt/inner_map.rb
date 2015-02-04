@@ -12,7 +12,7 @@ module Riak
       attr_reader :parent
 
       # @api private
-      def initialize(parent, value={})
+      def initialize(parent, value = {})
         @parent = parent
         @value = value.symbolize_keys
 

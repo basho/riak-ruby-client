@@ -5,22 +5,22 @@ shared_examples_for "Map CRDT" do
     expect(subject).to respond_to(:counters)
     expect(subject.counters).to be_an_instance_of typed_collection
   end
-  
+
   it 'contains flags' do
     expect(subject).to respond_to(:flags)
     expect(subject.counters).to be_an_instance_of typed_collection
   end
-  
+
   it 'contains maps' do
     expect(subject).to respond_to(:maps)
     expect(subject.counters).to be_an_instance_of typed_collection
   end
-  
+
   it 'contains registers' do
     expect(subject).to respond_to(:registers)
     expect(subject.counters).to be_an_instance_of typed_collection
   end
-  
+
   it 'contains sets' do
     expect(subject).to respond_to(:sets)
     expect(subject.counters).to be_an_instance_of typed_collection
@@ -35,7 +35,7 @@ shared_examples_for "Counter CRDT" do
   it 'has a value' do
     expect(subject).to respond_to :value
   end
-  
+
   it 'has an increment method' do
     expect(subject).to respond_to :increment
   end

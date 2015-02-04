@@ -15,4 +15,4 @@ class Riak::Client::BeefcakeProtobuffsBackend
       end
     end
   end
-end 
+end

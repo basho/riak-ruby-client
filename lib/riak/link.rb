@@ -52,7 +52,7 @@ module Riak
     end
 
     # @return [String] the URL (relative or absolute) of the related resource
-    def url(new_scheme=false)
+    def url(new_scheme = false)
       return @url unless @bucket
 
       if new_scheme
@@ -68,9 +68,11 @@ module Riak
       @key = unescape($1) if value =~ %r{^/buckets/[^/]+/keys/([^/]+)/?} || value =~ %r{^/[^/]+/[^/]+/([^/]+)/?}
     end
 
-    def inspect; to_s; end
+    def inspect
+      to_s
+    end
 
-    def to_s(new_scheme=false)
+    def to_s(new_scheme = false)
       %Q[<#{url(new_scheme)}>; riaktag="#{tag}"]
     end
 

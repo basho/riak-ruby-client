@@ -71,4 +71,3 @@ module Riak
     end
   end
 end
-

@@ -26,7 +26,7 @@ module Riak
         end
 
         # Perform the protobuffs request and return a deserialized CRDT.
-        def load(bucket, key, bucket_type, options={})
+        def load(bucket, key, bucket_type, options = {})
           bucket = bucket.name if bucket.is_a? ::Riak::Bucket
           fetch_args = options.merge(
                                      bucket: bucket,

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Riak::MapReduce do
-  
+
   let(:backend){ double 'Backend' }
   let(:client) do
     Riak::Client.new.tap do |c|
@@ -42,13 +42,13 @@ describe Riak::MapReduce do
     end
 
     it "adds bucket/key pairs to the inputs" do
-      mr.add("foo","bar")
-      expect(mr.inputs).to eq([["foo","bar"]])
+      mr.add("foo", "bar")
+      expect(mr.inputs).to eq([["foo", "bar"]])
     end
 
     it "adds an array containing a bucket/key pair to the inputs" do
-      mr.add(["foo","bar"])
-      expect(mr.inputs).to eq([["foo","bar"]])
+      mr.add(["foo", "bar"])
+      expect(mr.inputs).to eq([["foo", "bar"]])
     end
 
     it "adds an object to the inputs by its bucket and key" do
@@ -68,8 +68,8 @@ describe Riak::MapReduce do
     end
 
     it "adds an array containing a bucket/key/key-data triple to the inputs" do
-      mr.add(["foo","bar",1000])
-      expect(mr.inputs).to eq([["foo","bar",1000]])
+      mr.add(["foo", "bar", 1000])
+      expect(mr.inputs).to eq([["foo", "bar", 1000]])
     end
 
     it "uses a bucket name as the single input" do
@@ -104,7 +104,7 @@ describe Riak::MapReduce do
       mr.add(typed_bucket, filters)
 
       expect(mr.inputs).to eq(
-                              bucket: [typed_bucket.type.name, 
+                              bucket: [typed_bucket.type.name,
                                        typed_bucket.name],
                               key_filters: filters
                               )
@@ -145,13 +145,13 @@ describe Riak::MapReduce do
         after { Riak.url_decoding = @urldecode }
 
         it "adds bucket/key pairs to the inputs with bucket and key escaped" do
-          mr.add("[foo]","(bar)")
-          expect(mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
+          mr.add("[foo]", "(bar)")
+          expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
         end
 
         it "adds an escaped array containing a bucket/key pair to the inputs" do
-          mr.add(["[foo]","(bar)"])
-          expect(mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
+          mr.add(["[foo]", "(bar)"])
+          expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
         end
 
         it "adds an object to the inputs by its escaped bucket and key" do
@@ -162,8 +162,8 @@ describe Riak::MapReduce do
         end
 
         it "adds an escaped array containing a bucket/key/key-data triple to the inputs" do
-          mr.add(["[foo]","(bar)","[]()"])
-          expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29","[]()"]])
+          mr.add(["[foo]", "(bar)", "[]()"])
+          expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29", "[]()"]])
         end
 
         it "uses an escaped bucket name as the single input" do
@@ -179,25 +179,25 @@ describe Riak::MapReduce do
         after { Riak.url_decoding = @urldecode }
 
         it "adds bucket/key pairs to the inputs with bucket and key unescaped" do
-          mr.add("[foo]","(bar)")
-          expect(mr.inputs).to eq([["[foo]","(bar)"]])
+          mr.add("[foo]", "(bar)")
+          expect(mr.inputs).to eq([["[foo]", "(bar)"]])
         end
 
         it "adds an unescaped array containing a bucket/key pair to the inputs" do
-          mr.add(["[foo]","(bar)"])
-          expect(mr.inputs).to eq([["[foo]","(bar)"]])
+          mr.add(["[foo]", "(bar)"])
+          expect(mr.inputs).to eq([["[foo]", "(bar)"]])
         end
 
         it "adds an object to the inputs by its unescaped bucket and key" do
           bucket = Riak::Bucket.new(client, "[foo]")
           obj = Riak::RObject.new(bucket, "(bar)")
           mr.add(obj)
-          expect(mr.inputs).to eq([["[foo]","(bar)"]])
+          expect(mr.inputs).to eq([["[foo]", "(bar)"]])
         end
 
         it "adds an unescaped array containing a bucket/key/key-data triple to the inputs" do
-          mr.add(["[foo]","(bar)","[]()"])
-          expect(mr.inputs).to eq([["[foo]","(bar)","[]()"]])
+          mr.add(["[foo]", "(bar)", "[]()"])
+          expect(mr.inputs).to eq([["[foo]", "(bar)", "[]()"]])
         end
 
         it "uses an unescaped bucket name as the single input" do
@@ -214,13 +214,13 @@ describe Riak::MapReduce do
       after { Riak.escaper = @oldesc }
 
       it "adds bucket/key pairs to the inputs with bucket and key escaped" do
-        mr.add("[foo]","(bar)")
-        expect(mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
+        mr.add("[foo]", "(bar)")
+        expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
       end
 
       it "adds an escaped array containing a bucket/key pair to the inputs" do
-        mr.add(["[foo]","(bar)"])
-        expect(mr.inputs).to eq([["%5Bfoo%5D","%28bar%29"]])
+        mr.add(["[foo]", "(bar)"])
+        expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29"]])
       end
 
       it "adds an object to the inputs by its escaped bucket and key" do
@@ -231,8 +231,8 @@ describe Riak::MapReduce do
       end
 
       it "adds an escaped array containing a bucket/key/key-data triple to the inputs" do
-        mr.add(["[foo]","(bar)","[]()"])
-        expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29","[]()"]])
+        mr.add(["[foo]", "(bar)", "[]()"])
+        expect(mr.inputs).to eq([["%5Bfoo%5D", "%28bar%29", "[]()"]])
       end
 
       it "uses an escaped bucket name as the single input" do
@@ -284,7 +284,7 @@ describe Riak::MapReduce do
       end
 
       it "accepts a module/function pair" do
-        mr.send(type, ["riak","mapsomething"])
+        mr.send(type, ["riak", "mapsomething"])
         expect(mr.query.size).to eq(1)
         phase = mr.query.first
         expect(phase.function).to eq(["riak", "mapsomething"])
@@ -356,7 +356,7 @@ describe Riak::MapReduce do
     end
 
     it "emits an array of inputs when there are multiple inputs" do
-      mr.add("foo","bar",1000).add("foo","baz")
+      mr.add("foo", "bar", 1000).add("foo", "baz")
       expect(mr.to_json).to include('"inputs":[["foo","bar",1000],["foo","baz"]]')
     end
 
@@ -372,7 +372,7 @@ describe Riak::MapReduce do
 
   describe "executing the map reduce job" do
     before :each do
-      mr.map("Riak.mapValues",:keep => true)
+      mr.map("Riak.mapValues", :keep => true)
     end
 
     it "submits the query to the backend" do

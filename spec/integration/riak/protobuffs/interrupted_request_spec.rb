@@ -5,7 +5,7 @@ describe 'Protocol Buffers', test_client: true do
   describe 'interrupted requests' do
 
     let(:bucket){ random_bucket 'interrupted_requests' }
-    
+
     before do
       first = bucket.new 'first'
       first.data = 'first'
@@ -28,6 +28,6 @@ describe 'Protocol Buffers', test_client: true do
       end.to raise_error Timeout::Error
 
       expect(bucket.get('second').data).to eq 'second'
-    end    
+    end
   end
 end

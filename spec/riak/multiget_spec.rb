@@ -42,7 +42,7 @@ describe Riak::Multiget do
 
       expect(@multiget.finished?).to be_falsey
 
-      # allow fetch 
+      # allow fetch
       @slow_mtx.unlock
 
       @results = @multiget.results
@@ -70,7 +70,7 @@ describe Riak::Multiget do
     it "returns a hash of pairs to values" do
       expect(@bucket).to receive(:[]).with('key1')
       expect(@bucket).to receive(:[]).with('key2')
-      
+
       @multiget = Riak::Multiget.new(@client, @pairs)
       @multiget.fetch
       @results = @multiget.results

@@ -28,7 +28,7 @@ module SearchConfig
 
     create_index
 
-    test_client.set_bucket_props(search_bucket, 
+    test_client.set_bucket_props(search_bucket,
                                  { search_index: index_name },
                                  'yokozuna')
 

@@ -84,7 +84,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         and_return(message_str)
 
       code, payload = subject.receive
-      
+
       expect(code).to eq name
       expect(payload).to eq message_str
     end
@@ -111,7 +111,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         message_len = message_str.length
         name = :CounterGetResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
-        
+
         expect(socket).to receive(:read).
           ordered.
           with(5).
@@ -120,7 +120,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
           ordered.
           with(message_len).
           and_return(message_str)
-        
+
         payload = subject.expect name, message.class
 
         expect(payload).to eq message
@@ -149,7 +149,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         message_len = message_str.length
         name = :CounterGetResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
-        
+
         expect(socket).to receive(:read).
           ordered.
           with(5).
@@ -171,7 +171,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
         message_len = message_str.length
         name = :ErrorResp
         header = [message_len + 1, codes.index(name)].pack 'NC'
-        
+
         expect(socket).to receive(:read).
           ordered.
           with(5).

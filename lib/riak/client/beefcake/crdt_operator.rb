@@ -4,13 +4,13 @@ module Riak
   class Client
     class BeefcakeProtobuffsBackend
 
-      # Returns a new {CrdtOperator} for serializing CRDT operations into 
+      # Returns a new {CrdtOperator} for serializing CRDT operations into
       # protobuffs and sending them to a Riak cluster.
       # @api private
       def crdt_operator
         return CrdtOperator.new self
       end
-      
+
       # Serializes and writes CRDT operations from {Riak::Crdt::Operation} members
       # into protobuffs, and writes them to a Riak cluster.
       # @api private
@@ -18,13 +18,13 @@ module Riak
         include Util::Translation
 
         attr_reader :backend
-        
+
         def initialize(backend)
           @backend = backend
         end
 
         # Serializes and writes CRDT operations.
-        def operate(bucket, key, bucket_type, operation, options={})
+        def operate(bucket, key, bucket_type, operation, options = {})
           serialized = serialize(operation)
           args = {
             bucket: bucket,
@@ -63,7 +63,7 @@ module Riak
         def wrap_field_for(ops)
           "#{ops.first.type.to_s}_op".to_sym
         end
-        
+
         def serialize_group(operations)
           case operations.first.type
           when :counter
@@ -76,9 +76,9 @@ module Riak
             raise ArgumentError, t('crdt.unknown_field', symbol: operation.type.inspect)
           end
         end
-        
+
         def inner_serialize_group(operations)
-          updates, deletes = operations.partition do |op| 
+          updates, deletes = operations.partition do |op|
             op.value.is_a? Riak::Crdt::Operation::Update
           end
           serialized_updates = updates.map do |operation|
@@ -117,7 +117,7 @@ module Riak
                        type: type_symbol_to_type_enum(operation.type)
                        )
         end
-        
+
         def serialize_counter(counter_ops)
           amount = counter_ops.inject(0){|m, o| m += o.value }
           CounterOp.new(increment: amount)
@@ -163,7 +163,7 @@ module Riak
             adds.add [o.value[:add]] if o.value[:add]
             removes.merge [o.value[:remove]] if o.value[:remove]
           end
-          
+
           SetOp.new(
                     adds: adds.to_a.flatten,
                     removes: removes.to_a.flatten

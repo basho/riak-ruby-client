@@ -23,7 +23,7 @@ describe Riak::Counter, test_client: true, integration: true do
 
     5.times do
       amt = rand(10_000)
-      
+
       @counter.increment amt
       expect(@counter.value).to eq(initial + amt)
 

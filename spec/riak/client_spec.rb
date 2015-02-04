@@ -143,13 +143,19 @@ describe Riak::Client, test_client: true do
     end
 
     it "fetches bucket properties if asked" do
-      expect(@backend).to receive(:get_bucket_props) {|b| expect(b.name).to eq("foo"); {} }
+      expect(@backend).to receive(:get_bucket_props) do |b|
+        expect(b.name).to eq("foo")
+        {}
+      end
       @client.bucket("foo", :props => true)
     end
 
     it "memoizes bucket parameters" do
       @bucket = double("Bucket")
-      expect(Riak::Bucket).to receive(:new).with(@client, "baz").once.and_return(@bucket)
+      expect(Riak::Bucket).to receive(:new).
+                               with(@client, "baz").
+                               once.
+                               and_return(@bucket)
       expect(@client.bucket("baz")).to eq(@bucket)
       expect(@client.bucket("baz")).to eq(@bucket)
     end
@@ -194,14 +200,14 @@ describe Riak::Client, test_client: true do
 
   describe "when receiving errors from the backend" do
     before do
-      @client = Riak::Client.new 
+      @client = Riak::Client.new
     end
 
     it "retries on recoverable errors" do
       call_count = 0
-      
+
       begin
-        @client.backend do |b| 
+        @client.backend do |b|
           call_count += 1
           raise Riak::ProtobuffsFailedHeader
         end
@@ -214,7 +220,7 @@ describe Riak::Client, test_client: true do
     it "throws a RuntimeError if it runs out of retries" do
       error = nil
       begin
-        @client.backend do |b| 
+        @client.backend do |b|
           raise Riak::ProtobuffsFailedHeader
         end
       rescue RuntimeError => e

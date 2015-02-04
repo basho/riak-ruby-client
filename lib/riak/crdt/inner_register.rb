@@ -2,7 +2,7 @@ module Riak
   module Crdt
     class InnerRegister < String
       attr_reader :parent
-      
+
       def initialize(parent, *args, &block)
         @parent = parent
         super(*args, &block)

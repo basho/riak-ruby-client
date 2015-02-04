@@ -36,7 +36,7 @@ module Riak::Search
 
     # Attempt to create this index
     #
-    # @raise [Riak::SearchError::IndexExistsError] if an index with the given 
+    # @raise [Riak::SearchError::IndexExistsError] if an index with the given
     #   name already exists
     def create!(schema = nil, n_val = nil)
       raise Riak::SearchError::IndexExistsError.new name if exists?

@@ -16,12 +16,12 @@ module Riak
 
         # Encodes and writes a Riak-formatted message, including protocol buffer
         # payload if given.
-        # 
-        # @param [Symbol, Integer] code the symbolic or numeric code for the 
+        #
+        # @param [Symbol, Integer] code the symbolic or numeric code for the
         #   message
         # @param [Beefcake::Message, nil] message the protocol buffer message
         #   payload, or nil if the message carries no payload
-        def write(code, message=nil)
+        def write(code, message = nil)
           if code.is_a? Symbol
             code = BeefcakeMessageCodes.index code
           end
@@ -42,7 +42,7 @@ module Riak
         # @return [Array<Symbol, String>]
         def receive
           header = socket.read 5
-          
+
           raise ProtobuffsFailedHeader.new if header.nil?
           message_length, code = header.unpack 'NC'
           body_length = message_length - 1
@@ -59,7 +59,7 @@ module Riak
         # success if the payload is empty.
         #
         # @param [Symbol] code the code for the message
-        # @param [Class, nil] decoder_class the class to attempt to decode 
+        # @param [Class, nil] decoder_class the class to attempt to decode
         #   the payload with
         # @param [Hash] options
         # @option options [Boolean] :empty_body_acceptable Whether to accept
@@ -71,10 +71,10 @@ module Riak
         #   255-ErrorResp
         # @raise {ProtobuffsUnexpectedResponse} if the message from riak did
         #   not match `code`
-        def expect(code, decoder_class=nil, options={ })
+        def expect(code, decoder_class = nil, options = { })
           code = BeefcakeMessageCodes[code] unless code.is_a? Symbol
           name, body = receive
-          
+
           if name == :ErrorResp
             raise ProtobuffsErrorResponse.new RpbErrorResp.decode(body)
           end

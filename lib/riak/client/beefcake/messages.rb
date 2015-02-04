@@ -4,7 +4,7 @@ module Riak
   class Client
     # @private
     class BeefcakeProtobuffsBackend
-## Generated from riak.proto for 
+## Generated from riak.proto for
 require "beefcake"
 
 
@@ -155,7 +155,7 @@ class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-## Generated from riak_kv.proto for 
+## Generated from riak_kv.proto for
 require "beefcake"
 
 
@@ -457,7 +457,7 @@ end
 class RpbCounterGetResp
   optional :value, :sint64, 1
 end
-## Generated from riak_search.proto for 
+## Generated from riak_search.proto for
 require "beefcake"
 
 
@@ -495,7 +495,7 @@ class RpbSearchQueryResp
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-## Generated from riak_yokozuna.proto for 
+## Generated from riak_yokozuna.proto for
 require "beefcake"
 
 
@@ -573,7 +573,7 @@ end
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-## Generated from riak_dt.proto for 
+## Generated from riak_dt.proto for
 require "beefcake"
 
 

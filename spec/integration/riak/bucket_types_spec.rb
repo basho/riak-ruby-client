@@ -62,7 +62,7 @@ describe 'Bucket Types', test_client: true, integration: true do
       describe 'deletion' do
         it 'self-deletes with a bucket type' do
           expect(untyped_object).to be # ensure existence
-          
+
           expect(object.delete).to be
           expect{ object.reload }.to raise_error /not_found/
           expect(untyped_object).to be
@@ -116,7 +116,7 @@ describe 'Bucket Types', test_client: true, integration: true do
         it 'map-reduces correctly with a robject in a typed bucket' do
           expect(object).to be
           expect(untyped_object).to be
-          
+
           mapred.add object
           result = mapred.run
 
@@ -130,11 +130,11 @@ describe 'Bucket Types', test_client: true, integration: true do
       let(:bucket_type){ test_client.bucket_type 'yokozuna' }
       let(:bucket){ bucket_type.bucket random_key }
       let(:untyped_bucket){ test_client.bucket bucket.name }
-      
+
       it 'allows reading and writing bucket properties' do
         expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
         expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
-        
+
         # test setting
         expect{ bucket.props = {'last_write_wins' => true} }.to_not raise_error
 
@@ -152,7 +152,7 @@ describe 'Bucket Types', test_client: true, integration: true do
         # test clearing
         expect{ bucket.clear_props }.to_not raise_error
 
-        # make sure clearing doesn't leak to canary setting on untyped bucket 
+        # make sure clearing doesn't leak to canary setting on untyped bucket
         expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
         expect(test_client.get_bucket_props(untyped_bucket)['n_val']).to eq 1
       end

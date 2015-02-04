@@ -80,8 +80,8 @@ describe Riak::SecondaryIndex do
 
 
       @index = Riak::SecondaryIndex.new(
-                                        @bucket, 
-                                        'asdf', 
+                                        @bucket,
+                                        'asdf',
                                         'aaaa'..'zzzz',
                                         :max_results => @max_results
                                         )
@@ -115,8 +115,8 @@ describe Riak::SecondaryIndex do
 
 
       @index = Riak::SecondaryIndex.new(
-                                        @bucket, 
-                                        'asdf', 
+                                        @bucket,
+                                        'asdf',
                                         'aaaa'..'zzzz',
                                         max_results: @max_results,
                                         continuation: 'examplecontinuation'
@@ -151,8 +151,8 @@ describe Riak::SecondaryIndex do
 
 
       @index = Riak::SecondaryIndex.new(
-                                        @bucket, 
-                                        'asdf', 
+                                        @bucket,
+                                        'asdf',
                                         'aaaa'..'zzzz',
                                         :max_results => @max_results
                                         )
