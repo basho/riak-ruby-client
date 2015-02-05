@@ -147,7 +147,7 @@ describe Riak::RObject do
                             "vclock"=> "a85hYGBgzmDKBVIsCfs+fc9gSN9wlA8q/hKosDpIOAsA",
                             "values"=> [
                                         {"metadata"=>
-                                          {"Links"=>[["addresses", "A2cbUQ2KEMbeyWGtdz97LoTi1DN", "home_address"]],
+                                          {"Links"=>[%w(addresses A2cbUQ2KEMbeyWGtdz97LoTi1DN home_address)],
                                             "X-Riak-VTag"=>"5bnavU3rrubcxLI8EvFXhB",
                                             "content-type"=>"application/json",
                                             "X-Riak-Last-Modified"=>"Mon, 12 Jul 2010 21:37:43 GMT",

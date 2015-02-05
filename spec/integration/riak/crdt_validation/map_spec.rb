@@ -50,7 +50,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     end
 
     map.reload
-    expect(map.maps['map'].sets['set'].members).to eq ::Set.new(['X', 'Y'])
+    expect(map.maps['map'].sets['set'].members).to eq ::Set.new(%w(X Y))
 
     map.batch do |m|
       m.maps.delete 'map'

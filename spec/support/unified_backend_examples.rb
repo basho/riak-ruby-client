@@ -273,7 +273,7 @@ shared_examples_for "Unified backend API" do
     end
 
     it "finds keys for a range query" do
-      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(["19", "20", "21"])
+      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(%w(19 20 21))
     end
 
     it "returns an empty array for a query that does not match any keys" do

@@ -38,7 +38,7 @@ describe Riak::Bucket do
       @bucket.keys do |list|
         all_keys.concat(list)
       end
-      expect(all_keys).to eq(["bar", "baz"])
+      expect(all_keys).to eq(%w(bar baz))
     end
 
     it "fetches a fresh list of keys" do

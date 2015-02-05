@@ -8,7 +8,8 @@ describe Riak::Serializers do
       end
 
       it "deserializes #{serialized} to #{deserialized}" do
-        expect(described_class.deserialize(type, serialized)).to eq(deserialized)
+        expect(described_class.deserialize(type, serialized)).
+          to eq(deserialized)
       end
 
       it "round trips properly" do
@@ -19,11 +20,17 @@ describe Riak::Serializers do
   end
 
   it_behaves_like "a serializer", "text/plain", "a string", "a string"
-  it_behaves_like "a serializer", "application/json", { "a" => 7 }, %q|{"a":7}|
-  it_behaves_like "a serializer", "application/x-ruby-marshal", { :a => 3 }, Marshal.dump({ :a => 3 })
+  it_behaves_like "a serializer", "application/json", { "a" => 7 }, '{"a":7}'
+  it_behaves_like "a serializer",
+                  "application/x-ruby-marshal",
+                  { a: 3 },
+                  Marshal.dump({ a: 3 })
 
   described_class::YAML_MIME_TYPES.each do |mime_type|
-    it_behaves_like "a serializer", mime_type, { "a" => 7 }, YAML.dump({ "a" => 7 })
+    it_behaves_like "a serializer",
+                    mime_type,
+                    { "a" => 7 },
+                    YAML.dump({ "a" => 7 })
   end
 
   %w[ serialize deserialize ].each do |meth|
@@ -38,7 +45,8 @@ describe Riak::Serializers do
 
   describe "plain text serializer" do
     it 'calls #to_s to convert the object to a string' do
-      expect(described_class.serialize("text/plain", :a_string)).to eq("a_string")
+      expect(described_class.serialize('text/plain', :a_string)).
+        to eq('a_string')
     end
   end
 
@@ -80,11 +88,15 @@ describe Riak::Serializers do
 
     it 'can be registered' do
       described_class['application/custom-type-1'] = custom_serializer
-      expect(described_class['application/custom-type-1']).to be(custom_serializer)
+      expect(described_class['application/custom-type-1']).
+        to be(custom_serializer)
       # fail
     end
 
-    it_behaves_like "a serializer", "application/custom-type-a", "foo", "The string is: foo" do
+    it_behaves_like "a serializer",
+                    "application/custom-type-a",
+                    "foo",
+                    "The string is: foo" do
       before(:each) do
         described_class['application/custom-type-a'] = custom_serializer
       end
@@ -98,6 +110,12 @@ describe Riak::Serializers do
     end
   end
 
-  it_behaves_like "a serializer", "application/json; charset=UTF-8", { "a" => 7 }, %q|{"a":7}|
-  it_behaves_like "a serializer", "application/json ;charset=UTF-8", { "a" => 7 }, %q|{"a":7}|
+  it_behaves_like "a serializer",
+                  "application/json; charset=UTF-8",
+                  { "a" => 7 },
+                  '{"a":7}'
+  it_behaves_like "a serializer",
+                  "application/json ;charset=UTF-8",
+                  { "a" => 7 },
+                  '{"a":7}'
 end
