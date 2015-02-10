@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -38,7 +39,7 @@ work inside Riak, read <a href="http://docs.basho.com/riak/latest/dev/advanced/b
 Previous versions had much more limited support for bucket types.</p>
 
 <h2>tl;dr</h2>
-<pre><code class="highlight ruby"><span class="c1"># get some types</span>
+<pre class="highlight ruby"><code><span class="c1"># get some types</span>
 <span class="n">type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'my_cool_type'</span>
 <span class="n">counter_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'other_counters'</span>
 
@@ -63,13 +64,13 @@ Previous versions had much more limited support for bucket types.</p>
 <h2>Bucket Type Objects</h2>
 
 <p><code>Riak::BucketType</code> instances can be created from <code>Riak::Client</code> instances:</p>
-<pre><code class="highlight ruby"><span class="n">type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'my_cool_type'</span>
+<pre class="highlight ruby"><code><span class="n">type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'my_cool_type'</span>
 <span class="n">type</span><span class="p">.</span><span class="nf">is_a?</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketType</span> <span class="c1">#=&gt; true</span>
 </code></pre>
 
 <p>A type has a <code>name</code>, knows if it is the default type, and can fetch its
 properties:</p>
-<pre><code class="highlight ruby"><span class="n">type</span><span class="p">.</span><span class="nf">name</span> <span class="c1">#=&gt; 'my_cool_type'</span>
+<pre class="highlight ruby"><code><span class="n">type</span><span class="p">.</span><span class="nf">name</span> <span class="c1">#=&gt; 'my_cool_type'</span>
 <span class="n">type</span><span class="p">.</span><span class="nf">default?</span> <span class="c1">#=&gt; false</span>
 <span class="n">type</span><span class="p">.</span><span class="nf">properties</span> <span class="c1">#=&gt; {:allow_mult =&gt; true, :n_val =&gt; 1}</span>
 </code></pre>
@@ -78,7 +79,7 @@ properties:</p>
 
 <p><code>Riak::BucketTyped::Bucket</code> is a subclass of <code>Riak::Bucket</code>, with an additional
 field for what type it is.</p>
-<pre><code class="highlight ruby"><span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'homepage'</span>
+<pre class="highlight ruby"><code><span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'homepage'</span>
 <span class="n">typed_bucket</span> <span class="o">=</span> <span class="n">type</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'homepage'</span>
 
 <span class="n">bucket</span><span class="p">.</span><span class="nf">type</span> <span class="c1"># raises NoMethodError</span>
@@ -88,7 +89,7 @@ field for what type it is.</p>
 <h2>Types and Key-Value Objects</h2>
 
 <p>Key-value objects in a typed bucket are created from said bucket:</p>
-<pre><code class="highlight ruby"><span class="n">my_homepage</span> <span class="o">=</span> <span class="n">typed_bucket</span><span class="p">.</span><span class="nf">get_or_new</span> <span class="s1">'index.html'</span>
+<pre class="highlight ruby"><code><span class="n">my_homepage</span> <span class="o">=</span> <span class="n">typed_bucket</span><span class="p">.</span><span class="nf">get_or_new</span> <span class="s1">'index.html'</span>
 <span class="n">under_construction</span> <span class="o">=</span> <span class="n">typed_bucket</span><span class="p">.</span><span class="nf">new</span> <span class="s1">'under_construction.gif'</span>
 <span class="n">background_music</span> <span class="o">=</span> <span class="n">typed_bucket</span><span class="p">.</span><span class="nf">get</span> <span class="s1">'STAIRW~1.MID'</span>
 <span class="n">animated_fire</span> <span class="o">=</span> <span class="n">typed_bucket</span><span class="p">[</span><span class="s1">'fire.gif'</span><span class="p">]</span>
@@ -102,13 +103,13 @@ the default type. Some APIs, including map-reduce, are picky about bucket types
 being non-default.</p>
 
 <p><em>You will probably not need to deal with the default bucket type in this way:</em></p>
-<pre><code class="highlight ruby"><span class="n">default_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketType</span><span class="o">::</span><span class="no">DEFAULT_NAME</span>
+<pre class="highlight ruby"><code><span class="n">default_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketType</span><span class="o">::</span><span class="no">DEFAULT_NAME</span>
 <span class="n">default_type</span><span class="p">.</span><span class="nf">default?</span> <span class="c1">#=&gt; true</span>
 </code></pre>
 
 <p>For picky APIs, <code>Bucket</code> and <code>BucketTyped::Bucket</code> instances know whether
 they need to include the type:</p>
-<pre><code class="highlight ruby"><span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'coffees'</span>
+<pre class="highlight ruby"><code><span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'coffees'</span>
 <span class="n">bucket</span><span class="p">.</span><span class="nf">needs_type?</span> <span class="c1">#=&gt; false</span>
 
 <span class="n">default_typed_bucket</span> <span class="o">=</span> <span class="n">default_type</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'coffees'</span>
@@ -120,7 +121,7 @@ they need to include the type:</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:54 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -37,20 +38,20 @@ of configuration setting.</p>
 
 <p>The simplest way to connect assumes Riak is listening for Protocol Buffers on
 <code>localhost:8087</code>:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
 </code></pre>
 
 <p>If Riak is listening on a different protobuffs port:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">pb_port: </span><span class="mi">17017</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">pb_port: </span><span class="mi">17017</span>
 </code></pre>
 
 <p>Or on another machine:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">host: </span><span class="s1">'riak.example'</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">host: </span><span class="s1">'riak.example'</span>
 <span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">host: </span><span class="s1">'riak.example'</span><span class="p">,</span> <span class="ss">pb_port: </span><span class="mi">17017</span>
 </code></pre>
 
 <p>If you have multiple Riak nodes you want the client to use, you can set them up:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">nodes: </span><span class="p">[</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">nodes: </span><span class="p">[</span>
     <span class="p">{</span><span class="ss">host: </span><span class="s1">'riak1'</span><span class="p">},</span>
     <span class="p">{</span><span class="ss">host: </span><span class="s1">'riak2'</span><span class="p">,</span> <span class="ss">pb_port: </span><span class="mi">17017</span><span class="p">},</span>
     <span class="p">{</span><span class="ss">host: </span><span class="s1">'10.0.5.61'</span><span class="p">,</span> <span class="ss">pb_port: </span><span class="mi">17017</span><span class="p">}</span>
@@ -65,7 +66,7 @@ of configuration setting.</p>
 <h3>Password Authentication</h3>
 
 <p>For password-based authentication, you&rsquo;ll use something like this:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
   <span class="ss">user: </span><span class="s1">'zedo'</span><span class="p">,</span> <span class="c1"># required for all authentication, /do not/ use `username`</span>
 
   <span class="c1"># required if your Riak cluster doesn't have a system-recognized certificate</span>
@@ -79,7 +80,7 @@ of configuration setting.</p>
 
 <p>For more-secure but harder-to-administer client certificate authentication,
 configure a client certificate and key:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
   <span class="ss">user: </span><span class="s1">'zedo'</span><span class="p">,</span> <span class="c1"># required for all authentication, /do not/ use `username`</span>
 
   <span class="c1"># required if your Riak cluster doesn't have a system-recognized certificate</span>
@@ -117,7 +118,7 @@ be checked.</p>
 <p>This example validates the certificate Riak presents against a pre-distributed
 corporate CA, a pre-distributed certificate revocation list, and whatever OCSP
 endpoint is in the certificate.</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="ss">authentication: </span><span class="p">{</span>
   <span class="ss">user: </span><span class="s1">'zedo'</span><span class="p">,</span>
   <span class="ss">password: </span><span class="s1">'catnip'</span><span class="p">,</span>
   <span class="ss">ca_file: </span><span class="s1">'/etc/ssl/certs/corporate_ca.crt'</span><span class="p">,</span>
@@ -131,12 +132,12 @@ endpoint is in the certificate.</p>
 
 <p>In some cases you might want to provide a specific client ID for your instance
 of the Riak client:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">client_id: </span><span class="mi">1234567890</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span> <span class="ss">client_id: </span><span class="mi">1234567890</span>
 </code></pre>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:53 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -41,7 +42,7 @@ specific objects.</p>
 <h2>tl;dr</h2>
 
 <p>Tagging and simple querying:</p>
-<pre><code class="highlight ruby"><span class="c1"># #indexes is a hash of arrays</span>
+<pre class="highlight ruby"><code><span class="c1"># #indexes is a hash of arrays</span>
 <span class="c1"># keys are postfixed with _bin for binary/string indexes, _int for integers</span>
 <span class="c1"># values are arrays</span>
 <span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">=</span> <span class="sx">%w{lettuce tomato bacon egg chives}</span>
@@ -58,7 +59,7 @@ specific objects.</p>
 </code></pre>
 
 <p>Paginated queries:</p>
-<pre><code class="highlight ruby"><span class="n">page_1</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'lettuce'</span><span class="p">,</span> <span class="ss">max_results: </span><span class="mi">5</span>
+<pre class="highlight ruby"><code><span class="n">page_1</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'lettuce'</span><span class="p">,</span> <span class="ss">max_results: </span><span class="mi">5</span>
 <span class="n">page_1</span><span class="p">.</span><span class="nf">length</span> <span class="c1">#=&gt; 5</span>
 <span class="n">page_1</span><span class="p">.</span><span class="nf">continuation</span> <span class="c1">#=&gt; "g2gCbQAAA="</span>
 
@@ -76,7 +77,7 @@ must be a set of the appropriate index members. One object can have multiple
 keys in the same index.</p>
 
 <p>Indexes are not saved until the entire object is stored.</p>
-<pre><code class="highlight ruby"><span class="c1"># allow finding this salad by any of its ingredients</span>
+<pre class="highlight ruby"><code><span class="c1"># allow finding this salad by any of its ingredients</span>
 <span class="n">cobb_salad</span><span class="p">.</span><span class="nf">indexes</span><span class="p">[</span><span class="s1">'ingredients_bin'</span><span class="p">]</span> <span class="o">=</span> <span class="sx">%w{lettuce tomato bacon egg chives}</span>
 
 <span class="c1"># allow finding this salad by how many calories it has per serving</span>
@@ -90,7 +91,7 @@ keys in the same index.</p>
 
 <p>The <code>indexes</code> hash is actually on the <code>RContent</code> object. You can merge or
 otherwise process conflicting indexes during <a href="kv.html#toc-content-and-conflict">conflict resolution:</a></p>
-<pre><code class="highlight ruby"><span class="k">if</span> <span class="n">salad</span><span class="p">.</span><span class="nf">conflict?</span>
+<pre class="highlight ruby"><code><span class="k">if</span> <span class="n">salad</span><span class="p">.</span><span class="nf">conflict?</span>
   <span class="n">salad</span><span class="p">.</span><span class="nf">siblings</span><span class="p">.</span><span class="nf">inject</span> <span class="k">do</span> <span class="o">|</span><span class="n">merged_salad</span><span class="p">,</span> <span class="n">current_salad</span><span class="o">|</span>
     <span class="c1"># merging the salad data is left as an exercise for the reader</span>
 
@@ -118,7 +119,7 @@ complex your needs are.</p>
 extra accessors and methods for results.</p>
 
 <p>You can query for a scalar or a range, of either integers or strings:</p>
-<pre><code class="highlight ruby"><span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
+<pre class="highlight ruby"><code><span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">200</span><span class="p">.</span><span class="nf">.</span><span class="mi">240</span>
 
 <span class="n">c</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">get_index</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomato'</span>
@@ -144,7 +145,7 @@ pages</li>
 <li>query (scalar or range)</li>
 <li>options hash (optional)</li>
 </ul>
-<pre><code class="highlight ruby"><span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
+<pre class="highlight ruby"><code><span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">220</span>
 <span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'calories_int'</span><span class="p">,</span> <span class="mi">200</span><span class="p">.</span><span class="nf">.</span><span class="mi">240</span>
 
 <span class="n">q</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ingredients_bin'</span><span class="p">,</span> <span class="s1">'tomato'</span>
@@ -166,7 +167,7 @@ results</li>
 
 <p>Simply ask a <code>SecondaryIndex</code> instance for keys and it will return an
 <code>IndexCollection</code>:</p>
-<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="c1">#=&gt; an IndexCollection</span>
+<pre class="highlight ruby"><code><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="c1">#=&gt; an IndexCollection</span>
 </code></pre>
 
 <p>The collection is memoized; the first time it&rsquo;s requested will round-trip to
@@ -174,7 +175,7 @@ Riak, after that it&rsquo;s cached.</p>
 
 <p>If you want to materialize those keys into values, invoking the <code>#values</code>
 method will perform a multi-threaded multi-get to load them for you:</p>
-<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">values</span> <span class="c1">#=&gt; an Array of RObjects</span>
+<pre class="highlight ruby"><code><span class="n">q</span><span class="p">.</span><span class="nf">values</span> <span class="c1">#=&gt; an Array of RObjects</span>
 </code></pre>
 
 <h4>Streaming Keys</h4>
@@ -186,7 +187,7 @@ chunks of results as they become available.</p>
 
 <p>Pass a block to the <code>keys</code> method during its first invocation to perform a
 streaming query:</p>
-<pre><code class="highlight ruby"><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
+<pre class="highlight ruby"><code><span class="n">q</span><span class="p">.</span><span class="nf">keys</span> <span class="k">do</span> <span class="o">|</span><span class="n">key</span><span class="o">|</span>
   <span class="nb">puts</span> <span class="s2">"The key is </span><span class="si">#{</span><span class="n">key</span><span class="si">}</span><span class="s2">"</span>
 <span class="k">end</span>
 </code></pre>
@@ -195,7 +196,7 @@ streaming query:</p>
 
 <p>When a next page is available, calling the <code>next_page</code> method on a
 <code>SecondaryIndex</code> instance will return a new instance for the next page.</p>
-<pre><code class="highlight ruby"><span class="n">page_1</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span>
+<pre class="highlight ruby"><code><span class="n">page_1</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">SecondaryIndex</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">bucket</span><span class="p">,</span>
                                   <span class="s1">'ingredients_bin'</span><span class="p">,</span>
                                   <span class="s1">'lettuce'</span><span class="p">,</span>
                                   <span class="ss">max_results: </span><span class="mi">5</span><span class="p">)</span>
@@ -221,7 +222,7 @@ requiring a full key load.</li>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:53 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

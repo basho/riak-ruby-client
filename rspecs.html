@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -75,7 +76,7 @@ and test away.</p>
 <p>Configuring the Riak node the tests connect to is done via the
 <code>spec/support/test_client.yml</code> file, which is loaded into a Ruby hash with
 symbolized keys, and passed to <code>Riak::Client.new</code>.</p>
-<pre><code class="highlight yaml"><span class="c1"># test_client.yml</span>
+<pre class="highlight yaml"><code><span class="c1"># test_client.yml</span>
 <span class="s">pb_port</span><span class="pi">:</span> <span class="s">10017</span>
 <span class="c1"># UNCOMMENT AUTHENTICATION SECTION WHEN RIAK HAS SECURITY ENABLED</span>
 <span class="c1"># authentication:</span>
@@ -97,7 +98,7 @@ search.</li>
 </ul>
 
 <p>The following bucket types are used during testing:</p>
-<pre><code class="highlight shell">riak-admin bucket-type create counters <span class="s1">'{"props":{"datatype":"counter", "allow_mult":true}}'</span>
+<pre class="highlight shell"><code>riak-admin bucket-type create counters <span class="s1">'{"props":{"datatype":"counter", "allow_mult":true}}'</span>
 riak-admin bucket-type create other_counters <span class="s1">'{"props":{"datatype":"counter", "allow_mult":true}}'</span>
 riak-admin bucket-type create maps <span class="s1">'{"props":{"datatype":"map", "allow_mult":true}}'</span>
 riak-admin bucket-type create sets <span class="s1">'{"props":{"datatype":"set", "allow_mult":true}}'</span>
@@ -113,7 +114,7 @@ riak-admin bucket-type activate yokozuna
 <p>Client tests run both with and without security enabled, as we have to test
 several positive and negative paths. The tests broadly depend on these users
 and roles:</p>
-<pre><code class="highlight shell">riak-admin security add-user user <span class="nv">password</span><span class="o">=</span>password
+<pre class="highlight shell"><code>riak-admin security add-user user <span class="nv">password</span><span class="o">=</span>password
 riak-admin security add-user certuser
 
 riak-admin security add-source user 0.0.0.0/0 password
@@ -128,7 +129,7 @@ search.admin,search.query,riak_kv.mapreduce on any to user
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:54 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

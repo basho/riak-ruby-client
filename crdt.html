@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -38,7 +39,7 @@ and should also be enjoyable.</p>
 <h2>tl;dr</h2>
 
 <p>These examples assume you have bucket types named <code>counters</code>, <code>maps</code>, and <code>sets</code>.</p>
-<pre><code class="highlight ruby"><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span>
+<pre class="highlight ruby"><code><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span>
 <span class="n">counter</span><span class="p">.</span><span class="nf">value</span> <span class="c1">#=&gt; 15</span>
 <span class="n">counter</span><span class="p">.</span><span class="nf">increment</span>
 <span class="n">counter</span><span class="p">.</span><span class="nf">value</span> <span class="c1">#=&gt; 16</span>
@@ -72,7 +73,7 @@ check out the <a href="http://docs.basho.com/riak/latest/dev/using/data-types/#S
 <p>The Ruby client comes pre-configured with default bucket types for the three
 top-level CRDTs: <code>counters</code>, <code>maps</code>, and  <code>sets</code>. These can be viewed and
 changed in the <code>Riak::Crdt::DEFAULT_BUCKET_TYPES</code> hash:</p>
-<pre><code class="highlight ruby"><span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">DEFAULT_BUCKET_TYPES</span><span class="p">[</span><span class="ss">:set</span><span class="p">]</span> <span class="c1">#=&gt; "sets"</span>
+<pre class="highlight ruby"><code><span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">DEFAULT_BUCKET_TYPES</span><span class="p">[</span><span class="ss">:set</span><span class="p">]</span> <span class="c1">#=&gt; "sets"</span>
 
 <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">DEFAULT_BUCKET_TYPES</span><span class="p">[</span><span class="ss">:set</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"a_cooler_set"</span>
 </code></pre>
@@ -81,7 +82,7 @@ changed in the <code>Riak::Crdt::DEFAULT_BUCKET_TYPES</code> hash:</p>
 constructors accepts a <code>String</code> that&rsquo;s a bucket type name, or in 2.2 and newer
 clients, a <code>Riak::BucketType</code> instance. Additionally, if the first argument is
 a <code>BucketTyped::Bucket</code>, it&rsquo;ll grab the type from that:</p>
-<pre><code class="highlight ruby"><span class="n">other_counters_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'other_counters'</span>
+<pre class="highlight ruby"><code><span class="n">other_counters_type</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="s1">'other_counters'</span>
 <span class="n">typed_bucket</span> <span class="o">=</span> <span class="n">other_counters</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'cool_counters'</span>
 
 <span class="n">untyped_bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'cool_counters'</span>
@@ -102,20 +103,20 @@ contents.</p>
 
 <p>Creating CRDTs is easy: pass the appropriate constructor a bucket and key, and
 it&rsquo;ll use the default bucket type from the hash described above:</p>
-<pre><code class="highlight ruby"><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span>
+<pre class="highlight ruby"><code><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span>
 <span class="n">map</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Map</span><span class="p">.</span><span class="nf">new</span> <span class="n">map_bucket</span><span class="p">,</span> <span class="n">key</span>
 <span class="n">set</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Set</span><span class="p">.</span><span class="nf">new</span> <span class="n">set_bucket</span><span class="p">,</span> <span class="n">key</span>
 </code></pre>
 
 <p>You can create CRDT instances with a specific bucket type if you don&rsquo;t want the
 default:</p>
-<pre><code class="highlight ruby"><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s1">'counter_bucket_type'</span>
+<pre class="highlight ruby"><code><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s1">'counter_bucket_type'</span>
 <span class="n">map</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Map</span><span class="p">.</span><span class="nf">new</span> <span class="n">map_bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s1">'map_bucket_type'</span>
 <span class="n">set</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Set</span><span class="p">.</span><span class="nf">new</span> <span class="n">set_bucket</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="s1">'set_bucket_type'</span>
 </code></pre>
 
 <p>If you want a Riak-assigned key, pass in <code>nil</code> for the key:</p>
-<pre><code class="highlight ruby"><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="kp">nil</span>
+<pre class="highlight ruby"><code><span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="kp">nil</span>
 <span class="n">map</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Map</span><span class="p">.</span><span class="nf">new</span> <span class="n">map_bucket</span><span class="p">,</span> <span class="kp">nil</span>
 <span class="n">set</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Set</span><span class="p">.</span><span class="nf">new</span> <span class="n">set_bucket</span><span class="p">,</span> <span class="kp">nil</span>
 
@@ -131,18 +132,30 @@ default:</p>
 
 <p>CRDT instances don&rsquo;t necessarily fetch their value on creation; they attempt to
 load it on demand though:</p>
-<pre><code class="highlight ruby"><span class="c1"># doesn't hit Riak</span>
+<pre class="highlight ruby"><code><span class="c1"># doesn't hit Riak</span>
 <span class="n">counter</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="n">key</span>
 
 <span class="n">counter</span><span class="p">.</span><span class="nf">value</span> <span class="c1"># does hit Riak</span>
 <span class="n">counter</span><span class="p">.</span><span class="nf">increment</span> <span class="c1"># does hit Riak</span>
 </code></pre>
 
+<h3>Deleting CRDTs</h3>
+
+<p>Riak doesn&rsquo;t directly support deleting a CRDT object. Instead, delete it through
+the KV interface.</p>
+<pre class="highlight ruby"><code><span class="n">counter_robject</span> <span class="o">=</span> <span class="n">counter_bucket</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="n">counter_robject</span><span class="p">.</span><span class="nf">delete</span>
+</code></pre>
+
+<p>Deleting it this way ensures that the delete operation includes the causal
+context, which prevents non-deterministic results when the CRDT is modified
+concurrent to its deletion.</p>
+
 <h2>Immediate and Batched Changes</h2>
 
 <p>Altering CRDTs directly sends changes to Riak immediately, and refreshes the
 local copy as part of the update:</p>
-<pre><code class="highlight ruby"><span class="n">c1</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ctr'</span>
+<pre class="highlight ruby"><code><span class="n">c1</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ctr'</span>
 <span class="n">c2</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span><span class="p">,</span> <span class="s1">'ctr'</span>
 
 <span class="n">c1</span><span class="p">.</span><span class="nf">value</span> <span class="c1">#=&gt; 5</span>
@@ -160,7 +173,7 @@ local copy as part of the update:</p>
 
 <p>When doing multiple changes to a CRDT in quick succession, it will be faster
 to batch them up into a single write.</p>
-<pre><code class="highlight ruby"><span class="n">map</span><span class="p">.</span><span class="nf">batch</span> <span class="k">do</span> <span class="o">|</span><span class="n">m</span><span class="o">|</span>
+<pre class="highlight ruby"><code><span class="n">map</span><span class="p">.</span><span class="nf">batch</span> <span class="k">do</span> <span class="o">|</span><span class="n">m</span><span class="o">|</span>
   <span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">[</span><span class="s1">'hits'</span><span class="p">].</span><span class="nf">increment</span>
   <span class="n">m</span><span class="p">.</span><span class="nf">sets</span><span class="p">[</span><span class="s1">'followers'</span><span class="p">].</span><span class="nf">add</span> <span class="s1">'basho_elevator'</span>
 <span class="k">end</span>
@@ -177,7 +190,7 @@ have incremented. If you do retry a counter increment, it may be incremented
 once or more than once.</p>
 
 <p>Counters suport incrementing and decrementing:</p>
-<pre><code class="highlight ruby"><span class="c1"># note the `nil` key below: we're using a Riak assigned key</span>
+<pre class="highlight ruby"><code><span class="c1"># note the `nil` key below: we're using a Riak assigned key</span>
 <span class="n">c</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Counter</span><span class="p">.</span><span class="nf">new</span> <span class="n">counter_bucket</span><span class="p">,</span> <span class="kp">nil</span>
 
 <span class="n">c</span><span class="p">.</span><span class="nf">value</span> <span class="c1">#=&gt; 0</span>
@@ -198,7 +211,7 @@ once or more than once.</p>
 <p><strong>PROTIP:</strong> Ruby&rsquo;s standard library and the Riak client both have classes named
 <code>Set</code>, and the Riak client uses the Ruby version copiously. Be careful to refer
 to the Ruby version as <code>::Set</code> and the Riak client version as <code>Riak::Crdt::Set</code>.</p>
-<pre><code class="highlight ruby"><span class="n">s</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Set</span><span class="p">.</span><span class="nf">new</span> <span class="n">set_bucket</span><span class="p">,</span> <span class="kp">nil</span>
+<pre class="highlight ruby"><code><span class="n">s</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Crdt</span><span class="o">::</span><span class="no">Set</span><span class="p">.</span><span class="nf">new</span> <span class="n">set_bucket</span><span class="p">,</span> <span class="kp">nil</span>
 
 <span class="c1"># Riak::Crdt::Set#members returns a ::Set instance</span>
 <span class="n">set</span><span class="p">.</span><span class="nf">members</span> <span class="c1">#=&gt; #&lt;Set: {}&gt;</span>
@@ -250,7 +263,7 @@ feel free to store maps in maps in maps.</p>
 API work.</p>
 
 <p>Flags and registers let you assign their values directly:</p>
-<pre><code class="highlight ruby"><span class="n">m</span><span class="p">.</span><span class="nf">flags</span><span class="p">[</span><span class="s1">'yes'</span><span class="p">]</span> <span class="o">=</span> <span class="kp">true</span>
+<pre class="highlight ruby"><code><span class="n">m</span><span class="p">.</span><span class="nf">flags</span><span class="p">[</span><span class="s1">'yes'</span><span class="p">]</span> <span class="o">=</span> <span class="kp">true</span>
 <span class="n">m</span><span class="p">.</span><span class="nf">flags</span><span class="p">[</span><span class="s1">'no'</span><span class="p">]</span> <span class="o">=</span> <span class="kp">false</span>
 
 <span class="n">m</span><span class="p">.</span><span class="nf">registers</span><span class="p">[</span><span class="s1">'singular'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'potato'</span>
@@ -258,7 +271,7 @@ API work.</p>
 </code></pre>
 
 <p>Counters, maps, and sets have the same API as their top-level types:</p>
-<pre><code class="highlight ruby"><span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">[</span><span class="s1">'emacs'</span><span class="p">].</span><span class="nf">increment</span>
+<pre class="highlight ruby"><code><span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">[</span><span class="s1">'emacs'</span><span class="p">].</span><span class="nf">increment</span>
 <span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">[</span><span class="s1">'emacs'</span><span class="p">].</span><span class="nf">value</span> <span class="c1">#=&gt; 1</span>
 
 <span class="n">m</span><span class="p">.</span><span class="nf">maps</span><span class="p">[</span><span class="s1">'racks'</span><span class="p">].</span><span class="nf">sets</span><span class="p">[</span><span class="s1">'snacks'</span><span class="p">].</span><span class="nf">add</span> <span class="s1">'scooby snacks'</span>
@@ -269,7 +282,7 @@ API work.</p>
 <h3>Deleting Map Contents</h3>
 
 <p>Map entries can be deleted from their collection:</p>
-<pre><code class="highlight ruby"><span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">.</span><span class="nf">delete</span> <span class="s1">'emacs'</span>
+<pre class="highlight ruby"><code><span class="n">m</span><span class="p">.</span><span class="nf">counters</span><span class="p">.</span><span class="nf">delete</span> <span class="s1">'emacs'</span>
 <span class="n">m</span><span class="p">.</span><span class="nf">maps</span><span class="p">.</span><span class="nf">delete</span> <span class="s1">'racks'</span>
 <span class="n">m</span><span class="p">.</span><span class="nf">sets</span><span class="p">.</span><span class="nf">delete</span> <span class="s1">'garage'</span>
 </code></pre>
@@ -283,7 +296,7 @@ CRDT API.</p>
 
 <p>Counter records are automatically persisted on increment or decrement. The
 initial default value is 0.</p>
-<pre><code class="highlight ruby"><span class="c1"># Firstly, ensure that your bucket is allow_mult set to true</span>
+<pre class="highlight ruby"><code><span class="c1"># Firstly, ensure that your bucket is allow_mult set to true</span>
 <span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s2">"counters"</span>
 <span class="n">bucket</span><span class="p">.</span><span class="nf">allow_mult</span> <span class="o">=</span> <span class="kp">true</span>
 
@@ -319,7 +332,7 @@ initial default value is 0.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:53 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -50,11 +51,11 @@ when it works.</p>
 dependencies.</p>
 
 <p>First, add the dependency declaration to your <code>Gemfile</code>:</p>
-<pre><code class="highlight ruby"><span class="n">gem</span> <span class="s1">'riak-client'</span><span class="p">,</span> <span class="s1">'~&gt; 2.0.0'</span>
+<pre class="highlight ruby"><code><span class="n">gem</span> <span class="s1">'riak-client'</span><span class="p">,</span> <span class="s1">'~&gt; 2.0.0'</span>
 </code></pre>
 
 <p>Next, run the <code>bundle</code> command to install a version of the gem:</p>
-<pre><code class="highlight shell"><span class="gp">$ </span>bundle
+<pre class="highlight shell"><code><span class="gp">$ </span>bundle
 </code></pre>
 
 <h2>Updating</h2>
@@ -63,14 +64,14 @@ dependencies.</p>
 example, this declaration uses the &ldquo;pessimistic version constraint&rdquo; to
 specify that versions 2.0.1, 2.0.2, etc. are valid, but not 2.1.0 or
 3.0.0:</p>
-<pre><code class="highlight ruby"><span class="n">gem</span> <span class="s1">'riak-client'</span><span class="p">,</span> <span class="s1">'~&gt; 2.0.0'</span>
+<pre class="highlight ruby"><code><span class="n">gem</span> <span class="s1">'riak-client'</span><span class="p">,</span> <span class="s1">'~&gt; 2.0.0'</span>
 </code></pre>
 
 <p>Visit the Rubygems documentation for <a href="http://guides.rubygems.org/patterns/#declaring-dependencies">more information about dependency
 declarations.</a></p>
 
 <p>To actually install an updated version:</p>
-<pre><code class="highlight shell"><span class="gp">$ </span>bundle update riak-client
+<pre class="highlight shell"><code><span class="gp">$ </span>bundle update riak-client
 </code></pre>
 
 <p>The Riak Ruby Client use <a href="http://semver.org">semantic versioning</a>. 2.0.0 included
@@ -81,16 +82,16 @@ bug fixes.</p>
 
 <p>Development dependencies are handled with bundler. Install bundler
 (<code>gem install bundler</code>) and run this command to get started:</p>
-<pre><code class="highlight shell"><span class="gp">$ </span>bundle install
+<pre class="highlight shell"><code><span class="gp">$ </span>bundle install
 </code></pre>
 
 <p>Run the RSpec suite using <code>bundle exec</code>:</p>
-<pre><code class="highlight shell"><span class="gp">$ </span>bundle <span class="nb">exec </span>rake
+<pre class="highlight shell"><code><span class="gp">$ </span>bundle <span class="nb">exec </span>rake
 </code></pre>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:53 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>

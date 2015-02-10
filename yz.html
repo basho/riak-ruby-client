@@ -18,6 +18,7 @@
 <li><a href="2i.html">Secondary Indexes</a></li>
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
+<li><a href="bucket_props.html">Bucket Properties</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -40,7 +41,7 @@ querying, and <code>riak-core</code> for distributing and sharding indexes.</p>
 <h2>tl;dr</h2>
 
 <p>This documentation assumes you have a <code>yokozuna</code> bucket type defined.</p>
-<pre><code class="highlight ruby"><span class="nb">require</span> <span class="s1">'riak'</span>
+<pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'riak'</span>
 <span class="n">client</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
 <span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'pizzas'</span>
 
@@ -74,17 +75,17 @@ results = client.search &#39;index_name&#39;, &#39;search query&#39;
 </code></p>
 
 <p>You can use normal <a href="https://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Lucene query syntax</a> for searching:</p>
-<pre><code class="highlight ruby"><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"name_s:Lion*"</span><span class="p">)</span>
+<pre class="highlight ruby"><code><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"name_s:Lion*"</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"age_i:[30 TO *]"</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"leader_b:true AND age_i:[30 TO *]"</span><span class="p">)</span>
 </code></pre>
 
 <p>The search method takes several optional parameters too:</p>
-<pre><code class="highlight ruby"><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"Olive"</span><span class="p">,</span> <span class="p">{</span><span class="ss">sort: </span><span class="s2">"age_i asc"</span><span class="p">,</span> <span class="ss">rows: </span><span class="mi">1</span><span class="p">,</span> <span class="ss">df: </span><span class="s1">'dog_ss'</span><span class="p">})</span>
+<pre class="highlight ruby"><code><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"Olive"</span><span class="p">,</span> <span class="p">{</span><span class="ss">sort: </span><span class="s2">"age_i asc"</span><span class="p">,</span> <span class="ss">rows: </span><span class="mi">1</span><span class="p">,</span> <span class="ss">df: </span><span class="s1">'dog_ss'</span><span class="p">})</span>
 </code></pre>
 
 <p>The results object returned from the search has useful information:</p>
-<pre><code class="highlight ruby"><span class="n">results</span><span class="p">[</span><span class="s1">'numFound'</span><span class="p">]</span> <span class="c1">#=&gt; number of results found</span>
+<pre class="highlight ruby"><code><span class="n">results</span><span class="p">[</span><span class="s1">'numFound'</span><span class="p">]</span> <span class="c1">#=&gt; number of results found</span>
 <span class="n">results</span><span class="p">[</span><span class="s1">'docs'</span><span class="p">]</span> <span class="c1">#=&gt; array of results</span>
 
 <span class="n">doc</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">'docs'</span><span class="p">].</span><span class="nf">first</span>
@@ -96,7 +97,7 @@ results = client.search &#39;index_name&#39;, &#39;search query&#39;
 
 <p>Indexes are what actually connects search terms to documents. They can be created,
 attached to buckets, and inspected from the Ruby client:</p>
-<pre><code class="highlight ruby"><span class="c1"># Creating an index requires the name, and can specify a schema, and an</span>
+<pre class="highlight ruby"><code><span class="c1"># Creating an index requires the name, and can specify a schema, and an</span>
 <span class="c1"># n-value for index replication too.</span>
 <span class="n">client</span><span class="p">.</span><span class="nf">create_search_index</span> <span class="s1">'index_name'</span>
 <span class="n">client</span><span class="p">.</span><span class="nf">create_search_index</span> <span class="s1">'index_name'</span><span class="p">,</span> <span class="s1">'schema_name'</span><span class="p">,</span> <span class="n">n_value</span>
@@ -114,7 +115,7 @@ attached to buckets, and inspected from the Ruby client:</p>
 
 <p>Schemas explain to Solr how fields should be indexed. They can be created and
 read with the Ruby client:</p>
-<pre><code class="highlight ruby"><span class="n">schema_content</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">read</span> <span class="s1">'schema.xml'</span>
+<pre class="highlight ruby"><code><span class="n">schema_content</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">read</span> <span class="s1">'schema.xml'</span>
 <span class="n">client</span><span class="p">.</span><span class="nf">create_search_schema</span> <span class="s1">'schema_for_cool_cats'</span><span class="p">,</span> <span class="n">schema_content</span>
 
 <span class="n">schema_response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">get_search_schema</span> <span class="s1">'schema_for_cool_cats'</span>
@@ -124,7 +125,7 @@ read with the Ruby client:</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2014-11-21 22:26:54 UTC from repo version 44037a8a01c74eeace60384c5fffa726e17acf32.
+Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
 </footer>
 </body>
 </html>
