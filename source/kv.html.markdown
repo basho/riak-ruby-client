@@ -113,7 +113,7 @@ will raise a `Riak::FailedRequest` error with the `not_found?` flag set.
 
 ```ruby
 bucket['S. S. Boatname']
-bucket.get 'S.S. Boatname'
+bucket.get 'S. S. Boatname'
 ```
 
 If you want to load or create an object with a given key, you can use
@@ -121,6 +121,42 @@ If you want to load or create an object with a given key, you can use
 
 ```ruby
 bucket.get_or_new 'Revenge of Boatname'
+```
+
+#### Loading Many Objects
+
+Sometimes, you need to load a lot of objects in preparation for aggregation or
+another operation. The multi-get functionality allows you to use a nested
+`Array` of `[Bucket, String<key>]` identifiers ("pairs") to load objects using
+multiple worker threads.
+
+The array of pairs should be structured like this:
+
+```ruby
+pairs = [
+    [bucket, 'S. S. Boatname'],
+    [bucket, 'Son of Boatname'],
+    [bucket, 'Revenge of Boatname'],
+]
+```
+
+The `Riak::Client#get_many` and `Riak::Multiget.get_all` class
+methods simply return the hash of pair to `RObject` instances:
+
+```ruby
+# equivalent
+results = client.get_many pairs
+results = Riak::Multiget.get_all client, pairs
+```
+
+If you want to kick off a multiget operation and perform some other operations
+while it proceeds, use an instance of the `Riak::Multiget` class.
+
+```ruby
+mg = Riak::Multiget.new client, pairs
+mg.fetch
+puts "Loading... Please wait..."
+results = mg.results
 ```
 
 ### Manipulating and Storing Objects
