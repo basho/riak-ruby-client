@@ -53,6 +53,9 @@ object.reload
 
 # reload an object without the vclock
 object.reload :force => true
+
+# delete an object
+object.delete
 ```
 
 ## Objects
@@ -169,6 +172,30 @@ method. For an example, note how the `TextPlain` and `ApplicationJSON`
 serializers are written and configured in the [`Riak::Serializer` module.][1]
 
 [1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34
+
+### Deleting Objects
+
+Objects can be deleted two different ways: the `delete` method on `RObject`
+instances, or the `delete` method on `Bucket` instances.
+
+Deleting a `RObject` you have already fetched is easy. After the `delete` method
+returns, the instance will still have its data, but be frozen to prevent
+further changes.
+
+```ruby
+robject.delete
+```
+
+Deleting from the `Bucket` without providing a `vclock` or causal context can
+cause issues if the object is updated and deleted at about the same time:
+
+```ruby
+# delete the object with key 'Son of Boatname' without any causal context
+bucket.delete 'Son of Boatname'
+
+# delete the object with key 'Son of Boatname' with causal context
+bucket.delete 'Son of Boatname', vclock: 'a85hYGBgzGDKBVIcypz/fpZz1XzPYEpkzGNluD1P4xxfFgA='
+```
 
 ## Content and Conflict
 
