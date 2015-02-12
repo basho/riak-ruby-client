@@ -16,86 +16,117 @@ This document covers using Riak Search 2.0 with the Ruby client. See the full
 
 This documentation assumes you have a `yokozuna` bucket type defined.
 
-``` ruby
+```ruby
 require 'riak'
 client = Riak::Client.new
-bucket = client.bucket 'pizzas'
+bucket = client.bucket_type('yokozuna').bucket('pizzas')
 
 # Create an index
-client.create_search_index 'pizzas'
+index = Riak::Search::Index.new client, 'pizzas'
+index.exists? #=> false
+index.create!
+
 # Add the new index to a typed bucket. Setting the index on the bucket
 # may fail until the index creation has propagated.
-client.set_bucket_props bucket, {search_index: 'pizzas'}, 'yokozuna'
+props = Riak::BucketProperties.new bucket
+props['search_index'] = index.name
+props.store
 
 # Store records
 meat = bucket.new 'meat'
 meat.data = {toppings_ss: %w{pepperoni ham sausage}}
-meat.store type: 'yokozuna'
+meat.store
 
 hawaiian = bucket.new 'hawaiian'
 hawaiian.data = {toppings_ss: %w{ham pineapple}}
-hawaiian.store type: 'yokozuna'
+hawaiian.store
 
 # Search the pizzas index for hashes that have a "ham" entry in the
 # toppings_ss array
-result = client.search('pizzas', 'toppings_ss:ham') # Returns a results hash
-result['num_found'] # total number of results
-result['docs']      # the list of indexed documents
+query = Riak::Search::Query.new client, index, 'toppings_ss:ham'
+query.rows = 5
+result = query.results
+result.num_found           # total number of results
+result.length              # total number returned, can be less than num_found
+result.docs.first          # metadata about the search result
+result.docs.first['score'] # result score
+result.first               # the first found RObject
+```
+
+## Indexes
+
+Indexes connect search terms to documents. They can be created,
+attached to buckets, and inspected from the Ruby client:
+
+```ruby
+existing_index = Riak::Search::Index.new client, 'existing_index'
+
+existing_index.exists? #=> true
+existing_index.create! # raises Riak::SearchError::IndexExistsError
+
+new_index = Riak::Search::Index.new client, 'a_cool_new_index'
+
+new_index.exists? #=> false
+
+# Creating an index can only be done once
+new_index.create! #=> true
+new_index.create! # raises Riak::Search::IndexExistsError
+
+# Creating an index allows you to specify the schema and n-value for replication
+fancy_index = Riak::Search::Index.new client, 'fancy_index_for_fancy_documents'
+fancy_index.create! 'schema_name', n_value
+
+# Indexes have accessors:
+fancy_index.n_val #=> 3
+fancy_index.schema #=> 'schema_name'
+```
+
+
+### Indexes and Buckets
+
+Riak objects aren't indexed by default.  You can set a bucket's properties to
+index objects on write.
+
+```ruby
+props = Riak::BucketProperties.new bucket
+props['search_index'] = 'index_name'
+props.store
 ```
 
 ## Queries and Results
 
 The Ruby client allows searching on an index level:
 ```ruby
-results = client.search 'index_name', 'search query'
+query = Riak::Search::Query.new client, index, 'search query'
+results = query.results
 ```
 
 You can use normal [Lucene query syntax][1] for searching:
 
 ```ruby
-results = client.search("famous", "name_s:Lion*")
-results = client.search("famous", "age_i:[30 TO *]")
-results = client.search("famous", "leader_b:true AND age_i:[30 TO *]")
+query = Riak::Search::Query.new(client, 'famous', "name_s:Lion*")
+query = Riak::Search::Query.new(client, 'famous', "age_i:[30 TO *]")
+query = Riak::Search::Query.new(client, 'famous', "leader_b:true AND age_i:[30 TO *]")
 ```
 
-The search method takes several optional parameters too:
+Queries have optional parameters too:
 
 ```ruby
-results = client.search('famous', "Olive", {sort: "age_i asc", rows: 1, df: 'dog_ss'})
+query.sort = 'age_i asc'
+query.rows = 1
+query.df = 'dog_ss'
 ```
 
 The results object returned from the search has useful information:
 
 ```ruby
-results['numFound'] #=> number of results found
-results['docs'] #=> array of results
+results.num_found #=> number of results found
+results.docs      #=> array of ResultDocument instances with result metadata
 
-doc = results['docs'].first
-doc['_yz_rb'] #=> bucket of document
-doc['_yz_rk'] #=> key of document
+robject = results.first
 ```
 
 [1]: https://lucene.apache.org/core/3_6_0/queryparsersyntax.html
-
-## Indexes
-
-Indexes are what actually connects search terms to documents. They can be created,
-attached to buckets, and inspected from the Ruby client:
-
-```ruby
-# Creating an index requires the name, and can specify a schema, and an
-# n-value for index replication too.
-client.create_search_index 'index_name'
-client.create_search_index 'index_name', 'schema_name', n_value
-
-idx = client.get_search_index 'index_name'
-# idx is an index object, with name, schema, and n_val accessors
-
-client.get_search_index 'not_an_index' # raises Riak::ProtobuffsFailedRequest
-
-# Attach the index_name to writes to bucket with the yokozuna bucket type.
-client.set_bucket_props bucket, {search_index: 'index_name'}, 'yokozuna'
-```
 
 ## Schemas
 
@@ -104,9 +135,18 @@ read with the Ruby client:
 
 ```ruby
 schema_content = File.read 'schema.xml'
-client.create_search_schema 'schema_for_cool_cats', schema_content
+schema = Riak::Search::Schema.new client, 'schema_for_cool_cats'
+schema.exists? #=> false
+schema.content = schema_content
+schema.create!
 
-schema_response = client.get_search_schema 'schema_for_cool_cats'
-schema_response.name #=> "schema_for_cool_cats"
-schema_response.content #=> "<?xml version..."
+other_schema = Riak::Search::Schema.new client, 'some_other_schema'
+
+other_schema.name #=> "some_other_schema"
+other_schema.content #=> "<?xml version..."
+
+other_schema.exists? #=> true
+other_schema.create! # raises Riak::SearchError::SchemaExistsError
 ```
+
+Just like indexes, schemas can only be created once per cluster.
