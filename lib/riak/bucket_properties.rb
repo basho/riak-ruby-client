@@ -30,7 +30,7 @@ module Riak
       return true
     end
 
-    # Take bucket properties from a given {Hash} or {Riak::BucketProperties} 
+    # Take bucket properties from a given {Hash} or {Riak::BucketProperties}
     # object.
     # @param [Hash<String, Object>, Riak::BucketProperties] other
     def merge!(other)
@@ -54,6 +54,7 @@ module Riak
     # @param [String] property_name
     # @param [Object] value
     def []=(property_name, value)
+      value = unwrap_index(value) if property_name == 'search_index'
       cached_props[property_name.to_s] = value
     end
 
@@ -62,6 +63,12 @@ module Riak
       @cached_props ||= client.backend do |be|
         be.bucket_properties_operator.get bucket
       end
+    end
+
+    def unwrap_index(value)
+      return value.name if value.is_a? Riak::Search::Index
+
+      value
     end
   end
 end
