@@ -17,6 +17,7 @@ require 'riak/bucket'
 require 'riak/bucket_type'
 require 'riak/multiget'
 require 'riak/secondary_index'
+require 'riak/search'
 require 'riak/stamp'
 require 'riak/list_buckets'
 
