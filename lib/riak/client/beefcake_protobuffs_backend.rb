@@ -13,12 +13,14 @@ module Riak
           require 'riak/client/beefcake/messages'
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
+          require 'riak/client/beefcake/bucket_properties_operator'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
           require 'riak/client/beefcake/protocol'
           require 'riak/client/beefcake/socket'
           true
-        rescue LoadError, NameError
+        rescue LoadError, NameError => e
+          # put exception into a variable for debugging
           false
         end
       end
@@ -202,33 +204,11 @@ module Riak
       end
 
       def get_bucket_props(bucket, options = {  })
-        bucket = bucket.name if Bucket === bucket
-
-        req = RpbGetBucketReq.new(:bucket => maybe_encode(bucket))
-        req.type = options[:type] if options[:type]
-
-        resp_message = protocol do |p|
-          p.write :GetBucketReq, req
-          p.expect :GetBucketResp, RpbGetBucketResp
-        end
-
-        resp = normalize_quorums resp_message.props.to_hash.stringify_keys
-        normalized = normalize_hooks resp
-        normalized.stringify_keys
+        bucket_properties_operator.get bucket, options
       end
 
       def set_bucket_props(bucket, props, type=nil)
-        bucket = bucket.name if Bucket === bucket
-        new_props = RpbBucketProps.new(normalize_quorums(props.symbolize_keys))
-        req = RpbSetBucketReq.new(
-                                  bucket: maybe_encode(bucket),
-                                  props: new_props,
-                                  type: type)
-
-        protocol do |p|
-          p.write :SetBucketReq, req
-          p.expect :SetBucketResp
-        end
+        bucket_properties_operator.put bucket, props, type: type
       end
 
       def reset_bucket_props(bucket, options)
@@ -527,24 +507,6 @@ module Riak
       def force_utf8(str)
         # Search returns strings that should always be valid UTF-8
         ObjectMethods::ENCODING ? str.force_encoding('UTF-8') : str
-      end
-
-      def normalize_hooks(message)
-        message.dup.tap do |o|
-          %w{chash_keyfun linkfun}.each do |k|
-            o[k] = {'mod' => message[k].module, 'fun' => message[k].function}
-          end
-          %w{precommit postcommit}.each do |k|
-            orig = message[k]
-            o[k] = orig.map do |hook|
-              if hook.modfun
-                {'mod' => hook.modfun.module, 'fun' => hook.modfun.function}
-              else
-                hook.name
-              end
-            end
-          end
-        end
       end
     end
   end
