@@ -6,7 +6,7 @@ describe 'CRDT Search API', crdt_search_config: true do
     subject { Riak::Search::Query.new test_client, index, 'frijoles' }
 
     it 'finds maps' do
-      expect(subject.length).to be > 0
+      expect(subject.results.length).to be > 0
     end
 
     it 'provides access to maps through the #map accessor' do
@@ -25,9 +25,12 @@ describe 'CRDT Search API', crdt_search_config: true do
     end
 
     it 'raises typeerrors on the set, counter, and robject accessors' do
-      expect{ subject.docs.first.robject }.to raise_error Riak::SearchError::UnexpectedResultError
-      expect{ subject.docs.first.counter }.to raise_error Riak::SearchError::UnexpectedResultError
-      expect{ subject.docs.first.set }.to raise_error Riak::SearchError::UnexpectedResultError
+      expect{ subject.docs.first.robject }.
+        to raise_error Riak::SearchError::UnexpectedResultError
+      expect{ subject.docs.first.counter }.
+        to raise_error Riak::SearchError::UnexpectedResultError
+      expect{ subject.docs.first.set }.
+        to raise_error Riak::SearchError::UnexpectedResultError
     end
   end
 
