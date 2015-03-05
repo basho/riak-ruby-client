@@ -13,7 +13,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
       @backend = backend
     end
 
-    def get(bucket, options={})
+    def get(bucket, options = {})
       response = backend.protocol do |p|
         p.write :GetBucketReq, get_request(bucket, options)
         p.expect :GetBucketResp, RpbGetBucketResp
@@ -24,11 +24,11 @@ class Riak::Client::BeefcakeProtobuffsBackend
       return rubyfy(properties)
     end
 
-    def put(bucket, props={}, options={})
+    def put(bucket, props = {}, options = {})
       properties = riakify props
 
       request = put_request bucket, properties, options
-      
+
       backend.protocol do |p|
         p.write :SetBucketReq, request
         p.expect :SetBucketResp
@@ -42,7 +42,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
       rubyfy_quorums(props)
       rubyfy_hooks(props)
       rubyfy_modfuns(props)
-      
+
       return props
     end
 
@@ -126,7 +126,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     def rubyfy_modfun(modfun)
-      { 
+      {
         'mod' => modfun[:module],
         'fun' => modfun[:function]
       }
@@ -151,16 +151,16 @@ class Riak::Client::BeefcakeProtobuffsBackend
                         3
                       end
     end
-    
+
     def name_options(bucket)
       o = {}
       if bucket.is_a? Riak::Bucket
-        o[:bucket] = bucket.name 
+        o[:bucket] = bucket.name
         o[:type] = bucket.type.name if bucket.needs_type?
       else
         o[:bucket] = bucket
       end
-      
+
       return o
     end
 

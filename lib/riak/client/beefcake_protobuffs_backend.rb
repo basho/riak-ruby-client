@@ -207,7 +207,7 @@ module Riak
         bucket_properties_operator.get bucket, options
       end
 
-      def set_bucket_props(bucket, props, type=nil)
+      def set_bucket_props(bucket, props, type = nil)
         bucket_properties_operator.put bucket, props, type: type
       end
 

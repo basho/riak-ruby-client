@@ -60,7 +60,7 @@ module Riak::Search
     # @param [String] term the query term
     # @param [Hash] options a hash of options to set attributes on the query
     # @return [Riak::Search::Query] a query using this index
-    def query(term, options={  })
+    def query(term, options = {  })
       Riak::Search::Query.new(@client, self, term, options)
     end
 

@@ -30,7 +30,7 @@ module Riak
       return true
     end
 
-    # Take bucket properties from a given {Hash} or {Riak::BucketProperties} 
+    # Take bucket properties from a given {Hash} or {Riak::BucketProperties}
     # object.
     # @param [Hash<String, Object>, Riak::BucketProperties] other
     def merge!(other)

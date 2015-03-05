@@ -8,7 +8,7 @@ describe Riak::BucketProperties do
       allow(client).to receive(:backend).and_yield be
     end
   end
-  
+
   let(:props_operator) do
     instance_double('Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator').
       tap do |po|
@@ -70,7 +70,7 @@ describe Riak::BucketProperties do
 
     property_hash = { 'allow_mult' => false }
     expect{ subject.merge! property_hash }.to_not raise_error
-    
+
     expect(props_operator).to receive(:put).
       with(bucket, hash_including('allow_mult' => false))
 
@@ -89,7 +89,7 @@ describe Riak::BucketProperties do
       instance_variable_set :@cached_props, { 'allow_mult' => false}
 
     expect{ subject.merge! other_props }.to_not raise_error
-    
+
     expect(props_operator).to receive(:put).
       with(bucket, hash_including('allow_mult' => false))
 
@@ -100,7 +100,7 @@ describe Riak::BucketProperties do
     expect(props_operator).to receive(:get).
       with(bucket).
       and_return('allow_mult' => true)
-    
+
     expect(subject['allow_mult']).to be
 
     expect(props_operator).to receive(:get).
