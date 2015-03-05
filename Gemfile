@@ -15,3 +15,5 @@ end
 platforms :jruby, :rbx do
   gem 'json'
 end
+
+gem 'beefcake', '1.1.0.pre1'

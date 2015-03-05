@@ -6,8 +6,13 @@ module Riak::Search
   # bucket or bucket type property must be configured to use the index in order
   # for new and updated documents to be indexed and searchable.
   class Index
+    # @!attribute [r] name
     # @return [String] the name of the index
     attr_reader :name
+
+    # @!attribute [r] client
+    # @return [Riak::Client] the client to operate on the index with
+    attr_reader :client
 
     # Initializes an index object, that may or may not exist.
     #
@@ -48,6 +53,15 @@ module Riak::Search
       @index_data = nil
 
       true
+    end
+
+    # Create a {Riak::Search::Query} using this index and client
+    #
+    # @param [String] term the query term
+    # @param [Hash] options a hash of options to set attributes on the query
+    # @return [Riak::Search::Query] a query using this index
+    def query(term, options={  })
+      Riak::Search::Query.new(@client, self, term, options)
     end
 
     private

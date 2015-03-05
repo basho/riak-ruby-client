@@ -50,8 +50,18 @@ describe Riak::Search::Index do
   it 'raises an error when creating an index that already exists' do
     index_exists_expectation
 
-    expect{ subject.create! }.to raise_error(Riak::SearchError::IndexExistsError)
+    expect{ subject.create! }.
+      to raise_error(Riak::SearchError::IndexExistsError)
   end
+
+    it "spawns a query" do
+      t = "some query term"
+      expect(subject).to receive(:exists?).and_return(true)
+      expect(query = subject.query(t)).to be_a Riak::Search::Query
+      expect(query.term).to eq t
+      expect(query.index).to eq subject
+      expect(query.client).to eq subject.client
+    end
 
   it 'returns data about the index' do
     index_exists_expectation

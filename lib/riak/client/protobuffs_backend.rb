@@ -15,6 +15,14 @@ module Riak
 
       MESSAGE_CODES = BeefcakeMessageCodes
 
+      UINTMAX = 0xffffffff
+      QUORUMS = {
+        "one" => UINTMAX - 1,
+        "quorum" => UINTMAX - 2,
+        "all" => UINTMAX - 3,
+        "default" => UINTMAX - 4
+      }.freeze
+
       def self.simple(method, code)
         define_method method do
           socket.write([1, MESSAGE_CODES.index(code)].pack('NC'))
@@ -92,14 +100,6 @@ module Riak
         @socket.close if @socket && !@socket.closed?
         @socket = nil
       end
-
-      UINTMAX = 0xffffffff
-      QUORUMS = {
-        "one" => UINTMAX - 1,
-        "quorum" => UINTMAX - 2,
-        "all" => UINTMAX - 3,
-        "default" => UINTMAX - 4
-      }.freeze
 
       def prune_unsupported_options(req, options = {})
         unless quorum_controls?

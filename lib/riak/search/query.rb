@@ -36,6 +36,14 @@ module Riak::Search
     # @return [String] the term to query
     attr_reader :term
 
+    # @!attribute [r] index
+    # @return [Riak::Search::Index] the index to query against
+    attr_reader :index
+
+    # @!attribute [r] client
+    # @return [Riak::Client] the client to query against
+    attr_reader :client
+
     # Initializes a query object.
     #
     # @param [Riak::Client] client the client connected to the Riak cluster
