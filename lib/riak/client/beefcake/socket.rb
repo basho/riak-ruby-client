@@ -12,7 +12,7 @@ module Riak
         include Client::BeefcakeMessageCodes
         # Only create class methods, don't initialize
         class << self
-          def new(host, port, options={})
+          def new(host, port, options = {})
             return start_tcp_socket(host, port) if options[:authentication].blank?
             return start_tls_socket(host, port, options[:authentication])
           end
@@ -217,7 +217,7 @@ module Riak
 
             # Write a protocol buffers message to whatever the current
             # socket is.
-            def write_message(code, message='')
+            def write_message(code, message = '')
               if code.is_a? Symbol
                 code = BeefcakeMessageCodes.index code
               end

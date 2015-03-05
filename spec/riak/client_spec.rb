@@ -26,15 +26,16 @@ describe Riak::Client, test_client: true do
     end
 
     it "creates a client ID if not specified" do
-      expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).client_id).not_to be_nil
+      expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).
+              client_id).to_not be_nil
     end
 
     it "accepts multiple nodes" do
-      client = Riak::Client.new :nodes => [
-                                           {:host => 'riak1.basho.com'},
-                                           {:host => 'riak2.basho.com', :pb_port => 1234},
-                                           {:host => 'riak3.basho.com', :pb_port => 5678}
-                                          ]
+      client = Riak::Client.new nodes: [
+                                  {host: 'riak1.basho.com'},
+                                  {host: 'riak2.basho.com', pb_port: 1234},
+                                  {host: 'riak3.basho.com', pb_port: 5678}
+                                ]
       expect(client.nodes.size).to eq(3)
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
@@ -64,11 +65,15 @@ describe Riak::Client, test_client: true do
       end
 
       it "rejects an integer equal to the maximum client id" do
-        expect { @client.client_id = Riak::Client::MAX_CLIENT_ID }.to raise_error(ArgumentError)
+        expect do
+          @client.client_id = Riak::Client::MAX_CLIENT_ID
+          end.to raise_error(ArgumentError)
       end
 
       it "rejects an integer larger than the maximum client id" do
-        expect { @client.client_id = Riak::Client::MAX_CLIENT_ID + 1 }.to raise_error(ArgumentError)
+        expect do
+          @client.client_id = Riak::Client::MAX_CLIENT_ID + 1
+        end.to raise_error(ArgumentError)
       end
     end
   end
@@ -91,8 +96,11 @@ describe Riak::Client, test_client: true do
     end
 
     it "raises an error when the chosen backend is not valid" do
-      expect(Riak::Client::BeefcakeProtobuffsBackend).to receive(:configured?).and_return(false)
-      expect { @client.protobuffs { |x| } }.to raise_error Riak::BackendCreationError
+      expect(Riak::Client::BeefcakeProtobuffsBackend).to receive(:configured?).
+                                                          and_return(false)
+      expect do
+        @client.protobuffs { |x| }
+      end.to raise_error Riak::BackendCreationError
     end
   end
 
@@ -112,8 +120,12 @@ describe Riak::Client, test_client: true do
     before :each do
       @client = Riak::Client.new
       @bucket = @client.bucket('foo')
-      expect(@bucket).to receive(:[]).with('value1').and_return(double('robject'))
-      expect(@bucket).to receive(:[]).with('value2').and_return(double('robject'))
+      expect(@bucket).to receive(:[]).
+                          with('value1').
+                          and_return(double('robject'))
+      expect(@bucket).to receive(:[]).
+                          with('value2').
+                          and_return(double('robject'))
       @pairs = [
                 [@bucket, 'value1'],
                 [@bucket, 'value2']
@@ -143,13 +155,19 @@ describe Riak::Client, test_client: true do
     end
 
     it "fetches bucket properties if asked" do
-      expect(@backend).to receive(:get_bucket_props) {|b| expect(b.name).to eq("foo"); {} }
+      expect(@backend).to receive(:get_bucket_props) do |b|
+        expect(b.name).to eq("foo")
+        {}
+      end
       @client.bucket("foo", :props => true)
     end
 
     it "memoizes bucket parameters" do
       @bucket = double("Bucket")
-      expect(Riak::Bucket).to receive(:new).with(@client, "baz").once.and_return(@bucket)
+      expect(Riak::Bucket).to receive(:new).
+                               with(@client, "baz").
+                               once.
+                               and_return(@bucket)
       expect(@client.bucket("baz")).to eq(@bucket)
       expect(@client.bucket("baz")).to eq(@bucket)
     end
@@ -194,14 +212,14 @@ describe Riak::Client, test_client: true do
 
   describe "when receiving errors from the backend" do
     before do
-      @client = Riak::Client.new 
+      @client = Riak::Client.new
     end
 
     it "retries on recoverable errors" do
       call_count = 0
-      
+
       begin
-        @client.backend do |b| 
+        @client.backend do |b|
           call_count += 1
           raise Riak::ProtobuffsFailedHeader
         end
@@ -214,7 +232,7 @@ describe Riak::Client, test_client: true do
     it "throws a RuntimeError if it runs out of retries" do
       error = nil
       begin
-        @client.backend do |b| 
+        @client.backend do |b|
           raise Riak::ProtobuffsFailedHeader
         end
       rescue RuntimeError => e

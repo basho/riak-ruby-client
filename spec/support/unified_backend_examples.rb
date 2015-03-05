@@ -45,7 +45,7 @@ shared_examples_for "Unified backend API" do
       expect(@exception).to be_not_found
     end
 
-    [1,2,3,:one,:quorum,:all,:default].each do |q|
+    [1, 2, 3, :one, :quorum, :all, :default].each do |q|
       it "accepts a R value of #{q.inspect} for the request" do
         robj = @backend.fetch_object(@bucket.name, "fetch", :r => q)
         expect(robj).to be_kind_of(Riak::RObject)
@@ -82,7 +82,7 @@ shared_examples_for "Unified backend API" do
       @backend.reload_object(@robject)
     end
 
-    [1,2,3,:one,:quorum,:all,:default].each do |q|
+    [1, 2, 3, :one, :quorum, :all, :default].each do |q|
       it "accepts a valid R value of #{q.inspect} for the request" do
         @backend.reload_object(@robject, :r => q)
       end
@@ -117,7 +117,7 @@ shared_examples_for "Unified backend API" do
       expect(@robject.vclock).to be_present
     end
 
-    [1,2,3,:one,:quorum,:all,:default].each do |q|
+    [1, 2, 3, :one, :quorum, :all, :default].each do |q|
       it "accepts a W value of #{q.inspect} for the request" do
         @backend.store_object(@robject, :returnbody => false, :w => q)
         expect(@bucket.exists?(@robject.key)).to be_truthy
@@ -158,7 +158,7 @@ shared_examples_for "Unified backend API" do
       expect(@obj.bucket.exists?("delete")).to be_falsey
     end
 
-    [1,2,3,:one,:quorum,:all,:default].each do |q|
+    [1, 2, 3, :one, :quorum, :all, :default].each do |q|
       it "accepts an RW value of #{q.inspect} for the request" do
         @backend.delete_object("test", "delete", :rw => q)
       end
@@ -273,7 +273,7 @@ shared_examples_for "Unified backend API" do
     end
 
     it "finds keys for a range query" do
-      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(["19","20", "21"])
+      expect(@backend.get_index('test', 'index_int', 19..21)).to match_array(%w(19 20 21))
     end
 
     it "returns an empty array for a query that does not match any keys" do

@@ -4,7 +4,7 @@ module Riak
     # Riak all at once.
     class BatchMap
       attr_reader :counters, :flags, :maps, :registers, :sets
-      
+
       # @api private
       def initialize(parent)
         @parent = parent
@@ -27,7 +27,7 @@ module Riak
           end
         end
       end
-      
+
       private
       def initialize_collections
         @counters = @parent.counters.reparent self

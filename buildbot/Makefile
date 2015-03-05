@@ -36,6 +36,7 @@ compile:
 
 lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
+	@cd ..; bin/rubocop lib spec
 
 test: test-normal test-security
 

@@ -1,7 +1,7 @@
 module Riak::Search
 
   # A single document from a Riak Search 2 response. Materializes the document
-  # fields into {Riak::BucketType}, {Riak::Bucket}, and {Riak::RObject} 
+  # fields into {Riak::BucketType}, {Riak::Bucket}, and {Riak::RObject}
   # instances on demand.
   class ResultDocument
     # @return [Riak::Client]

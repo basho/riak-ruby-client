@@ -2,16 +2,16 @@ require 'riak/bucket'
 require 'riak/bucket_type'
 
 module Riak
-  
+
   # Container module for subclasses of objects with bucket type data attached.
   # Currently only used for {BucketTyped::Bucket}.
   module BucketTyped
-  
+
     # A bucket that has a {BucketType} attached to it. Normally created using
     # the {BucketType#bucket} method. Inherits most of its behavior from the
     # {Riak::Bucket} class.
     class Bucket < Riak::Bucket
-      
+
       # @return [BucketType] the bucket type used with this bucket
       attr_reader :type
 
@@ -37,7 +37,7 @@ module Riak
       # @option options [Fixnum] :r - the read quorum for the request - how many nodes should concur on the read
       # @return [Riak::RObject] the object
       # @raise [FailedRequest] if the object is not found or some other error occurs
-      def get(key, options={  })
+      def get(key, options = {  })
         super key, o(options)
       end
       alias :[] :get
@@ -49,7 +49,7 @@ module Riak
       #   delete
       # @option options [String] :vclock - the vector clock of the
       #   object being deleted
-      def delete(key, options={  })
+      def delete(key, options = {  })
         super key, o(options)
       end
 
@@ -61,7 +61,7 @@ module Riak
       # @return [Array<String>] Keys in this bucket
       # @note This operation has serious performance implications and
       #    should not be used in production applications.
-      def keys(options={  }, &block)
+      def keys(options = {  }, &block)
         super o(options), &block
       end
 

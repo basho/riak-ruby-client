@@ -38,7 +38,7 @@ describe Riak::Bucket do
       @bucket.keys do |list|
         all_keys.concat(list)
       end
-      expect(all_keys).to eq(["bar", "baz"])
+      expect(all_keys).to eq(%w(bar baz))
     end
 
     it "fetches a fresh list of keys" do
@@ -66,7 +66,7 @@ describe Riak::Bucket do
   describe "accessing a counter" do
     it "returns a counter object" do
       expect(Riak::Counter).to receive(:new).with(@bucket, 'asdf').and_return('example counter')
-      
+
       new_counter = @bucket.counter 'asdf'
 
       expect(new_counter).to eq('example counter')
@@ -146,7 +146,7 @@ describe Riak::Bucket do
 
     it "returns the existing object if present" do
       @object = double("RObject")
-      expect(@backend).to receive(:fetch_object).with(@bucket,"db", {}).and_return(@object)
+      expect(@backend).to receive(:fetch_object).with(@bucket, "db", {}).and_return(@object)
       expect(@bucket.get_or_new('db')).to eq(@object)
     end
 
@@ -164,7 +164,7 @@ describe Riak::Bucket do
 
     it "passes the given R quorum parameter to the backend" do
       @object = double("RObject")
-      expect(@backend).to receive(:fetch_object).with(@bucket,"db", {:r => "all"}).and_return(@object)
+      expect(@backend).to receive(:fetch_object).with(@bucket, "db", {:r => "all"}).and_return(@object)
       expect(@bucket.get_or_new('db', :r => "all")).to eq(@object)
     end
   end
@@ -243,7 +243,7 @@ describe Riak::Bucket do
 
       it "sets the #{q} quorum" do
         expect(@bucket).to receive(:props=).with(hash_including("#{q}" => 1))
-        @bucket.send("#{q}=",1)
+        @bucket.send("#{q}=", 1)
       end
     end
   end

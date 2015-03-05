@@ -27,23 +27,24 @@ module Riak::Search
     def content
       schema_data.content
     end
-    
+
     # @param [String] content the XML content of this schema
     # @raise [Riak::SearchError::SchemaExistsError] if a schema with the given
     #   name already exists
     def create!(content)
-      raise Riak::SearchError::SchemaExistsError.new name if exists?
+      fail Riak::SearchError::SchemaExistsError.new name if exists?
 
       @client.backend do |b|
         b.create_search_schema name, content
       end
-      
+
       @schema_data = nil
 
       true
     end
 
     private
+
     def schema_data
       return @schema_data if defined?(@schema_data) && @schema_data
 
@@ -57,9 +58,8 @@ module Riak::Search
         return nil if e.not_found?
         raise e
       end
-      
-      return @schema_data = sd
+
+      @schema_data = sd
     end
   end
 end
-

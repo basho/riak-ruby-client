@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'riak/search/result_collection'
 
-describe Riak::Search::ResultCollection do  
-  let(:client) do 
+describe Riak::Search::ResultCollection do
+  let(:client) do
     instance_double('Riak::Client').tap do |c|
       allow(c).to receive(:bucket_type).
         with(bucket_type_name).
@@ -81,7 +81,7 @@ describe Riak::Search::ResultCollection do
 
   it 'fetches individual documents on demand' do
     fetch_first_expectation
-    
+
     expect(subject.first).to eq first_result
   end
 end

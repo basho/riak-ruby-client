@@ -22,7 +22,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     end.to_not raise_error
 
     map2 = Riak::Crdt::Map.new bucket, map.key
-    
+
     expect(map2.sets['set'].members).to eq ::Set.new(['Z'])
   end
 
@@ -30,7 +30,7 @@ describe 'CRDT map validation', integration: true, test_client: true do
     map.counters['counter'].increment 5
 
     map.reload
-    
+
     expect(map.counters['counter'].value).to eq 5
 
     map.batch do |m|
@@ -50,13 +50,13 @@ describe 'CRDT map validation', integration: true, test_client: true do
     end
 
     map.reload
-    expect(map.maps['map'].sets['set'].members).to eq ::Set.new(['X', 'Y'])
+    expect(map.maps['map'].sets['set'].members).to eq ::Set.new(%w(X Y))
 
     map.batch do |m|
       m.maps.delete 'map'
       m.maps['map'].sets['set'].add "Z"
     end
-    
+
     map2 = Riak::Crdt::Map.new bucket, map.key
     expect(map2.maps['map'].sets['set'].members).to eq ::Set.new(['Z'])
   end

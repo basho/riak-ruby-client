@@ -12,7 +12,7 @@ module Riak
   # the Riak database, the base unit of data manipulation.
   class RObject
     include Util::Translation
-    extend  Util::Translation
+    extend Util::Translation
     include Util::Escape
     extend Util::Escape
     extend Forwardable
@@ -29,7 +29,7 @@ module Riak
     alias :vector_clock :vclock
     alias :vector_clock= :vclock=
 
-    # @return [Boolean] whether to attempt to prevent stale writes using 
+    # @return [Boolean] whether to attempt to prevent stale writes using
     #   conditional PUT semantics, If-None-Match: * or If-Match: etag
     # @see http://wiki.basho.com/display/RIAK/REST+API#RESTAPI-Storeaneworexistingobjectwithakey Riak Rest API Docs
     attr_accessor :prevent_stale_writes
@@ -94,7 +94,7 @@ module Riak
     # @param [String] key the key at which the object resides. If nil, a key will be assigned when the object is saved.
     # @yield self the new RObject
     # @see Bucket#get
-    def initialize(bucket, key=nil)
+    def initialize(bucket, key = nil)
       @bucket, @key = bucket, key
 
       # fix a require-loop
@@ -131,7 +131,7 @@ module Riak
     # @return [Riak::RObject] self
     # @raise [ArgumentError] if the content_type is not defined
     # @raise [Conflict] if the object has siblings
-    def store(options={})
+    def store(options = {})
       raise Conflict, self if conflict?
       raise ArgumentError, t("content_type_undefined") unless content_type.present?
       raise ArgumentError, t("zero_length_key") if key == ''
@@ -146,7 +146,7 @@ module Riak
     #     the vclock is not present, useful for reloading the object after
     #     a store (not passed in the query params)
     # @return [Riak::RObject] self
-    def reload(options={})
+    def reload(options = {})
       force = options.delete(:force)
       return self unless @key && (@vclock || force)
       self.etag = self.last_modified = nil if force
@@ -158,7 +158,7 @@ module Riak
     # Delete the object from Riak and freeze this instance.  Will work whether or not the object actually
     # exists in the Riak database.
     # @see Bucket#delete
-    def delete(options={})
+    def delete(options = {})
       return if key.blank?
       options[:vclock] = vclock if vclock
       @bucket.delete(key, default(options))

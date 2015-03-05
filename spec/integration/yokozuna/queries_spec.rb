@@ -22,7 +22,7 @@ describe "Yokozuna queries", test_client: true, integration: true do
       end
 
       @o1 = build_json_obj(@bucket, "cat", {"cat_s"=>"Lela"})
-      @o2 = build_json_obj(@bucket, "docs", {"dog_ss"=>["Einstein", "Olive"]})
+      @o2 = build_json_obj(@bucket, "docs", {"dog_ss"=>%w(Einstein Olive)})
       build_json_obj(@bucket, "Z", {"username_s"=>"Z", "name_s"=>"ryan", "age_i"=>30})
       build_json_obj(@bucket, "R", {"username_s"=>"R", "name_s"=>"eric", "age_i"=>34})
       build_json_obj(@bucket, "F", {"username_s"=>"F", "name_s"=>"bryan fink", "age_i"=>32})

@@ -2,28 +2,17 @@ module Riak
   module Crdt
     # A collection of elements of a given type inside a {Map}.
     class TypedCollection
-
       ALREADY_WRAPPED = ::Set.new [InnerCounter, InnerFlag, InnerMap]
       NEEDS_NAME = ::Set.new [InnerCounter, InnerSet, InnerMap]
       INITIALIZE_NIL = ::Set.new [InnerRegister]
-      
+
       # @api private
-      def initialize(type, parent, contents={})
+      def initialize(type, parent, contents = {})
         @type = type
         @parent = parent
         contents = {} if contents.nil?
         stringified_contents = contents.stringify_keys
-        @contents = stringified_contents.keys.inject(Hash.new) do |contents, key|
-          contents.tap do |c|
-            content = stringified_contents[key]
-            if ALREADY_WRAPPED.include? content.class
-              c[key] = content
-            else
-              c[key] = @type.new self, content
-            end
-            c[key].name = key if needs_name?
-          end
-        end
+        @contents = materialize_contents stringified_contents
       end
 
       def pretty_print(pp)
@@ -31,15 +20,15 @@ module Riak
           pp.breakable
           pp.text inspect_name
           pp.comma_breakable
-          pp.text "parent="
+          pp.text 'parent='
           @parent.pretty_print_cycle(pp)
           pp.comma_breakable
-          pp.text "contents="
+          pp.text 'contents='
           pp.pp @contents
         end
         # buf = []
         # buf << inspect_name
-        # buf << 
+        # buf <<
         # buf << "contents={#{inspect_contents}}"
         # "#<#{self.class.name} #{buf.join ' '}>"
       end
@@ -55,8 +44,8 @@ module Riak
         "contains=#{content_name}"
       end
 
-      def pretty_print_contents(pp)
-        @contents.map do |k,v|
+      def pretty_print_contents(_pp)
+        @contents.map do |k, v|
           "#{k}=>#{v.inspect}"
         end.join ', '
       end
@@ -67,11 +56,11 @@ module Riak
 
       # @api private
       def reparent(new_parent)
-        reparented = self.class.new(@type,
-                                    new_parent,
-                                    @contents)
+        self.class.new(@type,
+                       new_parent,
+                       @contents)
       end
-      
+
       # Check if a value for a given key exists in this map.
       #
       # @param [String] key the key to check for
@@ -79,7 +68,7 @@ module Riak
       def include?(key)
         @contents.include? normalize_key(key)
       end
-      
+
       # Get the value for a given key
       #
       # @param [String] key the key to get the value for
@@ -93,15 +82,15 @@ module Riak
         end
 
         return nil if initialize_nil?
-        
+
         new_instance = @type.new self
         new_instance.name = key if needs_name?
 
-        return new_instance
+        new_instance
       end
 
       # Set the value for a given key. Operation of this method
-      # is only defined for {InnerCounter}, {InnerRegister}, and 
+      # is only defined for {InnerCounter}, {InnerRegister}, and
       # {InnerFlag} types.
       #
       # @param [String] key the key to set a new value for
@@ -117,11 +106,11 @@ module Riak
 
         @contents[key] = @type.new self, value
         @contents[key].name = key if needs_name?
-        
+
         result
       end
-      
-      alias :increment :[]=
+
+      alias_method :increment, :[]=
 
       # Remove the entry from the map.
       #
@@ -139,20 +128,19 @@ module Riak
       # @api private
       def operate(key, inner_operation)
         key = normalize_key key
-        
+
         inner_operation.name = key
-        
+
         @parent.operate inner_operation
       end
-      
-      
+
       # Does this set have the context necessary to remove elements?
       #
       # @return [Boolean] if the set has a defined context
       def context?
         !!@parent.context?
       end
-      
+
       def to_value_h
         return @contents unless NEEDS_NAME.include? @type
 
@@ -162,6 +150,7 @@ module Riak
       end
 
       private
+
       def normalize_key(unnormalized_key)
         unnormalized_key.to_s
       end
@@ -169,9 +158,23 @@ module Riak
       def initialize_nil?
         INITIALIZE_NIL.include? @type
       end
-      
+
       def needs_name?
         NEEDS_NAME.include? @type
+      end
+
+      def materialize_contents(stringified_contents)
+        stringified_contents.keys.inject(Hash.new) do |new_contents, key|
+          new_contents.tap do |c|
+            content = stringified_contents[key]
+            if ALREADY_WRAPPED.include? content.class
+              c[key] = content
+            else
+              c[key] = @type.new self, content
+            end
+            c[key].name = key if needs_name?
+          end
+        end
       end
     end
   end

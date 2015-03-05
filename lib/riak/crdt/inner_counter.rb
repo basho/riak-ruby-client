@@ -1,6 +1,6 @@
 module Riak
   module Crdt
-    # The {InnerCounter} lives inside a {Map}, or an {InnerMap} inside of a 
+    # The {InnerCounter} lives inside a {Map}, or an {InnerMap} inside of a
     # {Map}, and is accessed through a {TypedCollection}.
     #
     # Much like the {Riak::Crdt::Counter}, it provides an integer value that can
@@ -21,9 +21,9 @@ module Riak
       #
       # @api private
       attr_reader :parent
-        
+
       # @api private
-      def initialize(parent, value=0)
+      def initialize(parent, value = 0)
         @parent = parent
         @value = value
       end
@@ -54,7 +54,7 @@ module Riak
 
         increment batcher.accumulator
       end
-      
+
       def pretty_print(pp)
         pp.object_group self do
           pp.breakable

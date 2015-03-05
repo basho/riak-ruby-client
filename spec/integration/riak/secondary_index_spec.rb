@@ -18,7 +18,7 @@ describe 'Secondary indexes', test_client: true, integration: true do
   end
 
   it "finds keys for a range query" do
-    expect(bucket.get_index('index_int', 19..21)).to match_array(["19","20", "21"])
+    expect(bucket.get_index('index_int', 19..21)).to match_array(%w(19 20 21))
   end
 
   it "returns an empty array for a query that does not match any keys" do
@@ -29,7 +29,7 @@ describe 'Secondary indexes', test_client: true, integration: true do
     results = nil
     expect do
       results = bucket.get_index('index_int',
-                                 19..21, 
+                                 19..21,
                                  return_terms: true)
     end.to_not raise_error
 
@@ -41,7 +41,7 @@ describe 'Secondary indexes', test_client: true, integration: true do
     results = nil
     expect do
       results = bucket.get_index('index_bin',
-                                 '19'..'21', 
+                                 '19'..'21',
                                  return_terms: true,
                                  term_regex: '20')
     end.to_not raise_error

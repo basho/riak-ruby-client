@@ -51,7 +51,7 @@ module Riak::Search
     #   {Riak::Search::Index} instance or a {String}
     # @param [String] term the query term
     # @param [Hash] options a hash of options to quickly set attributes
-    def initialize(client, index, term, options={  })
+    def initialize(client, index, term, options = {  })
       @client = client
       validate_index index
       @term = term

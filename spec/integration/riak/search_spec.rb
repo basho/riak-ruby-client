@@ -17,7 +17,7 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
     it 'performs queries' do
       results = nil
       expect{ results = subject.results }.to_not raise_error
-      expect(results.raw).to_not be_empty 
+      expect(results.raw).to_not be_empty
       expect(results).to_not be_empty
     end
 
@@ -34,7 +34,7 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
     let(:index){ Riak::Search::Index.new test_client, index_name }
     let(:query){ Riak::Search::Query.new test_client, index, term }
     subject { query.results }
-    
+
     it 'exposes search-result documents' do
       expect(subject).to_not be_empty
 
@@ -50,7 +50,7 @@ describe 'Object-oriented Search API', test_client: true, integration: true, sea
 
     it 'exposes RObjects' do
       expect(subject).to_not be_empty
-      
+
       expect(first = subject.first).to be_a Riak::RObject
       expect(first).to eq subject.docs.first.robject
 

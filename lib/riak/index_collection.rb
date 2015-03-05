@@ -18,7 +18,7 @@ module Riak
       parsed = JSON.parse json
       fresh = nil
       if parsed['keys']
-        fresh = new parsed['keys'] 
+        fresh = new parsed['keys']
       elsif parsed['results']
         fresh_terms = load_json_terms(parsed)
         fresh = new fresh_terms.values.flatten

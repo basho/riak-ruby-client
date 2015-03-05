@@ -2,6 +2,9 @@ require 'riak/index_collection'
 require 'riak/bucket_typed/bucket'
 
 module Riak
+  # {Riak::SecondaryIndex} provides an object-oriented interface to secondary
+  # index ("2i") functionality in Riak, available on the `memory` and `leveldb`
+  # backends.
   class SecondaryIndex
     include Util::Translation
     include Client::FeatureDetection
@@ -11,7 +14,7 @@ module Riak
     # @param [String] index the index name
     # @param [String,Integer,Range<String,Integer>] query
     #   a single value or range of values to query for
-    def initialize(bucket, index, query, options={})
+    def initialize(bucket, index, query, options = {})
       @bucket = bucket
       @client = @bucket.client
       @index = index
@@ -26,7 +29,7 @@ module Riak
     end
 
     def get_server_version
-      @client.backend{|b| b.send :get_server_version }
+      @client.backend { |b| b.send :get_server_version }
     end
 
     # Get the array of matched keys
@@ -39,17 +42,17 @@ module Riak
 
     # Get the array of values
     def values
-      @values ||= @bucket.get_many(self.keys).values
+      @values ||= @bucket.get_many(keys).values
     end
 
     # Get a new SecondaryIndex fetch for the next page
     def next_page
-      raise t('index.no_next_page') unless keys.continuation
+      fail t('index.no_next_page') unless keys.continuation
 
-      self.class.new(@bucket, 
-                     @index, 
-                     @query, 
-                     @options.merge(:continuation => keys.continuation))
+      self.class.new(@bucket,
+                     @index,
+                     @query,
+                     @options.merge(continuation: keys.continuation))
     end
 
     # Determine whether a SecondaryIndex fetch has a next page available
@@ -58,12 +61,17 @@ module Riak
     end
 
     private
-    def validate_options
-      raise t('index.pagination_not_available') if paginated? && !index_pagination?
-      raise t('index.return_terms_not_available') if @options[:return_terms] && !index_return_terms?
-      raise t('index.include_terms_is_wrong') if @options[:include_terms]
 
-      # raise t('index.streaming_not_available') if @options[:stream] && !index_streaming?
+    def validate_options
+      if paginated? && !index_pagination?
+        fail t('index.pagination_not_available')
+      end
+
+      if @options[:return_terms] && !index_return_terms?
+        fail t('index.return_terms_not_available')
+      end
+
+      fail t('index.include_terms_is_wrong') if @options[:include_terms]
     end
 
     def paginated?

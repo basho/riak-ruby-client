@@ -6,7 +6,7 @@ module Riak
     # Uses the Ruby standard library `::Set` frequently, so the full class names will
     # be used frequently.
     class Set < Base
-      
+
       # Create a set instance. The bucket type is determined by the first of
       # these sources:
       #
@@ -19,12 +19,12 @@ module Riak
       #        Riak assign a key.
       # @param [String] bucket_type The optional bucket type for this set.
       # @param options [Hash]
-      def initialize(bucket, key, bucket_type=nil, options={})
+      def initialize(bucket, key, bucket_type = nil, options = {})
         super(bucket, key, bucket_type || :set, options)
       end
 
       # Yields a `BatchSet` to proxy multiple set operations into a single
-      # Riak update. The `BatchSet` has the same methods as this 
+      # Riak update. The `BatchSet` has the same methods as this
       # {Riak::Crdt::Set}.
       #
       # @yieldparam batch_set [BatchSet] collects set operations
@@ -38,7 +38,7 @@ module Riak
         batcher = BatchSet.new self
 
         yield batcher
-        
+
         operate batcher.operations
       end
 
@@ -53,7 +53,7 @@ module Riak
       end
 
       alias :value :members
-      
+
       # Cast this {Riak::Crdt::Set} to a Ruby {Array}.
       #
       # @return [Array] array of set members
@@ -67,7 +67,7 @@ module Riak
       def empty?
         members.empty?
       end
-      
+
       # Check to see if a given string is present in this data structure.
       #
       # @param [String] candidate string to check for inclusion in this structure
@@ -80,7 +80,7 @@ module Riak
       #
       # @param [String] element the element to add to the set
       # @param [Hash] options
-      def add(element, options={})
+      def add(element, options = {})
         operate operation(:add, element), options
       end
 
@@ -88,13 +88,13 @@ module Riak
       #
       # @param [String] element to remove from the set
       # @param [Hash] options
-      def remove(element, options={})
+      def remove(element, options = {})
         raise CrdtError::SetRemovalWithoutContextError unless context?
         operate operation(:remove, element), options
       end
 
       alias :delete :remove
-      
+
       def pretty_print(pp)
         super pp do
           pp.comma_breakable
@@ -120,7 +120,7 @@ module Riak
           @adds = ::Set.new
           @removes = ::Set.new
         end
-        
+
         def add(element)
           @adds.add element
         end

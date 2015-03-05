@@ -37,7 +37,7 @@ module Riak
     # @return [Array<String>] Keys in this bucket
     # @note This operation has serious performance implications and
     #    should not be used in production applications.
-    def keys(options={}, &block)
+    def keys(options = {}, &block)
       warn(t('list_keys', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
       if block_given?
         @client.list_keys(self, options, &block)
@@ -92,10 +92,12 @@ module Riak
     # Retrieve an object from within the bucket.
     # @param [String] key the key of the object to retrieve
     # @param [Hash] options query parameters for the request
-    # @option options [Fixnum] :r - the read quorum for the request - how many nodes should concur on the read
+    # @option options [Fixnum] :r - the read quorum for the request - how many
+    #   nodes should concur on the read
     # @return [Riak::RObject] the object
-    # @raise [FailedRequest] if the object is not found or some other error occurs
-    def get(key, options={})
+    # @raise [FailedRequest] if the object is not found or some other error
+    #   occurs
+    def get(key, options = {})
       @client.get_object(self, key, options)
     end
     alias :[] :get
@@ -106,22 +108,26 @@ module Riak
     def get_many(keys)
       pairs = keys.map{|k| [self, k]}
       results = Multiget.get_all @client, pairs
-      results.keys.inject(Hash.new) { |mem, var| mem[var[1]] = results[var]; mem }
+      results.keys.inject(Hash.new) do |mem, var|
+        mem[var[1]] = results[var]
+        mem
+      end
     end
 
     # Create a new blank object
     # @param [String] key the key of the new object
     # @return [RObject] the new, unsaved object
-    def new(key=nil)
+    def new(key = nil)
       RObject.new(self, key).tap do |obj|
         obj.content_type = "application/json"
       end
     end
 
-    # Fetches an object if it exists, otherwise creates a new one with the given key
+    # Fetches an object if it exists, otherwise creates a new one with the
+    # given key
     # @param [String] key the key to fetch or create
     # @return [RObject] the new or existing object
-    def get_or_new(key, options={})
+    def get_or_new(key, options = {})
       begin
         get(key, options)
       rescue Riak::FailedRequest => fr
@@ -146,7 +152,7 @@ module Riak
     # @param [Hash] options quorum options
     # @option options [Fixnum] :r - the read quorum value for the request (R)
     # @return [true, false] whether the key exists in this bucket
-    def exists?(key, options={})
+    def exists?(key, options = {})
       begin
         get(key, options.merge({ :head => true }))
         true
@@ -164,7 +170,7 @@ module Riak
     #   delete
     # @option options [String] :vclock - the vector clock of the
     #   object being deleted
-    def delete(key, options={})
+    def delete(key, options = {})
       client.delete_object(self, key, options)
     end
 
@@ -175,7 +181,7 @@ module Riak
     #   Range of values to query
     # @return [Array<String>] a list of keys that match the index
     #   query
-    def get_index(index, query, options={})
+    def get_index(index, query, options = {})
       client.get_index(self, index, query, options)
     end
 
@@ -184,7 +190,8 @@ module Riak
       props['allow_mult']
     end
 
-    # Set the allow_mult property.  *NOTE* This will result in a PUT request to Riak.
+    # Set the allow_mult property.  *NOTE* This will result in a PUT request to
+    # Riak.
     # @param [true, false] value whether the bucket should allow siblings
     def allow_mult=(value)
       self.props = {'allow_mult' => value}
@@ -197,9 +204,11 @@ module Riak
     end
     alias :n_val :n_value
 
-    # Set the N value (number of replicas). *NOTE* This will result in a PUT request to Riak.
-    # Setting this value after the bucket has objects stored in it may have unpredictable results.
-    # @param [Fixnum] value the number of replicas the bucket should keep of each object
+    # Set the N value (number of replicas). *NOTE* This will result in a PUT
+    # request to Riak. Setting this value after the bucket has objects stored in
+    # it may have unpredictable results.
+    # @param [Fixnum] value the number of replicas the bucket should keep of
+    #   each object
     def n_value=(value)
       self.props = {'n_val' => value}
       value
@@ -218,15 +227,21 @@ module Riak
     # into riak_search.
     def enable_index!
       unless is_indexed?
-        self.props = {"precommit" => (props['precommit'] + [SEARCH_PRECOMMIT_HOOK]), "search" => true}
+        self.props = {
+          "precommit" => (props['precommit'] + [SEARCH_PRECOMMIT_HOOK]),
+          "search" => true
+        }
       end
     end
 
-    # (Riak Search) Removes the precommit hook that automatically indexes objects
-    # into riak_search.
+    # (Riak Search) Removes the precommit hook that automatically indexes
+    # objects into riak_search.
     def disable_index!
       if is_indexed?
-        self.props = {"precommit" => (props['precommit'] - [SEARCH_PRECOMMIT_HOOK]), "search" => false}
+        self.props = {
+          "precommit" => (props['precommit'] - [SEARCH_PRECOMMIT_HOOK]),
+          "search" => false
+        }
       end
     end
 
@@ -234,7 +249,10 @@ module Riak
     # riak_search.
     # @return [true,false] whether the bucket includes the search indexing hook
     def is_indexed?
-      props['search'] == true || (props.has_key?('precommit') && props['precommit'].include?(SEARCH_PRECOMMIT_HOOK))
+      return true if props['search'] == true
+      return true if props.has_key?('precommit') &&
+                     props['precommit'].include?(SEARCH_PRECOMMIT_HOOK)
+      false
     end
 
     # @return [String] a representation suitable for IRB and debugging output

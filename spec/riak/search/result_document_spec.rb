@@ -8,7 +8,7 @@ describe Riak::Search::ResultDocument do
   let(:score){ 43.21 }
   let(:other_field){ 'banana' }
 
-  let(:client) do 
+  let(:client) do
     instance_double('Riak::Client').tap do |c|
       allow(c).to receive(:bucket_type).
         with(bucket_type_name).
