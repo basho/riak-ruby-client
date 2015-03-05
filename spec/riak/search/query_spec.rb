@@ -2,15 +2,15 @@ require 'spec_helper'
 require 'riak/search/query'
 
 describe Riak::Search::Query do
-  let(:client) do 
+  let(:client) do
     instance_double('Riak::Client').tap do |c|
       allow(c).to receive(:backend).and_yield(backend)
     end
   end
-  let(:index) do 
+  let(:index) do
     instance_double(
                     'Riak::Search::Index',
-                    name: index_name, 
+                    name: index_name,
                     'exists?' => true).tap do |i|
       allow(i).to receive(:is_a?).with(String).and_return(false)
       allow(i).to receive(:is_a?).with(Riak::Search::Index).and_return(true)
@@ -48,7 +48,7 @@ describe Riak::Search::Query do
     expect{ described_class.new client, index, term }.to_not raise_error
   end
 
-  it 'creates query objects with a client, index name, and query string' do   
+  it 'creates query objects with a client, index name, and query string' do
     class_double('Riak::Search::Index', new: index).as_stubbed_const
     allow(index).to receive(:is_a?).with(Riak::Search::Index).and_return(true)
 

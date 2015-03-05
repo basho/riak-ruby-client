@@ -9,7 +9,7 @@ describe Riak::Crdt::InnerFlag do
       expect(subject).to be
     end
   end
-  
+
   describe 'a falsey flag' do
     subject { described_class.new parent, false }
 
@@ -20,7 +20,7 @@ describe Riak::Crdt::InnerFlag do
 
   describe 'updating' do
     let(:new_value){ false }
-    
+
     it '\asks the class for an update operation' do
       operation = described_class.update(new_value)
 

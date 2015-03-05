@@ -4,7 +4,7 @@ Riak::Client::BeefcakeProtobuffsBackend.configured?
 describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   let(:backend_class){ Riak::Client::BeefcakeProtobuffsBackend }
   let(:backend) { instance_double('Riak::Client::BeefcakeProtobuffsBackend') }
-  
+
   let(:protocol) do
     instance_double('Riak::Client::BeefcakeProtobuffsBackend::Protocol').
       tap do |p|
@@ -50,16 +50,16 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   let(:get_bucket_request) do
     backend_class::RpbGetBucketReq.new bucket: bucket_name
   end
-  
+
   let(:get_bucket_response) do
     backend_class::RpbGetBucketResp.
       new(props: test_props)
   end
 
-  let(:get_bucket_expectation) do    
+  let(:get_bucket_expectation) do
     expect(protocol).to receive(:write).
       with(:GetBucketReq, get_bucket_request)
-    
+
     expect(protocol).to receive(:expect).
       with(:GetBucketResp,
            backend_class::RpbGetBucketResp).
@@ -118,11 +118,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
         with(:SetBucketResp)
 
       # support both strings and symbols for quorum names
-      write_props = { 
+      write_props = {
         pr: 'one',
         r: :quorum,
         w: 'all',
-        pw: :default, 
+        pw: :default,
         dw: 0,
         rw: 1
       }
@@ -135,7 +135,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
     it 'rubyfies' do
       expect(protocol).to receive(:write).
         with(:GetBucketReq, get_bucket_request)
-      
+
       expect(protocol).to receive(:expect).
         with(:GetBucketResp,
              backend_class::RpbGetBucketResp).
@@ -175,7 +175,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
 
-      write_props = { 
+      write_props = {
         precommit: { mod: 'validate_json', fun: 'validate' },
         postcommit: ['piper']
       }
@@ -216,7 +216,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
 
-      write_props = { 
+      write_props = {
         linkfun: { mod: 'nachos', fun: 'galacticos' }
       }
 

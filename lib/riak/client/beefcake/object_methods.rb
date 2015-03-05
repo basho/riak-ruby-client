@@ -9,16 +9,16 @@ module Riak
         ENCODING = "Riak".respond_to?(:encoding)
 
         # Returns RpbPutReq
-        def dump_object(robject, options={})
+        def dump_object(robject, options = {})
           pbuf = RpbPutReq.new(options.merge(:bucket => maybe_encode(robject.bucket.name)))
           pbuf.key = maybe_encode(robject.key) if robject.key # Put w/o key supported!
           pbuf.vclock = maybe_encode(Base64.decode64(robject.vclock)) if robject.vclock
           pbuf.content = RpbContent.new(:value => maybe_encode(robject.raw_data),
                                         :content_type => maybe_encode(robject.content_type),
                                         :links => robject.links.map {|l| encode_link(l) }.compact,
-                                        :indexes => robject.indexes.map {|k,s| encode_index(k,s) }.flatten)
+                                        :indexes => robject.indexes.map {|k, s| encode_index(k, s) }.flatten)
 
-          pbuf.content.usermeta = robject.meta.map {|k,v| encode_meta(k,v)} if robject.meta.any?
+          pbuf.content.usermeta = robject.meta.map {|k, v| encode_meta(k, v)} if robject.meta.any?
           pbuf.content.vtag = maybe_encode(robject.etag) if robject.etag.present?
           if ENCODING # 1.9 support
             pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
@@ -75,7 +75,7 @@ module Riak
           hash[pbuf.key] = pbuf.value
         end
 
-        def encode_meta(key,value)
+        def encode_meta(key, value)
           return nil unless value.present?
           RpbPair.new(:key => maybe_encode(key.to_s),
                       :value => maybe_encode(value.to_s))

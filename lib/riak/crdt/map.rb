@@ -16,10 +16,10 @@ module Riak
     # * {InnerRegister}: a {String} value inside a map
     # * {InnerCounter}: a {Riak::Crdt::Counter}, but inside a map
     # * {InnerSet}: a {Riak::Crdt::Set}, but inside a map
-    # 
+    #
     class Map < Base
       attr_reader :counters, :flags, :maps, :registers, :sets
-      
+
       # Create a map instance. The bucket type is determined by the first of
       # these sources:
       #
@@ -33,21 +33,21 @@ module Riak
       # @param [String] bucket_type The optional bucket type for this map.
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:map]`.
       # @param options [Hash]
-      def initialize(bucket, key, bucket_type=nil, options={})
+      def initialize(bucket, key, bucket_type = nil, options = {})
         super(bucket, key, bucket_type || :map, options)
 
         if key
-          initialize_collections 
+          initialize_collections
         else
           initialize_blank_collections
         end
       end
 
-      # Maps are frequently updated in batches. Use this method to get a 
+      # Maps are frequently updated in batches. Use this method to get a
       # {BatchMap} to turn multiple operations into a single Riak update
       # request.
       #
-      # @yieldparam batch_map [BatchMap] collects updates and other operations 
+      # @yieldparam batch_map [BatchMap] collects updates and other operations
       def batch(*args)
         batch_map = BatchMap.new self
 
@@ -58,7 +58,7 @@ module Riak
 
       # This method *for internal use only* is used to collect oprations from
       # disparate sources to provide a user-friendly API.
-      # 
+      #
       # @api private
       def operate(operation, *args)
         batch *args do |m|
@@ -83,7 +83,7 @@ module Riak
       end
 
       alias :value :to_value_h
-      
+
       private
       def vivify(data)
         @counters = TypedCollection.new InnerCounter, self, data[:counters]
@@ -93,7 +93,7 @@ module Riak
         @sets = TypedCollection.new InnerSet, self, data[:sets]
       end
 
-      def initialize_collections(data={})
+      def initialize_collections(data = {})
         reload if dirty?
       end
 

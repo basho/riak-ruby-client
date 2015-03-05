@@ -59,7 +59,7 @@ module Riak
       # @param [String] query the Lucene-style search query
       # @param [Hash] options ignored in MapReduce emulation
       # @return [Hash] the search results
-      def search(index, query, options={})
+      def search(index, query, options = {})
         mr = Riak::MapReduce.new(client).search(index || 'search', query)
         unless mapred_phaseless?
           mr.reduce(%w[riak_kv_mapreduce reduce_identity], :arg => {:reduce_phase_only_1 => true}, :keep => true)
@@ -76,7 +76,7 @@ module Riak
       def teardown
         reset_socket
       end
-      
+
       def socket
         @socket ||= new_socket
       end
@@ -90,7 +90,7 @@ module Riak
       def decode_response
         raise NotImplementedError
       end
-      
+
       def new_socket
         raise NotImplementedError
       end
@@ -101,7 +101,7 @@ module Riak
         @socket = nil
       end
 
-      def prune_unsupported_options(req,options={})
+      def prune_unsupported_options(req, options = {})
         unless quorum_controls?
           [:notfound_ok, :basic_quorum, :pr, :pw].each {|k| options.delete k }
         end
@@ -121,7 +121,7 @@ module Riak
         options
       end
 
-      def normalize_quorums(options={})
+      def normalize_quorums(options = {})
         options.dup.tap do |o|
           [:r, :pr, :w, :pw, :dw, :rw].each do |k|
             next o[k] = normalize_quorum_value(o[k]) if o[k]

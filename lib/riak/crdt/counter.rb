@@ -19,10 +19,10 @@ module Riak
       # @param [String] bucket_type The optional bucket type for this counter.
       #        The default is in `Crdt::Base::DEFAULT_BUCKET_TYPES[:counter]`.
       # @param [Hash] options
-      def initialize(bucket, key, bucket_type=nil, options={})
+      def initialize(bucket, key, bucket_type = nil, options = {})
         super(bucket, key, bucket_type || :counter, options)
       end
-      
+
       # The current value of the counter; hits the server if the value has
       # not been fetched or if the counter has been incremented.
       def value
@@ -34,7 +34,7 @@ module Riak
       #
       # @param [Integer] amount
       # @param [Hash] options
-      def increment(amount=1, options={})
+      def increment(amount = 1, options = {})
         operate operation(amount), options
       end
 
@@ -46,16 +46,16 @@ module Riak
         batcher = BatchCounter.new
 
         yield batcher
-        
+
         increment batcher.accumulator
       end
-      
+
       alias :to_i :value
 
       # Decrement the counter.
       #
       # @param [Integer] amount
-      def decrement(amount=1)
+      def decrement(amount = 1)
         increment -amount
       end
 
@@ -65,7 +65,7 @@ module Riak
           pp.text "value=#{value}"
         end
       end
-      
+
       private
       def vivify(value)
         @value = value

@@ -4,14 +4,14 @@ module Riak
     # a {Map} (or an {InnerMap} inside of a {Map}). It is usually accessed
     # through a {TypedCollection}.
     #
-    # Just like a {Riak::Crdt::Set}, it's a set of {String Strings} that can 
+    # Just like a {Riak::Crdt::Set}, it's a set of {String Strings} that can
     # be added to or removed from.
     class InnerSet
       # The name of this set inside a map.
       #
       # @api private
       attr_accessor :name
-      
+
       # The {::Set} value of this {InnerSet}.
       #
       # @return [::Set] set value
@@ -24,13 +24,13 @@ module Riak
       attr_reader :parent
 
       # @api private
-      def initialize(parent, value=[])
+      def initialize(parent, value = [])
         @parent = parent
         frozen_value = value.to_a.tap{ |v| v.each(&:freeze) }
         @value = ::Set.new frozen_value
         @value.freeze
       end
-      
+
       # Casts this {InnerSet} to an {Array}.
       #
       # @return [Array] an array of all the members of this set
@@ -68,7 +68,7 @@ module Riak
         @parent.operate name, update(remove: element)
       end
 
-            
+
       # Does the map containing this set have the context necessary to remove elements?
       #
       # @return [Boolean] if the set has a defined context

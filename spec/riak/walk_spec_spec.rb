@@ -65,7 +65,7 @@ describe Riak::WalkSpec do
     it "raises an ArgumentError for invalid arguments" do
       expect { Riak::WalkSpec.new }.to raise_error(ArgumentError)
       expect { Riak::WalkSpec.new("foo") }.to raise_error(ArgumentError)
-      expect { Riak::WalkSpec.new("foo","bar") }.to raise_error(ArgumentError)
+      expect { Riak::WalkSpec.new("foo", "bar") }.to raise_error(ArgumentError)
     end
   end
 
@@ -96,7 +96,7 @@ describe Riak::WalkSpec do
 
   describe "creating from a list of parameters" do
     it "detects hashes and WalkSpecs interleaved with other parameters" do
-      specs = Riak::WalkSpec.normalize(nil,"next",nil,{:bucket => "foo"},Riak::WalkSpec.new({:tag => "child", :keep => true}))
+      specs = Riak::WalkSpec.normalize(nil, "next", nil, {:bucket => "foo"}, Riak::WalkSpec.new({:tag => "child", :keep => true}))
       expect(specs.size).to eq(3)
       expect(specs).to be_all {|s| s.kind_of?(Riak::WalkSpec) }
       expect(specs.join("/")).to eq("_,next,_/foo,_,_/_,child,1")
@@ -171,12 +171,14 @@ describe Riak::WalkSpec do
       end
 
       it "matches a walk spec with the same bucket" do
-        @other.bucket = "foo"; @spec.bucket = "foo"
+        @other.bucket = "foo"
+        @spec.bucket = "foo"
         expect(@spec).to be === @other
       end
 
       it "doesn't match a walk spec with a different bucket" do
-        @other.bucket = "foo"; @spec.bucket = "bar"
+        @other.bucket = "foo"
+        @spec.bucket = "bar"
         expect(@spec).not_to be === @other
       end
 
@@ -186,12 +188,14 @@ describe Riak::WalkSpec do
       end
 
       it "matches a walk spec with the same tag" do
-        @other.tag = "next"; @spec.tag = "next"
+        @other.tag = "next"
+        @spec.tag = "next"
         expect(@spec).to be === @other
       end
 
       it "doesn't match a walk spec with a different tag" do
-        @other.tag = "next"; @spec.tag = "previous"
+        @other.tag = "next"
+        @spec.tag = "previous"
         expect(@spec).not_to be === @other
       end
     end

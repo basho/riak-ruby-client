@@ -13,10 +13,10 @@ describe Riak::Crdt::InnerMap do
       flags: {bravo: true},
       maps: {},
       registers: {delta: 'the expendables' },
-      sets: {echo: %w{stallone statham li lundgren}}      
+      sets: {echo: %w{stallone statham li lundgren}}
     }
   end
-  
+
   it 'is initializable with a nested hash of maps' do
     expect{described_class.new parent, populated_contents}.
       to_not raise_error
@@ -34,13 +34,13 @@ describe Riak::Crdt::InnerMap do
     let(:inner_operation){ double 'inner operation' }
     it 'wraps the operation in an update operation and pass it to the parent' do
       subject.name = 'name'
-      
+
       expect(parent).to receive(:operate) do |name, op|
         expect(name).to eq 'name'
         expect(op.type).to eq :map
         expect(op.value).to eq inner_operation
       end
-      
+
       subject.operate inner_operation
     end
   end

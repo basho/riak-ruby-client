@@ -28,7 +28,7 @@ module Riak
         :less_than => 1,
         :greater_than_eq => 1,
         :less_than_eq => 1,
-        :between => [2,3],
+        :between => [2, 3],
         :matches => 1,
         :neq => 1,
         :eq => 1,
@@ -52,7 +52,7 @@ module Riak
       #    end
       LOGICAL_OPERATIONS = %w{and or not}
 
-      FILTERS.each do |f,arity|
+      FILTERS.each do |f, arity|
         arities = [arity].flatten
 
         define_method(f) { |*args|

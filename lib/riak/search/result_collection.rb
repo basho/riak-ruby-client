@@ -8,7 +8,7 @@ module Riak::Search
   class ResultCollection
     # @return [Riak::Client]
     attr_reader :client
-    
+
     # @return [Hash] the de-serialzed hash returned from Solr
     attr_reader :raw
 
@@ -52,7 +52,7 @@ module Riak::Search
     end
 
     # @param [Integer] index the index of the [Riak::RObject] to load and return
-    # @return [Riak::RObject,NilClass] the found object, or nil if the index 
+    # @return [Riak::RObject,NilClass] the found object, or nil if the index
     #   is out of range
     def [](index)
       doc = docs[index]

@@ -11,7 +11,7 @@ describe Riak::MapReduce::FilterBuilder do
   it "adds filters to the list" do
     subject.to_lower
     subject.similar_to("ripple", 3)
-    expect(subject.to_a).to eq([[:to_lower],[:similar_to, "ripple", 3]])
+    expect(subject.to_a).to eq([[:to_lower], [:similar_to, "ripple", 3]])
   end
 
   it "adds a logical operation with a block" do
@@ -19,7 +19,7 @@ describe Riak::MapReduce::FilterBuilder do
       starts_with "foo"
       ends_with "bar"
     end
-    expect(subject.to_a).to eq([[:or, [[:starts_with, "foo"],[:ends_with, "bar"]]]])
+    expect(subject.to_a).to eq([[:or, [[:starts_with, "foo"], [:ends_with, "bar"]]]])
   end
 
   it "raises an error on a filter arity mismatch" do

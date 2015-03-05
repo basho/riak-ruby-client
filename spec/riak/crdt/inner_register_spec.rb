@@ -9,7 +9,7 @@ describe Riak::Crdt::InnerRegister do
     expect{ subject.gsub('s', 'x') }.to_not raise_error
     expect(subject.gsub('s', 'x')).to eq 'exprexxox'
   end
-  
+
   describe 'immutability' do
     it 'is frozen' do
       expect(subject.frozen?).to be

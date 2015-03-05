@@ -22,10 +22,10 @@ describe Riak::Counter do
       allow(@bad_bucket).to receive(:client).and_return(double('client'))
 
       expect{ctr = Riak::Counter.new @bad_bucket, @key}.to raise_error(ArgumentError)
-      
+
     end
   end
-  
+
   describe "incrementing and decrementing" do
     before :each do
       @backend = double 'backend'
@@ -92,7 +92,7 @@ describe Riak::Counter do
 
       @fake_pool = double 'pool'
       @backend = double 'backend'
-        
+
       @client = Riak::Client.new nodes: @nodes
       @client.instance_variable_set :@protobuffs_pool, @fake_pool
 
@@ -113,7 +113,7 @@ describe Riak::Counter do
       @expect_post.once.and_raise('timeout')
       expect(proc { @ctr.increment }).to raise_error
     end
-    
+
     it "doesn't retry on quorum failure" do
       @expect_post.once.and_raise('quorum not satisfied')
       expect(proc { @ctr.increment }).to raise_error

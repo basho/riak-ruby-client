@@ -57,7 +57,7 @@ describe 'Conflict resolution', integration: true, test_client: true do
 
       subject.attempt_conflict_resolution
       subject.reload
-      
+
       expect(subject).to_not be_conflict
       expect(subject.data).to eq 100
 

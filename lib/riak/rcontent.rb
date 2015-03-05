@@ -52,7 +52,7 @@ module Riak
     end
 
     def indexes=(hash)
-      @indexes = hash.inject(new_index_hash) do |h, (k,v)|
+      @indexes = hash.inject(new_index_hash) do |h, (k, v)|
         h[k].merge([*v])
         h
       end
@@ -68,9 +68,9 @@ module Riak
       @data
     end
 
-    # @param [Object] new_data unmarshaled form of the data to be stored in 
-    #   Riak. Object will be serialized using {#serialize} if a known 
-    #   content_type is used. Setting this overrides values stored with 
+    # @param [Object] new_data unmarshaled form of the data to be stored in
+    #   Riak. Object will be serialized using {#serialize} if a known
+    #   content_type is used. Setting this overrides values stored with
     #   {#raw_data=}
     # @return [Object] the object stored
     def data=(new_data)
@@ -142,14 +142,14 @@ module Riak
       extract_if_present(metadata, 'content-type', :content_type)
       extract_if_present(metadata, 'X-Riak-Last-Modified', :last_modified) { |v| Time.httpdate( v ) }
       extract_if_present(metadata, 'index', :indexes) do |entries|
-        Hash[ entries.map {|k,v| [k, Set.new(Array(v))] } ]
+        Hash[ entries.map {|k, v| [k, Set.new(Array(v))] } ]
       end
       extract_if_present(metadata, 'Links', :links) do |links|
         Set.new( links.map { |l| Link.new(*l) } )
       end
       extract_if_present(metadata, 'X-Riak-Meta', :meta) do |meta|
         Hash[
-             meta.map do |k,v|
+             meta.map do |k, v|
                [k.sub(%r{^x-riak-meta-}i, ''), [v]]
              end
             ]
@@ -158,7 +158,7 @@ module Riak
     end
 
     private
-    def extract_if_present(hash, key, attribute=nil)
+    def extract_if_present(hash, key, attribute = nil)
       if hash[key].present?
         attribute ||= key
         value = block_given? ? yield(hash[key]) : hash[key]
@@ -167,7 +167,7 @@ module Riak
     end
 
     def new_index_hash
-      Hash.new {|h,k| h[k] = Set.new }
+      Hash.new {|h, k| h[k] = Set.new }
     end
   end
 end

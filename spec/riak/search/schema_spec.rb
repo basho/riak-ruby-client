@@ -15,7 +15,7 @@ describe Riak::Search::Schema do
     resp = instance_double 'Riak::Client::BeefcakeProtobuffsBackend::RpbYokozunaSchema'
     allow(resp).to receive(:name).and_return(schema_name)
     allow(resp).to receive(:content).and_return(schema_content)
-    
+
     resp
   end
 
@@ -51,7 +51,7 @@ describe Riak::Search::Schema do
 
   it 'raises an error when creating a schema that already exists' do
     schema_exists_expectation
-    
+
     expect{ subject.create! schema_content }.to raise_error(Riak::SearchError::SchemaExistsError)
   end
 

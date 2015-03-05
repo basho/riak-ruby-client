@@ -28,9 +28,9 @@ shared_context "search corpus setup" do
       end
     end
     Encoding.default_external = old_encoding
-    
+
     wait_until do
-      results = @backend.search(@search_bucket.name, 
+      results = @backend.search(@search_bucket.name,
                                 'contain your entire keyspace',
                                 df: 'text')
       results['docs'].length > 0

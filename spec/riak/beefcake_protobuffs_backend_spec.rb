@@ -28,13 +28,13 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
                           errcode: 0)
                       )
                   )
-      
+
       expect{ backend.get_index 'bucket', 'words', 'asdf' }.to raise_error /Secondary indexes aren't supported/
       # '
     end
-    
+
     context 'when streaming' do
-      it "streams when a block is given" do 
+      it "streams when a block is given" do
         expect(protocol).to receive(:write) do |msg, req|
           expect(msg).to eq(:IndexReq)
           expect(req[:stream]).to eq(true)
@@ -43,15 +43,15 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
           and_return(Riak::Client::BeefcakeProtobuffsBackend::RpbIndexResp.new keys: %w{'asdf'}, done: true)
 
         blk = proc{:asdf}
-        
+
         backend.get_index('bucket', 'words', 'asdf'..'hjkl', &blk)
       end
 
       it "sends batches of results to the block" do
         expect(protocol).to receive(:write)
-        
+
         response_sets = [%w{asdf asdg asdh}, %w{gggg gggh gggi}]
-        response_messages = response_sets.map do |s| 
+        response_messages = response_sets.map do |s|
           Riak::Client::BeefcakeProtobuffsBackend::RpbIndexResp.new keys: s
         end
         response_messages.last.done = true
@@ -61,7 +61,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
         block_body = double 'block'
         expect(block_body).to receive(:check).with(response_sets.first).once
         expect(block_body).to receive(:check).with(response_sets.last).once
-        
+
         blk = proc {|m| block_body.check m }
 
         backend.get_index 'bucket', 'words', 'asdf'..'hjkl', &blk
@@ -80,7 +80,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend do
                          )
       expect(protocol).to receive(:expect).
         and_return(response_message)
-      
+
       results = backend.get_index 'bucket', 'words', 'asdf'..'hjkl'
       expect(results).to eq(%w{asdf asdg asdh})
     end

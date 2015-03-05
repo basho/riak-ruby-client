@@ -23,10 +23,10 @@ module Riak
     end
 
     # Retrieve the current value of the counter.
-    # @param [Hash] options 
+    # @param [Hash] options
     # @option options [Fixnum,String] :r ("quorum") read quorum (numeric or
     # symbolic)
-    def value(options={})
+    def value(options = {})
       backend do |backend|
         backend.get_counter bucket, key, options
       end
@@ -35,27 +35,27 @@ module Riak
 
     # Increment the counter and return its new value.
     # @param amount [Integer] the amount to increment the counter by.
-    def increment_and_return(amount=1)
+    def increment_and_return(amount = 1)
       increment amount, return_value: true
     end
 
     # Decrement the counter and return its new value.
-    # @param amount [Integer] the amount to decrement the counter by. Negative 
+    # @param amount [Integer] the amount to decrement the counter by. Negative
     # values increment the counter.
-    def decrement_and_return(amount=1)
+    def decrement_and_return(amount = 1)
       increment_and_return -amount
     end
 
     # Increment the counter.
     # @param amount [Integer] the amount to increment the counter by
-    # @param [Hash] options 
+    # @param [Hash] options
     # @option options [Boolean] :return_value whether to return the new counter
     # value. Default false.
     # @option options [Fixnum,String] :r ("quorum") read quorum (numeric or
     # symbolic)
     # @option options [Fixnum] :w the "w" parameter (Write quorum)
     # @option options [Fixnum] :dw the "dw" parameter (Durable-write quorum)
-    def increment(amount=1, options={})
+    def increment(amount = 1, options = {})
       validate_amount amount
 
       backend do |backend|
@@ -64,16 +64,16 @@ module Riak
     end
 
     # Decrement the counter.
-    # @param amount [Integer] the amount to decrement the counter by. Negative 
+    # @param amount [Integer] the amount to decrement the counter by. Negative
     # values increment the counter.
-    # @param [Hash] options 
+    # @param [Hash] options
     # @option options [Boolean] :return_value whether to return the new counter
     # value. Default false.
     # @option options [Fixnum,String] :r ("quorum") read quorum (numeric or
     # symbolic)
     # @option options [Fixnum] :w the "w" parameter (Write quorum)
     # @option options [Fixnum] :dw the "dw" parameter (Durable-write quorum)
-    def decrement(amount=1, options={})
+    def decrement(amount = 1, options = {})
       increment(-amount, options)
     end
 

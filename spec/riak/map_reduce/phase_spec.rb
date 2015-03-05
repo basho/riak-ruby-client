@@ -14,9 +14,9 @@ describe Riak::MapReduce::Phase do
   end
 
   it "initializes with a type and an MF" do
-    phase = Riak::MapReduce::Phase.new(:type => :map, :function => ["module", "function"], :language => "erlang")
+    phase = Riak::MapReduce::Phase.new(:type => :map, :function => %w(module function), :language => "erlang")
     expect(phase.type).to eq(:map)
-    expect(phase.function).to eq(["module", "function"])
+    expect(phase.function).to eq(%w(module function))
     expect(phase.language).to eq("erlang")
   end
 
@@ -28,7 +28,7 @@ describe Riak::MapReduce::Phase do
   end
 
   it "assumes the language is erlang when the function is an array" do
-    phase = Riak::MapReduce::Phase.new(:type => :map, :function => ["module", "function"])
+    phase = Riak::MapReduce::Phase.new(:type => :map, :function => %w(module function))
     expect(phase.language).to eq("erlang")
   end
 
@@ -100,7 +100,7 @@ describe Riak::MapReduce::Phase do
         end
 
         it "includes the module and function when invoking an Erlang function" do
-          @phase.function = ["riak_mapreduce", "mapreduce_fun"]
+          @phase.function = %w(riak_mapreduce mapreduce_fun)
           expect(@phase.to_json).to include('"module":"riak_mapreduce"')
           expect(@phase.to_json).to include('"function":"mapreduce_fun"')
         end

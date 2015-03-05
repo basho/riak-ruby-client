@@ -17,6 +17,7 @@ require 'riak/bucket'
 require 'riak/bucket_type'
 require 'riak/multiget'
 require 'riak/secondary_index'
+require 'riak/search'
 require 'riak/stamp'
 require 'riak/list_buckets'
 
@@ -81,7 +82,7 @@ module Riak
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
     # @raise [ArgumentError] raised if any invalid options are given
-    def initialize(options={})
+    def initialize(options = {})
       if options.include? :port
         warn(t('deprecated.port', :backtrace => caller[0..2].join("\n    ")))
       end
@@ -120,7 +121,7 @@ module Riak
     # @param [Hash] options options for retrieving the bucket
     # @option options [Boolean] :props (false) whether to retreive the bucket properties
     # @return [Bucket] the requested bucket
-    def bucket(name, options={})
+    def bucket(name, options = {})
       raise ArgumentError, t('zero_length_bucket') if name == ''
       unless (options.keys - [:props]).empty?
         raise ArgumentError, "invalid options"
@@ -140,7 +141,7 @@ module Riak
     # @note This is an expensive operation and should be used only
     #       in development.
     # @return [Array<Bucket>] a list of buckets
-    def buckets(options={}, &block)
+    def buckets(options = {}, &block)
       warn(t('list_buckets', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
 
       return ListBuckets.new self, options, block if block_given?
@@ -224,14 +225,14 @@ module Riak
     end
 
     # Bucket properties. See Bucket#props
-    def get_bucket_props(bucket, options={  })
+    def get_bucket_props(bucket, options = {  })
       backend do |b|
         b.get_bucket_props bucket, options
       end
     end
 
     # Queries a secondary index on a bucket. See Bucket#get_index
-    def get_index(bucket, index, query, options={})
+    def get_index(bucket, index, query, options = {})
       backend do |b|
         b.get_index bucket, index, query, options
       end
@@ -256,7 +257,7 @@ module Riak
     end
 
     # Retrieves a list of keys in the given bucket. See Bucket#keys
-    def list_keys(bucket, options={}, &block)
+    def list_keys(bucket, options = {}, &block)
       if block_given?
         backend do |b|
           b.list_keys bucket, options, &block
@@ -367,17 +368,14 @@ module Riak
     end
 
     # Sets the properties on a bucket. See Bucket#props=
-    def set_bucket_props(bucket, properties, type=nil)
-      if bucket.needs_type? && type.nil?
-        type = bucket.type.name
-      end
+    def set_bucket_props(bucket, properties, type = nil)
       backend do |b|
         b.set_bucket_props(bucket, properties, type)
       end
     end
 
     # Clears the properties on a bucket. See Bucket#clear_props
-    def clear_bucket_props(bucket, options={  })
+    def clear_bucket_props(bucket, options = {  })
       backend do |b|
         b.reset_bucket_props(bucket, options)
       end

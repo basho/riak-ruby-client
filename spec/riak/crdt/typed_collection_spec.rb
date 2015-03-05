@@ -16,7 +16,7 @@ describe Riak::Crdt::TypedCollection do
       subject do
         described_class.new register_class, parent, existing: 'existing'
       end
-      
+
       it 'exposes them as frozen strings that are really Registers' do
         expect(subject[:existing]).to eq 'existing'
         expect(subject['existing']).to eq 'existing'
@@ -28,7 +28,7 @@ describe Riak::Crdt::TypedCollection do
       describe 'creating and updating' do
 
         let(:new_value){ 'the new value' }
-        
+
         it 'asks the register class for an operation' do
           expect(register_class).to receive(:update).
             with(new_value).
@@ -70,7 +70,7 @@ describe Riak::Crdt::TypedCollection do
       subject do
         described_class.new flag_class, parent, truthy: true, falsey: false
       end
-      
+
       it 'exposes them as booleans' do
         expect(subject[:truthy]).to eq true
         expect(subject['falsey']).to eq false
@@ -92,7 +92,7 @@ describe Riak::Crdt::TypedCollection do
 
         subject['become_truthy'] = true
       end
-      
+
       it 'deletes them' do
         expect(flag_class).
           to receive(:delete).
@@ -113,22 +113,22 @@ describe Riak::Crdt::TypedCollection do
       let(:counter_class){ Riak::Crdt::InnerCounter }
 
       subject{ described_class.new counter_class, parent, zero: 0, one: 1 }
-      
+
       it 'exposes existing ones as Counter instances' do
         expect(subject['zero']).to be_an_instance_of counter_class
         expect(subject['zero'].to_i).to eq 0
-        
+
         expect(subject['one'].to_i).to eq 1
       end
-      
+
       it 'exposes new ones as Counter instances' do
         expect(subject['new_zero']).to be_an_instance_of counter_class
         expect(subject['new_zero'].to_i).to eq 0
       end
-      
+
       it 'allows incrementing and decrementing' do
         counter_name = 'counter'
-        
+
         expect(parent).to receive(:operate) do |op|
           expect(op.name).to eq counter_name
           expect(op.type).to eq :counter
@@ -141,7 +141,7 @@ describe Riak::Crdt::TypedCollection do
           expect(op.type).to eq :counter
           expect(op.value).to eq -5
         end
-        
+
         subject[counter_name].decrement 5
       end
     end
@@ -149,17 +149,17 @@ describe Riak::Crdt::TypedCollection do
       let(:set_class){ Riak::Crdt::InnerSet }
 
       subject{ described_class.new set_class, parent, brewers: %w{aeropress clever v60}}
-      
+
       it 'exposes existing ones as Set instances' do
         expect(subject['brewers']).to be_an_instance_of set_class
         expect(subject['brewers']).to include 'aeropress'
       end
-      
+
       it 'exposes new ones as empty Set instances' do
         expect(subject['filters']).to be_an_instance_of set_class
         expect(subject['filters']).to be_empty
       end
-      
+
       it 'allows adding and removing' do
         set_name = 'brewers'
 
@@ -180,7 +180,7 @@ describe Riak::Crdt::TypedCollection do
         subject[set_name].remove 'aeropress'
       end
     end
-    
+
     describe 'maps' do
       let(:map_class){ Riak::Crdt::InnerMap }
 
@@ -192,32 +192,32 @@ describe Riak::Crdt::TypedCollection do
             sets: {}
           }}
         end
-        
+
       let(:inner_map_name){ 'inner map' }
-      
+
       subject do
         described_class.new map_class, parent, contents
       end
-      
+
       it 'exposes existing ones as populated Map instances' do
         expect(subject['a']).to be_an_instance_of map_class
         expect(subject['a'].registers['hello']).to eq 'world'
       end
-      
+
       it 'exposes new ones as empty Map instances' do
         expect(subject['b']).to be_an_instance_of map_class
         expect(subject['b'].registers['hello']).to be_nil
       end
-      
+
       it 'cascades operations to a parent map' do
         expect(operation).
           to receive(:name=).
           with(inner_map_name)
-        
+
         expect(parent).
           to receive(:operate).
           with(operation)
-        
+
         subject.operate inner_map_name, operation
       end
     end
