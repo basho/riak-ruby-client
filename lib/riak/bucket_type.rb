@@ -45,9 +45,10 @@ module Riak
     end
     alias :props :properties
 
-    # Return the data type used for handling the CRDT stored in this bucket type.
+    # Return the data type used for handling the CRDT stored in this bucket
+    # type.
     # Returns `nil` for a non-CRDT bucket type.
-    # @raise [Riak::CrdtError::UnrecognizedDataType] if the bucket type has an 
+    # @raise [Riak::CrdtError::UnrecognizedDataType] if the bucket type has an
     #   unknown datatype
     # @return [Class<Riak::Crdt::Base>] CRDT subclass to use with this bucket
     #   type
