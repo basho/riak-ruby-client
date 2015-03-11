@@ -7,10 +7,13 @@ describe 'CRDT Search API', crdt_search_config: true do
       Riak::Search::Query.new test_client, index, 'arroz_register:frijoles'
     end
 
+    before(:all) do
+      expect(first_map).to be
+    end
+
     subject{ query.results }
 
     it 'finds maps' do
-      expect(first_map).to be
       expect(subject.length).to be > 0
     end
 
