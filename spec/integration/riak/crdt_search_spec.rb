@@ -3,10 +3,15 @@ require 'riak/search'
 
 describe 'CRDT Search API', crdt_search_config: true do
   describe 'querying maps' do
-    subject { Riak::Search::Query.new test_client, index, 'frijoles' }
+    let(:query) do
+      Riak::Search::Query.new test_client, index, 'arroz_register:frijoles'
+    end
+
+    subject{ query.results }
 
     it 'finds maps' do
-      expect(subject.results.length).to be > 0
+      expect(first_map).to be
+      expect(subject.length).to be > 0
     end
 
     it 'provides access to maps through the #map accessor' do
