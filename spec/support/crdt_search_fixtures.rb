@@ -1,4 +1,8 @@
 module CrdtSearchFixtures
+  def map_result_score
+    43.21
+  end
+
   def maps_type_name
     'maps'
   end
@@ -21,7 +25,7 @@ module CrdtSearchFixtures
 
   def map_raw
     @map_raw ||= {
-      'score'=>score,
+      'score'=>map_result_score,
       '_yz_rb'=>bucket_name,
       '_yz_rt'=>maps_type_name,
       '_yz_rk'=>'map-key'
