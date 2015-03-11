@@ -41,6 +41,10 @@ module Riak::Search
       @score ||= Float(raw['score'])
     end
 
+    def type_class
+      bucket_type.data_type_class || Riak::RObject
+    end
+
     # Provides access to other parts of the result document without
     # materializing them. Useful when querying non-default fields.
     #
