@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak/search/result_collection'
 
-describe Riak::Search::ResultCollection do
+describe Riak::Search::ResultCollection, crdt_search_fixtures: true do
   let(:client) do
     instance_double('Riak::Client').tap do |c|
       allow(c).to receive(:bucket_type).
@@ -44,7 +44,8 @@ describe Riak::Search::ResultCollection do
                {"score"=>"6.73738599999999937529e-02",
                  "_yz_rb"=>"search_test-1419261439-ew70sak2qr",
                  "_yz_rt"=>"yokozuna",
-                 "_yz_rk"=>"bitcask-4"}
+                 "_yz_rk"=>"bitcask-4"},
+               map_raw
               ]
     }
   end
