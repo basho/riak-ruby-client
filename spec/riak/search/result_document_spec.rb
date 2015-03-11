@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak/search/result_document'
 
-describe Riak::Search::ResultDocument do
+describe Riak::Search::ResultDocument, crdt_search_fixtures: true do
   let(:key){ 'bitcask-10' }
   let(:bucket_name){ 'search_test' }
   let(:bucket_type_name){ 'yokozuna' }
@@ -29,27 +29,12 @@ describe Riak::Search::ResultDocument do
     end
   end
 
-  let(:maps_type_name){ 'maps' }
-  let(:maps_bucket_type) do
-    instance_double('Riak::BucketType').tap do |bt|
-      allow(bt).to receive(:bucket).
-                    with(bucket_name).
-                    and_return(map_bucket)
-      allow(bt).to receive(:data_type_class).
-                    and_return(Riak::Crdt::Map)
-    end
-  end
-
   let(:bucket) do
     instance_double('Riak::BucketTyped::Bucket').tap do |b|
       allow(b).to receive(:get).
         with(key).
         and_return(robject)
     end
-  end
-
-  let(:map_bucket) do
-    instance_double('Riak::BucketTyped::Bucket')
   end
 
   let(:robject){ instance_double 'Riak::RObject' }
@@ -64,20 +49,9 @@ describe Riak::Search::ResultDocument do
     }
   end
 
-  let(:map_raw) do
-    {
-      'score'=>score,
-      '_yz_rb'=>bucket_name,
-      '_yz_rt'=>maps_type_name,
-      '_yz_rk'=>'map-key'
-    }
-  end
-
   subject{ described_class.new client, raw }
 
-  let(:crdt_subject) do
-    described_class.new client, map_raw
-  end
+  let(:crdt_subject) { map_results }
 
   it 'has key, bucket, bucket type, and score accessors' do
     expect(subject.key).to eq key

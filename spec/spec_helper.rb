@@ -22,6 +22,7 @@ Riak.disable_list_keys_warnings = true
    test_client
    search_config
    crdt_search_config
+   crdt_search_fixtures
 ].each do |file|
   require File.join("support", file)
 end
