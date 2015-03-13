@@ -95,5 +95,12 @@ describe Riak::Search::ResultDocument, crdt_search_fixtures: true do
       expect(subject.map).to eq fake_map
       expect(subject.crdt).to eq fake_map
     end
+
+    it 'refuses to fetch a counter or set' do
+      expect{ subject.counter }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+      expect{ subject.set }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+    end
   end
 end
