@@ -104,7 +104,18 @@ module Riak::Search
     #
     # @return [Riak::RObject]
     def robject
+      if crdt?
+        fail Riak::SearchError::UnexpectedResultError.
+              new(Riak::RObject, type_class)
+      end
+
       @robject ||= bucket.get key
+    end
+
+    # Returns an appropriate object, be it CRDT or K-V.
+    def object
+      return crdt if crdt?
+      robject
     end
 
     private

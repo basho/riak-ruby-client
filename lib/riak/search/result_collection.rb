@@ -58,13 +58,17 @@ module Riak::Search
       doc = docs[index]
       return nil if doc.nil?
 
-      doc.robject
+      doc.object
     end
 
     # @return [Riak::RObject,NilClass] the first found object, or nil if the
     #   index is out of range
     def first
       self[0]
+    end
+
+    def crdts
+      docs.select(&:crdt?).map(&:crdt)
     end
 
     # {Enumerable}-compatible iterator method. If a block is given, yields with
