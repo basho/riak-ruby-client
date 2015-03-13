@@ -43,26 +43,53 @@ module Riak::Search
       @score ||= Float(raw['score'])
     end
 
+    # Determining if the object is a CRDT or regular K-V object requires
+    # figuring out what data type the bucket type contains. If the bucket type
+    # has no data type, treat it as a regular K-V object.
+    #
+    # @return [Class] the class of the object referred to by the search result
     def type_class
       bucket_type.data_type_class || Riak::RObject
     end
 
+    # @return [Boolean] if the object is a CRDT
     def crdt?
       type_class != Riak::RObject
     end
 
+    # @raise [Riak::CrdtError::NotACrdt] if the result is not a CRDT
+    # @return [Riak::Crdt::Base] the materialized CRDT
     def crdt
       fail Riak::CrdtError::NotACrdt unless crdt?
 
       type_class.new bucket, key, bucket_type
     end
 
-    def map
-      if type_class != Riak::Crdt::Map
-        fail Riak::CrdtError::UnexpectedDataType, Riak::Crdt::Map, type_class
-      end
+    # If the result document describes a counter, return it.
+    #
+    # @return [Riak::Crdt::Counter]
+    # @raise [Riak::CrdtError::NotACrdt] if the result is not a CRDT
+    # @raise [Riak::CrdtError::UnexpectedDataType] if the CRDT is not a counter
+    def counter
+      return crdt if check_type_class Riak::Crdt::Counter
+    end
 
-      crdt
+    # If the result document describes a map, return it.
+    #
+    # @return [Riak::Crdt::Map]
+    # @raise [Riak::CrdtError::NotACrdt] if the result is not a CRDT
+    # @raise [Riak::CrdtError::UnexpectedDataType] if the CRDT is not a map
+    def map
+      return crdt if check_type_class Riak::Crdt::Map
+    end
+
+    # If the result document describes a set, return it.
+    #
+    # @return [Riak::Crdt::Set]
+    # @raise [Riak::CrdtError::NotACrdt] if the result is not a CRDT
+    # @raise [Riak::CrdtError::UnexpectedDataType] if the CRDT is not a set
+    def set
+      return crdt if check_type_class Riak::Crdt::Set
     end
 
     # Provides access to other parts of the result document without
@@ -78,6 +105,14 @@ module Riak::Search
     # @return [Riak::RObject]
     def robject
       @robject ||= bucket.get key
+    end
+
+    private
+
+    def check_type_class(klass)
+      return true if type_class == klass
+      fail Riak::CrdtError::NotACrdt if type_class == Riak::RObject
+      fail Riak::CrdtError::UnexpectedDataType.new(klass, type_class)
     end
   end
 end
