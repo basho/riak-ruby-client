@@ -82,6 +82,7 @@ describe Riak::Search::ResultCollection, crdt_search_fixtures: true do
 
   it 'fetches individual documents on demand' do
     fetch_first_expectation
+    allow(bucket_type).to receive(:data_type_class).and_return nil
 
     expect(subject.first).to eq first_result
   end
