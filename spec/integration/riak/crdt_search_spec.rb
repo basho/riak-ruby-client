@@ -36,9 +36,9 @@ describe 'CRDT Search API', crdt_search_config: true do
       expect{ subject.docs.first.robject }.
         to raise_error Riak::SearchError::UnexpectedResultError
       expect{ subject.docs.first.counter }.
-        to raise_error Riak::SearchError::UnexpectedResultError
+        to raise_error Riak::CrdtError::UnexpectedDataType
       expect{ subject.docs.first.set }.
-        to raise_error Riak::SearchError::UnexpectedResultError
+        to raise_error Riak::CrdtError::UnexpectedDataType
     end
   end
 
