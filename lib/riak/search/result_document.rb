@@ -1,3 +1,5 @@
+require 'riak/errors/crdt_error'
+
 module Riak::Search
 
   # A single document from a Riak Search 2 response. Materializes the document
@@ -43,6 +45,24 @@ module Riak::Search
 
     def type_class
       bucket_type.data_type_class || Riak::RObject
+    end
+
+    def crdt?
+      type_class != Riak::RObject
+    end
+
+    def crdt
+      fail Riak::CrdtError::NotACrdt unless crdt?
+
+      type_class.new bucket, key, bucket_type
+    end
+
+    def map
+      if type_class != Riak::Crdt::Map
+        fail Riak::CrdtError::UnexpectedDataType, Riak::Crdt::Map, type_class
+      end
+
+      crdt
     end
 
     # Provides access to other parts of the result document without

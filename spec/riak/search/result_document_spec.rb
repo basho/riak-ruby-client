@@ -51,8 +51,6 @@ describe Riak::Search::ResultDocument, crdt_search_fixtures: true do
 
   subject{ described_class.new client, raw }
 
-  let(:crdt_subject) { map_results }
-
   it 'has key, bucket, bucket type, and score accessors' do
     expect(subject.key).to eq key
     expect(subject.bucket).to eq bucket
@@ -64,13 +62,38 @@ describe Riak::Search::ResultDocument, crdt_search_fixtures: true do
     expect(subject[:other_field]).to eq other_field
   end
 
-  it 'fetches the robject it identifies' do
-    expect(subject.robject).to eq robject
+  describe 'identifying a key-value object' do
+    it 'fetches the robject it identifies' do
+      expect(subject.robject).to eq robject
+    end
+
+    it 'returns the data type class the document is' do
+      expect(subject.type_class).to eq Riak::RObject
+    end
+
+    it 'refuses to return a CRDT' do
+      expect{ subject.crdt }.to raise_error Riak::CrdtError::NotACrdt
+    end
   end
 
-  it 'returns the data type class the document is' do
-    expect(subject.type_class).to eq Riak::RObject
+  describe 'identifying a CRDT map object' do
+    subject { map_results }
 
-    expect(crdt_subject.type_class).to eq Riak::Crdt::Map
+    it 'returns the data type class the document is' do
+      expect(subject.type_class).to eq Riak::Crdt::Map
+    end
+
+    let(:fake_map){ instance_double 'Riak::Crdt::Map' }
+
+    it 'fetches the map it identifies' do
+      expect(Riak::Crdt::Map).
+        to receive(:new).
+            with(map_bucket, 'map-key', maps_bucket_type).
+            and_return(fake_map).
+            twice
+
+      expect(subject.map).to eq fake_map
+      expect(subject.crdt).to eq fake_map
+    end
   end
 end
