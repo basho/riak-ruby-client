@@ -71,6 +71,18 @@ module Riak::Search
       docs.select(&:crdt?).map(&:crdt)
     end
 
+    def counters
+      docs.select{ |d| d.type_class == Riak::Crdt::Counter }.map(&:counter)
+    end
+
+    def maps
+      docs.select{ |d| d.type_class == Riak::Crdt::Map }.map(&:map)
+    end
+
+    def sets
+      docs.select{ |d| d.type_class == Riak::Crdt::Set }.map(&:set)
+    end
+
     # {Enumerable}-compatible iterator method. If a block is given, yields with
     # each {Riak::RObject} in the collection. If no block is given, returns an
     # {Enumerator} over each {Riak::RObject in the collection.
