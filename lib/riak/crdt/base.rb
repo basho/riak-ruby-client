@@ -61,6 +61,14 @@ module Riak
         !!@context
       end
 
+      def ==(other)
+        return false unless other.is_a? Riak::Crdt::Base
+        return false unless self.bucket_type == other.bucket_type
+        return false unless self.bucket == other.bucket
+        return false unless self.key == other.key
+        return true
+      end
+
       def pretty_print(pp)
         pp.object_group self do
           pp.breakable
