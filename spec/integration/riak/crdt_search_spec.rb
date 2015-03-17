@@ -3,9 +3,7 @@ require 'riak/search'
 
 describe 'CRDT Search API', crdt_search_config: true do
   describe 'querying maps' do
-    let(:query) do
-      Riak::Search::Query.new test_client, index, 'arroz_register:frijoles'
-    end
+    let(:query) { index.query 'arroz_register:frijoles' }
 
     before(:all) do
       expect(first_map).to be
@@ -43,9 +41,7 @@ describe 'CRDT Search API', crdt_search_config: true do
   end
 
   describe 'querying sets' do
-    let(:query) do
-      Riak::Search::Query.new test_client, index, 'set:frijoles'
-    end
+    let(:query) { index.query 'set:frijoles' }
 
     before(:all) do
       expect(first_set).to be
@@ -78,9 +74,7 @@ describe 'CRDT Search API', crdt_search_config: true do
   end
 
   describe 'querying counters' do
-    let(:query) do
-      Riak::Search::Query.new test_client, index, 'counter:83475'
-    end
+    let(:query) { index.query 'counter:83475' }
 
     before(:all) do
       expect(first_counter).to be
