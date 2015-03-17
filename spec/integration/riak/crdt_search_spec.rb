@@ -32,7 +32,7 @@ describe 'CRDT Search API', crdt_search_config: true do
       expect(subject.docs.first.object).to eq first_map
     end
 
-    it 'raises typeerrors on the set, counter, and robject accessors' do
+    it 'raises errors on the set, counter, and robject accessors' do
       expect{ subject.docs.first.robject }.
         to raise_error Riak::SearchError::UnexpectedResultError
       expect{ subject.docs.first.counter }.
@@ -42,8 +42,75 @@ describe 'CRDT Search API', crdt_search_config: true do
     end
   end
 
-  describe 'querying sets'
-  describe 'querying counters'
+  describe 'querying sets' do
+    let(:query) do
+      Riak::Search::Query.new test_client, index, 'set:frijoles'
+    end
+
+    before(:all) do
+      expect(first_set).to be
+    end
+
+    subject{ query.results }
+
+    it 'finds sets' do
+      expect(subject.length).to be > 0
+    end
+
+    it 'provides access to sets through the #set accessor' do
+      expect(subject.sets.first).to eq first_set
+      expect(subject.docs.first.set).to eq first_set
+    end
+
+    it 'provides access to sets through the #object accessor' do
+      expect(subject.first).to eq first_set
+      expect(subject.docs.first.object).to eq first_set
+    end
+
+    it 'raises errors on the counter, map, and robject accessors' do
+      expect{ subject.docs.first.robject }.
+        to raise_error Riak::SearchError::UnexpectedResultError
+      expect{ subject.docs.first.counter }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+      expect{ subject.docs.first.map }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+    end
+  end
+
+  describe 'querying counters' do
+    let(:query) do
+      Riak::Search::Query.new test_client, index, 'counter:83475'
+    end
+
+    before(:all) do
+      expect(first_counter).to be
+    end
+
+    subject{ query.results }
+
+    it 'finds counters' do
+      expect(subject.length).to be > 0
+    end
+
+    it 'provides access to counters through the #counter accessor' do
+      expect(subject.counters.first).to eq first_counter
+      expect(subject.docs.first.counter).to eq first_counter
+    end
+
+    it 'provides access to counters through the #object accessor' do
+      expect(subject.first).to eq first_counter
+      expect(subject.docs.first.object).to eq first_counter
+    end
+
+    it 'raises errors on the counter, map, and robject accessors' do
+      expect{ subject.docs.first.robject }.
+        to raise_error Riak::SearchError::UnexpectedResultError
+      expect{ subject.docs.first.set }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+      expect{ subject.docs.first.map }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+    end
+  end
 
   describe 'querying multiple kinds of CRDT' do
     it 'finds CRDTs'
