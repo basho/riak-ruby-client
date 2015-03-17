@@ -1,6 +1,10 @@
 module CrdtSearchConfig
   include SearchConfig
 
+  def query_text
+    'arroz_register:frijoles OR set:frijoles OR counter:83475'
+  end
+
   def counter_bucket
     @counter_bucket ||= bucket_for :counter
   end
@@ -13,6 +17,19 @@ module CrdtSearchConfig
     @set_bucket ||= bucket_for :set
   end
 
+  def first_counter
+    return @first_counter if defined? @first_counter
+
+    @first_counter = Riak::Crdt::Counter.new counter_bucket, nil
+    @first_counter.increment 83475 # BEANS in leet, i guess
+
+    @first_counter.tap do |c|
+      wait_until do
+        index.query('counter:83475').results.length > 0
+      end
+    end
+  end
+
   def first_map
     return @first_map if defined? @first_map
 
@@ -22,6 +39,19 @@ module CrdtSearchConfig
     @first_map.tap do |m|
       wait_until do
         index.query('arroz_register:frijoles').results.length > 0
+      end
+    end
+  end
+
+  def first_set
+    return @first_set if defined? @first_set
+
+    @first_set = Riak::Crdt::Set.new set_bucket, nil
+    @first_set.add 'frijoles'
+
+    @first_set.tap do |s|
+      wait_until do
+        index.query('set:frijoles').results.length > 0
       end
     end
   end
