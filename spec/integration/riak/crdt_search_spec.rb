@@ -107,8 +107,27 @@ describe 'CRDT Search API', crdt_search_config: true do
   end
 
   describe 'querying multiple kinds of CRDT' do
-    it 'finds CRDTs'
-    it 'provides access through appropriate accessors'
+    let(:query) do
+      index.query 'arroz_register:frijoles OR set:frijoles OR counter:83475'
+    end
+    subject{ query.results }
+
+    before(:all) do
+      expect(first_counter).to be
+      expect(first_map).to be
+      expect(first_set).to be
+    end
+
+    it 'finds CRDTs' do
+      expect(subject.length).to be >= 3
+    end
+
+    it 'provides access through appropriate accessors' do
+      expect(subject.counters.first).to eq first_counter
+      expect(subject.maps.first).to eq first_map
+      expect(subject.sets.first).to eq first_set
+    end
+
     it 'allows looping through each object'
     it 'allows looping through each kind of object'
   end

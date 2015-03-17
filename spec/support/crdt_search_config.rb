@@ -1,10 +1,6 @@
 module CrdtSearchConfig
   include SearchConfig
 
-  def query_text
-    'arroz_register:frijoles OR set:frijoles OR counter:83475'
-  end
-
   def counter_bucket
     @counter_bucket ||= bucket_for :counter
   end
