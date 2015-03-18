@@ -67,31 +67,57 @@ module Riak::Search
       self[0]
     end
 
+    # Materializes and returns an array of objects from search results.
+    # You'll probably need to type inspect its members.
+    #
+    # @return [Array] materialized objects
     def objects
-      docs.map do |doc|
+      @objects ||= docs.map do |doc|
         next doc.crdt if doc.crdt?
         doc.robject
       end
     end
 
+    # Materializes [Riak::RObject]s from any key-value results. Refuses to
+    # return RObjects for any CRDT results.
+    #
+    # @return [Array<Riak::RObject>] key-value objects
     def robjects
-      docs.reject(&:crdt?).map(&:robject)
+      @robjects ||= docs.reject(&:crdt?).map(&:robject)
     end
 
+    # Materializes [Riak::Crdt::Base] subclasses from any CRDT results.
+    #
+    # @return [Array<Riak::Crdt::Base>] CRDT objects
     def crdts
-      docs.select(&:crdt?).map(&:crdt)
+      @crdts ||= docs.select(&:crdt?).map(&:crdt)
     end
 
+    # Materializes [Riak::Crdt::Counter] results.
+    #
+    # @return [Array<Riak::Crdt::Counter] counter objects
     def counters
-      docs.select{ |d| d.type_class == Riak::Crdt::Counter }.map(&:counter)
+      @counters ||= docs.
+                  select{ |d| d.type_class == Riak::Crdt::Counter }.
+                  map(&:counter)
     end
 
+    # Materializes [Riak::Crdt::Map] results.
+    #
+    # @return [Array<Riak::Crdt::Map] map objects
     def maps
-      docs.select{ |d| d.type_class == Riak::Crdt::Map }.map(&:map)
+      @maps ||= docs.
+              select{ |d| d.type_class == Riak::Crdt::Map }.
+              map(&:map)
     end
 
+    # Materializes [Riak::Crdt::Set] results.
+    #
+    # @return [Array<Riak::Crdt::Set>]
     def sets
-      docs.select{ |d| d.type_class == Riak::Crdt::Set }.map(&:set)
+      @sets ||= docs.
+              select{ |d| d.type_class == Riak::Crdt::Set }.
+              map(&:set)
     end
 
     # {Enumerable}-compatible iterator method. If a block is given, yields with
