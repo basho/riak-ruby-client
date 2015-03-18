@@ -67,6 +67,17 @@ module Riak::Search
       self[0]
     end
 
+    def objects
+      docs.map do |doc|
+        next doc.crdt if doc.crdt?
+        doc.robject
+      end
+    end
+
+    def robjects
+      docs.reject(&:crdt?).map(&:robject)
+    end
+
     def crdts
       docs.select(&:crdt?).map(&:crdt)
     end
