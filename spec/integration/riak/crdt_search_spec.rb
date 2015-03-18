@@ -126,16 +126,51 @@ describe 'CRDT Search API', crdt_search_config: true do
       expect(subject.counters.first).to eq first_counter
       expect(subject.maps.first).to eq first_map
       expect(subject.sets.first).to eq first_set
+      expect(subject.crdts).to include first_counter
+      expect(subject.crdts).to include first_map
+      expect(subject.crdts).to include first_set
     end
 
-    it 'allows looping through each object'
-    it 'allows looping through each kind of object'
+    it 'allows looping through each object' do
+      # I worry that this may be order-dependent and occasionally fail
+      expect{ |b| subject.crdts.each &b }.
+        to yield_successive_args(first_counter, first_map, first_set)
+    end
+
+    it 'allows looping through each kind of object' do
+      expect{ |b| subject.counters.each &b }.to yield_with_args(first_counter)
+      expect{ |b| subject.maps.each &b }.to yield_with_args(first_map)
+      expect{ |b| subject.sets.each &b }.to yield_with_args(first_set)
+    end
   end
 
   describe 'querying both CRDTs and RObjects' do
-    it 'finds CRDTs and RObjects'
-    it 'provides access through appropriate accessors'
-    it 'allows looping through each object'
-    it 'allows looping through each kind of object'
+    let(:query) do
+      index.query 'arroz_register:frijoles OR set:frijoles OR counter:83475 OR "bitcask"'
+    end
+    subject{ query.results }
+
+    before(:all) do
+      load_corpus
+      expect(first_counter).to be
+      expect(first_map).to be
+      expect(first_set).to be
+    end
+
+    let(:first_robject){ subject.robjects.first }
+
+    it 'finds CRDTs and RObjects' do
+      expect(subject.objects).to include first_counter
+      expect(subject.objects).to include first_map
+      expect(subject.objects).to include first_set
+      expect(subject.objects).to include first_robject
+    end
+
+    it 'provides access through appropriate accessors' do
+      expect(subject.crdts).to_not include first_robject
+      expect(subject.robjects).to_not include first_counter
+      expect(subject.robjects).to_not include first_map
+      expect(subject.robjects).to_not include first_set
+    end
   end
 end
