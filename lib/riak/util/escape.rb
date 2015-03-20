@@ -52,9 +52,9 @@ module Riak
       # @return [String] the escaped path segment
       def escape(bucket_or_key)
         if Riak.escaper == URI
-          Riak.escaper.escape(bucket_or_key.to_s).gsub(" ", "%20").gsub("+", "%2B").gsub('/', "%2F")
+          Riak.escaper.escape(bucket_or_key.to_s).gsub(/[ \+\/]/, { " " => "%20", "+" => "%2B", "/" => "%2F"})
         else #CGI
-          Riak.escaper.escape(bucket_or_key.to_s).gsub("+", "%20").gsub('/', "%2F")
+          Riak.escaper.escape(bucket_or_key.to_s).gsub(/[\+\/]/, { "+" => "%20", "/" => "%2F"})
         end
       end
 
