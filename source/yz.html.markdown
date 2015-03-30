@@ -168,6 +168,8 @@ first_result.bucket      # Riak::Bucket instance
 first_result.key         # String
 ```
 
+### Materializing Results into Objects
+
 You can materialize a Riak object from a `ResultDocument`, either a `RObject`
 key-value object, or one of the many flavors of CRDT.
 
