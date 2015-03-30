@@ -39,3 +39,4 @@ vendor/erlang
 vendor/riak
 .ruby-version
 tmp
+tags
