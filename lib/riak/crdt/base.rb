@@ -62,7 +62,7 @@ module Riak
       end
 
       def ==(other)
-        return false unless other.is_a? Riak::Crdt::Base
+        return false unless self.class == other.class
         return false unless self.bucket_type == other.bucket_type
         return false unless self.bucket == other.bucket
         return false unless self.key == other.key
