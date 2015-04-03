@@ -24,11 +24,19 @@ describe Riak::BucketType do
     expect(typed_bucket.type).to eq subject
   end
 
-  let(:sample_props){ { allow_mult: true } }
 
-  it 'has properties' do
-    expect(backend).to receive(:get_bucket_type_props).with(name).and_return(sample_props)
-    expect(props = subject.properties).to be_a Hash
-    expect(props[:allow_mult]).to be
+  describe 'properties' do
+    let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(name) }
+
+    it 'is queryable' do
+      props_expectation.and_return(allow_mult: true)
+      expect(props = subject.properties).to be_a Hash
+      expect(props[:allow_mult]).to be
+    end
+
+    it 'asks for data type' do
+      props_expectation.and_return(datatype: 'set')
+      expect(subject.data_type_class).to eq Riak::Crdt::Set
+    end
   end
 end

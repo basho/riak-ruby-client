@@ -25,5 +25,11 @@ module Riak
         super t('search.index_non_exist', index: index)
       end
     end
+
+    class UnexpectedResultError < SearchError
+      def initialize(expected, actual)
+        super t('search.unexpected_result', expected: expected, actual: actual)
+      end
+    end
   end
 end

@@ -11,6 +11,12 @@ module SearchConfig
     @index_name ||= search_bucket.name
   end
 
+  def index
+    return @index if defined? @index
+    create_index
+    @index = Riak::Search::Index.new test_client, index_name
+  end
+
   def create_index
     return if defined? @index_exists
 

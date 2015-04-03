@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak/search/result_document'
 
-describe Riak::Search::ResultDocument do
+describe Riak::Search::ResultDocument, crdt_search_fixtures: true do
   let(:key){ 'bitcask-10' }
   let(:bucket_name){ 'search_test' }
   let(:bucket_type_name){ 'yokozuna' }
@@ -11,16 +11,21 @@ describe Riak::Search::ResultDocument do
   let(:client) do
     instance_double('Riak::Client').tap do |c|
       allow(c).to receive(:bucket_type).
-        with(bucket_type_name).
-        and_return(bucket_type)
+                   with(bucket_type_name).
+                   and_return(bucket_type)
+      allow(c).to receive(:bucket_type).
+                   with(maps_type_name).
+                   and_return(maps_bucket_type)
     end
   end
 
   let(:bucket_type) do
     instance_double('Riak::BucketType').tap do |bt|
       allow(bt).to receive(:bucket).
-        with(bucket_name).
-        and_return(bucket)
+                    with(bucket_name).
+                    and_return(bucket)
+      allow(bt).to receive(:data_type_class).
+                    and_return(nil)
     end
   end
 
@@ -53,11 +58,49 @@ describe Riak::Search::ResultDocument do
     expect(subject.score).to eq score
   end
 
-  it 'makes other yz fields aavailable' do
+  it 'makes other yz fields available' do
     expect(subject[:other_field]).to eq other_field
   end
 
-  it 'fetches the robject it identifies' do
-    expect(subject.robject).to eq robject
+  describe 'identifying a key-value object' do
+    it 'fetches the robject it identifies' do
+      expect(subject.robject).to eq robject
+    end
+
+    it 'returns the data type class the document is' do
+      expect(subject.type_class).to eq Riak::RObject
+    end
+
+    it 'refuses to return a CRDT' do
+      expect{ subject.crdt }.to raise_error Riak::CrdtError::NotACrdt
+    end
+  end
+
+  describe 'identifying a CRDT map object' do
+    subject { map_results }
+
+    it 'returns the data type class the document is' do
+      expect(subject.type_class).to eq Riak::Crdt::Map
+    end
+
+    let(:fake_map){ instance_double 'Riak::Crdt::Map' }
+
+    it 'fetches the map it identifies' do
+      expect(Riak::Crdt::Map).
+        to receive(:new).
+            with(map_bucket, 'map-key', maps_bucket_type).
+            and_return(fake_map).
+            twice
+
+      expect(subject.map).to eq fake_map
+      expect(subject.crdt).to eq fake_map
+    end
+
+    it 'refuses to fetch a counter or set' do
+      expect{ subject.counter }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+      expect{ subject.set }.
+        to raise_error Riak::CrdtError::UnexpectedDataType
+    end
   end
 end
