@@ -103,6 +103,12 @@ module Riak
         return false
       end
 
+      def ==(other)
+        return false unless self.class == other.class
+        return false unless self.type == other.type
+        super
+      end
+
       private
       # merge in the type name with options
       def o(options)
