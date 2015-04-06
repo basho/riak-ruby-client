@@ -12,7 +12,7 @@ describe Riak::BucketTyped::Bucket do
     typed_robject = subject.new 'panther'
     expect(typed_robject).to be_a Riak::RObject
     expect(typed_robject.key).to eq 'panther'
-    expect(typed_robject.type).to eq type
+    expect(typed_robject.bucket.type).to eq type
   end
 
   it 'has a bucket type' do
