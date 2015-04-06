@@ -38,7 +38,9 @@ module Riak
       # @return [Riak::RObject] the object
       # @raise [FailedRequest] if the object is not found or some other error occurs
       def get(key, options = {  })
-        super key, o(options)
+        object = super key, o(options)
+        object.bucket = self
+        return object
       end
       alias :[] :get
 
