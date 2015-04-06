@@ -72,6 +72,15 @@ describe "CRDTs", integration: true, test_client: true do
       expect(subject.dirty?).to_not be
       expect(subject.value).to eq(start + 10 + 1)
     end
+
+    describe 'equality' do
+      let(:same){ Riak::Crdt::Counter.new subject.bucket, subject.key }
+      let(:same_bucket){ Riak::Bucket.new test_client, bucket.name }
+      let(:similar){ Riak::Crdt::Counter.new same_bucket, subject.key }
+      it { is_expected.to eq subject }
+      it { is_expected.to eq same }
+      it { is_expected.to eq similar }
+    end
   end
   describe 'sets' do
 
