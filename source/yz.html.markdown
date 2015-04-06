@@ -85,11 +85,14 @@ fancy_index.schema #=> 'schema_name'
 ### Indexes and Buckets
 
 Riak objects aren't indexed by default.  You can set a bucket's properties to
-index objects on write.
+index objects on write. The `BucketProperties` object accepts either a
+`String` index name, or a `Riak::Search::Index` instance for the `search_index`
+property.
 
 ```ruby
 props = Riak::BucketProperties.new bucket
-props['search_index'] = 'index_name'
+props['search_index'] = 'index_name' # String
+props['search_index'] = index_object # Riak::Search::Index
 props.store
 ```
 
@@ -138,6 +141,7 @@ query = Riak::Search::Query.new(client,
                                 start: 15
                                 )
 
+# Options also have accessor methods defined
 query.sort = 'age_i asc'
 query.rows = 1
 query.df = 'dog_ss'
@@ -164,7 +168,7 @@ first_result = docs.first # ResultDocument
 
 # addressing information
 first_result.bucket_type # Riak::BucketType instance
-first_result.bucket      # Riak::Bucket instance
+first_result.bucket      # Riak::BucketTyped::Bucket instance
 first_result.key         # String
 ```
 
