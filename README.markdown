@@ -25,19 +25,19 @@ multi_json.
 Development dependencies are handled with bundler. Install bundler
 (`gem install bundler`) and run this command to get started:
 
-``` bash
+```bash
 $ bundle install
 ```
 
 Run the RSpec suite using `bundle exec`:
 
-``` bash
+```bash
 $ bundle exec rake
 ```
 
 ## Basic Example
 
-``` ruby
+```ruby
 require 'riak'
 
 # Create a client interface
