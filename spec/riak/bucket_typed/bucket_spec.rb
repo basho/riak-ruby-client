@@ -8,10 +8,6 @@ describe Riak::BucketTyped::Bucket do
 
   subject{ described_class.new client, name, type }
 
-  it 'fails' do
-    expect(false).to be
-  end
-
   it 'initializes a typed RObject' do
     typed_robject = subject.new 'panther'
     expect(typed_robject).to be_a Riak::RObject
