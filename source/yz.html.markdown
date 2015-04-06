@@ -29,7 +29,7 @@ index.create!
 # Add the new index to a typed bucket. Setting the index on the bucket
 # may fail until the index creation has propagated.
 props = Riak::BucketProperties.new bucket
-props['search_index'] = index.name
+props['search_index'] = index
 props.store
 
 # Store records
