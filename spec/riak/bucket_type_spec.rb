@@ -24,6 +24,14 @@ describe Riak::BucketType do
     expect(typed_bucket.type).to eq subject
   end
 
+  describe 'equality' do
+    let(:same){ described_class.new client, name }
+    let(:different_client){ described_class.new Riak::Client.allocate, name }
+    let(:different_name){ described_class.new client, 'different name' }
+    it { is_expected.to eq same }
+    it { is_expected.to_not eq different_client }
+    it { is_expected.to_not eq different_name }
+  end
 
   describe 'properties' do
     let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(name) }

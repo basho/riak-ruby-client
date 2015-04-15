@@ -66,5 +66,12 @@ module Riak
         raise CrdtError::UnrecognizedDataType.new dt
       end
     end
+
+    def ==(other)
+      return false unless self.class == other.class
+      return false unless self.client == other.client
+      return false unless self.name == other.name
+      true
+    end
   end
 end

@@ -59,6 +59,11 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect(bucket.keys).to include object.key
       end
 
+      it 'keeps the bucket type attached to value objects' do
+        expect(bucket.get(object.key).bucket).to eq bucket
+        expect(bucket.get(object.key).bucket.type).to eq bucket_type
+      end
+
       describe 'deletion' do
         it 'self-deletes with a bucket type' do
           expect(untyped_object).to be # ensure existence

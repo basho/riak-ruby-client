@@ -38,7 +38,9 @@ module Riak
       # @return [Riak::RObject] the object
       # @raise [FailedRequest] if the object is not found or some other error occurs
       def get(key, options = {  })
-        super key, o(options)
+        object = super key, o(options)
+        object.bucket = self
+        return object
       end
       alias :[] :get
 
@@ -101,6 +103,12 @@ module Riak
       def needs_type?
         return true unless type.default?
         return false
+      end
+
+      def ==(other)
+        return false unless self.class == other.class
+        return false unless self.type == other.type
+        super
       end
 
       private

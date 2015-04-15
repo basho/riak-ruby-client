@@ -277,7 +277,10 @@ module Riak
 
     # @return [true,false] whether the other is equivalent
     def ==(other)
-      Bucket === other && other.client == client && other.name == name
+      return false unless self.class == other.class
+      return false unless self.client == other.client
+      return false unless self.name == other.name
+      true
     end
   end
 end
