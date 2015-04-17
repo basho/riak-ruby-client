@@ -240,6 +240,13 @@ module Riak
       end
     end
 
+    # Retrieves a preflist for the given bucket, key, and type; useful for
+    # figuring out where in the cluster an object is stored.
+    # @param [Bucket, String] bucket the Bucket or name of the bucket
+    # @param [String] key the key
+    # @param [BucketType, String] type the bucket type or name of the bucket
+    #   type
+    # @return [Array<PreflistItem>] an array of preflist entries
     def get_preflist(bucket, key, type = nil, options = {  })
       backend do |b|
         b.get_preflist bucket, key, type, options

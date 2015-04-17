@@ -165,6 +165,7 @@ module Riak
           type = bucket.type.name
         end
         bucket = bucket.name if bucket.is_a? Bucket
+        type = type.name if type.is_a? BucketType
 
         message = RpbGetBucketKeyPreflistReq.new(
           bucket: bucket,
