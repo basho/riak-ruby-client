@@ -197,6 +197,10 @@ module Riak
       Link.new(@bucket.name, @key, tag)
     end
 
+    def preflist(options = {})
+      bucket.preflist key, options
+    end
+
     private
 
     def default(options)

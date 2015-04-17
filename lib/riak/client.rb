@@ -12,6 +12,7 @@ require 'riak/client/node'
 require 'riak/client/search'
 require 'riak/client/yokozuna'
 require 'riak/client/protobuffs_backend'
+require 'riak/preflist_item'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
 require 'riak/bucket_properties'
@@ -236,6 +237,12 @@ module Riak
     def get_index(bucket, index, query, options = {})
       backend do |b|
         b.get_index bucket, index, query, options
+      end
+    end
+
+    def preflist(bucket, key, type = nil, options = {  })
+      backend do |b|
+        b.get_preflist bucket, key, type, options
       end
     end
 
