@@ -149,6 +149,7 @@ class RpbBucketProps
   optional :search_index, :bytes, 25
   optional :datatype, :bytes, 26
   optional :consistent, :bool, 27
+  optional :write_once, :bool, 28
 end
 
 class RpbAuthReq
@@ -257,6 +258,18 @@ class RpbCounterGetReq
 end
 
 class RpbCounterGetResp
+  include Beefcake::Message
+end
+
+class RpbGetBucketKeyPreflistReq
+  include Beefcake::Message
+end
+
+class RpbGetBucketKeyPreflistResp
+  include Beefcake::Message
+end
+
+class RpbBucketKeyPreflistItem
   include Beefcake::Message
 end
 
@@ -457,6 +470,22 @@ end
 class RpbCounterGetResp
   optional :value, :sint64, 1
 end
+
+class RpbGetBucketKeyPreflistReq
+  required :bucket, :bytes, 1
+  required :key, :bytes, 2
+  optional :type, :bytes, 3
+end
+
+class RpbGetBucketKeyPreflistResp
+  repeated :preflist, RpbBucketKeyPreflistItem, 1
+end
+
+class RpbBucketKeyPreflistItem
+  required :partition, :int64, 1
+  required :node, :bytes, 2
+  required :primary, :bool, 3
+end
 ## Generated from riak_search.proto for
 require "beefcake"
 
@@ -551,6 +580,7 @@ end
 
 class RpbYokozunaIndexPutReq
   required :index, RpbYokozunaIndex, 1
+  optional :timeout, :uint32, 2
 end
 
 class RpbYokozunaIndexDeleteReq
