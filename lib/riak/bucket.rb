@@ -185,9 +185,9 @@ module Riak
       client.get_index(self, index, query, options)
     end
 
-    def preflist(key, options = {  })
+    def get_preflist(key, options = {  })
       type = self.type.name if needs_type?
-      client.preflist self, key, type, options
+      client.get_preflist self, key, type, options
     end
 
     # @return [true, false] whether the bucket allows divergent siblings

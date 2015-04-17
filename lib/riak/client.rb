@@ -240,7 +240,7 @@ module Riak
       end
     end
 
-    def preflist(bucket, key, type = nil, options = {  })
+    def get_preflist(bucket, key, type = nil, options = {  })
       backend do |b|
         b.get_preflist bucket, key, type, options
       end

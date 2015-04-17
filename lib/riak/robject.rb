@@ -198,7 +198,7 @@ module Riak
     end
 
     def preflist(options = {})
-      bucket.preflist key, options
+      bucket.get_preflist key, options
     end
 
     private

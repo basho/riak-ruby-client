@@ -22,10 +22,10 @@ describe 'Preflist', integration: true, test_client: true do
   end
 
   it 'is available from Buckets' do
-    expect(bucket.preflist robject.key).to be_a_preflist
+    expect(bucket.get_preflist robject.key).to be_a_preflist
   end
 
   it 'is available from the Client' do
-    expect(test_client.preflist bucket.name, robject.key).to be_a_preflist
+    expect(test_client.get_preflist bucket.name, robject.key).to be_a_preflist
   end
 end
