@@ -10,7 +10,11 @@ module Riak
 
         # Returns RpbPutReq
         def dump_object(robject, options = {})
-          pbuf = RpbPutReq.new(options.merge(:bucket => maybe_encode(robject.bucket.name)))
+          req_opts = options.merge(:bucket => maybe_encode(robject.bucket.name))
+          if robject.bucket.respond_to?(:type) && t = robject.bucket.type
+            req_opts[:type] = maybe_encode(t.name)
+          end
+          pbuf = RpbPutReq.new(req_opts)
           pbuf.key = maybe_encode(robject.key) if robject.key # Put w/o key supported!
           pbuf.vclock = maybe_encode(Base64.decode64(robject.vclock)) if robject.vclock
           pbuf.content = RpbContent.new(:value => maybe_encode(robject.raw_data),
