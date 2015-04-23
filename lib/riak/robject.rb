@@ -23,9 +23,11 @@ module Riak
     # @return [String] the key of this object within its bucket
     attr_accessor :key
 
-    # @return [String] the Riak vector clock for the object
+    # @return [String] the Riak causal context/vector clock for the object
     attr_accessor :vclock
 
+    alias :causal_context :vclock
+    alias :causal_context= :vclock=
     alias :vector_clock :vclock
     alias :vector_clock= :vclock=
 
