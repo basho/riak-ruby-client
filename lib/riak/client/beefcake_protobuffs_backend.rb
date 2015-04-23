@@ -147,7 +147,7 @@ module Riak
 
       def delete_object(bucket, key, options = {})
         if bucket.is_a? Bucket
-#          options[:type] = bucket.type.name if bucket.needs_type?
+          options[:type] = bucket.type.name if bucket.needs_type?
           bucket = bucket.name
         end
         options = normalize_quorums(options)
