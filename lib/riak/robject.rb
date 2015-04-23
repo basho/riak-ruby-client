@@ -110,8 +110,8 @@ module Riak
     end
 
     # Load object data from a map/reduce response item.
-    # This method is used by RObject::load_from_mapreduce to instantiate the necessary
-    # objects.
+    # This method is used by RObject::load_from_mapreduce to instantiate the
+    # necessary objects.
     # @param [Hash] response a response from {Riak::MapReduce}
     # @return [RObject] self
     def load_from_mapreduce(response)
@@ -126,17 +126,21 @@ module Riak
 
     # Store the object in Riak
     # @param [Hash] options query parameters
-    # @option options [Fixnum] :r the "r" parameter (Read quorum for the implicit read performed when validating the store operation)
+    # @option options [Fixnum] :r the "r" parameter (Read quorum for the
+    #   implicit read performed when validating the store operation)
     # @option options [Fixnum] :w the "w" parameter (Write quorum)
     # @option options [Fixnum] :dw the "dw" parameter (Durable-write quorum)
-    # @option options [Boolean] :returnbody (true) whether to return the result of a successful write in the body of the response. Set to false for fire-and-forget updates, set to true to immediately have access to the object's stored representation.
+    # @option options [Boolean] :returnbody (true) whether to return the result
+    #   of a successful write in the body of the response. Set to false for
+    #   fire-and-forget updates, set to true to immediately have access to the
+    #   object's stored representation.
     # @return [Riak::RObject] self
     # @raise [ArgumentError] if the content_type is not defined
     # @raise [Conflict] if the object has siblings
     def store(options = {})
-      raise Conflict, self if conflict?
-      raise ArgumentError, t("content_type_undefined") unless content_type.present?
-      raise ArgumentError, t("zero_length_key") if key == ''
+      fail Conflict, self if conflict?
+      fail ArgumentError, t('content_type_undefined') unless content_type.present?
+      fail ArgumentError, t('zero_length_key') if key == ''
       @bucket.client.store_object(self, default(options))
       self
     end
