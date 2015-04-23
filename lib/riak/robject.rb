@@ -197,6 +197,13 @@ module Riak
       Link.new(@bucket.name, @key, tag)
     end
 
+    # Retrieves a preflist for this RObject; useful for
+    # figuring out where in the cluster it is stored.
+    # @return [Array<PreflistItem>] an array of preflist entries
+    def preflist(options = {})
+      bucket.get_preflist key, options
+    end
+
     private
 
     def default(options)

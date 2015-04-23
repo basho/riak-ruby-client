@@ -39,6 +39,10 @@ module Riak
         :SetBucketTypeReq => 32,
         :ResetBucketTypeReq => 33,
 
+        # preflist
+        :GetBucketKeyPreflistReq => 33,
+        :GetBucketKeyPreflistResp => 34,
+
         # riak cs
         :CSBucketReq => 40,
         :CSBucketResp => 41,

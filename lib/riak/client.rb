@@ -12,6 +12,7 @@ require 'riak/client/node'
 require 'riak/client/search'
 require 'riak/client/yokozuna'
 require 'riak/client/protobuffs_backend'
+require 'riak/preflist_item'
 require 'riak/client/beefcake_protobuffs_backend'
 require 'riak/bucket'
 require 'riak/bucket_properties'
@@ -236,6 +237,19 @@ module Riak
     def get_index(bucket, index, query, options = {})
       backend do |b|
         b.get_index bucket, index, query, options
+      end
+    end
+
+    # Retrieves a preflist for the given bucket, key, and type; useful for
+    # figuring out where in the cluster an object is stored.
+    # @param [Bucket, String] bucket the Bucket or name of the bucket
+    # @param [String] key the key
+    # @param [BucketType, String] type the bucket type or name of the bucket
+    #   type
+    # @return [Array<PreflistItem>] an array of preflist entries
+    def get_preflist(bucket, key, type = nil, options = {  })
+      backend do |b|
+        b.get_preflist bucket, key, type, options
       end
     end
 

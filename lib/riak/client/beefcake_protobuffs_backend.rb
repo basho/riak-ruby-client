@@ -160,6 +160,27 @@ module Riak
         return true
       end
 
+      def get_preflist(bucket, key, type = nil, options = {})
+        if type.nil? && bucket.is_a?(Riak::BucketTyped::Bucket)
+          type = bucket.type.name
+        end
+        bucket = bucket.name if bucket.is_a? Bucket
+        type = type.name if type.is_a? BucketType
+
+        message = RpbGetBucketKeyPreflistReq.new(
+          bucket: bucket,
+          key: key,
+          type: type
+        )
+
+        resp = protocol do |p|
+          p.write :GetBucketKeyPreflistReq, message
+          p.expect :GetBucketKeyPreflistResp, RpbGetBucketKeyPreflistResp
+        end
+
+        resp.preflist
+      end
+
       def get_counter(bucket, key, options = {})
         bucket = bucket.name if bucket.is_a? Bucket
 

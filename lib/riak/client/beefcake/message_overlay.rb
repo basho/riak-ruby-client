@@ -9,6 +9,10 @@ module Riak
         end
       end
 
+      class RpbBucketKeyPreflistItem
+        include Riak::PreflistItem
+      end
+
       class RpbBucketProps
 
         # "repeated" elements with zero items are indistinguishable

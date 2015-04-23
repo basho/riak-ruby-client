@@ -185,6 +185,16 @@ module Riak
       client.get_index(self, index, query, options)
     end
 
+
+    # Retrieves a preflist for the given key; useful for
+    # figuring out where in the cluster an object is stored.
+    # @param [String] key the key
+    # @return [Array<PreflistItem>] an array of preflist entries
+    def get_preflist(key, options = {  })
+      type = self.type.name if needs_type?
+      client.get_preflist self, key, type, options
+    end
+
     # @return [true, false] whether the bucket allows divergent siblings
     def allow_mult
       props['allow_mult']

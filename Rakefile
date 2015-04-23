@@ -92,13 +92,13 @@ namespace :beefcake do
 
   PROTO_FILES = %w{riak_kv riak_search riak_yokozuna riak_dt}
   PROTO_TMP = PROTO_FILES.map{|f| "tmp/#{f}.pb.rb"}
-  
+
   task :clean do
     sh "rm -rf tmp/riak_pb"
     sh "rm -rf #{PROTO_TMP.join ' '}"
   end
 
-  
+
   file 'lib/riak/client/beefcake/messages.rb' => PROTO_TMP do |t|
     sh "cat lib/riak/client/beefcake/header tmp/riak.pb.rb #{t.prerequisites.join ' '} lib/riak/client/beefcake/footer > #{t.name}"
   end
@@ -109,7 +109,9 @@ namespace :beefcake do
     end
   end
 
-  directory 'tmp/riak_pb' do
+  directory 'tmp'
+
+  directory 'tmp/riak_pb' => 'tmp' do
     cd 'tmp' do
       sh "git clone -b develop https://github.com/basho/riak_pb.git"
     end
