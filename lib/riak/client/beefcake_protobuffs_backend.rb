@@ -102,6 +102,7 @@ module Riak
       def reload_object(robject, options = {})
         options = normalize_quorums(options)
         options[:bucket] = maybe_encode(robject.bucket.name)
+        options[:type] = maybe_encode(robject.bucket.type.name) if robject.bucket.needs_type?
         options[:key] = maybe_encode(robject.key)
         options[:if_modified] = maybe_encode Base64.decode64(robject.vclock) if robject.vclock
         req = RpbGetReq.new(prune_unsupported_options(:GetReq, options))
@@ -145,7 +146,10 @@ module Riak
       end
 
       def delete_object(bucket, key, options = {})
-        bucket = Bucket === bucket ? bucket.name : bucket
+        if bucket.is_a? Bucket
+#          options[:type] = bucket.type.name if bucket.needs_type?
+          bucket = bucket.name
+        end
         options = normalize_quorums(options)
         options[:bucket] = maybe_encode(bucket)
         options[:key] = maybe_encode(key)
