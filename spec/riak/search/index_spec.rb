@@ -42,7 +42,7 @@ describe Riak::Search::Index do
       and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, 'not found'))
 
     expect(backend).to receive(:create_search_index).
-      with(index_name, nil, nil)
+      with(index_name, nil, nil, nil)
 
     expect{ subject.create! }.to_not raise_error
   end
