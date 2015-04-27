@@ -368,9 +368,9 @@ module Riak
         return ret
       end
 
-      def create_search_index(name, schema = nil, n_val = nil)
-        index = RpbYokozunaIndex.new(:name => name, :schema => schema, :n_val => n_val)
-        req = RpbYokozunaIndexPutReq.new(:index => index)
+      def create_search_index(name, schema = nil, n_val = nil, timeout = nil)
+        index = RpbYokozunaIndex.new(name: name, schema: schema, n_val: n_val)
+        req = RpbYokozunaIndexPutReq.new(index: index, timeout: timeout)
 
         protocol do |p|
           p.write :YokozunaIndexPutReq, req
