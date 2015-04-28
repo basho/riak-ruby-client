@@ -181,6 +181,7 @@ describe Riak::RObject do
 
     it "sets the vclock" do
       expect(@object.vclock).to eq("a85hYGBgzmDKBVIsCfs+fc9gSN9wlA8q/hKosDpIOAsA")
+      expect(@object.causal_context).to eq @object.vclock
     end
 
     it "loads and parse links" do

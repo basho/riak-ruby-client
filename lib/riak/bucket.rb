@@ -51,7 +51,8 @@ module Riak
     # @param [Hash] properties new properties for the bucket
     # @option properties [Fixnum] :n_val (3) The N value (replication factor)
     # @option properties [true,false] :allow_mult (false) Whether to permit object siblings
-    # @option properties [true,false] :last_write_wins (false) Whether to ignore vclocks
+    # @option properties [true,false] :last_write_wins (false) Whether to ignore
+    #   causal context in regular key-value buckets
     # @option properties [Array<Hash>] :precommit ([]) precommit hooks
     # @option properties [Array<Hash>] :postcommit ([])postcommit hooks
     # @option properties [Fixnum,String] :r ("quorum") read quorum (numeric or
@@ -168,7 +169,7 @@ module Riak
     # @param [Hash] options quorum options
     # @option options [Fixnum] :rw - the read/write quorum for the
     #   delete
-    # @option options [String] :vclock - the vector clock of the
+    # @option options [String] :vclock - the causal context/vector clock of the
     #   object being deleted
     def delete(key, options = {})
       client.delete_object(self, key, options)
