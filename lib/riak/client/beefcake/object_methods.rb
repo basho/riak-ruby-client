@@ -10,19 +10,14 @@ module Riak
 
         # Returns RpbPutReq
         def dump_object(robject, options = {})
-          pbuf = RpbPutReq.new(options.merge(:bucket => maybe_encode(robject.bucket.name)))
+          req_opts = options.merge(:bucket => maybe_encode(robject.bucket.name))
+          if robject.bucket.respond_to?(:type) && t = robject.bucket.type
+            req_opts[:type] = maybe_encode(t.name)
+          end
+          pbuf = RpbPutReq.new(req_opts)
           pbuf.key = maybe_encode(robject.key) if robject.key # Put w/o key supported!
           pbuf.vclock = maybe_encode(Base64.decode64(robject.vclock)) if robject.vclock
-          pbuf.content = RpbContent.new(:value => maybe_encode(robject.raw_data),
-                                        :content_type => maybe_encode(robject.content_type),
-                                        :links => robject.links.map {|l| encode_link(l) }.compact,
-                                        :indexes => robject.indexes.map {|k, s| encode_index(k, s) }.flatten)
-
-          pbuf.content.usermeta = robject.meta.map {|k, v| encode_meta(k, v)} if robject.meta.any?
-          pbuf.content.vtag = maybe_encode(robject.etag) if robject.etag.present?
-          if ENCODING # 1.9 support
-            pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
-          end
+          dump_content pbuf, robject
           pbuf
         end
 
@@ -58,6 +53,19 @@ module Riak
             rcontent.last_modified += pbuf.last_mod_usecs / 1000000 if pbuf.last_mod_usecs.present?
           end
           rcontent
+        end
+
+        def dump_content(pbuf, robject)
+          pbuf.content = RpbContent.new(:value => maybe_encode(robject.raw_data),
+                                        :content_type => maybe_encode(robject.content_type),
+                                        :links => robject.links.map {|l| encode_link(l) }.compact,
+                                        :indexes => robject.indexes.map {|k, s| encode_index(k, s) }.flatten)
+
+          pbuf.content.usermeta = robject.meta.map {|k, v| encode_meta(k, v)} if robject.meta.any?
+          pbuf.content.vtag = maybe_encode(robject.etag) if robject.etag.present?
+          if ENCODING # 1.9 support
+            pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
+          end
         end
 
         def decode_link(pbuf)

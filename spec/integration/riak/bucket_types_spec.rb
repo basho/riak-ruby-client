@@ -41,6 +41,31 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect(bucket.exists?('lawnmower')).to be
       end
 
+      describe 'loading and modifying a RObject' do
+        it "doesn't modify objects in other buckets" do
+          expect(o = bucket.get(object.key)).to be
+          o.data = 'updated'
+          o.store
+          o.reload
+
+          expect(o.data).to eq 'updated'
+
+          expect{ untyped_bucket.get(object.key)}.to raise_error(/not found/)
+
+          expect(o3 = bucket.get(object.key)).to be
+          expect(o3.data).to eq o.data
+        end
+
+        it "doesn't delete objects in other buckets'" do
+          expect{ untyped_object.reload }.to_not raise_error
+
+          expect(o = bucket.get(object.key)).to be
+          o.delete
+
+          expect{ untyped_object.reload }.to_not raise_error
+        end
+      end
+
       it 'only retrieves with a bucket type' do
         expect(bucket.get(object.key).data).to eq object.data
         expect{ untyped_bucket.get object.key }.to raise_error /not_found/
