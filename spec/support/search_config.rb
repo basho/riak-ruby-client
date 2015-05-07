@@ -22,10 +22,6 @@ module SearchConfig
 
     test_client.create_search_index index_name
 
-    wait_until do
-      test_client.get_search_index index_name
-    end
-
     @index_exists = true
   end
 

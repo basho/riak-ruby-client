@@ -43,11 +43,11 @@ module Riak::Search
     #
     # @raise [Riak::SearchError::IndexExistsError] if an index with the given
     #   name already exists
-    def create!(schema = nil, n_val = nil)
+    def create!(schema = nil, n_val = nil, timeout = nil)
       raise Riak::SearchError::IndexExistsError.new name if exists?
 
       @client.backend do |b|
-        b.create_search_index name, schema, n_val
+        b.create_search_index name, schema, n_val, timeout
       end
 
       @index_data = nil
