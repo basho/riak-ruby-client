@@ -38,7 +38,7 @@ lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
 	@cd ..; bin/rubocop lib spec
 
-test: test-normal test-security
+test: test-normal test-security archive-coverage
 
 test-normal:
 	@echo 'nodes:' > ../spec/support/test_client.yml
@@ -56,3 +56,6 @@ test-security:
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
 	@cd ..; COVERAGE=true bin/rspec --tag yes_security
+
+archive-coverage:
+	s3cmd ls s3://
