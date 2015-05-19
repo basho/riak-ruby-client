@@ -58,4 +58,5 @@ test-security:
 	@cd ..; COVERAGE=true bin/rspec --tag yes_security
 
 archive-coverage:
-	s3cmd ls s3://
+	s3cmd put ../coverage/index.html s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`
+	s3cmd sync ../coverage/assets s3://builds.basho.com/ruby-coverage/assets
