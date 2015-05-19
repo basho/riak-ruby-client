@@ -3,7 +3,10 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 if ENV['COVERAGE']
   require 'simplecov'
-  SimpleCov.start
+  SimpleCov.start do
+    add_filter 'vendor/'
+  end
+
 end
 
 require 'rubygems' # Use the gems path only for the spec suite
