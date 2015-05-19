@@ -58,5 +58,6 @@ test-security:
 	@cd ..; COVERAGE=true bin/rspec --tag yes_security
 
 archive-coverage:
-	s3cmd put ../coverage/index.html s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`.html
+	gzip -f ../coverage/index.html
+	s3cmd put --add-header="Content-Encoding:gzip" --add-header "Content-Type:text/html; charset=utf-8" ../coverage/index.html.gz s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`.html
 	s3cmd sync ../coverage/assets s3://builds.basho.com/ruby-coverage/assets/
