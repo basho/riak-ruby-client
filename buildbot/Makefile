@@ -45,7 +45,7 @@ test-normal:
 	@echo '  - { pb_port: 8087 }' >> ../spec/support/test_client.yml
 	@echo "Test client config:"
 	@cat ../spec/support/test_client.yml
-	@cd ..; bin/rspec
+	@cd ..; COVERAGE=true bin/rspec
 
 test-security:
 	@echo 'authentication:' >> ../spec/support/test_client.yml
@@ -55,4 +55,4 @@ test-security:
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
-	@cd ..; bin/rspec --tag yes_security
+	@cd ..; COVERAGE=true bin/rspec --tag yes_security
