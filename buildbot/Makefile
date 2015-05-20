@@ -55,7 +55,7 @@ test-security:
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
-	@cd ..; COVERAGE=true bin/rspec --tag yes_security
+	@cd ..; COVERAGE=true COVERAGE_SUITE=yes-security bin/rspec --tag yes_security
 
 archive-coverage:
 	gzip -f ../coverage/index.html
