@@ -38,14 +38,14 @@ lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
 	@cd ..; bin/rubocop lib spec
 
-test: test-normal test-security
+test: test-normal test-security archive-coverage
 
 test-normal:
 	@echo 'nodes:' > ../spec/support/test_client.yml
 	@echo '  - { pb_port: 8087 }' >> ../spec/support/test_client.yml
 	@echo "Test client config:"
 	@cat ../spec/support/test_client.yml
-	@cd ..; bin/rspec
+	@cd ..; COVERAGE=true bin/rspec
 
 test-security:
 	@echo 'authentication:' >> ../spec/support/test_client.yml
@@ -55,4 +55,9 @@ test-security:
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
-	@cd ..; bin/rspec --tag yes_security
+	@cd ..; COVERAGE=true COVERAGE_SUITE=yes-security bin/rspec --tag yes_security
+
+archive-coverage:
+	gzip -f ../coverage/index.html
+	s3cmd put -P --add-header="Content-Encoding:gzip" --mime-type=text/html ../coverage/index.html.gz s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`.html
+	s3cmd sync -P ../coverage/assets s3://builds.basho.com/ruby-coverage/

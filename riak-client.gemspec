@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake', '~> 10.1.1'
   gem.add_development_dependency 'yard', '~> 0.8.7'
   gem.add_development_dependency 'kramdown', '~> 1.4'
-  gem.add_development_dependency 'simplecov', '~> 0.8.2'
+  gem.add_development_dependency 'simplecov', '~> 0.10.0'
   gem.add_development_dependency "instrumentable", "~> 1.1.0"
   gem.add_development_dependency "rubocop", "~> 0.28.0"
 
