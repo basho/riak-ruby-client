@@ -129,6 +129,13 @@ describe Riak::MapReduce do
     end
 
     context "using secondary indexes as inputs" do
+      it "set the inputs for a bucket-typed bucket" do
+        expect(mr.index(typed_bucket, "email_bin", "sean@basho.com")).to eq(mr)
+        expect(mr.inputs).to eq(bucket: [typed_bucket.type.name, typed_bucket.name],
+                                index: "email_bin",
+                                key: "sean@basho.com")
+      end
+
       it "sets the inputs for equality" do
         expect(mr.index("foo", "email_bin", "sean@basho.com")).to eq(mr)
         expect(mr.inputs).to eq(bucket: "foo",
