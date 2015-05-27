@@ -6,11 +6,8 @@ operations, including bucket manipulation, object CRUD, link-walking,
 and map-reduce.
 
 Exhaustive documentation is available at
-[http://basho.github.io/riak-ruby-client/][1], and API documentation can be
-read at [http://www.rubydoc.info/gems/riak-client/frames][2].
-
-[1]: http://basho.github.io/riak-ruby-client/
-[2]: http://www.rubydoc.info/gems/riak-client/frames
+http://basho.github.io/riak-ruby-client/ , and API documentation can be
+read at http://www.rubydoc.info/gems/riak-client/frames .
 
 ## Dependencies
 
