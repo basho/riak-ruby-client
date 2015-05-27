@@ -1,5 +1,32 @@
 # Riak Ruby Client Release Notes
 
+## 2.2.0 Release - 2015-05-27
+
+Version 2.2.0 is a feature release.
+
+New features:
+
+* Object-oriented Riak Search (Yokozuna) API.
+* Object-oriented Bucket Properties API.
+* Bucket type properties are readable.
+* Bucket-typed buckets without properties expose properties of bucket type.
+* An interface to get a preflist for Riak KV objects has been added.
+
+Small improvements and changes:
+
+* In line with recent Riak documentation and implementation changes, `vclock`
+  can also be referred to as `causal_context`.
+* Support for synchronis Riak Search index creation with timeouts has been
+  added.
+
+Bug fixes:
+
+* Accessing a flag in a non-existent CRDT map returns false now.
+* Escaping text in situations that require it is faster, thanks to Jordan
+  Goldstein.
+* Loading and storing objects from bucket-typed buckets is more reliable and
+  correct thanks to Takeshi Akima.
+
 ## 2.1.0 Release - 2014-10-03
 
 Version 2.1.0 is a feature release.
@@ -88,7 +115,7 @@ Features for all Riak versions:
 
 * Multi-get parallelizes fetching multiple objects from one or more
   buckets.
-  
+
 Features for Riak 1.4 and newer:
 
 * Bucket properties are settable and resettable over Protocol Buffers.
@@ -209,7 +236,7 @@ Changes in 1.0.4:
 * A function in the `app_helper` module that does not exist on Riak
   1.1 and earlier was copied into the KV test backend.
 * Excon's configuration logic was made more idempotent.
-* Added timeout support to the Excon HTTP backend. [Mat Brown] 
+* Added timeout support to the Excon HTTP backend. [Mat Brown]
 * Corrected an misnamed constant in Excon which would cause timeouts
   not to be recognized as network errors.
 * The `Riak::TestServer` is now compatible with Riak 1.2.
