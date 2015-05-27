@@ -5,9 +5,16 @@ distributed database that contains a basic wrapper around typical
 operations, including bucket manipulation, object CRUD, link-walking,
 and map-reduce.
 
+Exhaustive documentation is available at
+[http://basho.github.io/riak-ruby-client/][1], and API documentation can be
+read at [http://www.rubydoc.info/gems/riak-client/frames][2].
+
+[1]: http://basho.github.io/riak-ruby-client/
+[2]: http://www.rubydoc.info/gems/riak-client/frames
+
 ## Dependencies
 
-Ruby 1.9.3, 2.0, and 2.1 are supported. JRuby in 1.9 and 2.0 modes are
+Ruby 1.9.3, 2.0, 2.1, and 2.2 are supported. JRuby in 1.9 and 2.0 modes are
 also supported. `riak-client` is not compatible with Ruby 1.8.
 
 In JRuby 1.7.13, OCSP validation is absent, and CRL validation always
@@ -622,7 +629,7 @@ search.admin,search.query,riak_kv.mapreduce on any to user
 
 ## License & Copyright
 
-Copyright &copy;2010-2014 Sean Cribbs and Basho Technologies, Inc.
+Copyright &copy;2010-2015 Sean Cribbs and Basho Technologies, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

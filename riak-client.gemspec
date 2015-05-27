@@ -7,9 +7,9 @@ Gem::Specification.new do |gem|
   gem.version = Riak::VERSION
   gem.summary = %Q{riak-client is a rich client for Riak, the distributed database by Basho.}
   gem.description = %Q{riak-client is a rich client for Riak, the distributed database by Basho. It supports the full HTTP and Protocol Buffers interfaces including storage operations, bucket configuration, link-walking, secondary indexes and map-reduce.}
-  gem.email = ["sean@basho.com", 'bryce@basho.com']
+  gem.email = ['bryce@basho.com']
   gem.homepage = "http://github.com/basho/riak-ruby-client"
-  gem.authors = ["Sean Cribbs", 'Bryce Kerley']
+  gem.authors = ['Bryce Kerley']
   gem.license = 'Apache 2.0'
 
   gem.required_ruby_version = '>= 1.9.3'

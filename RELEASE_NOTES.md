@@ -16,7 +16,7 @@ Small improvements and changes:
 
 * In line with recent Riak documentation and implementation changes, `vclock`
   can also be referred to as `causal_context`.
-* Support for synchronis Riak Search index creation with timeouts has been
+* Support for synchronous Riak Search index creation with timeouts has been
   added.
 
 Bug fixes:
