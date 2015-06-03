@@ -127,13 +127,18 @@ module Riak
     #   a range of values (of Strings or Integers)
     # @return [MapReduce] self
     def index(bucket, index, query)
-      bucket = bucket.name if bucket.respond_to?(:name)
+      if bucket.is_a? Bucket
+        bucket = bucket.needs_type? ? [maybe_escape(bucket.type.name), maybe_escape(bucket.name)] : maybe_escape(bucket.name)
+      else
+        bucket = maybe_escape(bucket)
+      end
+
       case query
       when String, Fixnum
-        @inputs = {:bucket => maybe_escape(bucket), :index => index, :key => query}
+        @inputs = {:bucket => bucket, :index => index, :key => query}
       when Range
         raise ArgumentError, t('invalid_index_query', :value => query.inspect) unless String === query.begin || Integer === query.begin
-        @inputs = {:bucket => maybe_escape(bucket), :index => index, :start => query.begin, :end => query.end}
+        @inputs = {:bucket => bucket, :index => index, :start => query.begin, :end => query.end}
       else
         raise ArgumentError, t('invalid_index_query', :value => query.inspect)
       end
