@@ -110,12 +110,13 @@ module Riak
     end
 
     # (Riak Search) Use a search query to start a map/reduce job.
-    # @param [String, Bucket] bucket the bucket/index to search
+    # @param [String,Riak::Search::Index] index the index to query, either a
+    #   {Riak::Search::Index} instance or a {String}
     # @param [String] query the query to run
     # @return [MapReduce] self
-    def search(bucket, query)
-      bucket = bucket.name if bucket.respond_to?(:name)
-      @inputs = {:module => "riak_search", :function => "mapred_search", :arg => [bucket, query]}
+    def search(index, query)
+      index = index.name if index.respond_to?(:name)
+      @inputs = {:module => "yokozuna", :function => "mapred_search", :arg => [index, query]}
       self
     end
 
