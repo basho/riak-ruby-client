@@ -85,20 +85,20 @@ describe "Search features" do
     end
 
     describe "using a search query as inputs" do
-      it "accepts a bucket name and query" do
+      it "accepts a index name and query" do
         @mr.search("foo", "bar OR baz")
-        expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
+        expect(@mr.inputs).to eq({:module => "yokozuna", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
-      it "accepts a Riak::Bucket and query" do
-        @mr.search(Riak::Bucket.new(@client, "foo"), "bar OR baz")
-        expect(@mr.inputs).to eq({:module => "riak_search", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
+      it "accepts a Riak::Search::Index and query" do
+        @mr.search(Riak::Search::Index.new(@client, "foo"), "bar OR baz")
+        expect(@mr.inputs).to eq({:module => "yokozuna", :function => "mapred_search", :arg => ["foo", "bar OR baz"]})
       end
 
       it "emits the Erlang function and arguments" do
         @mr.search("foo", "bar OR baz")
         expect(@mr.to_json).to include('"inputs":{')
-        expect(@mr.to_json).to include('"module":"riak_search"')
+        expect(@mr.to_json).to include('"module":"yokozuna"')
         expect(@mr.to_json).to include('"function":"mapred_search"')
         expect(@mr.to_json).to include('"arg":["foo","bar OR baz"]')
       end
