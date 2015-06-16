@@ -98,6 +98,17 @@ module Riak
         end
       end
 
+      # Queries a secondary index on the bucket-typed bucket.
+      # @note This will only work if your Riak installation supports 2I.
+      # @param [String] index the name of the index
+      # @param [String,Integer,Range] query the value of the index, or a
+      #   Range of values to query
+      # @return [Array<String>] a list of keys that match the index
+      #   query
+      def get_index(index, query, options = {  })
+        super index, query, o(options)
+      end
+
       # Does this {BucketTyped::Bucket} have a non-default bucket type?
       # @return [Boolean] true if this bucket has a non-default type.
       def needs_type?
