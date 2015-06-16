@@ -33,6 +33,10 @@ module Riak
     # If a block is given, keys will be streamed through
     # the block (useful for large buckets). When streaming,
     # results of the operation will not be returned to the caller.
+    #
+    # Returned keys will be in binary encoding regardless of the key's original
+    # encoding.
+    #
     # @yield [Array<String>] a list of keys from the current chunk
     # @return [Array<String>] Keys in this bucket
     # @note This operation has serious performance implications and
