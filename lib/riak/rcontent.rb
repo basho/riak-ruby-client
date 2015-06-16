@@ -58,7 +58,8 @@ module Riak
       end
     end
 
-    # @return [Object] the unmarshaled form of {#raw_data} stored in riak at this object's key
+    # @return [Object] the unmarshaled form of {#raw_data} stored in riak at
+    #   this object's key
     def data
       if @raw_data && !@data
         raw = @raw_data.respond_to?(:read) ? @raw_data.read : @raw_data
@@ -81,7 +82,6 @@ module Riak
       @raw_data = nil
       @data = new_data
     end
-
 
     # @return [String] raw data stored in riak for this object's key
     def raw_data
