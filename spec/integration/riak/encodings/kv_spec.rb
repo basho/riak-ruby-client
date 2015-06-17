@@ -2,7 +2,7 @@
 require 'spec_helper'
 require 'riak'
 
-describe 'Encodings', integration: true, test_client: true do
+describe 'Encoding and Riak KV', integration: true, test_client: true do
   let(:bucket_type){ test_client.bucket_type 'yokozuna' }
 
   let(:utf8_encoding){ Encoding.find 'utf-8' }
