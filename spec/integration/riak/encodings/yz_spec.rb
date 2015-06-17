@@ -41,7 +41,7 @@ describe 'Encoding and Riak Search', integration: true, search_config: true do
       expect{ index.create! }.to raise_error
     end
 
-    it 'queries indexes' do
+    it 'queries non-weird indexes' do
       create_index
 
       props = Riak::BucketProperties.new utf8_bucket
@@ -90,7 +90,52 @@ EOD
         to raise_error /bad_character/
     end
 
-    it 'refuses to create indexes'
-    it 'queries non-weird indexes'
+
+    it 'refuses to create indexes' do
+      index = nil
+      expect do
+        index = Riak::Search::Index.new test_client, random_binary_string
+      end.to_not raise_error
+
+      expect(index).to be_a Riak::Search::Index
+
+      expect{ index.create! }.to raise_error
+    end
+
+    # left here for reference: yz can't index documents with \xff\xff in the
+    # key, or presumably bucket name either
+#     it 'queries non-weird indexes' do
+#       create_index
+
+#       props = Riak::BucketProperties.new binary_bucket
+#       props['search_index'] = index_name
+#       props.store
+
+#       wait_until do
+#         props.reload
+#         props['search_index'] == index_name
+#       end
+
+#       robj = binary_bucket.new random_binary_string
+#       robj.content_type = 'text/plain'
+#       robj.raw_data = <<EOD
+# This is due to the write-once, append-only nature of the Bitcask database files.
+# High throughput, especially when writing an incoming stream of random items
+# Because the data being written doesn't need to be ordered on disk and because
+# the log structured design allows for minimal disk head movement during writes
+# these operations generally saturate the I/O and disk bandwidth.
+# EOD
+#       robj.store
+
+#       results = nil
+#       wait_until do
+#         results = index.query('bitcask').results
+#         !results.empty?
+#       end
+#       expect(results).to_not be_empty
+#       expect(results.docs.first.bucket_type).to eq robj.bucket.type
+#       expect(results.docs.first.bucket).to eq robj.bucket
+#       expect(results.docs.first.key.bytes).to eq robj.key.bytes
+#     end
   end
 end
