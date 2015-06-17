@@ -6,7 +6,7 @@ describe 'Encodings', integration: true, test_client: true do
   let(:bucket_type){ test_client.bucket_type 'yokozuna' }
 
   let(:utf8_encoding){ Encoding.find 'utf-8' }
-  let(:utf8_string){ "🚴こんにちはสวัสดี" }
+  let(:utf8_string){ "\xF0\x9F\x9A\xB4こんにちはสวัสดี" }
   let(:random_utf8_string){ utf8_string + random_key }
   let(:utf8_bucket){ bucket_type.bucket random_utf8_string }
 
