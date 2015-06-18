@@ -294,6 +294,10 @@ module Riak
     def ==(other)
       return false unless self.class == other.class
       return false unless self.client == other.client
+      return true if self.name.nil? && other.name.nil?
+      unless self.name.respond_to?(:bytes) && other.name.respond_to?(:bytes)
+        return false
+      end
       return false unless self.name.bytes == other.name.bytes
       true
     end
