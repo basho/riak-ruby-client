@@ -38,7 +38,7 @@ describe 'Encoding and Riak Search', integration: true, search_config: true do
 
       expect(index).to be_a Riak::Search::Index
 
-      expect{ index.create! }.to raise_error
+      expect{ index.create! }.to raise_error /Invalid character/
     end
 
     it 'queries non-weird indexes' do
@@ -99,7 +99,7 @@ EOD
 
       expect(index).to be_a Riak::Search::Index
 
-      expect{ index.create! }.to raise_error
+      expect{ index.create! }.to raise_error /Invalid character/
     end
 
     # left here for reference: yz can't index documents with \xff\xff in the
