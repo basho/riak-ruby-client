@@ -20,7 +20,7 @@ when it works.
 
 ## Installing
 
-We *highly* recommend using [Bundler][1] to manage your application or library's
+We *highly* recommend using [Bundler][3] to manage your application or library's
 dependencies.
 
 First, add the dependency declaration to your `Gemfile`:
@@ -35,7 +35,7 @@ Next, run the `bundle` command to install a version of the gem:
 $ bundle
 ```
 
-[1]: http://bundler.io
+[3]: http://bundler.io
 
 ## Updating
 
@@ -49,7 +49,7 @@ gem 'riak-client', '~> 2.0.0'
 ```
 
 Visit the Rubygems documentation for [more information about dependency
-declarations.][1]
+declarations.][4]
 
 To actually install an updated version:
 
@@ -57,12 +57,12 @@ To actually install an updated version:
 $ bundle update riak-client
 ```
 
-The Riak Ruby Client use [semantic versioning][2]. 2.0.0 included
+The Riak Ruby Client use [semantic versioning][5]. 2.0.0 included
 breaking changes, 2.1.0 will include new functionality, and 2.0.1 will simply be
 bug fixes.
 
-[1]: http://guides.rubygems.org/patterns/#declaring-dependencies
-[2]: http://semver.org
+[4]: http://guides.rubygems.org/patterns/#declaring-dependencies
+[5]: http://semver.org
 
 ## Development Dependencies
 

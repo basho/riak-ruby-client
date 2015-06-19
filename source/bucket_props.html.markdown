@@ -3,8 +3,10 @@ title: Bucket Properties
 ---
 Riak has bucket properties, which allow individual buckets to take on different
 behavior as needed. For example, the "posts" bucket may need to be searchable
-with [Riak Search 2.0][1], or the "indexcache" bucket may not need a high quorum
+with [Riak Search 2.0][4], or the "indexcache" bucket may not need a high quorum
 or n-value.
+
+[4]: http://docs.basho.com/riak/latest/dev/using/search/
 
 **Generally, you do not want to use bucket properties in production with Riak
 2.** Bucket properties aren't as efficient as assigning properties to bucket
@@ -79,7 +81,7 @@ these aliases is in the [`BucketPropertiesOperator`][2] class inside the
 `BeefcakeProtobuffsBackend`, and the enumeration of these property names is in
 the [`ProtobuffsBackend`][3] superclass.
 
-[1]: http://docs.basho.com/riak/latest/dev/advanced/cap-controls/
+[1]: http://docs.basho.com/riak/latest/dev/advanced/replication-properties/
 [2]: https://github.com/basho/riak-ruby-client/blob/e6597f3d14757a6787494946d5c9a7cee32bfd5e/lib/riak/client/beefcake/bucket_properties_operator.rb#L60
 [3]: https://github.com/basho/riak-ruby-client/blob/e6597f3d14757a6787494946d5c9a7cee32bfd5e/lib/riak/client/protobuffs_backend.rb#L19
 

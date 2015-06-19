@@ -205,9 +205,9 @@ content-types:
 Support for other content-types can be added: write a module with `dump(object)`
 and `load(string)` methods, and configure it with the `Riak::Serializers[]`
 method. For an example, note how the `TextPlain` and `ApplicationJSON`
-serializers are written and configured in the [`Riak::Serializer` module.][1]
+serializers are written and configured in the [`Riak::Serializer` module.][4]
 
-[1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34
+[4]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34
 
 ### Deleting Objects
 
@@ -237,25 +237,25 @@ bucket.delete 'Son of Boatname', vclock: 'a85hYGBgzGDKBVIcypz/fpZz1XzPYEpkzGNluD
 
 Riak objects can have more than one value. If you have an eventually-consistent
 bucket (i.e. not strongly consistent) with `allow_mult` enabled and
-`last_write_wins` disabled ([choose wisely][2], [it's important][1]), multiple
+`last_write_wins` disabled ([choose wisely][6], [it's important][7]), multiple
 values for a given object are common.
 
-[1]: http://aphyr.com/posts/285-call-me-maybe-riak
-[2]: http://docs.basho.com/riak/latest/dev/using/conflict-resolution/
+[6]: http://aphyr.com/posts/285-call-me-maybe-riak
+[7]: http://docs.basho.com/riak/latest/dev/using/conflict-resolution/
 
-Resolving conflicts can be tricky! [Riak's CRDT implementation][1] and how the
-[Ruby client CRDT support][2] works may lead you to a better solution than
+Resolving conflicts can be tricky! [Riak's CRDT implementation][8] and how the
+[Ruby client CRDT support][9] works may lead you to a better solution than
 relying on client-side conflict resolution.
 
-[1]: http://docs.basho.com/riak/latest/dev/using/data-types/
-[2]: /crdt.html
+[8]: http://docs.basho.com/riak/latest/dev/using/data-types/
+[9]: /crdt.html
 
 The `Riak::RContent` class handles properties of an individual value. Without
-conflict, [`Riak::RObject` delegates many of its apparent properties][1] to an
+conflict, [`Riak::RObject` delegates many of its apparent properties][10] to an
 `RContent` instance. With conflict, attempts to access these properties will
 raise a `Riak::Conflict` error.
 
-[1]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64
+[10]: https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64
 
 ```ruby
 robject.conflict? #=> true
@@ -289,10 +289,10 @@ robject.conflict? #=> false
 ### Conflict Resolution Callbacks
 
 `Riak::RObject` also has `on_conflict` hooks. These hooks work much like manual
-conflict resolution. Register them with [`Riak::RObject.on_conflict`][1], and
+conflict resolution. Register them with [`Riak::RObject.on_conflict`][11], and
 trigger then on a conflicted object with `RObject#attempt_conflict_resolution`.
 
-[1]: http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict
+[11]: http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict
 
 With the same scenario as above:
 
