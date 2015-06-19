@@ -33,6 +33,10 @@ module Riak
     # If a block is given, keys will be streamed through
     # the block (useful for large buckets). When streaming,
     # results of the operation will not be returned to the caller.
+    #
+    # Returned keys will be in binary encoding regardless of the key's original
+    # encoding.
+    #
     # @yield [Array<String>] a list of keys from the current chunk
     # @return [Array<String>] Keys in this bucket
     # @note This operation has serious performance implications and
@@ -290,7 +294,11 @@ module Riak
     def ==(other)
       return false unless self.class == other.class
       return false unless self.client == other.client
-      return false unless self.name == other.name
+      return true if self.name.nil? && other.name.nil?
+      unless self.name.respond_to?(:bytes) && other.name.respond_to?(:bytes)
+        return false
+      end
+      return false unless self.name.bytes == other.name.bytes
       true
     end
   end

@@ -70,7 +70,7 @@ module Riak
     def ==(other)
       return false unless self.class == other.class
       return false unless self.client == other.client
-      return false unless self.name == other.name
+      return false unless self.name.bytes == other.name.bytes
       true
     end
   end
