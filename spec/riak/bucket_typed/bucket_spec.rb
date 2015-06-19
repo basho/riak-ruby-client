@@ -59,4 +59,20 @@ describe Riak::BucketTyped::Bucket do
      expect{ subject.props = { 'allow_mult' => true } }.to_not raise_error
     end
   end
+
+  describe "querying an index" do
+    it "attaches the bucket type" do
+      expect(client).
+        to receive(:get_index).
+            with(subject, 'test_bin', 'testing', { type: 'type' }).
+            and_return(
+              Riak::IndexCollection.new_from_json({
+                                                    keys: ['asdf']
+                                                  }.to_json))
+
+      result = subject.get_index('test_bin', 'testing')
+      expect(result).to be_a Riak::IndexCollection
+      expect(result.to_a).to eq %w{asdf}
+    end
+  end
 end
