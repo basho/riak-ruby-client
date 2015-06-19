@@ -19,6 +19,7 @@
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
 <li><a href="bucket_props.html">Bucket Properties</a></li>
+<li><a href="encoding.html">Character Encodings</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -36,7 +37,7 @@
 <ul>
 <li>A <strong>bucket type</strong> is a set of configration information used to read and write
 values in Riak. Bucket types are complex and can be unintuitive, so
-<a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">please read the bucket type documentation</a>.</li>
+<a href="http://docs.basho.com/riak/latest/dev/advanced/bucket-types/">please read the bucket type documentation</a>.</li>
 <li>A <strong>bucket</strong> is a named collection of keys. It&rsquo;s similar to a table in a SQL
 database: it has a name that&rsquo;s a string, zero or more members, and members
 can be quickly looked up by their key (primary key in SQL).</li>
@@ -47,7 +48,7 @@ bucket, and key. It works similarly to a BLOB column in SQL. Riak objects
 can have more than one value, which requires conflict resolution.</li>
 </ul>
 
-<p>For more about buckets, keys, and values, read the <a href="crdt.html">object/key operations</a>
+<p>For more about buckets, keys, and values, read the <a href="http://docs.basho.com/riak/latest/dev/using/basics/">object/key operations</a>
 documentation.</p>
 
 <h2>tl;dr</h2>
@@ -210,7 +211,7 @@ content-types:</p>
 <p>Support for other content-types can be added: write a module with <code>dump(object)</code>
 and <code>load(string)</code> methods, and configure it with the <code>Riak::Serializers[]</code>
 method. For an example, note how the <code>TextPlain</code> and <code>ApplicationJSON</code>
-serializers are written and configured in the <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict"><code>Riak::Serializer</code> module.</a></p>
+serializers are written and configured in the <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/serializers.rb#L34"><code>Riak::Serializer</code> module.</a></p>
 
 <h3>Deleting Objects</h3>
 
@@ -236,15 +237,15 @@ cause issues if the object is updated and deleted at about the same time:</p>
 
 <p>Riak objects can have more than one value. If you have an eventually-consistent
 bucket (i.e. not strongly consistent) with <code>allow_mult</code> enabled and
-<code>last_write_wins</code> disabled (<a href="crdt.html">choose wisely</a>, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">it&rsquo;s important</a>), multiple
+<code>last_write_wins</code> disabled (<a href="http://aphyr.com/posts/285-call-me-maybe-riak">choose wisely</a>, <a href="http://docs.basho.com/riak/latest/dev/using/conflict-resolution/">it&rsquo;s important</a>), multiple
 values for a given object are common.</p>
 
-<p>Resolving conflicts can be tricky! <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict">Riak&rsquo;s CRDT implementation</a> and how the
+<p>Resolving conflicts can be tricky! <a href="http://docs.basho.com/riak/latest/dev/using/data-types/">Riak&rsquo;s CRDT implementation</a> and how the
 <a href="crdt.html">Ruby client CRDT support</a> works may lead you to a better solution than
 relying on client-side conflict resolution.</p>
 
 <p>The <code>Riak::RContent</code> class handles properties of an individual value. Without
-conflict, <a href="http://www.rubydoc.info/gems/riak-client/Riak/RObject.on_conflict"><code>Riak::RObject</code> delegates many of its apparent properties</a> to an
+conflict, <a href="https://github.com/basho/riak-ruby-client/blob/62551f1873f50d40a004b9a27a282bb7e88be329/lib/riak/robject.rb#L56-L64"><code>Riak::RObject</code> delegates many of its apparent properties</a> to an
 <code>RContent</code> instance. With conflict, attempts to access these properties will
 raise a <code>Riak::Conflict</code> error.</p>
 <pre class="highlight ruby"><code><span class="n">robject</span><span class="p">.</span><span class="nf">conflict?</span> <span class="c1">#=&gt; true</span>
@@ -359,7 +360,7 @@ the easier Bucket-Typed Bucket API.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
+Documentation generated at 2015-06-19 22:25:54 UTC from repo version 9f988cd9ce680beae38a5bf60657e8af22a38000.
 </footer>
 </body>
 </html>

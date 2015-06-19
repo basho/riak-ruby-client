@@ -19,6 +19,7 @@
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
 <li><a href="bucket_props.html">Bucket Properties</a></li>
+<li><a href="encoding.html">Character Encodings</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -40,14 +41,14 @@ cache store implementation requires ActiveSupport 3 or later.</p>
 also supported. <code>riak-client</code> is not compatible with Ruby 1.8.</p>
 
 <p>In JRuby 1.7.13, OCSP validation is absent, and CRL validation always
-fails. <a href="http://guides.rubygems.org/patterns/#declaring-dependencies">This issue is being tracked</a> and this document will be updated when
+fails. <a href="https://github.com/jruby/jruby-openssl/issues/5">This issue is being tracked</a> and this document will be updated when
 it is fixed. Additionally, client certificate authentication doesn&rsquo;t work in
-JRuby. <a href="http://semver.org">This issue is also being tracked</a>, and this document will be updated
+JRuby. <a href="https://github.com/basho/riak_api/issues/65">This issue is also being tracked</a>, and this document will be updated
 when it works.</p>
 
 <h2>Installing</h2>
 
-<p>We <em>highly</em> recommend using <a href="http://guides.rubygems.org/patterns/#declaring-dependencies">Bundler</a> to manage your application or library&rsquo;s
+<p>We <em>highly</em> recommend using <a href="http://bundler.io">Bundler</a> to manage your application or library&rsquo;s
 dependencies.</p>
 
 <p>First, add the dependency declaration to your <code>Gemfile</code>:</p>
@@ -91,7 +92,7 @@ bug fixes.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
+Documentation generated at 2015-06-19 22:25:54 UTC from repo version 9f988cd9ce680beae38a5bf60657e8af22a38000.
 </footer>
 </body>
 </html>

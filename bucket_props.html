@@ -19,6 +19,7 @@
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
 <li><a href="bucket_props.html">Bucket Properties</a></li>
+<li><a href="encoding.html">Character Encodings</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -33,7 +34,7 @@
 <div id='toc'></div>
 <div id='yielded'><p>Riak has bucket properties, which allow individual buckets to take on different
 behavior as needed. For example, the &ldquo;posts&rdquo; bucket may need to be searchable
-with <a href="http://docs.basho.com/riak/latest/dev/advanced/cap-controls/">Riak Search 2.0</a>, or the &ldquo;indexcache&rdquo; bucket may not need a high quorum
+with <a href="http://docs.basho.com/riak/latest/dev/using/search/">Riak Search 2.0</a>, or the &ldquo;indexcache&rdquo; bucket may not need a high quorum
 or n-value.</p>
 
 <p><strong>Generally, you do not want to use bucket properties in production with Riak
@@ -94,7 +95,7 @@ property read.</p>
 kind of behavior.</p>
 
 <p>Semantics of these values and how replication works can be found in the
-<a href="http://docs.basho.com/riak/latest/dev/advanced/cap-controls/">Replication Properties</a> page of the Riak documentation. Implementation of
+<a href="http://docs.basho.com/riak/latest/dev/advanced/replication-properties/">Replication Properties</a> page of the Riak documentation. Implementation of
 these aliases is in the <a href="https://github.com/basho/riak-ruby-client/blob/e6597f3d14757a6787494946d5c9a7cee32bfd5e/lib/riak/client/beefcake/bucket_properties_operator.rb#L60"><code>BucketPropertiesOperator</code></a> class inside the
 <code>BeefcakeProtobuffsBackend</code>, and the enumeration of these property names is in
 the <a href="https://github.com/basho/riak-ruby-client/blob/e6597f3d14757a6787494946d5c9a7cee32bfd5e/lib/riak/client/protobuffs_backend.rb#L19"><code>ProtobuffsBackend</code></a> superclass.</p>
@@ -134,7 +135,7 @@ inconsistent behavior locally:</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
+Documentation generated at 2015-06-19 22:25:54 UTC from repo version 9f988cd9ce680beae38a5bf60657e8af22a38000.
 </footer>
 </body>
 </html>

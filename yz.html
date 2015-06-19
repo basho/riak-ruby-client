@@ -19,6 +19,7 @@
 <li><a href="crdt.html">CRDTs</a></li>
 <li><a href="bucket_types.html">Bucket Types</a></li>
 <li><a href="bucket_props.html">Bucket Properties</a></li>
+<li><a href="encoding.html">Character Encodings</a></li>
 <li><a href="rspecs.html">Testing</a></li>
 <li class='space'><a href="install.html">Installation</a></li>
 <li><a href="config.html">Configuration</a></li>
@@ -32,7 +33,7 @@
 <h1 class='title'>Search</h1>
 <div id='toc'></div>
 <div id='yielded'><p>Riak 2 features two search systems. New in Riak 2 is &ldquo;Riak Search 2.0,&rdquo; which was
-developed under the codename &ldquo;Yokozuna.&rdquo; It uses <a href="https://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Solr</a> for indexing and
+developed under the codename &ldquo;Yokozuna.&rdquo; It uses <a href="http://lucene.apache.org/solr/">Solr</a> for indexing and
 querying, and <code>riak-core</code> for distributing and sharding indexes.</p>
 
 <p>This document covers using Riak Search 2.0 with the Ruby client. See the full
@@ -43,72 +44,175 @@ querying, and <code>riak-core</code> for distributing and sharding indexes.</p>
 <p>This documentation assumes you have a <code>yokozuna</code> bucket type defined.</p>
 <pre class="highlight ruby"><code><span class="nb">require</span> <span class="s1">'riak'</span>
 <span class="n">client</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Client</span><span class="p">.</span><span class="nf">new</span>
-<span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket</span> <span class="s1">'pizzas'</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">bucket_type</span><span class="p">(</span><span class="s1">'yokozuna'</span><span class="p">).</span><span class="nf">bucket</span><span class="p">(</span><span class="s1">'pizzas'</span><span class="p">)</span>
 
 <span class="c1"># Create an index</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">create_search_index</span> <span class="s1">'pizzas'</span>
+<span class="n">index</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Index</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'pizzas'</span>
+<span class="n">index</span><span class="p">.</span><span class="nf">exists?</span> <span class="c1">#=&gt; false</span>
+<span class="n">index</span><span class="p">.</span><span class="nf">create!</span>
+
 <span class="c1"># Add the new index to a typed bucket. Setting the index on the bucket</span>
 <span class="c1"># may fail until the index creation has propagated.</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">set_bucket_props</span> <span class="n">bucket</span><span class="p">,</span> <span class="p">{</span><span class="ss">search_index: </span><span class="s1">'pizzas'</span><span class="p">},</span> <span class="s1">'yokozuna'</span>
+<span class="n">props</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketProperties</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span>
+<span class="n">props</span><span class="p">[</span><span class="s1">'search_index'</span><span class="p">]</span> <span class="o">=</span> <span class="n">index</span>
+<span class="n">props</span><span class="p">.</span><span class="nf">store</span>
 
 <span class="c1"># Store records</span>
 <span class="n">meat</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">new</span> <span class="s1">'meat'</span>
 <span class="n">meat</span><span class="p">.</span><span class="nf">data</span> <span class="o">=</span> <span class="p">{</span><span class="ss">toppings_ss: </span><span class="sx">%w{pepperoni ham sausage}</span><span class="p">}</span>
-<span class="n">meat</span><span class="p">.</span><span class="nf">store</span> <span class="ss">type: </span><span class="s1">'yokozuna'</span>
+<span class="n">meat</span><span class="p">.</span><span class="nf">store</span>
 
 <span class="n">hawaiian</span> <span class="o">=</span> <span class="n">bucket</span><span class="p">.</span><span class="nf">new</span> <span class="s1">'hawaiian'</span>
 <span class="n">hawaiian</span><span class="p">.</span><span class="nf">data</span> <span class="o">=</span> <span class="p">{</span><span class="ss">toppings_ss: </span><span class="sx">%w{ham pineapple}</span><span class="p">}</span>
-<span class="n">hawaiian</span><span class="p">.</span><span class="nf">store</span> <span class="ss">type: </span><span class="s1">'yokozuna'</span>
+<span class="n">hawaiian</span><span class="p">.</span><span class="nf">store</span>
 
 <span class="c1"># Search the pizzas index for hashes that have a "ham" entry in the</span>
 <span class="c1"># toppings_ss array</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s1">'pizzas'</span><span class="p">,</span> <span class="s1">'toppings_ss:ham'</span><span class="p">)</span> <span class="c1"># Returns a results hash</span>
-<span class="n">result</span><span class="p">[</span><span class="s1">'num_found'</span><span class="p">]</span> <span class="c1"># total number of results</span>
-<span class="n">result</span><span class="p">[</span><span class="s1">'docs'</span><span class="p">]</span>      <span class="c1"># the list of indexed documents</span>
-</code></pre>
-
-<h2>Queries and Results</h2>
-
-<p>The Ruby client allows searching on an index level:
-<code>ruby
-results = client.search &#39;index_name&#39;, &#39;search query&#39;
-</code></p>
-
-<p>You can use normal <a href="https://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Lucene query syntax</a> for searching:</p>
-<pre class="highlight ruby"><code><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"name_s:Lion*"</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"age_i:[30 TO *]"</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s2">"famous"</span><span class="p">,</span> <span class="s2">"leader_b:true AND age_i:[30 TO *]"</span><span class="p">)</span>
-</code></pre>
-
-<p>The search method takes several optional parameters too:</p>
-<pre class="highlight ruby"><code><span class="n">results</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"Olive"</span><span class="p">,</span> <span class="p">{</span><span class="ss">sort: </span><span class="s2">"age_i asc"</span><span class="p">,</span> <span class="ss">rows: </span><span class="mi">1</span><span class="p">,</span> <span class="ss">df: </span><span class="s1">'dog_ss'</span><span class="p">})</span>
-</code></pre>
-
-<p>The results object returned from the search has useful information:</p>
-<pre class="highlight ruby"><code><span class="n">results</span><span class="p">[</span><span class="s1">'numFound'</span><span class="p">]</span> <span class="c1">#=&gt; number of results found</span>
-<span class="n">results</span><span class="p">[</span><span class="s1">'docs'</span><span class="p">]</span> <span class="c1">#=&gt; array of results</span>
-
-<span class="n">doc</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="s1">'docs'</span><span class="p">].</span><span class="nf">first</span>
-<span class="n">doc</span><span class="p">[</span><span class="s1">'_yz_rb'</span><span class="p">]</span> <span class="c1">#=&gt; bucket of document</span>
-<span class="n">doc</span><span class="p">[</span><span class="s1">'_yz_rk'</span><span class="p">]</span> <span class="c1">#=&gt; key of document</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="nf">query</span> <span class="s1">'toppings_ss:ham'</span>
+<span class="n">query</span><span class="p">.</span><span class="nf">rows</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="nf">results</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">num_found</span>           <span class="c1"># total number of results</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">length</span>              <span class="c1"># total number returned, can be less than num_found</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">docs</span><span class="p">.</span><span class="nf">first</span>          <span class="c1"># metadata about the search result</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">docs</span><span class="p">.</span><span class="nf">first</span><span class="p">[</span><span class="s1">'score'</span><span class="p">]</span> <span class="c1"># result score</span>
+<span class="n">result</span><span class="p">.</span><span class="nf">first</span>               <span class="c1"># the first found RObject</span>
 </code></pre>
 
 <h2>Indexes</h2>
 
-<p>Indexes are what actually connects search terms to documents. They can be created,
+<p>Indexes connect search terms to documents. They can be created,
 attached to buckets, and inspected from the Ruby client:</p>
-<pre class="highlight ruby"><code><span class="c1"># Creating an index requires the name, and can specify a schema, and an</span>
-<span class="c1"># n-value for index replication too.</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">create_search_index</span> <span class="s1">'index_name'</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">create_search_index</span> <span class="s1">'index_name'</span><span class="p">,</span> <span class="s1">'schema_name'</span><span class="p">,</span> <span class="n">n_value</span>
+<pre class="highlight ruby"><code><span class="n">existing_index</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Index</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'existing_index'</span>
 
-<span class="n">idx</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">get_search_index</span> <span class="s1">'index_name'</span>
-<span class="c1"># idx is an index object, with name, schema, and n_val accessors</span>
+<span class="n">existing_index</span><span class="p">.</span><span class="nf">exists?</span> <span class="c1">#=&gt; true</span>
+<span class="n">existing_index</span><span class="p">.</span><span class="nf">create!</span> <span class="c1"># raises Riak::SearchError::IndexExistsError</span>
 
-<span class="n">client</span><span class="p">.</span><span class="nf">get_search_index</span> <span class="s1">'not_an_index'</span> <span class="c1"># raises Riak::ProtobuffsFailedRequest</span>
+<span class="n">new_index</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Index</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'a_cool_new_index'</span>
 
-<span class="c1"># Attach the index_name to writes to bucket with the yokozuna bucket type.</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">set_bucket_props</span> <span class="n">bucket</span><span class="p">,</span> <span class="p">{</span><span class="ss">search_index: </span><span class="s1">'index_name'</span><span class="p">},</span> <span class="s1">'yokozuna'</span>
+<span class="n">new_index</span><span class="p">.</span><span class="nf">exists?</span> <span class="c1">#=&gt; false</span>
+
+<span class="c1"># Creating an index can only be done once</span>
+<span class="n">new_index</span><span class="p">.</span><span class="nf">create!</span> <span class="c1">#=&gt; true</span>
+<span class="n">new_index</span><span class="p">.</span><span class="nf">create!</span> <span class="c1"># raises Riak::Search::IndexExistsError</span>
+
+<span class="c1"># Creating an index allows you to specify the schema and n-value for replication</span>
+<span class="n">fancy_index</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Index</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'fancy_index_for_fancy_documents'</span>
+<span class="n">fancy_index</span><span class="p">.</span><span class="nf">create!</span> <span class="s1">'schema_name'</span><span class="p">,</span> <span class="n">n_value</span>
+
+<span class="c1"># Indexes have accessors:</span>
+<span class="n">fancy_index</span><span class="p">.</span><span class="nf">n_val</span> <span class="c1">#=&gt; 3</span>
+<span class="n">fancy_index</span><span class="p">.</span><span class="nf">schema</span> <span class="c1">#=&gt; 'schema_name'</span>
+</code></pre>
+
+<h3>Indexes and Buckets</h3>
+
+<p>Riak objects aren&rsquo;t indexed by default.  You can set a bucket&rsquo;s properties to
+index objects on write. The <code>BucketProperties</code> object accepts either a
+<code>String</code> index name, or a <code>Riak::Search::Index</code> instance for the <code>search_index</code>
+property.</p>
+<pre class="highlight ruby"><code><span class="n">props</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">BucketProperties</span><span class="p">.</span><span class="nf">new</span> <span class="n">bucket</span>
+<span class="n">props</span><span class="p">[</span><span class="s1">'search_index'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'index_name'</span> <span class="c1"># String</span>
+<span class="n">props</span><span class="p">[</span><span class="s1">'search_index'</span><span class="p">]</span> <span class="o">=</span> <span class="n">index_object</span> <span class="c1"># Riak::Search::Index</span>
+<span class="n">props</span><span class="p">.</span><span class="nf">store</span>
+</code></pre>
+
+<h2>Queries and Results</h2>
+
+<p>Riak allows you to search a given index. You can do this with the Ruby client
+by creating a <code>Riak::Search::Query</code> object for a given index.</p>
+<pre class="highlight ruby"><code><span class="c1"># Already materialized the index? Ask it for a query:</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="nf">query</span> <span class="s1">'search query'</span>
+
+<span class="c1"># Initialize a query with a client, index, and the search terms:</span>
+<span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="s1">'search query'</span>
+
+<span class="c1"># You can initialize a query with the index name instead of a materialized</span>
+<span class="c1"># index:</span>
+<span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'index_name'</span><span class="p">,</span> <span class="s1">'search query'</span>
+
+<span class="c1"># Perform the query</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">query</span><span class="p">.</span><span class="nf">results</span>
+</code></pre>
+
+<p>You can use normal <a href="https://lucene.apache.org/core/3_6_0/queryparsersyntax.html">Lucene query syntax</a> for searching:</p>
+<pre class="highlight ruby"><code><span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"name_s:Lion*"</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"age_i:[30 TO *]"</span><span class="p">)</span>
+<span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="s1">'famous'</span><span class="p">,</span> <span class="s2">"leader_b:true AND age_i:[30 TO *]"</span><span class="p">)</span>
+</code></pre>
+
+<p>Queries have optional parameters that can be assigned at initialization or
+using regular attribute setters:</p>
+<pre class="highlight ruby"><code><span class="c1"># Index#query takes an options hash as a second argument</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">index</span><span class="p">.</span><span class="nf">query</span> <span class="s1">'name_s:Lion*'</span><span class="p">,</span> <span class="ss">rows: </span><span class="mi">5</span><span class="p">,</span> <span class="ss">df: </span><span class="s1">'dog_ss'</span>
+
+<span class="c1"># Query.new takes an options hash as the fourth argument</span>
+<span class="n">query</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Query</span><span class="p">.</span><span class="nf">new</span><span class="p">(</span><span class="n">client</span><span class="p">,</span>
+                                <span class="n">index</span><span class="p">,</span>
+                                <span class="s1">'age_i:[30 TO *]'</span><span class="p">,</span>
+                                <span class="ss">sort: </span><span class="s1">'age_i desc'</span><span class="p">,</span>
+                                <span class="ss">start: </span><span class="mi">15</span>
+                                <span class="p">)</span>
+
+<span class="c1"># Options also have accessor methods defined</span>
+<span class="n">query</span><span class="p">.</span><span class="nf">sort</span> <span class="o">=</span> <span class="s1">'age_i asc'</span>
+<span class="n">query</span><span class="p">.</span><span class="nf">rows</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">query</span><span class="p">.</span><span class="nf">df</span> <span class="o">=</span> <span class="s1">'dog_ss'</span>
+</code></pre>
+
+<h3>Result Collections and Result Documents</h3>
+
+<p>The <code>Query#result</code> method returns a <code>ResultCollection</code> object. This object has
+useful information about the query response:</p>
+<pre class="highlight ruby"><code><span class="n">results</span><span class="p">.</span><span class="nf">num_found</span> <span class="c1">#=&gt; number of results matching the query</span>
+<span class="n">results</span><span class="p">.</span><span class="nf">length</span>    <span class="c1">#=&gt; number of results returned from the query</span>
+
+<span class="n">results</span><span class="p">.</span><span class="nf">max_score</span> <span class="c1">#=&gt; highest score found by Solr</span>
+</code></pre>
+
+<p>Perhaps more usefully, it provides access to an array of <code>ResultDocument</code>
+instances, one for each document returned in the query.</p>
+<pre class="highlight ruby"><code><span class="n">docs</span> <span class="o">=</span> <span class="n">results</span><span class="p">.</span><span class="nf">docs</span>       <span class="c1"># Array&lt;ResultDocument&gt;</span>
+<span class="n">first_result</span> <span class="o">=</span> <span class="n">docs</span><span class="p">.</span><span class="nf">first</span> <span class="c1"># ResultDocument</span>
+
+<span class="c1"># addressing information</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">bucket_type</span> <span class="c1"># Riak::BucketType instance</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">bucket</span>      <span class="c1"># Riak::BucketTyped::Bucket instance</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">key</span>         <span class="c1"># String</span>
+</code></pre>
+
+<h3>Materializing Results into Objects</h3>
+
+<p>You can materialize a Riak object from a <code>ResultDocument</code>, either a <code>RObject</code>
+key-value object, or one of the many flavors of CRDT.</p>
+<pre class="highlight ruby"><code><span class="c1"># ask the result if it refers to a CRDT</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">crdt?</span>
+<span class="c1"># ask the result what class it will use to materialize the object; returns</span>
+<span class="c1"># the class Riak::RObject, or a Riak::Crdt::Base subclass</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">type_class</span>
+
+<span class="c1"># materializes the object, no matter what the type_class</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">object</span>
+
+<span class="c1"># materializes a CRDT, raises an error if it's not a CRDT</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">crdt</span>
+
+<span class="c1"># materializes this kind of obejct, raises an error if it's not that</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">robject</span>     <span class="c1"># Riak::RObject</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">counter</span>     <span class="c1"># Riak::Crdt::Counter</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">map</span>         <span class="c1"># Riak::Crdt::Map</span>
+<span class="n">first_result</span><span class="p">.</span><span class="nf">set</span>         <span class="c1"># Riak::Crdt::Set</span>
+</code></pre>
+
+<p>Technically, any CRDT object can also be materialized as a regular key-value
+object. This API doesn&rsquo;t allow you to do this to make corrupting a CRDT object
+more difficult.</p>
+
+<p>If you do actually need the RObject for a CRDT, perhaps to delete it, use the
+fields on the <code>ResultDocument</code> to help out.</p>
+<pre class="highlight ruby"><code><span class="n">map_result</span><span class="p">.</span><span class="nf">map</span>     <span class="c1">#=&gt; Riak::Crdt::Map instance</span>
+<span class="n">map_result</span><span class="p">.</span><span class="nf">robject</span> <span class="c1"># raise Riak::SearchError::UnexpectedResultError</span>
+
+<span class="n">map_robject</span> <span class="o">=</span> <span class="n">map_result</span><span class="p">.</span><span class="nf">bucket</span><span class="p">.</span><span class="nf">get</span> <span class="n">map_result</span><span class="p">.</span><span class="nf">key</span> <span class="c1">#=&gt; Riak::RObject instance</span>
 </code></pre>
 
 <h2>Schemas</h2>
@@ -116,16 +220,25 @@ attached to buckets, and inspected from the Ruby client:</p>
 <p>Schemas explain to Solr how fields should be indexed. They can be created and
 read with the Ruby client:</p>
 <pre class="highlight ruby"><code><span class="n">schema_content</span> <span class="o">=</span> <span class="no">File</span><span class="p">.</span><span class="nf">read</span> <span class="s1">'schema.xml'</span>
-<span class="n">client</span><span class="p">.</span><span class="nf">create_search_schema</span> <span class="s1">'schema_for_cool_cats'</span><span class="p">,</span> <span class="n">schema_content</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'schema_for_cool_cats'</span>
+<span class="n">schema</span><span class="p">.</span><span class="nf">exists?</span> <span class="c1">#=&gt; false</span>
+<span class="n">schema</span><span class="p">.</span><span class="nf">content</span> <span class="o">=</span> <span class="n">schema_content</span>
+<span class="n">schema</span><span class="p">.</span><span class="nf">create!</span>
 
-<span class="n">schema_response</span> <span class="o">=</span> <span class="n">client</span><span class="p">.</span><span class="nf">get_search_schema</span> <span class="s1">'schema_for_cool_cats'</span>
-<span class="n">schema_response</span><span class="p">.</span><span class="nf">name</span> <span class="c1">#=&gt; "schema_for_cool_cats"</span>
-<span class="n">schema_response</span><span class="p">.</span><span class="nf">content</span> <span class="c1">#=&gt; "&lt;?xml version..."</span>
+<span class="n">other_schema</span> <span class="o">=</span> <span class="no">Riak</span><span class="o">::</span><span class="no">Search</span><span class="o">::</span><span class="no">Schema</span><span class="p">.</span><span class="nf">new</span> <span class="n">client</span><span class="p">,</span> <span class="s1">'some_other_schema'</span>
+
+<span class="n">other_schema</span><span class="p">.</span><span class="nf">name</span> <span class="c1">#=&gt; "some_other_schema"</span>
+<span class="n">other_schema</span><span class="p">.</span><span class="nf">content</span> <span class="c1">#=&gt; "&lt;?xml version..."</span>
+
+<span class="n">other_schema</span><span class="p">.</span><span class="nf">exists?</span> <span class="c1">#=&gt; true</span>
+<span class="n">other_schema</span><span class="p">.</span><span class="nf">create!</span> <span class="c1"># raises Riak::SearchError::SchemaExistsError</span>
 </code></pre>
+
+<p>Just like indexes, schemas can only be created once per cluster.</p>
 </div>
 </div>
 <footer>
-Documentation generated at 2015-02-10 20:10:04 UTC from repo version 8aa03d0d1ba72c3037119d6636c6487123d54ce2.
+Documentation generated at 2015-06-19 22:25:54 UTC from repo version 9f988cd9ce680beae38a5bf60657e8af22a38000.
 </footer>
 </body>
 </html>
