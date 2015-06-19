@@ -116,9 +116,9 @@ query = Riak::Search::Query.new client, 'index_name', 'search query'
 results = query.results
 ```
 
-You can use normal [Lucene query syntax][1] for searching:
+You can use normal [Lucene query syntax][3] for searching:
 
-[1]: https://lucene.apache.org/core/3_6_0/queryparsersyntax.html
+[3]: https://lucene.apache.org/core/3_6_0/queryparsersyntax.html
 
 ```ruby
 query = Riak::Search::Query.new(client, 'famous', "name_s:Lion*")

@@ -36,12 +36,12 @@ standards. In particular:
 
 ## Configuring for Running Tests
 
-The [Riak Ruby Vagrant][1] virtual machine's Riak configuration is normally
+The [Riak Ruby Vagrant][2] virtual machine's Riak configuration is normally
 used to test this client in development. Once it's up and running, configure
 the Ruby `test_client.yml` on the host machine to connect to `pb_port: 17017`
 and test away.
 
-[1]: https://github.com/basho-labs/riak-ruby-vagrant
+[2]: https://github.com/basho-labs/riak-ruby-vagrant
 
 Configuring the Riak node the tests connect to is done via the
 `spec/support/test_client.yml` file, which is loaded into a Ruby hash with

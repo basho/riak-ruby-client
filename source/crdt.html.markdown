@@ -6,7 +6,7 @@ coherent and make sense even in eventually-consistent environments like Riak.
 An understanding of the [Riak CRDT theory and implementation][1] will be useful
 and should also be enjoyable.
 
-[1]: http://localhost:4566/riak/2.0.1/theory/concepts/crdts/#Riak-Data-Types-Under-the-Hood
+[1]: http://docs.basho.com/riak/latest/theory/concepts/crdts/
 
 ## tl;dr
 
@@ -42,9 +42,9 @@ set.include? "Leeds" #=> true
 ## CRDTs and Bucket Types
 
 CRDTs require appropriate bucket types to be configured. For more information,
-check out the [Riak CRDT usage documentation][1].
+check out the [Riak CRDT usage documentation][2].
 
-[1]: http://docs.basho.com/riak/latest/dev/using/data-types/#Setting-Up-Buckets-to-Use-Riak-Data-Types
+[2]: http://docs.basho.com/riak/latest/dev/using/data-types/#Setting-Up-Buckets-to-Use-Riak-Data-Types
 
 The Ruby client comes pre-configured with default bucket types for the three
 top-level CRDTs: `counters`, `maps`, and  `sets`. These can be viewed and
