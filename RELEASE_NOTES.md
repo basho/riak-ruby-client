@@ -1,5 +1,28 @@
 # Riak Ruby Client Release Notes
 
+## 2.2.1 Release - 2015-06-19
+
+Version 2.2.1 is a bugfix release, and includes additional testing of character
+encodings.
+
+Bug fixes:
+
+* Support bucket-typed buckets when creating secondary-index input phases
+  for map-reduce, thanks to Takeshi Akima.
+* Support Riak Search 2 / Yokozuna results as input phases for map-reduce,
+  thanks again to Takeshi Akima.
+* `BucketTyped::Bucket#get_index` now includes the bucket type name in the
+  2i request.
+* `Bucket#==` now performs an encoding-independent comparison on bucket names.
+* `BucketType#==` also does an encoding-independent comparison on type names.
+
+Testing enhancements:
+
+* Non-ASCII UTF-8 strings, and binary strings containing byte 255 are tested
+  with key-value, secondary index, CRDT, and Riak Search interfaces. These
+  findings are available on our documentation site:
+  http://basho.github.io/riak-ruby-client/encoding.html
+
 ## 2.2.0 Release - 2015-05-27
 
 Version 2.2.0 is a feature release.
