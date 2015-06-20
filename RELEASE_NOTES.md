@@ -8,9 +8,9 @@ encodings.
 Bug fixes:
 
 * Support bucket-typed buckets when creating secondary-index input phases
-  for map-reduce, thanks to Takeshi Akima.
+  for map-reduce, thanks to Hidekazu Tanaka.
 * Support Riak Search 2 / Yokozuna results as input phases for map-reduce,
-  thanks again to Takeshi Akima.
+  thanks again to Hidekazu Tanaka.
 * `BucketTyped::Bucket#get_index` now includes the bucket type name in the
   2i request.
 * `Bucket#==` now performs an encoding-independent comparison on bucket names.
