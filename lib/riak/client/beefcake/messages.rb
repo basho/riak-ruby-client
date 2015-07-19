@@ -4,7 +4,7 @@ module Riak
   class Client
     # @private
     class BeefcakeProtobuffsBackend
-## Generated from riak.proto for
+## Generated from riak.proto for 
 require "beefcake"
 
 
@@ -156,9 +156,19 @@ class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-## Generated from riak_kv.proto for
+## Generated from riak_kv.proto for 
 require "beefcake"
 
+
+module TsColumnType
+  BINARY = 0
+  INTEGER = 1
+  NUMERIC = 2
+  TIMESTAMP = 3
+  BOOLEAN = 4
+  SET = 5
+  MAP = 6
+end
 
 class RpbGetClientIdResp
   include Beefcake::Message
@@ -270,6 +280,38 @@ class RpbGetBucketKeyPreflistResp
 end
 
 class RpbBucketKeyPreflistItem
+  include Beefcake::Message
+end
+
+class TsQueryReq
+  include Beefcake::Message
+end
+
+class TsQueryResp
+  include Beefcake::Message
+end
+
+class TsPutReq
+  include Beefcake::Message
+end
+
+class TsPutResp
+  include Beefcake::Message
+end
+
+class TsInterpolation
+  include Beefcake::Message
+end
+
+class TsColumnDescription
+  include Beefcake::Message
+end
+
+class TsRow
+  include Beefcake::Message
+end
+
+class TsCell
   include Beefcake::Message
 end
 
@@ -486,7 +528,50 @@ class RpbBucketKeyPreflistItem
   required :node, :bytes, 2
   required :primary, :bool, 3
 end
-## Generated from riak_search.proto for
+
+class TsQueryReq
+  optional :query, TsInterpolation, 1
+end
+
+class TsQueryResp
+  repeated :columns, TsColumnDescription, 1
+  repeated :rows, TsRow, 2
+end
+
+class TsPutReq
+  required :table, :bytes, 1
+  repeated :columns, TsColumnDescription, 2
+  repeated :rows, TsRow, 3
+end
+
+class TsPutResp
+end
+
+class TsInterpolation
+  required :base, :bytes, 1
+  repeated :interpolations, RpbPair, 2
+end
+
+class TsColumnDescription
+  required :name, :bytes, 1
+  required :type, TsColumnType, 2
+  repeated :complex_type, TsColumnType, 3
+end
+
+class TsRow
+  repeated :cells, TsCell, 1
+end
+
+class TsCell
+  optional :binary_value, :bytes, 1
+  optional :integer_value, :sint64, 2
+  optional :numeric_value, :bytes, 3
+  optional :timestamp_value, :sint64, 4
+  optional :boolean_value, :bool, 5
+  repeated :set_value, :bytes, 6
+  optional :map_value, :bytes, 7
+end
+## Generated from riak_search.proto for 
 require "beefcake"
 
 
@@ -524,7 +609,7 @@ class RpbSearchQueryResp
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-## Generated from riak_yokozuna.proto for
+## Generated from riak_yokozuna.proto for 
 require "beefcake"
 
 
@@ -603,7 +688,7 @@ end
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-## Generated from riak_dt.proto for
+## Generated from riak_dt.proto for 
 require "beefcake"
 
 
