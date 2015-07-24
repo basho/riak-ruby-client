@@ -68,6 +68,12 @@ module Riak
         :DtUpdateReq => 82,
         :DtUpdateResp => 83,
 
+        # riak time series
+        :TsQueryReq => 90,
+        :TsQueryResp => 91,
+        :TsPutReq => 90,
+        :TsPutResp => 91,
+
         # internal
         :AuthReq => 253,
         :AuthResp => 254,
