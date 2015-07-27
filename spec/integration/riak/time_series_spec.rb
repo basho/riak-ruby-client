@@ -15,7 +15,6 @@ primary key (time))
 SQL
 
       it 'round-trips a create request without error' do
-pp query_text
         query = Riak::TimeSeries::Query.new test_client, query_text
         expect{ query.issue! }.to_not raise_error
       end
