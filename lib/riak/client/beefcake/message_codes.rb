@@ -71,8 +71,8 @@ module Riak
         # riak time series
         :TsQueryReq => 90,
         :TsQueryResp => 91,
-        :TsPutReq => 90,
-        :TsPutResp => 91,
+        :TsPutReq => 92,
+        :TsPutResp => 93,
 
         # internal
         :AuthReq => 253,
