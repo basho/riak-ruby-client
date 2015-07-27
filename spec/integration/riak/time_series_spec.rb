@@ -5,9 +5,9 @@ describe 'Time Series', test_client: true, integration: true do
   describe 'query interface' do
     describe 'creating collections' do
 
-      let(:table_name){  "time_series_" + random_key }
+      let(:table_name){  "time_series" }
       let(:query_text){ <<-SQL.lines.map(&:strip).join ' ' }
-create table tablename (
+create table #{ table_name } (
 time timestamp not null,
 user_id varchar not null,
 temperature_k float,
