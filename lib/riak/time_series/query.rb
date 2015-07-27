@@ -2,9 +2,11 @@ module Riak::TimeSeries
   class Query
     attr_accessor :query_text
     attr_accessor :interpolations
+    attr_reader :client
     attr_reader :results
 
     def initialize(client, query_text, interpolations = {})
+      @client = client
       @query_text = query_text
       @interpolations = interpolations
     end

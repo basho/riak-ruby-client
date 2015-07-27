@@ -21,6 +21,7 @@ require 'riak/multiget'
 require 'riak/secondary_index'
 require 'riak/search'
 require 'riak/stamp'
+require 'riak/time_series'
 require 'riak/list_buckets'
 
 module Riak
