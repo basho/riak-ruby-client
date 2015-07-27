@@ -21,4 +21,22 @@ pp query_text
       end
     end
   end
+
+  describe 'submission interface' do
+    let(:table_name){ "time_series" }
+    subject{ Riak::TimeSeries::Submission.new test_client, table_name }
+
+    let(:sample_data) do
+      [
+        [Time.now - 10, 'bryce', 305.37],
+        [Time.now - 5, 'bryce', 300.12],
+        [Time.now, 'bryce', 295.95],
+      ]
+    end
+
+    it 'writes data without error' do
+      subject.measurements = sample_data
+      expect{ subject.write! }.to_not raise_error
+    end
+  end
 end
