@@ -15,9 +15,9 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       request = TsPutReq.new table: table_name, rows: rows
 
-      response = backend.protocol do |p|
+      backend.protocol do |p|
         p.write :TsPutReq, request
-        p.expect :TsPutResp, TsPutResp
+        p.expect :TsPutResp, TsPutResp, empty_body_acceptable: true
       end
     end
 
