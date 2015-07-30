@@ -1,4 +1,6 @@
 module Riak
+
+  # Container module for Riak Time Series features.
   module TimeSeries
   end
 end
