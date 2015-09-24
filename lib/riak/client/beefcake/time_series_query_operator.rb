@@ -24,8 +24,9 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
     private
     def pairs_for(interpolations)
+      serializer = TimeSeriesSerializer.new
       interpolations.map do |key, value|
-        RpbPair.new key: key.to_s, value: value.to_s
+        TsKeyCell.new key: key.to_s, value: serializer.cell_for value
       end
     end
   end
