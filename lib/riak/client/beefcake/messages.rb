@@ -4,7 +4,7 @@ module Riak
   class Client
     # @private
     class BeefcakeProtobuffsBackend
-## Generated from riak.proto for 
+## Generated from riak.proto
 require "beefcake"
 
 
@@ -156,7 +156,7 @@ class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-## Generated from riak_kv.proto for 
+## Generated from riak_kv.proto
 require "beefcake"
 
 
@@ -300,6 +300,10 @@ class TsPutResp
 end
 
 class TsInterpolation
+  include Beefcake::Message
+end
+
+class TsKeyCell
   include Beefcake::Message
 end
 
@@ -549,7 +553,12 @@ end
 
 class TsInterpolation
   required :base, :bytes, 1
-  repeated :interpolations, RpbPair, 2
+  repeated :interpolations, TsKeyCell, 2
+end
+
+class TsKeyCell
+  required :key, :bytes, 1
+  required :value, TsCell, 2
 end
 
 class TsColumnDescription
@@ -571,7 +580,7 @@ class TsCell
   repeated :set_value, :bytes, 6
   optional :map_value, :bytes, 7
 end
-## Generated from riak_search.proto for 
+## Generated from riak_search.proto
 require "beefcake"
 
 
@@ -609,7 +618,7 @@ class RpbSearchQueryResp
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-## Generated from riak_yokozuna.proto for 
+## Generated from riak_yokozuna.proto
 require "beefcake"
 
 
@@ -688,7 +697,7 @@ end
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-## Generated from riak_dt.proto for 
+## Generated from riak_dt.proto
 require "beefcake"
 
 
