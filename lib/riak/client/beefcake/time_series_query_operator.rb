@@ -18,7 +18,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       response = backend.protocol do |p|
         p.write :TsQueryReq, request
-        p.expect :TsQueryResp, TsQueryResp
+        p.expect :TsQueryResp, TsQueryResp, empty_body_acceptable: true
       end
     end
 
