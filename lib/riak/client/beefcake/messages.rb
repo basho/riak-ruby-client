@@ -4,7 +4,7 @@ module Riak
   class Client
     # @private
     class BeefcakeProtobuffsBackend
-## Generated from riak.proto for 
+## Generated from riak.proto
 require "beefcake"
 
 
@@ -156,14 +156,14 @@ class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-## Generated from riak_kv.proto for 
+## Generated from riak_kv.proto
 require "beefcake"
 
 
 module TsColumnType
   BINARY = 0
   INTEGER = 1
-  NUMERIC = 2
+  FLOAT = 2
   TIMESTAMP = 3
   BOOLEAN = 4
   SET = 5
@@ -235,6 +235,10 @@ class RpbIndexResp
   include Beefcake::Message
 end
 
+class RpbIndexBodyResp
+  include Beefcake::Message
+end
+
 class RpbCSBucketReq
   include Beefcake::Message
 end
@@ -283,6 +287,18 @@ class RpbBucketKeyPreflistItem
   include Beefcake::Message
 end
 
+class RpbCoverageReq
+  include Beefcake::Message
+end
+
+class RpbCoverageResp
+  include Beefcake::Message
+end
+
+class RpbCoverageEntry
+  include Beefcake::Message
+end
+
 class TsQueryReq
   include Beefcake::Message
 end
@@ -291,11 +307,27 @@ class TsQueryResp
   include Beefcake::Message
 end
 
+class TsGetReq
+  include Beefcake::Message
+end
+
+class TsGetResp
+  include Beefcake::Message
+end
+
 class TsPutReq
   include Beefcake::Message
 end
 
 class TsPutResp
+  include Beefcake::Message
+end
+
+class TsDelReq
+  include Beefcake::Message
+end
+
+class TsDelResp
   include Beefcake::Message
 end
 
@@ -434,6 +466,8 @@ class RpbIndexReq
   optional :type, :bytes, 12
   optional :term_regex, :bytes, 13
   optional :pagination_sort, :bool, 14
+  optional :cover_context, :bytes, 15
+  optional :return_body, :bool, 16
 end
 
 class RpbIndexResp
@@ -441,6 +475,12 @@ class RpbIndexResp
   repeated :results, RpbPair, 2
   optional :continuation, :bytes, 3
   optional :done, :bool, 4
+end
+
+class RpbIndexBodyResp
+  repeated :objects, RpbIndexObject, 1
+  optional :continuation, :bytes, 2
+  optional :done, :bool, 3
 end
 
 class RpbCSBucketReq
@@ -453,6 +493,7 @@ class RpbCSBucketReq
   optional :max_results, :uint32, 7
   optional :timeout, :uint32, 8
   optional :type, :bytes, 9
+  optional :cover_context, :bytes, 10
 end
 
 class RpbCSBucketResp
@@ -529,6 +570,25 @@ class RpbBucketKeyPreflistItem
   required :primary, :bool, 3
 end
 
+class RpbCoverageReq
+  optional :type, :bytes, 1
+  required :bucket, :bytes, 2
+  optional :min_partitions, :uint32, 3
+  optional :replace_cover, :bytes, 4
+  repeated :unavailable_cover, :bytes, 5
+end
+
+class RpbCoverageResp
+  repeated :entries, RpbCoverageEntry, 1
+end
+
+class RpbCoverageEntry
+  required :ip, :bytes, 1
+  required :port, :uint32, 2
+  optional :keyspace_desc, :bytes, 3
+  required :cover_context, :bytes, 4
+end
+
 class TsQueryReq
   optional :query, TsInterpolation, 1
 end
@@ -538,6 +598,16 @@ class TsQueryResp
   repeated :rows, TsRow, 2
 end
 
+class TsGetReq
+  required :table, :bytes, 1
+  repeated :key, TsCell, 2
+  optional :timeout, :uint32, 3
+end
+
+class TsGetResp
+  repeated :rows, TsRow, 1
+end
+
 class TsPutReq
   required :table, :bytes, 1
   repeated :columns, TsColumnDescription, 2
@@ -545,6 +615,16 @@ class TsPutReq
 end
 
 class TsPutResp
+end
+
+class TsDelReq
+  required :table, :bytes, 1
+  repeated :key, TsCell, 2
+  optional :vclock, :bytes, 3
+  optional :timeout, :uint32, 4
+end
+
+class TsDelResp
 end
 
 class TsInterpolation
@@ -570,8 +650,10 @@ class TsCell
   optional :boolean_value, :bool, 5
   repeated :set_value, :bytes, 6
   optional :map_value, :bytes, 7
+  optional :float_value, :float, 8
+  optional :double_value, :double, 9
 end
-## Generated from riak_search.proto for 
+## Generated from riak_search.proto
 require "beefcake"
 
 
@@ -609,7 +691,7 @@ class RpbSearchQueryResp
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-## Generated from riak_yokozuna.proto for 
+## Generated from riak_yokozuna.proto
 require "beefcake"
 
 
@@ -688,7 +770,7 @@ end
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-## Generated from riak_dt.proto for 
+## Generated from riak_dt.proto
 require "beefcake"
 
 
