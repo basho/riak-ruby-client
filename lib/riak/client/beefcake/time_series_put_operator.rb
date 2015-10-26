@@ -1,3 +1,4 @@
+require './ts_cell_codec'
 class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_put_operator
     TimeSeriesPutOperator.new(self)
@@ -23,27 +24,13 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
     private
     def rows_for(measurements)
+      codec = TsCellCodec.new
       measurements.map do |measurement|
         # expect a measurement to be mappable
         TsRow.new(cells: measurement.map do |measure|
-          cell_for measure
+          codec.cell_for measure
         end)
       end
-    end
-
-    def cell_for(measure)
-      TsCell.new case measure
-                 when String
-                   { binary_value: measure }
-                 when Integer
-                   { integer_value: measure }
-                 when Numeric
-                   { numeric_value: measure.to_s }
-                 when Time
-                   { timestamp_value: measure.to_i }
-                 when TrueClass, FalseClass
-                   { boolean_value: measure }
-                 end
     end
   end
 end

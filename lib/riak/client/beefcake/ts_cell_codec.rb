@@ -27,7 +27,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
         cell.boolean_value
       # boolean_value is last, so we can get either false, nil, or true
     end
-
+    
     private
     def numeric(cell)
       return false unless cell.numeric_value.is_a? String
