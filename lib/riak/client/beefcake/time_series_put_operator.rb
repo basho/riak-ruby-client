@@ -1,16 +1,12 @@
-require './ts_cell_codec'
+require_relative './ts_cell_codec'
+require_relative './operator'
+
 class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_put_operator
     TimeSeriesPutOperator.new(self)
   end
 
-  class TimeSeriesPutOperator
-    attr_reader :backend
-
-    def initialize(backend)
-      @backend = backend
-    end
-
+  class TimeSeriesPutOperator < Operator
     def put(table_name, measurements)
       rows = rows_for measurements
 

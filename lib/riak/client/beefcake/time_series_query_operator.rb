@@ -1,15 +1,11 @@
+require_relative './operator'
+
 class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_query_operator
     TimeSeriesQueryOperator.new(self)
   end
 
-  class TimeSeriesQueryOperator
-    attr_reader :backend
-
-    def initialize(backend)
-      @backend = backend
-    end
-
+  class TimeSeriesQueryOperator < Operator
     def query(base, interpolations={  })
       interpolator = TsInterpolation.new base: base
       interpolator.interpolations = pairs_for interpolations

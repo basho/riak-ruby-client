@@ -1,4 +1,5 @@
-require './ts_cell_codec'
+require_relative './ts_cell_codec'
+require_relative './operator'
 
 class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_delete_operator
