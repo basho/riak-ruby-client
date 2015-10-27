@@ -4,16 +4,25 @@ class Riak::Client::BeefcakeProtobuffsBackend
       TsCell.new case measure
                  when String
                    { binary_value: measure }
-                 when Integer
+                 when Fixnum
                    { integer_value: measure }
                  when Float
                    { double_value: measure }
+                 when Rational
+                   fail Riak::TimeSeriesError::SerializeRationalNumberError
+                 when Complex
+                   fail Riak::TimeSeriesError::SerializeComplexNumberError
                  when Numeric
                    { numeric_value: measure.to_s }
                  when Time
-                   { timestamp_value: measure.to_i }
+                   seconds = measure.to_f
+                   milliseconds = seconds * 1000
+                   truncated_ms = milliseconds.to_i
+                   { timestamp_value: truncated_ms }
                  when TrueClass, FalseClass
                    { boolean_value: measure }
+                 when nil
+                   {  }
                  end
     end
 
@@ -27,7 +36,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
         cell.boolean_value
       # boolean_value is last, so we can get either false, nil, or true
     end
-    
+
     private
     def numeric(cell)
       return false unless cell.numeric_value.is_a? String
