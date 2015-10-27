@@ -5,5 +5,8 @@ module Riak
   end
 end
 
+require 'riak/errors/time_series'
+
+require 'riak/time_series/deletion'
 require 'riak/time_series/query'
 require 'riak/time_series/submission'
