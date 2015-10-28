@@ -1,5 +1,13 @@
 class Riak::Client::BeefcakeProtobuffsBackend
   class TsCellCodec
+    def cells_for(measures)
+      measures.map{ |m| cell_for m }
+    end
+
+    def scalars_for(cells)
+      cells.map{ |c| scalar_for c }
+    end
+
     def cell_for(measure)
       TsCell.new case measure
                  when String

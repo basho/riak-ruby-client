@@ -36,8 +36,27 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
     end
   end
 
-  # these are handled by the symmetric cases above
+  # deserialization is handled by the symmetric cases above
   # describe 'deserializing values'
+
+  describe 'with a collection' do
+    let(:not_serialized){ ["hello", 5, 12.34] }
+    let(:serialized) do
+      [
+        TsCell.new(binary_value: 'hello'),
+        TsCell.new(integer_value: 5),
+        TsCell.new(float_value: 12.34)
+      ]
+    end
+
+    it 'serializes' do
+      expect(subject.cells_for(not_serialized)).to eq serialized
+    end
+
+    it 'deserializes' do
+      expect(subject.scalars_for(serialized)).to eq not_serialized
+    end
+  end
 
   RSpec::Matchers.define :symmetric_serialize do |scalar, cell_options|
     match do |codec|
