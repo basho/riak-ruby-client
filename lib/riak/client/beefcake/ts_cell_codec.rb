@@ -40,13 +40,13 @@ class Riak::Client::BeefcakeProtobuffsBackend
     private
     def numeric(cell)
       return false unless cell.numeric_value.is_a? String
-      return cell.numeric_value.to_i unless cell.include? "."
+      return cell.numeric_value.to_i unless cell.numeric_value.include? "."
       cell.numeric_value.to_f
     end
 
     def timestamp(cell)
       return false unless cell.timestamp_value.is_a? Integer
-      Time.at(cell / 1000)
+      Time.at(cell.timestamp_value.to_f / 1000)
     end
   end
 end
