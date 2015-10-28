@@ -16,9 +16,10 @@ module Riak
           require 'riak/client/beefcake/bucket_properties_operator'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
-          require 'riak/client/beefcake/time_series_query_operator'
-          require 'riak/client/beefcake/time_series_put_operator'
           require 'riak/client/beefcake/time_series_delete_operator'
+          require 'riak/client/beefcake/time_series_get_operator'
+          require 'riak/client/beefcake/time_series_put_operator'
+          require 'riak/client/beefcake/time_series_query_operator'
           require 'riak/client/beefcake/protocol'
           require 'riak/client/beefcake/socket'
           true
