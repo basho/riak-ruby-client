@@ -14,7 +14,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
                                       key: codec.cells_for(key_components))
 
       request = TsGetReq.new request_options
-pp request
+
       backend.protocol do |p|
         p.write :TsGetReq, request
         p.expect :TsGetResp, TsGetResp
