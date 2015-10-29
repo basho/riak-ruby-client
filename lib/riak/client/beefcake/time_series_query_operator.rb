@@ -1,3 +1,4 @@
+require_relative './ts_cell_codec'
 require_relative './operator'
 
 class Riak::Client::BeefcakeProtobuffsBackend
@@ -16,6 +17,17 @@ class Riak::Client::BeefcakeProtobuffsBackend
         p.write :TsQueryReq, request
         p.expect :TsQueryResp, TsQueryResp, empty_body_acceptable: true
       end
+
+      codec = TsCellCodec.new
+
+      collection = Riak::TimeSeries::Collection.
+                   new(result.rows.map do |row|
+                         Riak::TimeSeries::Row.new codec.scalars_for row.cells
+                       end)
+
+      collection.columns = result.columns
+
+      collection
     end
 
     private

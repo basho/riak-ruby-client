@@ -15,19 +15,19 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       request = TsGetReq.new request_options
 
-      result = nil
-
-      begin
+      result = begin
         backend.protocol do |p|
           p.write :TsGetReq, request
           result = p.expect :TsGetResp, TsGetResp
         end
       rescue Riak::ProtobuffsErrorResponse => e
         raise unless e.code == 10
-        result = nil
+        return nil
       end
 
-      result
+      Riak::TimeSeries::Collection.new(result.rows.map do |row|
+        Riak::TimeSeries::Row.new codec.scalars_for row.cells
+      end.to_a)
     end
   end
 end
