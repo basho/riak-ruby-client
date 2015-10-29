@@ -44,6 +44,7 @@ SQL
 
       expect{ subject.issue! }.to_not raise_error
       expect(subject.results).to be
+      pp subject.results
     end
   end
 
@@ -56,11 +57,26 @@ SQL
       result = nil
       expect{ result = subject.read! }.to_not raise_error
       expect(result).to be
+      expect(result.rows).to_not be_empty
+      expect(result.rows.first.cells).to_not be_empty
     end
   end
 
   describe 'single-key delete interface' do
-    it 'deletes data without error'
+    subject{ Riak::TimeSeries::Deletion.new test_client, table_name }
+    let(:test_read){ Riak::TimeSeries::Read.new test_client, table_name }
+
+    it 'deletes data without error' do
+      stored_datum_expectation
+
+      test_read.key = key
+      expect(test_read.read!.rows).to_not be_empty
+
+      subject.key = key
+      expect{ subject.delete! }.to_not raise_error
+
+      expect(test_read.read!).to_not be
+    end
   end
 
   describe 'submission interface' do
