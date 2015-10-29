@@ -44,7 +44,8 @@ SQL
 
       expect{ subject.issue! }.to_not raise_error
       expect(subject.results).to be
-      pp subject.results
+      expect(subject.results).to_not be_empty
+      expect(subject.results.columns).to_not be_empty
     end
   end
 
@@ -57,8 +58,8 @@ SQL
       result = nil
       expect{ result = subject.read! }.to_not raise_error
       expect(result).to be
-      expect(result.rows).to_not be_empty
-      expect(result.rows.first.cells).to_not be_empty
+      expect(result).to_not be_empty
+      expect(result.first).to_not be_empty
     end
   end
 
@@ -70,7 +71,7 @@ SQL
       stored_datum_expectation
 
       test_read.key = key
-      expect(test_read.read!.rows).to_not be_empty
+      expect(test_read.read!).to_not be_empty
 
       subject.key = key
       expect{ subject.delete! }.to_not raise_error
