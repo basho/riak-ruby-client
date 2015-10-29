@@ -98,6 +98,7 @@ en:
     streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."
     string_type: "invalid_argument %{string} is not a String"
     time_series:
+      serialize_big_integer: "%{bignum} is out of range for sint64 field"
       serialize_complex_number: "Cannot serialize Complex numbers"
       serialize_rational_number: "Cannot serialize Rational numbers without losing precision"
     too_few_arguments: "too few arguments: %{params}"

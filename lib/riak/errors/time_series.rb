@@ -13,5 +13,11 @@ module Riak
         super t('time_series.serialize_rational_number')
       end
     end
+
+    class SerializeBigIntegerError < TimeSeriesError
+      def initialize(bignum)
+        super t('time_series.serialize_big_integer', bignum: bignum)
+      end
+    end
   end
 end

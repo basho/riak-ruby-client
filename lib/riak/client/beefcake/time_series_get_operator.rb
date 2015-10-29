@@ -15,10 +15,19 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       request = TsGetReq.new request_options
 
-      backend.protocol do |p|
-        p.write :TsGetReq, request
-        p.expect :TsGetResp, TsGetResp
+      result = nil
+
+      begin
+        backend.protocol do |p|
+          p.write :TsGetReq, request
+          result = p.expect :TsGetResp, TsGetResp
+        end
+      rescue Riak::ProtobuffsErrorResponse => e
+        raise unless e.code == 10
+        result = nil
       end
+
+      result
     end
   end
 end

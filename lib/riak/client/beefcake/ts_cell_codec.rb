@@ -14,6 +14,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
                    { binary_value: measure }
                  when Fixnum
                    { integer_value: measure }
+                 when Bignum
+                   { integer_value: check_bignum_range(measure) }
                  when Float
                    { double_value: measure }
                  when Rational
@@ -38,14 +40,20 @@ class Riak::Client::BeefcakeProtobuffsBackend
       cell.binary_value ||
         cell.integer_value ||
         cell.double_value ||
-        cell.float_value ||
-        numeric(cell) ||
         timestamp(cell) ||
         cell.boolean_value
       # boolean_value is last, so we can get either false, nil, or true
     end
 
     private
+    def check_bignum_range(bignum)
+      if (bignum > -0x8000000000000000) && (bignum < 0x7FFFFFFFFFFFFFFF)
+        return bignum
+      end
+
+      fail Riak::TimeSeriesError::SerializeBigIntegerError, bignum
+    end
+
     def numeric(cell)
       return false unless cell.numeric_value.is_a? String
       return cell.numeric_value.to_i unless cell.numeric_value.include? "."
