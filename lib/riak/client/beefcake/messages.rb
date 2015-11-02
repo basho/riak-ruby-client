@@ -162,12 +162,10 @@ require "beefcake"
 
 module TsColumnType
   BINARY = 0
-  INTEGER = 1
-  FLOAT = 2
+  SINT64 = 1
+  DOUBLE = 2
   TIMESTAMP = 3
   BOOLEAN = 4
-  SET = 5
-  MAP = 6
 end
 
 class RpbGetClientIdResp
@@ -605,7 +603,8 @@ class TsGetReq
 end
 
 class TsGetResp
-  repeated :rows, TsRow, 1
+  repeated :columns, TsColumnDescription, 1
+  repeated :rows, TsRow, 2
 end
 
 class TsPutReq
@@ -635,7 +634,6 @@ end
 class TsColumnDescription
   required :name, :bytes, 1
   required :type, TsColumnType, 2
-  repeated :complex_type, TsColumnType, 3
 end
 
 class TsRow
@@ -644,14 +642,10 @@ end
 
 class TsCell
   optional :binary_value, :bytes, 1
-  optional :integer_value, :sint64, 2
-  optional :numeric_value, :bytes, 3
-  optional :timestamp_value, :sint64, 4
-  optional :boolean_value, :bool, 5
-  repeated :set_value, :bytes, 6
-  optional :map_value, :bytes, 7
-  optional :float_value, :float, 8
-  optional :double_value, :double, 9
+  optional :sint64_value, :sint64, 2
+  optional :timestamp_value, :sint64, 3
+  optional :boolean_value, :bool, 4
+  optional :double_value, :double, 5
 end
 ## Generated from riak_search.proto
 require "beefcake"
