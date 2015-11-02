@@ -13,17 +13,17 @@ class Riak::Client::BeefcakeProtobuffsBackend
                  when String
                    { binary_value: measure }
                  when Fixnum
-                   { integer_value: measure }
+                   { sint64_value: measure }
                  when Bignum
-                   { integer_value: check_bignum_range(measure) }
+                   { sint64_value: check_bignum_range(measure) }
                  when Float
                    { double_value: measure }
                  when Rational
                    fail Riak::TimeSeriesError::SerializeRationalNumberError
                  when Complex
                    fail Riak::TimeSeriesError::SerializeComplexNumberError
-                 when Numeric
-                   { numeric_value: measure.to_s }
+                 # when Numeric
+                 #   { numeric_value: measure.to_s }
                  when Time
                    seconds = measure.to_f
                    milliseconds = seconds * 1000
@@ -38,7 +38,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
     def scalar_for(cell)
       cell.binary_value ||
-        cell.integer_value ||
+        cell.sint64_value ||
         cell.double_value ||
         timestamp(cell) ||
         cell.boolean_value
