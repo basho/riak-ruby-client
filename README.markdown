@@ -182,7 +182,7 @@ bucket = bucket_type.bucket 'pizzas'
 
 # Create an index and add it to a typed bucket. Setting the index on the bucket
 # may fail until the index creation has propagated.
-index = Riak::Search::Index.new 'pizzas'
+index = Riak::Search::Index.new client, 'pizzas'
 index.exist? #=> false
 index.create!
 client.set_bucket_props bucket, {search_index: 'pizzas'}, 'yokozuna'
