@@ -228,6 +228,8 @@ describe "CRDTs", integration: true, test_client: true do
         expect(subject.maps['bag'].maps['123'].registers['name']).to eq 'f1'
 
         expect{ bag_map.maps.delete('123') }.to_not raise_error
+        expect(bag_map.maps.include? '123').to_not be
+        expect(bag_map.maps['123'].registers['name']).to_not be
       end
     end
 
