@@ -219,6 +219,18 @@ describe "CRDTs", integration: true, test_client: true do
         expect(subject.maps['road'].counters['speedbumps'].value).to eq 4
         expect(subject.maps['road'].sets['signs'].include? 'yield').to be
       end
+
+      it 'deletes nested inner-map' do
+        bag_map = subject.maps['bag']
+        inner_map = bag_map.maps['123']
+        inner_map.registers['name'] = 'f1'
+
+        expect(subject.maps['bag'].maps['123'].registers['name']).to eq 'f1'
+
+        expect{ bag_map.maps.delete('123') }.to_not raise_error
+        expect(bag_map.maps.include? '123').to_not be
+        expect(bag_map.maps['123'].registers['name']).to_not be
+      end
     end
 
     describe 'containing a register' do
