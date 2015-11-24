@@ -1,5 +1,14 @@
 # Riak Ruby Client Release Notes
 
+## 2.2.2 Release - 2015-11-24
+
+Version 2.2.2 is a bugfix release.
+
+* Corrected Hidekazu Tanaka's name in the 2.2.1 release notes.
+* Deleting maps inside map CRDTs works, thanks to Kazuhiro Suzuki.
+* Fix `Riak::Search::Index` documentation in the readme, thanks to Zshawn Syed.
+* Tighten up the i18n gem requirement, thanks to Sean Kelly.
+
 ## 2.2.1 Release - 2015-06-19
 
 Version 2.2.1 is a bugfix release, and includes additional testing of character
