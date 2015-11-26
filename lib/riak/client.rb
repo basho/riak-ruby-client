@@ -356,6 +356,8 @@ module Riak
           begin
             yield backend
           rescue *NETWORK_ERRORS => e
+            Riak.logger.warn("Riak client error: #{e.inspect} for #{backend.inspect}")
+
             # Network error.
             tries -= 1
 
