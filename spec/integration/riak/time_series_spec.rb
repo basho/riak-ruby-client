@@ -61,6 +61,13 @@ SQL
       expect(result).to_not be_empty
       expect(result.first).to_not be_empty
     end
+
+    it 'attempts retrieval of non-existent data without error' do
+      subject.key = [ 'foo', 'bar', now ]
+      result = nil
+      expect{ result = subject.read! }.to_not raise_error
+      expect(result).to_not be
+    end
   end
 
   describe 'single-key delete interface' do

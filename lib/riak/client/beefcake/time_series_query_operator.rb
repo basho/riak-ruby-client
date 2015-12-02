@@ -13,7 +13,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       request = TsQueryReq.new query: interpolator
 
-      response = backend.protocol do |p|
+      result = backend.protocol do |p|
         p.write :TsQueryReq, request
         p.expect :TsQueryResp, TsQueryResp, empty_body_acceptable: true
       end
