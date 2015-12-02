@@ -162,15 +162,15 @@ describe 'Bucket Types', test_client: true, integration: true do
       let(:untyped_bucket){ test_client.bucket bucket.name }
 
       it 'allows reading and writing bucket properties' do
-        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
-        expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['notfound_ok']).to be
+        expect(test_client.get_bucket_props(untyped_bucket)['notfound_ok']).to be
 
         # test setting
-        expect{ bucket.props = {'last_write_wins' => true} }.to_not raise_error
+        expect{ bucket.props = {'notfound_ok' => false} }.to_not raise_error
 
         # make sure setting doesn't leak to untyped bucket
-        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to be
-        expect(test_client.get_bucket_props(untyped_bucket)['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['notfound_ok']).to_not be
+        expect(test_client.get_bucket_props(untyped_bucket)['notfound_ok']).to be
 
         # add canary setting on untyped bucket
         expect{ untyped_bucket.props = { 'n_val' => 1} }.to_not raise_error
@@ -183,7 +183,7 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect{ bucket.clear_props }.to_not raise_error
 
         # make sure clearing doesn't leak to canary setting on untyped bucket
-        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['last_write_wins']).to_not be
+        expect(test_client.get_bucket_props(bucket, type: 'yokozuna')['notfound_ok']).to be
         expect(test_client.get_bucket_props(untyped_bucket)['n_val']).to eq 1
       end
     end
