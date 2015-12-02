@@ -90,7 +90,7 @@ task :pb_defs => 'beefcake:pb_defs'
 namespace :beefcake do
   task :pb_defs => 'lib/riak/client/beefcake/messages.rb'
 
-  PROTO_FILES = %w{riak_kv riak_search riak_yokozuna riak_dt}
+  PROTO_FILES = %w{riak_kv riak_search riak_yokozuna riak_dt riak_ts}
   PROTO_TMP = PROTO_FILES.map{|f| "tmp/#{f}.pb.rb"}
 
   task :clean do
@@ -113,7 +113,8 @@ namespace :beefcake do
 
   directory 'tmp/riak_pb' => 'tmp' do
     cd 'tmp' do
-      sh "git clone -b develop https://github.com/basho/riak_pb.git"
+      # NB: change this once TS is published
+      sh "git clone -b end-to-end/timeseries git://github.com/basho/riak_pb.git"
     end
   end
 end
