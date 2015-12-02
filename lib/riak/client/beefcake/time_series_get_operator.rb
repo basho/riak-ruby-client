@@ -18,12 +18,14 @@ class Riak::Client::BeefcakeProtobuffsBackend
       result = begin
         backend.protocol do |p|
           p.write :TsGetReq, request
-          result = p.expect :TsGetResp, TsGetResp
+          result = p.expect :TsGetResp, TsGetResp, empty_body_acceptable: true
         end
       rescue Riak::ProtobuffsErrorResponse => e
         raise unless e.code == 10
         return nil
       end
+
+      return nil if result == :empty
 
       Riak::TimeSeries::Collection.new(result.rows.map do |row|
         Riak::TimeSeries::Row.new codec.scalars_for row.cells

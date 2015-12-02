@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Riak::TimeSeries::Submission do
   subject{ described_class.new client, table_name }
-  let(:table_name){ 'GeoCheckins' }
+  let(:table_name){ 'GeoCheckin' }
   let(:client){ instance_double('Riak::Client') }
   let(:measurements){ double 'measurements' }
   let(:backend) do

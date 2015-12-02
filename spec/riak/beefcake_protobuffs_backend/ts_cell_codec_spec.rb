@@ -6,11 +6,9 @@ Riak::Client::BeefcakeProtobuffsBackend.configured?
 
 describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
   describe 'symmetric serialziation' do
-    it { is_expected.to symmetric_serialize("hello", binary_value: "hello")}
-    it { is_expected.to symmetric_serialize(5, integer_value: 5)}
+    it { is_expected.to symmetric_serialize("hello", varchar_value: "hello")}
+    it { is_expected.to symmetric_serialize(5, sint64_value: 5)}
     it { is_expected.to symmetric_serialize(123.45, double_value: 123.45) }
-    # it { is_expected.to symmetric_serialize((2**64),
-    #                               numeric_value: "18446744073709551616") }
     it do
       is_expected.to symmetric_serialize(Time.parse("June 23, 2015 at 9:46:28 EDT"),
                                          timestamp_value: 1435067188000)
@@ -22,7 +20,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
 
   describe 'serializing values' do
     it do
-      is_expected.to serialize(BigDecimal.new("0.1"), numeric_value: "0.1E0")
+      is_expected.to serialize(BigDecimal.new("0.1"), double_value: 0.1)
     end
 
     it 'refuses to serialize big numbers' do
@@ -48,8 +46,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
     let(:not_serialized){ ['hi', 5, 12.34] }
     let(:serialized) do
       [
-        Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(binary_value: 'hi'),
-        Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(integer_value: 5),
+        Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(varchar_value: 'hi'),
+        Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(sint64_value: 5),
         Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(double_value: 12.34)
       ]
     end
