@@ -880,11 +880,13 @@ end
 
 class TsQueryReq
   optional :query, TsInterpolation, 1
+  optional :stream, :bool, 2, :default => false
 end
 
 class TsQueryResp
   repeated :columns, TsColumnDescription, 1
   repeated :rows, TsRow, 2
+  optional :done, :bool, 3, :default => true
 end
 
 class TsGetReq
