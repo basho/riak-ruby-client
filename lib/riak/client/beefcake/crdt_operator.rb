@@ -199,7 +199,7 @@ module Riak
                                                      type: MapField::MapFieldType::MAP
                                                      ),
                                  map_op: MapOp.new(
-                                                   removes: inner_op.name)
+                                                   removes: inner_serialize_delete(inner_op))
                                  )
           end
           inner_serialized = inner_serialize inner_op
