@@ -5,6 +5,7 @@ describe 'Time Series', test_client: true, integration: true do
   let(:table_name){ 'GeoCheckin' }
 
   let(:now){ Time.now }
+  let(:fiveMinsAgo){ Time.now - 300 }
   let(:now_range_str) do
     past = (now.to_i - 100) * 1000
     future = (now.to_i + 100) * 1000
@@ -15,7 +16,9 @@ describe 'Time Series', test_client: true, integration: true do
   let(:series){ 'series-' + random_key }
 
   let(:key){ [family, series, now] }
+  let(:key2){ [family, series, fiveMinsAgo] }
   let(:datum){ [*key, 'cloudy', 27.1] }
+  let(:datum_null){ [*key2, 'cloudy', nil] }
 
   let(:family_series_str) do
     "myfamily = '#{family}' AND myseries = '#{series}'"
@@ -33,6 +36,12 @@ SQL
   let(:stored_datum_expectation) do
     submission = Riak::TimeSeries::Submission.new test_client, table_name
     submission.measurements = [datum]
+    expect{ submission.write! }.to_not raise_error
+  end
+
+  let(:stored_datum_null_expectation) do
+    submission = Riak::TimeSeries::Submission.new test_client, table_name
+    submission.measurements = [datum_null]
     expect{ submission.write! }.to_not raise_error
   end
 
@@ -60,6 +69,20 @@ SQL
       expect(result).to be
       expect(result).to_not be_empty
       expect(result.first).to_not be_empty
+    end
+
+    it 'retrieves data with a null value without error' do
+      stored_datum_null_expectation
+
+      subject.key = key2
+      result = nil
+      expect{ result = subject.read! }.to_not raise_error
+      expect(result).to be
+      expect(result).to_not be_empty
+
+      row = result.first
+      expect(row).to_not be_empty
+      expect(row[4]).to_not be
     end
 
     it 'attempts retrieval of non-existent data without error' do
@@ -90,6 +113,9 @@ SQL
   describe 'submission interface' do
     it 'writes data without error' do
       stored_datum_expectation
+    end
+    it 'writes data with a null value without error' do
+      stored_datum_null_expectation
     end
   end
 end
