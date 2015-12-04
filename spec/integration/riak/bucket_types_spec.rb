@@ -92,19 +92,18 @@ describe 'Bucket Types', test_client: true, integration: true do
       describe 'deletion' do
         it 'self-deletes with a bucket type' do
           expect(untyped_object).to be # ensure existence
-
-          expect(object.delete).to be
-          expect{ object.reload }.to raise_error /not_found/
-          expect(untyped_object).to be
           expect{ untyped_object.reload }.to_not raise_error
+
+          expect(untyped_object.delete).to be
+          expect{ untyped_object.reload }.to raise_error /not_found/
         end
 
         it 'deletes from the typed bucket' do
           expect(untyped_object).to be # ensure existence
-
-          expect(bucket.delete object.key).to be
-          expect{ object.reload }.to raise_error /not_found/
           expect{ untyped_object.reload }.to_not raise_error
+
+          expect(bucket.delete untyped_object.key).to be
+          expect{ untyped_object.reload }.to raise_error /not_found/
         end
       end
 
@@ -237,7 +236,7 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
 
       it 'self-deletes only with a bucket type' do
-        expect(object.delete).to be
+        expect(object).to be # ensure existence
         expect{ object.reload type: bucket_type }.to_not raise_error
 
         expect(object.delete type: bucket_type).to be
