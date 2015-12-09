@@ -3,11 +3,11 @@ module Riak::TimeSeries
   # A request to list keys in a Riak Time Series collection. Very expensive,
   # not recommended for use in production.
   class List
-    include Util::Translation
+    include Riak::Util::Translation
 
-    # @!attribute [r] table
+    # @!attribute [r] table_name
     # @return [String] the table name to list keys in
-    attr_reader :table
+    attr_reader :table_name
 
     # @!attribute [r] client
     # @return [Riak::Client] the Riak client to use for the list keys operation
