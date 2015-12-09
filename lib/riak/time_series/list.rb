@@ -13,9 +13,14 @@ module Riak::TimeSeries
     # @return [Riak::Client] the Riak client to use for the list keys operation
     attr_reader :client
 
+    # @!attribute [rw] timeout
+    # @return [Integer] how many milliseconds Riak should wait for listing
+    attr_accessor :timeout
+
     # @!attribute [r] results
     # @return [Riak::TimeSeries::Collection<Riak::TimeSeries::Row>] each key
     #   as a row in a collection; nil if keys were streamed to a block
+    attr_reader :results
 
     # Initializes but does not issue the list keys operation
     #
@@ -24,6 +29,7 @@ module Riak::TimeSeries
     def initialize(client, table_name)
       @client = client
       @table_name = table_name
+      @timeout = nil
     end
 
     # Issue the list keys request. Takes a block for streaming results, or
@@ -33,8 +39,12 @@ module Riak::TimeSeries
     def issue!(&block)
       list_keys_warning(caller)
 
+      options = {  timeout: self.timeout }
+
       client.backend do |be|
-        be.time_series_list_operator.list(table_name, block)
+        be.time_series_list_operator.list(table_name,
+                                          block,
+                                          options)
       end
     end
 
