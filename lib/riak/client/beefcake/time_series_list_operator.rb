@@ -1,7 +1,7 @@
 require_relative './ts_cell_codec'
 require_relative './operator'
 
-class RIak::Client::BeefcakeProtobuffsBackend
+class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_list_operator
     TimeSeriesListOperator.new(self)
   end
