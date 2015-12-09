@@ -118,4 +118,18 @@ SQL
       stored_datum_null_expectation
     end
   end
+
+  describe 'list interface' do
+    it 'passes listed keys to a block' do
+      stored_datum_expectation
+      found_expectation = double 'expectation'
+      expect(found_expectation).to receive(:found!).once
+
+      lister = Riak::TimeSeries::List.new test_client, table_name
+
+      lister.issue! do |key_row|
+        found_expectation.found! if key_row.to_a == key
+      end
+    end
+  end
 end
