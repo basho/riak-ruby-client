@@ -9,7 +9,7 @@ module Riak::TimeSeries
     attr_accessor :query_text
 
     # Values to be interpolated into the query, support planned in Riak TS
-    # 1.1
+    # 1.2
     attr_accessor :interpolations
 
     # @!attribute [r] client
