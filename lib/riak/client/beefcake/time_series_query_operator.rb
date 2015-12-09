@@ -1,25 +1,33 @@
+require_relative './ts_cell_codec'
+require_relative './operator'
+
 class Riak::Client::BeefcakeProtobuffsBackend
   def time_series_query_operator
     TimeSeriesQueryOperator.new(self)
   end
 
-  class TimeSeriesQueryOperator
-    attr_reader :backend
-
-    def initialize(backend)
-      @backend = backend
-    end
-
+  class TimeSeriesQueryOperator < Operator
     def query(base, interpolations={  })
       interpolator = TsInterpolation.new base: base
       interpolator.interpolations = pairs_for interpolations
 
       request = TsQueryReq.new query: interpolator
 
-      response = backend.protocol do |p|
+      result = backend.protocol do |p|
         p.write :TsQueryReq, request
-        p.expect :TsQueryResp, TsQueryResp
+        p.expect :TsQueryResp, TsQueryResp, empty_body_acceptable: true
       end
+
+      codec = TsCellCodec.new
+
+      collection = Riak::TimeSeries::Collection.
+                   new(result.rows.map do |row|
+                         Riak::TimeSeries::Row.new codec.scalars_for row.cells
+                       end)
+
+      collection.columns = result.columns
+
+      collection
     end
 
     private

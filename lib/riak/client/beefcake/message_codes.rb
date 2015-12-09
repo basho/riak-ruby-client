@@ -73,6 +73,10 @@ module Riak
         :TsQueryResp => 91,
         :TsPutReq => 92,
         :TsPutResp => 93,
+        :TsDelReq => 94,
+        :TsDelResp => 95,
+        :TsGetReq => 96,
+        :TsGetResp => 97,
 
         # internal
         :AuthReq => 253,

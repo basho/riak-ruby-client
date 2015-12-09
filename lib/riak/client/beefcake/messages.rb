@@ -4,7 +4,7 @@ module Riak
   class Client
     # @private
     class BeefcakeProtobuffsBackend
-## Generated from riak.proto for 
+## Generated from riak.proto
 require "beefcake"
 
 
@@ -156,19 +156,9 @@ class RpbAuthReq
   required :user, :bytes, 1
   required :password, :bytes, 2
 end
-## Generated from riak_kv.proto for 
+## Generated from riak_kv.proto
 require "beefcake"
 
-
-module TsColumnType
-  BINARY = 0
-  INTEGER = 1
-  NUMERIC = 2
-  TIMESTAMP = 3
-  BOOLEAN = 4
-  SET = 5
-  MAP = 6
-end
 
 class RpbGetClientIdResp
   include Beefcake::Message
@@ -235,6 +225,10 @@ class RpbIndexResp
   include Beefcake::Message
 end
 
+class RpbIndexBodyResp
+  include Beefcake::Message
+end
+
 class RpbCSBucketReq
   include Beefcake::Message
 end
@@ -283,35 +277,15 @@ class RpbBucketKeyPreflistItem
   include Beefcake::Message
 end
 
-class TsQueryReq
+class RpbCoverageReq
   include Beefcake::Message
 end
 
-class TsQueryResp
+class RpbCoverageResp
   include Beefcake::Message
 end
 
-class TsPutReq
-  include Beefcake::Message
-end
-
-class TsPutResp
-  include Beefcake::Message
-end
-
-class TsInterpolation
-  include Beefcake::Message
-end
-
-class TsColumnDescription
-  include Beefcake::Message
-end
-
-class TsRow
-  include Beefcake::Message
-end
-
-class TsCell
+class RpbCoverageEntry
   include Beefcake::Message
 end
 
@@ -434,6 +408,8 @@ class RpbIndexReq
   optional :type, :bytes, 12
   optional :term_regex, :bytes, 13
   optional :pagination_sort, :bool, 14
+  optional :cover_context, :bytes, 15
+  optional :return_body, :bool, 16
 end
 
 class RpbIndexResp
@@ -441,6 +417,12 @@ class RpbIndexResp
   repeated :results, RpbPair, 2
   optional :continuation, :bytes, 3
   optional :done, :bool, 4
+end
+
+class RpbIndexBodyResp
+  repeated :objects, RpbIndexObject, 1
+  optional :continuation, :bytes, 2
+  optional :done, :bool, 3
 end
 
 class RpbCSBucketReq
@@ -453,6 +435,7 @@ class RpbCSBucketReq
   optional :max_results, :uint32, 7
   optional :timeout, :uint32, 8
   optional :type, :bytes, 9
+  optional :cover_context, :bytes, 10
 end
 
 class RpbCSBucketResp
@@ -529,49 +512,25 @@ class RpbBucketKeyPreflistItem
   required :primary, :bool, 3
 end
 
-class TsQueryReq
-  optional :query, TsInterpolation, 1
+class RpbCoverageReq
+  optional :type, :bytes, 1
+  required :bucket, :bytes, 2
+  optional :min_partitions, :uint32, 3
+  optional :replace_cover, :bytes, 4
+  repeated :unavailable_cover, :bytes, 5
 end
 
-class TsQueryResp
-  repeated :columns, TsColumnDescription, 1
-  repeated :rows, TsRow, 2
+class RpbCoverageResp
+  repeated :entries, RpbCoverageEntry, 1
 end
 
-class TsPutReq
-  required :table, :bytes, 1
-  repeated :columns, TsColumnDescription, 2
-  repeated :rows, TsRow, 3
+class RpbCoverageEntry
+  required :ip, :bytes, 1
+  required :port, :uint32, 2
+  optional :keyspace_desc, :bytes, 3
+  required :cover_context, :bytes, 4
 end
-
-class TsPutResp
-end
-
-class TsInterpolation
-  required :base, :bytes, 1
-  repeated :interpolations, RpbPair, 2
-end
-
-class TsColumnDescription
-  required :name, :bytes, 1
-  required :type, TsColumnType, 2
-  repeated :complex_type, TsColumnType, 3
-end
-
-class TsRow
-  repeated :cells, TsCell, 1
-end
-
-class TsCell
-  optional :binary_value, :bytes, 1
-  optional :integer_value, :sint64, 2
-  optional :numeric_value, :bytes, 3
-  optional :timestamp_value, :sint64, 4
-  optional :boolean_value, :bool, 5
-  repeated :set_value, :bytes, 6
-  optional :map_value, :bytes, 7
-end
-## Generated from riak_search.proto for 
+## Generated from riak_search.proto
 require "beefcake"
 
 
@@ -609,7 +568,7 @@ class RpbSearchQueryResp
   optional :max_score, :float, 2
   optional :num_found, :uint32, 3
 end
-## Generated from riak_yokozuna.proto for 
+## Generated from riak_yokozuna.proto
 require "beefcake"
 
 
@@ -688,7 +647,7 @@ end
 class RpbYokozunaSchemaGetResp
   required :schema, RpbYokozunaSchema, 1
 end
-## Generated from riak_dt.proto for 
+## Generated from riak_dt.proto
 require "beefcake"
 
 
@@ -850,6 +809,146 @@ class DtUpdateResp
   optional :counter_value, :sint64, 3
   repeated :set_value, :bytes, 4
   repeated :map_value, MapEntry, 5
+end
+## Generated from riak_ts.proto
+require "beefcake"
+
+
+module TsColumnType
+  VARCHAR = 0
+  SINT64 = 1
+  DOUBLE = 2
+  TIMESTAMP = 3
+  BOOLEAN = 4
+end
+
+class TsQueryReq
+  include Beefcake::Message
+end
+
+class TsQueryResp
+  include Beefcake::Message
+end
+
+class TsGetReq
+  include Beefcake::Message
+end
+
+class TsGetResp
+  include Beefcake::Message
+end
+
+class TsPutReq
+  include Beefcake::Message
+end
+
+class TsPutResp
+  include Beefcake::Message
+end
+
+class TsDelReq
+  include Beefcake::Message
+end
+
+class TsDelResp
+  include Beefcake::Message
+end
+
+class TsInterpolation
+  include Beefcake::Message
+end
+
+class TsColumnDescription
+  include Beefcake::Message
+end
+
+class TsRow
+  include Beefcake::Message
+end
+
+class TsCell
+  include Beefcake::Message
+end
+
+class TsListKeysReq
+  include Beefcake::Message
+end
+
+class TsListKeysResp
+  include Beefcake::Message
+end
+
+class TsQueryReq
+  optional :query, TsInterpolation, 1
+  optional :stream, :bool, 2, :default => false
+end
+
+class TsQueryResp
+  repeated :columns, TsColumnDescription, 1
+  repeated :rows, TsRow, 2
+  optional :done, :bool, 3, :default => true
+end
+
+class TsGetReq
+  required :table, :bytes, 1
+  repeated :key, TsCell, 2
+  optional :timeout, :uint32, 3
+end
+
+class TsGetResp
+  repeated :columns, TsColumnDescription, 1
+  repeated :rows, TsRow, 2
+end
+
+class TsPutReq
+  required :table, :bytes, 1
+  repeated :columns, TsColumnDescription, 2
+  repeated :rows, TsRow, 3
+end
+
+class TsPutResp
+end
+
+class TsDelReq
+  required :table, :bytes, 1
+  repeated :key, TsCell, 2
+  optional :vclock, :bytes, 3
+  optional :timeout, :uint32, 4
+end
+
+class TsDelResp
+end
+
+class TsInterpolation
+  required :base, :bytes, 1
+  repeated :interpolations, RpbPair, 2
+end
+
+class TsColumnDescription
+  required :name, :bytes, 1
+  required :type, TsColumnType, 2
+end
+
+class TsRow
+  repeated :cells, TsCell, 1
+end
+
+class TsCell
+  optional :varchar_value, :bytes, 1
+  optional :sint64_value, :sint64, 2
+  optional :timestamp_value, :sint64, 3
+  optional :boolean_value, :bool, 4
+  optional :double_value, :double, 5
+end
+
+class TsListKeysReq
+  required :table, :bytes, 1
+  optional :timeout, :uint32, 2
+end
+
+class TsListKeysResp
+  repeated :keys, TsRow, 1
+  optional :done, :bool, 2
 end
 
     end
