@@ -41,11 +41,17 @@ module Riak::TimeSeries
 
       options = { timeout: self.timeout }
 
+      potential_results = nil
+
       client.backend do |be|
-        be.time_series_list_operator.list(table_name,
-                                          block,
-                                          options)
+        potential_results = be.time_series_list_operator.list(table_name,
+                                                              block,
+                                                              options)
       end
+
+      return @results = potential_results unless block_given?
+
+      true
     end
 
     private

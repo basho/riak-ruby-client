@@ -35,6 +35,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
           end
         end
       end
+
+      true
     end
   end
 end
