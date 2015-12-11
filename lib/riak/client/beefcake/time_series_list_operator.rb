@@ -25,11 +25,13 @@ class Riak::Client::BeefcakeProtobuffsBackend
       backend.protocol do |p|
         p.write :TsListKeysReq, request
 
-        while resp = p.expect(:TsListKeysResp, RpbListKeysResp)
-          break if resp.done
+        codec = TsCellCodec.new
 
-          resp.keys.each do |k|
-            yield k
+        while resp = p.expect(:TsListKeysResp, TsListKeysResp)
+          break if resp.done
+          resp.keys.each do |row|
+            key_fields = codec.scalars_for row.cells
+            yield key_fields
           end
         end
       end
