@@ -4,8 +4,8 @@ require 'riak'
 describe 'Time Series', test_client: true, integration: true do
   let(:table_name){ 'GeoCheckin' }
 
-  let(:now){ Time.now }
-  let(:fiveMinsAgo){ Time.now - 300 }
+  let(:now){ Time.at(Time.now.to_i) }
+  let(:fiveMinsAgo){ Time.at((Time.now - 300).to_i) }
   let(:now_range_str) do
     past = (now.to_i - 100) * 1000
     future = (now.to_i + 100) * 1000
@@ -127,16 +127,20 @@ SQL
 
       lister = Riak::TimeSeries::List.new test_client, table_name
 
-      rounded_key = key.dup.tap do |k|
-        k[2] = (key[2].to_f * 1000).to_i
+      lister.issue! do |row|
+        found_expectation.found! if row.to_a == key
       end
+    end
 
-      lister.issue! do |key_row|
-        rounded_row = key_row.dup.tap do |k|
-          k[2] = (key_row[2].to_f * 1000).to_i
-        end
-        found_expectation.found! if rounded_row.to_a == rounded_key
-      end
+    it 'returns a list of keys without a block' do
+      stored_datum_expectation
+      found_expectation = double 'expectation'
+
+      lister = Riak::TimeSeries::List.new test_client, table_name
+
+      results = lister.issue!
+
+      expect(results).to include key
     end
   end
 end
