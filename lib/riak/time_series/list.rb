@@ -39,7 +39,7 @@ module Riak::TimeSeries
     def issue!(&block)
       list_keys_warning(caller)
 
-      options = {  timeout: self.timeout }
+      options = { timeout: self.timeout }
 
       client.backend do |be|
         be.time_series_list_operator.list(table_name,
