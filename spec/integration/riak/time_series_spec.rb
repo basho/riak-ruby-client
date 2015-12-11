@@ -127,8 +127,15 @@ SQL
 
       lister = Riak::TimeSeries::List.new test_client, table_name
 
+      rounded_key = key.dup.tap do |k|
+        k[2] = (key[2].to_f * 1000).to_i
+      end
+
       lister.issue! do |key_row|
-        found_expectation.found! if key_row.to_a == key
+        rounded_row = key_row.dup.tap do |k|
+          k[2] = (key_row[2].to_f * 1000).to_i
+        end
+        found_expectation.found! if rounded_row.to_a == rounded_key
       end
     end
   end
