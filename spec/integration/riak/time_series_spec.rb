@@ -5,7 +5,7 @@ describe 'Time Series', test_client: true, integration: true do
   let(:table_name){ 'GeoCheckin' }
 
   let(:now){ Time.at(Time.now.to_i) }
-  let(:fiveMinsAgo){ Time.at((Time.now - 300).to_i) }
+  let(:five_minutes_ago){ now - 300 }
   let(:now_range_str) do
     past = (now.to_i - 100) * 1000
     future = (now.to_i + 100) * 1000
@@ -16,7 +16,7 @@ describe 'Time Series', test_client: true, integration: true do
   let(:series){ 'series-' + random_key }
 
   let(:key){ [family, series, now] }
-  let(:key2){ [family, series, fiveMinsAgo] }
+  let(:key2){ [family, series, five_minutes_ago] }
   let(:datum){ [*key, 'cloudy', 27.1] }
   let(:datum_null){ [*key2, 'cloudy', nil] }
 
