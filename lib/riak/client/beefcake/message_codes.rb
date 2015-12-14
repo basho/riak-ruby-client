@@ -77,6 +77,8 @@ module Riak
         :TsDelResp => 95,
         :TsGetReq => 96,
         :TsGetResp => 97,
+        :TsListKeysReq => 98,
+        :TsListKeysResp => 99,
 
         # internal
         :AuthReq => 253,

@@ -4,8 +4,8 @@ require 'riak'
 describe 'Time Series', test_client: true, integration: true do
   let(:table_name){ 'GeoCheckin' }
 
-  let(:now){ Time.now }
-  let(:fiveMinsAgo){ Time.now - 300 }
+  let(:now){ Time.at(Time.now.to_i) }
+  let(:five_minutes_ago){ now - 300 }
   let(:now_range_str) do
     past = (now.to_i - 100) * 1000
     future = (now.to_i + 100) * 1000
@@ -16,7 +16,7 @@ describe 'Time Series', test_client: true, integration: true do
   let(:series){ 'series-' + random_key }
 
   let(:key){ [family, series, now] }
-  let(:key2){ [family, series, fiveMinsAgo] }
+  let(:key2){ [family, series, five_minutes_ago] }
   let(:datum){ [*key, 'cloudy', 27.1] }
   let(:datum_null){ [*key2, 'cloudy', nil] }
 
@@ -116,6 +116,31 @@ SQL
     end
     it 'writes data with a null value without error' do
       stored_datum_null_expectation
+    end
+  end
+
+  describe 'list interface' do
+    it 'passes listed keys to a block' do
+      stored_datum_expectation
+      found_expectation = double 'expectation'
+      expect(found_expectation).to receive(:found!).once
+
+      lister = Riak::TimeSeries::List.new test_client, table_name
+
+      lister.issue! do |row|
+        found_expectation.found! if row.to_a == key
+      end
+    end
+
+    it 'returns a list of keys without a block' do
+      stored_datum_expectation
+      found_expectation = double 'expectation'
+
+      lister = Riak::TimeSeries::List.new test_client, table_name
+
+      results = lister.issue!
+
+      expect(results).to include key
     end
   end
 end
