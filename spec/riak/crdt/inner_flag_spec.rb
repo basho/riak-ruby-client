@@ -21,7 +21,7 @@ describe Riak::Crdt::InnerFlag do
   describe 'updating' do
     let(:new_value){ false }
 
-    it '\asks the class for an update operation' do
+    it 'asks the class for an update operation' do
       operation = described_class.update(new_value)
 
       expect(operation.value).to eq new_value
