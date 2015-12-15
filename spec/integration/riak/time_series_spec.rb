@@ -1,7 +1,8 @@
 require 'spec_helper'
 require 'riak'
 
-describe 'Time Series', test_client: true, integration: true do
+describe 'Time Series',
+         test_client: true, integration: true, time_series: true do
   let(:table_name){ 'GeoCheckin' }
 
   let(:now){ Time.at(Time.now.to_i) }
