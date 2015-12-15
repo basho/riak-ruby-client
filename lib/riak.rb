@@ -15,9 +15,13 @@ module Riak
 
   class NullLogger
     def fatal(msg) end
+
     def error(msg) end
+
     def warn(msg)  end
+
     def info(msg)  end
+
     def debug(msg) end
   end
 
