@@ -7,7 +7,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
   end
 
   class TimeSeriesQueryOperator < Operator
-    def query(base, interpolations={  })
+    def query(base, interpolations = {  })
       interpolator = TsInterpolation.new base: base
       interpolator.interpolations = pairs_for interpolations
 
