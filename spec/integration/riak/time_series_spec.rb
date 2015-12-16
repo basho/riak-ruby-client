@@ -12,6 +12,11 @@ describe 'Time Series',
     future = (now.to_i + 100) * 1000
     "time > #{ past } AND time < #{ future }"
   end
+  let(:never_range_str) do
+    range_start = '1'
+    range_end = '2'
+    "time > #{range_start} AND time < #{range_end}"
+  end
 
   let(:family){ 'family-' + random_key }
   let(:series){ 'series-' + random_key }
@@ -33,6 +38,14 @@ WHERE
   #{now_range_str}
 SQL
   end
+    let(:no_data_query) do
+    <<-SQL
+SELECT * FROM #{table_name}
+WHERE
+  #{family_series_str} AND
+  #{never_range_str}
+SQL
+  end
 
   let(:stored_datum_expectation) do
     submission = Riak::TimeSeries::Submission.new test_client, table_name
@@ -48,6 +61,9 @@ SQL
 
   describe 'query interface' do
     subject{ Riak::TimeSeries::Query.new test_client, query }
+    let(:subject_without_data) do
+      Riak::TimeSeries::Query.new test_client, no_data_query
+    end
 
     it 'queries data without error' do
       stored_datum_expectation
@@ -56,6 +72,11 @@ SQL
       expect(subject.results).to be
       expect(subject.results).to_not be_empty
       expect(subject.results.columns).to_not be_empty
+    end
+
+    it 'returns an empty collection when not finding data' do
+      expect{ subject_without_data.issue! }.to_not raise_error
+      expect(subject.results).to_not be
     end
   end
 
