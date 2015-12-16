@@ -18,6 +18,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
         p.expect :TsQueryResp, TsQueryResp, empty_body_acceptable: true
       end
 
+      return nil if :empty == result
+
       codec = TsCellCodec.new
 
       collection = Riak::TimeSeries::Collection.
