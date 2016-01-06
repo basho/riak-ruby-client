@@ -34,6 +34,22 @@ WHERE
 SQL
   end
 
+  let(:create_table) do
+    <<-SQL
+CREATE TABLE timeseries-#{random_key} (
+    geohash varchar not null,
+    user varchar not null,
+    time timestamp not null,
+    weather varchar not null,
+    temperature double,
+    PRIMARY KEY(
+        (geohash, user, quantum(time, 15, m)),
+        geohash, user, time
+    )
+)
+SQL
+  end
+
   let(:stored_datum_expectation) do
     submission = Riak::TimeSeries::Submission.new test_client, table_name
     submission.measurements = [datum]
@@ -44,6 +60,16 @@ SQL
     submission = Riak::TimeSeries::Submission.new test_client, table_name
     submission.measurements = [datum_null]
     expect{ submission.write! }.to_not raise_error
+  end
+
+  describe 'create table via query' do
+    subject{ Riak::TimeSeries::Query.new test_client, create_table }
+
+    it 'creates a new table without error' do
+      expect{ subject.issue! }.to_not raise_error
+      expect(subject.results).to be
+      expect(subject.results).to be_empty
+    end
   end
 
   describe 'query interface' do

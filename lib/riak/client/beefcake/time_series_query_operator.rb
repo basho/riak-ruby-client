@@ -20,6 +20,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
       codec = TsCellCodec.new
 
+      return [] if :empty == result
+
       collection = Riak::TimeSeries::Collection.
                    new(result.rows.map do |row|
                          Riak::TimeSeries::Row.new codec.scalars_for row.cells
