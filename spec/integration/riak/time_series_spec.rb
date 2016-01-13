@@ -38,7 +38,8 @@ WHERE
   #{now_range_str}
 SQL
   end
-    let(:no_data_query) do
+
+  let(:no_data_query) do
     <<-SQL
 SELECT * FROM #{table_name}
 WHERE
