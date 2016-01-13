@@ -242,5 +242,16 @@ describe Riak::Client, test_client: true do
       expect(error).not_to be_nil
       expect(error).to be_instance_of(RuntimeError)
     end
+
+    it "logs the error" do
+      expect(Riak.logger).to receive(:warn).with(/Riak::ProtobuffsFailedHeader/).at_least(:once)
+
+      begin
+        @client.backend do |b|
+          raise Riak::ProtobuffsFailedHeader
+        end
+      rescue RuntimeError
+      end
+    end
   end
 end

@@ -1,5 +1,30 @@
 # Riak Ruby Client Release Notes
 
+## 2.3.1 Release - 2016-01-12
+
+Version 2.3.1 is a bugfix release with a small fix in support of the Riak TS
+time series database.
+
+* Queries that return no data will return an empty collection.
+
+New features:
+
+## 2.3.0 Release - 2015-12-15
+
+Version 2.3.0 is a feature release, introducing support for the Riak TS time
+series database.
+
+New features:
+
+* Riak TS support, for queries, reads, writes, and deletes. Key list support
+is also provided.
+* Network error logging, thanks to Sebastian Röbke.
+
+Bug fixes:
+
+* The `last_modified` field on `RContent` and `RObject` objects now has
+microsecond precision, thanks to Sebastian Röbke.
+
 ## 2.2.2 Release - 2015-11-24
 
 Version 2.2.2 is a bugfix release.

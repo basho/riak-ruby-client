@@ -626,7 +626,7 @@ search.admin,search.query,riak_kv.mapreduce on any to user
 
 ## License & Copyright
 
-Copyright &copy;2010-2015 Sean Cribbs and Basho Technologies, Inc.
+Copyright &copy;2010-2016 Sean Cribbs and Basho Technologies, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

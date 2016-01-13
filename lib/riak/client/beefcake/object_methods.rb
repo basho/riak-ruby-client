@@ -49,8 +49,7 @@ module Riak
             pbuf.indexes.each {|pair| decode_index(pair, rcontent.indexes) }
           end
           if pbuf.last_mod.present?
-            rcontent.last_modified = Time.at(pbuf.last_mod)
-            rcontent.last_modified += pbuf.last_mod_usecs / 1000000 if pbuf.last_mod_usecs.present?
+            rcontent.last_modified = Time.at(pbuf.last_mod, pbuf.last_mod_usecs || 0)
           end
           rcontent
         end
