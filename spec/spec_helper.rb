@@ -16,6 +16,7 @@ require 'rubygems' # Use the gems path only for the spec suite
 require 'riak'
 require 'rspec'
 require 'stringio'
+require 'pp'
 
 # Only the tests should really get away with this.
 Riak.disable_list_keys_warnings = true

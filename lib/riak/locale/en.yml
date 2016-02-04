@@ -97,6 +97,11 @@ en:
     stored_function_invalid: "function must have :bucket and :key when a hash"
     streaming_bucket_list_without_block: "Streaming bucket list was requested but no block was given."
     string_type: "invalid_argument %{string} is not a String"
+    time_series:
+      list_keys: "Riak::TimeSeries::List is an expensive operation that should not be used in production.\n    %{backtrace}"
+      serialize_big_integer: "%{bignum} is out of range for sint64 field"
+      serialize_complex_number: "Cannot serialize Complex numbers"
+      serialize_rational_number: "Cannot serialize Rational numbers without losing precision"
     too_few_arguments: "too few arguments: %{params}"
     walk_spec_invalid_unless_link: "WalkSpec is only valid for a function when the type is :link"
     wrong_argument_count_walk_spec: "wrong number of arguments (one Hash or bucket,tag,keep required)"

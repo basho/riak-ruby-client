@@ -21,6 +21,7 @@ require 'riak/multiget'
 require 'riak/secondary_index'
 require 'riak/search'
 require 'riak/stamp'
+require 'riak/time_series'
 require 'riak/list_buckets'
 
 module Riak
@@ -356,6 +357,8 @@ module Riak
           begin
             yield backend
           rescue *NETWORK_ERRORS => e
+            Riak.logger.warn("Riak client error: #{e.inspect} for #{backend.inspect}")
+
             # Network error.
             tries -= 1
 
