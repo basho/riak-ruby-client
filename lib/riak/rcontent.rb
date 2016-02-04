@@ -2,7 +2,7 @@ require 'set'
 require 'time'
 require 'yaml'
 require 'forwardable'
-require 'active_support/gzip'
+require 'riak/util/gzip'
 require 'riak/util/translation'
 require 'riak/serializers'
 
@@ -136,7 +136,7 @@ module Riak
     # @return [String]
     def compress(data)
       return data unless content_encoding == "gzip"
-      ActiveSupport::Gzip.compress(data)
+      Util::Gzip.compress(data)
     end
 
     # Decompresses the given string using gzip if {#content_encoding} is set to "gzip".
@@ -146,7 +146,7 @@ module Riak
     # @return [String]
     def decompress(data)
       return data unless content_encoding == "gzip"
-      ActiveSupport::Gzip.decompress(data)
+      Util::Gzip.decompress(data)
     end
 
     # @return [String] A representation suitable for IRB and debugging output
