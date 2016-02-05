@@ -37,7 +37,7 @@ module Riak
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication, :max_retries] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -73,6 +73,9 @@ module Riak
     # @return [Hash] The authentication information this client will use.
     attr_reader :authentication
 
+    # @return [Integer] The maximum number of retries in case of NETWORK_ERRORS
+    attr_accessor :max_retries
+
     # Creates a client connection to Riak
     # @param [Hash] options configuration options for the client
     # @option options [Array] :nodes A list of nodes this client connects to.
@@ -84,6 +87,7 @@ module Riak
     # @option options [Fixnum] :pb_port (8087) The port of the Riak Protocol Buffers endpoint
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
+    # @option options [Fixnum]  :max_retries (2) The maximum number of retries in case of NETWORK_ERRORS
     # @raise [ArgumentError] raised if any invalid options are given
     def initialize(options = {})
       if options.include? :port
@@ -111,6 +115,7 @@ module Riak
       self.client_id          = options[:client_id]          if options[:client_id]
       self.multiget_threads   = options[:multiget_threads]
       @authentication         = options[:authentication] && options[:authentication].symbolize_keys
+      self.max_retries        = options[:max_retries]        || 2
     end
 
     # Is security enabled?
@@ -342,7 +347,7 @@ module Riak
     def recover_from(pool)
       skip_nodes = []
       take_opts = {}
-      tries = 3
+      tries = 1 + max_retries
 
       begin
         # Only select nodes which we haven't used before.

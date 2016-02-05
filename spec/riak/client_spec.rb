@@ -39,6 +39,16 @@ describe Riak::Client, test_client: true do
       expect(client.nodes.size).to eq(3)
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
+
+    it "defaults to max_retries = 2" do
+      client = Riak::Client.new
+      expect(client.max_retries).to eq(2)
+    end
+
+    it "accepts max_retries option" do
+      client = Riak::Client.new :max_retries => 42
+      expect(client.max_retries).to eq(42)
+    end
   end
 
   it "exposes a Stamp object" do
@@ -226,7 +236,7 @@ describe Riak::Client, test_client: true do
       rescue RuntimeError
       end
 
-      expect(call_count).to eq(3)
+      expect(call_count).to eq(@client.max_retries + 1)
     end
 
     it "throws a RuntimeError if it runs out of retries" do
