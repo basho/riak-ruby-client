@@ -39,6 +39,17 @@ describe Riak::Client, test_client: true do
       expect(client.nodes.size).to eq(3)
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
+
+    it "accepts timeouts" do
+      client = Riak::Client.new(
+        :connect_timeout => 1,
+        :read_timeout    => 2,
+        :write_timeout   => 3
+      )
+      expect(client.connect_timeout).to eq(1)
+      expect(client.read_timeout).to eq(2)
+      expect(client.write_timeout).to eq(3)
+    end
   end
 
   it "exposes a Stamp object" do

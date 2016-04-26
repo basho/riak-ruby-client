@@ -31,7 +31,11 @@ module Riak
       end
 
       def protocol
-        p = Protocol.new socket
+        p = Protocol.new(
+          socket,
+          read_timeout: client.read_timeout,
+          write_timeout: client.write_timeout
+        )
         in_request = false
         result = nil
         begin
@@ -45,7 +49,12 @@ module Riak
       end
 
       def new_socket
-        BeefcakeSocket.new @node.host, @node.pb_port, authentication: client.authentication
+        BeefcakeSocket.new(
+          @node.host,
+          @node.pb_port,
+          authentication: client.authentication,
+          connect_timeout: client.connect_timeout
+        )
       end
 
       def ping

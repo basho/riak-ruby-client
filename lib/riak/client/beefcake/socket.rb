@@ -1,3 +1,4 @@
+require 'socket'
 require 'openssl'
 require 'cert_validator'
 require 'riak/client/beefcake/messages'
@@ -13,21 +14,22 @@ module Riak
         # Only create class methods, don't initialize
         class << self
           def new(host, port, options = {})
-            return start_tcp_socket(host, port) if options[:authentication].blank?
-            return start_tls_socket(host, port, options[:authentication])
+            return start_tcp_socket(host, port, options) if options[:authentication].blank?
+            return start_tls_socket(host, port, options)
           end
 
           private
-          def start_tcp_socket(host, port)
-            TCPSocket.new(host, port).tap do |sock|
+          def start_tcp_socket(host, port, options = {})
+            Socket.tcp(host, port, connect_timeout: options[:connect_timeout]).tap do |sock|
               sock.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
             end
           end
 
-          def start_tls_socket(host, port, authentication)
+          def start_tls_socket(host, port, options)
+            authentication = options[:authentication]
             raise Riak::UserConfigurationError.new if authentication[:username]
 
-            tcp = start_tcp_socket(host, port)
+            tcp = start_tcp_socket(host, port, options)
             TlsInitiator.new(tcp, host, authentication).tls_socket
           end
 
