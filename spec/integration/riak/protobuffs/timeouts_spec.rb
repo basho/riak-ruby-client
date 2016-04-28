@@ -2,21 +2,6 @@ require 'spec_helper'
 
 describe 'Protocol Buffers', test_client: true do
   describe 'timeouts' do
-
-    # let(:bucket){ random_bucket 'timeouts' }
-    #
-    # before do
-    #   first = bucket.new 'first'
-    #   first.data = 'first'
-    #   first.content_type = 'text/plain'
-    #   first.store
-    #
-    #   second = bucket.new 'second'
-    #   second.data = 'second'
-    #   second.content_type = 'text/plain'
-    #   second.store
-    # end
-
     it 'raises error on connect timeout' do
       config = test_client_configuration.dup
 
