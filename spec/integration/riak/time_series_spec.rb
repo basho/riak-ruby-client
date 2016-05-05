@@ -18,8 +18,8 @@ describe 'Time Series',
     "time > #{range_start} AND time < #{range_end}"
   end
 
-  let(:family){ 'family-' + random_key }
-  let(:series){ 'series-' + random_key }
+  let(:family){ 'geohash-' + random_key }
+  let(:series){ 'user-' + random_key }
 
   let(:key){ [family, series, now] }
   let(:key2){ [family, series, five_minutes_ago] }
@@ -27,7 +27,7 @@ describe 'Time Series',
   let(:datum_null){ [*key2, 'cloudy', nil] }
 
   let(:family_series_str) do
-    "myfamily = '#{family}' AND myseries = '#{series}'"
+    "geohash = '#{family}' AND user = '#{series}'"
   end
 
   let(:query) do
