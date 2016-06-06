@@ -297,17 +297,16 @@ module Riak
     #    a given node.
     def new_protobuffs_backend
       klass = self.class.const_get("#{@protobuffs_backend}ProtobuffsBackend")
-      if klass.configured?
-        node = choose_node(
-          @nodes.select do |n|
-            n.protobuffs?
-          end
-        )
-
-        klass.new(self, node)
-      else
+      unless klass.configured?
         raise BackendCreationError.new @protobuffs_backend
       end
+      node = choose_node(
+        @nodes.select do |n|
+          n.protobuffs?
+        end
+      )
+
+      klass.new(self, node)
     end
 
     # @return [Node] An arbitrary Node.
