@@ -21,7 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'kramdown', '~> 1.4'
   gem.add_development_dependency 'simplecov', '~> 0.10.0'
   gem.add_development_dependency 'instrumentable', '~> 1.1.0'
-  gem.add_development_dependency 'rubocop', '>= 0.28.0'
+  gem.add_development_dependency 'rubocop', '~> 0.28.0'
 
   gem.add_runtime_dependency 'i18n', '>=0.6.8'
   gem.add_runtime_dependency 'beefcake', '~> 1.1'
