@@ -63,7 +63,7 @@ end
 namespace :spec do
   desc "Run Integration Specs Only (without explicitly slow specs)"
   RSpec::Core::RakeTask.new(:integration) do |spec|
-    spec.rspec_opts = %w[--profile --tag '~slow' --tag integration]
+    spec.rspec_opts = %w[--profile --tag '~slow' --tag '~time_series' --tag integration]
   end
 
   desc "Run All Specs (without explicitly slow specs)"
@@ -75,11 +75,16 @@ namespace :spec do
   RSpec::Core::RakeTask.new(:slow) do |spec|
     spec.rspec_opts = %w[--profile --tag slow]
   end
+
+  desc "Run Time Series Specs Only"
+  RSpec::Core::RakeTask.new(:time_series) do |spec|
+    spec.rspec_opts = %w[--profile --tag time_series]
+  end
 end
 
-desc "Run All Specs (including slow specs)"
+desc "Run All Specs (including slow specs, excluding time_series)"
 RSpec::Core::RakeTask.new(:ci) do |spec|
-  spec.rspec_opts = %w[--profile]
+  spec.rspec_opts = %w[--profile --tag '~time_series']
 end
 task :default => :ci
 
