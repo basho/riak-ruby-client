@@ -41,6 +41,7 @@ describe Riak::Client, test_client: true do
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
 
+<<<<<<< HEAD
     it "maps port to unset nodes, and does not create localhost node" do
       client = Riak::Client.new nodes: [
                                   {host: 'riak1.basho.com'},
@@ -62,6 +63,17 @@ describe Riak::Client, test_client: true do
     it "accepts max_retries option" do
       client = Riak::Client.new :max_retries => 42
       expect(client.max_retries).to eq(42)
+    end
+
+    it "accepts timeouts" do
+      client = Riak::Client.new(
+        :connect_timeout => 1,
+        :read_timeout    => 2,
+        :write_timeout   => 3
+      )
+      expect(client.connect_timeout).to eq(1)
+      expect(client.read_timeout).to eq(2)
+      expect(client.write_timeout).to eq(3)
     end
   end
 

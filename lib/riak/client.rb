@@ -37,7 +37,7 @@ module Riak
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication, :max_retries] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication, :max_retries, :connect_timeout, :read_timeout, :write_timeout] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -48,6 +48,7 @@ module Riak
       Errno::ENETDOWN,
       Errno::ENETRESET,
       Errno::ENETUNREACH,
+      Errno::ETIMEDOUT,
       SocketError,
       SystemCallError,
       Riak::ProtobuffsFailedHeader,
@@ -76,6 +77,15 @@ module Riak
     # @return [Integer] The maximum number of retries in case of NETWORK_ERRORS
     attr_accessor :max_retries
 
+    # @return [Numeric] The connect timeout, in seconds
+    attr_reader :connect_timeout
+
+    # @return [Numeric] The read timeout, in seconds
+    attr_reader :read_timeout
+
+    # @return [Numeric] The write timeout, in seconds
+    attr_reader :write_timeout
+
     # Creates a client connection to Riak
     # @param [Hash] options configuration options for the client
     # @option options [Array] :nodes A list of nodes this client connects to.
@@ -88,6 +98,9 @@ module Riak
     # @option options [Fixnum, String] :client_id (rand(MAX_CLIENT_ID)) The internal client ID used by Riak to route responses
     # @option options [String, Symbol] :protobuffs_backend (:Beefcake) which Protocol Buffers backend to use
     # @option options [Fixnum]  :max_retries (2) The maximum number of retries in case of NETWORK_ERRORS
+    # @option options [Numeric] :connect_timeout (nil) The connect timeout, in seconds
+    # @option options [Numeric] :read_timeout (nil) The read timeout, in seconds
+    # @option options [Numeric] :write_timeout (nil) The write timeout, in seconds
     # @raise [ArgumentError] raised if any invalid options are given
     def initialize(options = {})
       if options.include? :port
@@ -110,6 +123,9 @@ module Riak
       self.multiget_threads   = options[:multiget_threads]
       @authentication         = options[:authentication] && options[:authentication].symbolize_keys
       self.max_retries        = options[:max_retries]        || 2
+      @connect_timeout        = options[:connect_timeout]
+      @read_timeout           = options[:read_timeout]
+      @write_timeout          = options[:write_timeout]
     end
 
     # Is security enabled?
