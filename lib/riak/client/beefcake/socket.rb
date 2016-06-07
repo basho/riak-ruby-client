@@ -178,13 +178,8 @@ module Riak
 
               validator.crl = try_load @auth[:crl_file] if @auth[:crl_file]
 
-              if @auth[:crl]
-                raise TlsError::CertRevokedError.new unless validator.crl_valid?
-              end
-
-              if @auth[:ocsp]
-                raise TlsError::CertRevokedError.new unless validator.ocsp_valid?
-              end
+              raise TlsError::CertRevokedError.new if @auth[:crl] and !validator.crl_valid?
+              raise TlsError::CertRevokedError.new if @auth[:ocsp] and !validator.ocsp_valid?
             end
 
             def validator_options

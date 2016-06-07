@@ -159,11 +159,10 @@ module Riak
 
     private
     def extract_if_present(hash, key, attribute = nil)
-      if hash[key].present?
-        attribute ||= key
-        value = block_given? ? yield(hash[key]) : hash[key]
-        send("#{attribute}=", value)
-      end
+      return unless hash[key].present?
+      attribute ||= key
+      value = block_given? ? yield(hash[key]) : hash[key]
+      send("#{attribute}=", value)
     end
 
     def new_index_hash

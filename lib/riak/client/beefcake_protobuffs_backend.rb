@@ -333,18 +333,18 @@ module Riak
       def get_index(bucket, index, query, query_options = {}, &block)
         return super unless pb_indexes?
         bucket = bucket.name if Bucket === bucket
-        if Range === query
-          options = {
-            :qtype => RpbIndexReq::IndexQueryType::RANGE,
-            :range_min => query.begin.to_s,
-            :range_max => query.end.to_s
-          }
-        else
-          options = {
-            :qtype => RpbIndexReq::IndexQueryType::EQ,
-            :key => query.to_s
-          }
-        end
+        options = if Range === query
+                    {
+                      :qtype => RpbIndexReq::IndexQueryType::RANGE,
+                      :range_min => query.begin.to_s,
+                      :range_max => query.end.to_s
+                    }
+                  else
+                    {
+                      :qtype => RpbIndexReq::IndexQueryType::EQ,
+                      :key => query.to_s
+                    }
+                  end
 
         options.merge!(:bucket => bucket, :index => index.to_s)
         options.merge!(query_options)

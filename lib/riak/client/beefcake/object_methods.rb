@@ -62,9 +62,9 @@ module Riak
 
           pbuf.content.usermeta = robject.meta.map {|k, v| encode_meta(k, v)} if robject.meta.any?
           pbuf.content.vtag = maybe_encode(robject.etag) if robject.etag.present?
-          if ENCODING # 1.9 support
-            pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
-          end
+
+          return unless ENCODING # 1.9 support
+          pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
         end
 
         def decode_link(pbuf)
