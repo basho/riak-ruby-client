@@ -32,7 +32,6 @@ configure:
 	@${RIAK_ADMIN} security grant riak_kv.get,riak_kv.put,riak_kv.delete,riak_kv.index,riak_kv.list_keys,riak_kv.list_buckets,riak_core.get_bucket,riak_core.set_bucket,riak_core.get_bucket_type,riak_core.set_bucket_type,search.admin,search.query on any to user
 
 compile:
-	@rm -rf ../vendor
 	@cd ..; bundle install --binstubs --path=vendor
 
 lint:
