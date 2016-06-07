@@ -40,6 +40,16 @@ describe Riak::Client, test_client: true do
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
 
+    it "should not create additional localhost node" do
+      client = Riak::Client.new nodes: [
+                                  {host: 'riak1.basho.com'},
+                                  {host: 'riak2.basho.com', pb_port: 1234},
+                                  {host: 'riak3.basho.com', pb_port: 5678}
+                                ], pb_port: 1234
+      expect(client.nodes.size).to eq(3)
+      expect(client.nodes.first.host).to eq("riak1.basho.com")
+    end
+
     it "defaults to max_retries = 2" do
       client = Riak::Client.new
       expect(client.max_retries).to eq(2)
