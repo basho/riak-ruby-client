@@ -98,18 +98,12 @@ module Riak
         raise ArgumentError, "#{evil.inspect} are not valid options for Client.new"
       end
 
-      @nodes = (options[:nodes] || []).map do |n|
-        Client::Node.new self, n
-      end
-      if @nodes.empty? or options[:host] or options[:pb_port]
-        @nodes |= [Client::Node.new(self, options)]
-      end
+      @nodes = build_nodes(options)
 
       @protobuffs_pool = Pool.new(
                                   method(:new_protobuffs_backend),
                                   lambda { |b| b.teardown }
                                   )
-
 
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
@@ -434,6 +428,19 @@ module Riak
     def ssl_disable
       @nodes.each do |n|
         n.ssl_disable
+      end
+    end
+
+    def build_nodes(options)
+      if options.key?(:nodes) and !options[:nodes].empty?
+        options[:nodes].map do |n|
+          if !n.key?(:pb_port) and options.key?(:pb_port)
+            n[:pb_port] = options[:pb_port]
+          end
+          Client::Node.new self, n
+        end
+      else
+        [Client::Node.new(self, options)]
       end
     end
   end

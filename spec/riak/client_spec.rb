@@ -17,6 +17,7 @@ describe Riak::Client, test_client: true do
     it "accepts a Protobuffs port" do
       client = Riak::Client.new :pb_port => 9000
       expect(client.nodes.size).to eq(1)
+      expect(client.nodes.first.host).to eq('127.0.0.1')
       expect(client.nodes.first.pb_port).to eq(9000)
     end
 
@@ -38,6 +39,19 @@ describe Riak::Client, test_client: true do
                                 ]
       expect(client.nodes.size).to eq(3)
       expect(client.nodes.first.host).to eq("riak1.basho.com")
+    end
+
+    it "maps port to unset nodes, and does not create localhost node" do
+      client = Riak::Client.new nodes: [
+                                  {host: 'riak1.basho.com'},
+                                  {host: 'riak2.basho.com', pb_port: 1234},
+                                  {host: 'riak3.basho.com', pb_port: 5678}
+                                ], pb_port: 4321
+      expect(client.nodes.size).to eq(3)
+      expect(client.nodes[0].host).to eq("riak1.basho.com")
+      expect(client.nodes[0].pb_port).to eq(4321)
+      expect(client.nodes[1].host).to eq("riak2.basho.com")
+      expect(client.nodes[1].pb_port).to eq(1234)
     end
 
     it "defaults to max_retries = 2" do
