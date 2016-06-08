@@ -63,8 +63,6 @@ describe 'Protocol Buffers', test_client: true, integration: true do
                 when :PutReq
                   r = Riak::Client::BeefcakeProtobuffsBackend::RpbPutResp.new
                   p.write :PutResp, r
-                  ok_to_continue = true if put_count > 1
-                  put_count += 1
                 else
                   $stderr.puts("unknown msgname: #{msgname}")
                 end
@@ -90,23 +88,29 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       client = Riak::Client.new(config)
 
       bucket = client.bucket('timeouts')
-      obj = bucket.new 'first'
-      # write enough data to grow beyond socket buffer capacity
-      obj.data = SecureRandom.urlsafe_base64(10_000_000)
-      obj.content_type = 'text/plain'
 
-      expect do
-        obj.store
-      end.to raise_error RuntimeError, /timed out/
-
+      max_store_attempts = 16
+      store_count = 0
       loop do
-        break if ok_to_continue
-        sleep 0.1
+        begin
+          obj = bucket.new "obj-#{store_count}"
+          # write enough data to grow beyond socket buffer capacity
+          obj.data = SecureRandom.urlsafe_base64(10_000_000)
+          obj.content_type = 'text/plain'
+          obj.store
+          store_count += 1
+          break if store_count > max_store_attempts
+        rescue RuntimeError => e
+          break if e.message =~ /timed out/
+        end
+        sleep 0.5
       end
 
       quitting = true
       server.close
       thr.join
+
+      store_count > max_store_attempts and fail 'did not see expected timeout!'
     end
   end
 end
