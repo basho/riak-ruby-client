@@ -41,7 +41,6 @@ describe Riak::Client, test_client: true do
       expect(client.nodes.first.host).to eq("riak1.basho.com")
     end
 
-<<<<<<< HEAD
     it "maps port to unset nodes, and does not create localhost node" do
       client = Riak::Client.new nodes: [
                                   {host: 'riak1.basho.com'},

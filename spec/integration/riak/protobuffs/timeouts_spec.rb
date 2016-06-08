@@ -4,7 +4,6 @@ describe 'Protocol Buffers', test_client: true do
   describe 'timeouts' do
     it 'raises error on connect timeout' do
       config = test_client_configuration.dup
-
       # unroutable TEST-NET (https://tools.ietf.org/html/rfc5737)
       config[:host] = '192.0.2.0'
 
@@ -13,21 +12,23 @@ describe 'Protocol Buffers', test_client: true do
 
       expect do
         client.ping
-      end.to raise_error RuntimeError, /Operation timed out/
+      end.to raise_error RuntimeError, /timed out/
     end
 
     it 'raises error on read timeout' do
       config = test_client_configuration.dup
+
       config[:read_timeout] = 0.0001
       client = Riak::Client.new(config)
 
       expect do
         client.ping
-      end.to raise_error RuntimeError, /Operation timed out/
+      end.to raise_error RuntimeError, /timed out/
     end
 
     it 'raises error on write timeout' do
       config = test_client_configuration.dup
+
       config[:write_timeout] = 0.0001
       client = Riak::Client.new(config)
 
@@ -39,7 +40,7 @@ describe 'Protocol Buffers', test_client: true do
 
       expect do
         first.store
-      end.to raise_error RuntimeError, /Operation timed out/
+      end.to raise_error RuntimeError, /timed out/
     end
   end
 end
