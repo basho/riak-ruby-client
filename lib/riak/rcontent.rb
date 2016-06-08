@@ -2,6 +2,7 @@ require 'set'
 require 'time'
 require 'yaml'
 require 'forwardable'
+require 'riak/util/gzip'
 require 'riak/util/translation'
 require 'riak/serializers'
 
@@ -16,6 +17,9 @@ module Riak
 
     # @return [String] the MIME content type of the value
     attr_accessor :content_type
+
+    # @return [String] the content encoding of the object, e.g. "gzip"
+    attr_accessor :content_encoding
 
     # @return [Set<Link>] a Set of {Riak::Link} objects for relationships between this object and other resources
     attr_accessor :links
@@ -63,7 +67,7 @@ module Riak
     def data
       if @raw_data && !@data
         raw = @raw_data.respond_to?(:read) ? @raw_data.read : @raw_data
-        @data = deserialize(raw)
+        @data = deserialize(decompress(raw))
         @raw_data = nil
       end
       @data
@@ -86,7 +90,7 @@ module Riak
     # @return [String] raw data stored in riak for this object's key
     def raw_data
       if @data && !@raw_data
-        @raw_data = serialize(@data)
+        @raw_data = compress(serialize(@data))
         @data = nil
       end
       @raw_data
@@ -123,6 +127,26 @@ module Riak
     # @param [String] body the serialized response body
     def deserialize(body)
       Serializers.deserialize(@content_type, body)
+    end
+
+    # Compresses the given string using gzip if {#content_encoding} is set to "gzip".
+    # Otherwise the given string is returned as-is.
+    # This method is called internally when storing the object.
+    # @param [String] data
+    # @return [String]
+    def compress(data)
+      return data unless content_encoding == "gzip"
+      Util::Gzip.compress(data)
+    end
+
+    # Decompresses the given string using gzip if {#content_encoding} is set to "gzip".
+    # Otherwise the given string is returned as-is.
+    # This method is called internally when loading the object.
+    # @param [String] data
+    # @return [String]
+    def decompress(data)
+      return data unless content_encoding == "gzip"
+      Util::Gzip.decompress(data)
     end
 
     # @return [String] A representation suitable for IRB and debugging output
