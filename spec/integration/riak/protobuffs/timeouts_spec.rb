@@ -83,8 +83,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       end
       ok_to_continue = false
 
-      config = test_client_configuration.dup
-
+      config = {}
       config[:write_timeout] = 0.00001
       config[:pb_port] = port
       config[:client_id] = port
