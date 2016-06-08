@@ -12,7 +12,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       config[:host] = '192.0.2.0'
       config[:pb_port] = 65535
 
-      config[:connect_timeout] = 0.0001
+      config[:connect_timeout] = 0.001
       client = Riak::Client.new(config)
 
       expect do
@@ -21,14 +21,72 @@ describe 'Protocol Buffers', test_client: true, integration: true do
     end
 
     it 'raises error on read timeout' do
-      config = test_client_configuration.dup
+      ok_to_continue = false
+      quitting = false
+      port = 0
 
-      config[:read_timeout] = 0.0001
+      server = nil
+      thr = Thread.new {
+        server = TCPServer.new port
+        port = server.addr[1]
+        ok_to_continue = true
+        loop do
+          begin
+            Thread.start(server.accept) do |s|
+              loop do
+                p = Riak::Client::BeefcakeProtobuffsBackend::Protocol.new s
+                begin
+                  msgname, body = p.receive
+                rescue IOError => e
+                  break if quitting
+                  raise
+                end
+                case msgname
+                when :PingReq
+                  sleep 0.5
+                  p.write :PingResp
+                else
+                  $stderr.puts("unknown msgname: #{msgname}")
+                end
+              end
+            end
+          rescue IOError => e
+            break if quitting
+            raise
+          end
+        end
+      }
+
+      loop do
+        break if ok_to_continue
+        sleep 0.1
+      end
+      ok_to_continue = false
+
+      config = {}
+      config[:pb_port] = port
+      config[:client_id] = port
+      config[:read_timeout] = 0.001
       client = Riak::Client.new(config)
 
-      expect do
-        client.ping
-      end.to raise_error RuntimeError, /timed out/
+      max_ping_attempts = 16
+      ping_count = 0
+      loop do
+        begin
+          client.ping
+          ping_count += 1
+          break if ping_count > max_ping_attempts
+        rescue RuntimeError => e
+          break if e.message =~ /timed out/
+        end
+        sleep 0.5
+      end
+
+      quitting = true
+      server.close
+      thr.join
+
+      ping_count > max_ping_attempts and fail 'did not see expected timeout!'
     end
 
     it 'raises error on write timeout' do
@@ -83,9 +141,9 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       ok_to_continue = false
 
       config = {}
-      config[:write_timeout] = 0.00001
       config[:pb_port] = port
       config[:client_id] = port
+      config[:write_timeout] = 0.001
       client = Riak::Client.new(config)
 
       bucket = client.bucket('timeouts')
