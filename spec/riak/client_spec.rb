@@ -26,7 +26,7 @@ describe Riak::Client, test_client: true do
       expect(client.client_id).to eq("AAAAAA==")
     end
 
-    it "creates a client ID if not specified" do
+    it "creates a client ID if not specified", :integration => true do
       expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).
               client_id).to_not be_nil
     end

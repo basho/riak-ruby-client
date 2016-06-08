@@ -4,7 +4,7 @@ require 'spec_helper'
 require 'riak/client/beefcake/messages'
 require 'riak/client/beefcake/protocol'
 
-describe 'Protocol Buffers', test_client: true do
+describe 'Protocol Buffers', test_client: true, integration: true do
   describe 'timeouts' do
     it 'raises error on connect timeout' do
       config = test_client_configuration.dup

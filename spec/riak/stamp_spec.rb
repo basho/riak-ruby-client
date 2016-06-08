@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'riak/stamp'
 
-describe Riak::Stamp, test_client: true do
+describe Riak::Stamp, test_client: true, integration: true do
   subject { described_class.new test_client }
   it "generates always increasing integer identifiers" do
     1000.times do
