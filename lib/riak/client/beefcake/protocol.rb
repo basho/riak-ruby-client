@@ -49,7 +49,7 @@ module Riak
               end
             rescue IO::WaitWritable, Errno::EINTR
               # wait with the retry until socket is writable again
-              if !IO.select(nil, [socket], nil, write_timeout)
+              unless IO.select(nil, [socket], nil, write_timeout)
                 raise Errno::ETIMEDOUT, 'write timeout'
               end
               retry
