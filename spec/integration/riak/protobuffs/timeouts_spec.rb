@@ -7,9 +7,10 @@ require 'riak/client/beefcake/protocol'
 describe 'Protocol Buffers', test_client: true, integration: true do
   describe 'timeouts' do
     it 'raises error on connect timeout' do
-      config = test_client_configuration.dup
       # unroutable TEST-NET (https://tools.ietf.org/html/rfc5737)
+      config = {}
       config[:host] = '192.0.2.0'
+      config[:pb_port] = 65535
 
       config[:connect_timeout] = 0.0001
       client = Riak::Client.new(config)
