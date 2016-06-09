@@ -1,32 +1,10 @@
 rvm:
-  - 1.9.3
-  - 2.0.0
-  - 2.1.8
-  - 2.2.4
-  - jruby-18mode
-  - jruby-19mode
-  - jruby-head
-  - rbx-18mode
-  - rbx-19mode
-matrix:
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: jruby-18mode
-    - rvm: jruby-19mode
-    - rvm: rbx-18mode
-    - rvm: rbx-19mode
-services:
-  - riak
+  - 1.9
+  - 2.0
+  - 2.1
+  - 2.2
+  - jruby
 bundler_args: --without=guard
-before_script:
-  - "curl http://apt.basho.com/gpg/basho.apt.key | sudo apt-key add -"
-  - 'sudo bash -c "echo deb http://apt.basho.com $(lsb_release -sc) main > /etc/apt/sources.list.d/basho.list"'
-  - "sudo apt-get update"
-  - "yes n | sudo apt-get install riak"
-  - "sudo service riak start"
-  - ! 'echo "root: .riaktest" > spec/support/test_server.yml'
-  - ! 'echo "source: /usr/sbin" >> spec/support/test_server.yml'
-  - "ulimit -n 2048"
 notifications:
   webhooks: http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
-  email: sean@basho.com
+  email: clients@basho.com

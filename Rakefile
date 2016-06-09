@@ -82,9 +82,9 @@ namespace :spec do
   end
 end
 
-desc "Run All Specs (including slow specs, excluding time_series)"
+desc "Run Unit Test Specs (excluding slow, integration and time_series)"
 RSpec::Core::RakeTask.new(:ci) do |spec|
-  spec.rspec_opts = %w[--profile --tag '~time_series']
+  spec.rspec_opts = %w[--profile --tag '~slow' --tag '~integration' --tag '~time_series']
 end
 task :default => :ci
 
