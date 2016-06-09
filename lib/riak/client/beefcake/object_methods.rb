@@ -42,6 +42,7 @@ module Riak
           rcontent.raw_data = pbuf.value
           rcontent.etag = pbuf.vtag if pbuf.vtag.present?
           rcontent.content_type = pbuf.content_type if pbuf.content_type.present?
+          rcontent.content_encoding = pbuf.content_encoding if pbuf.content_encoding.present?
           rcontent.links = Set.new(pbuf.links.map(&method(:decode_link))) if pbuf.links.present?
           pbuf.usermeta.each {|pair| decode_meta(pair, rcontent.meta) } if pbuf.usermeta.present?
           if pbuf.indexes.present?
@@ -60,6 +61,7 @@ module Riak
                                         :links => robject.links.map {|l| encode_link(l) }.compact,
                                         :indexes => robject.indexes.map {|k, s| encode_index(k, s) }.flatten)
 
+          pbuf.content.content_encoding = robject.content_encoding if robject.content_encoding.present?
           pbuf.content.usermeta = robject.meta.map {|k, v| encode_meta(k, v)} if robject.meta.any?
           pbuf.content.vtag = maybe_encode(robject.etag) if robject.etag.present?
 
