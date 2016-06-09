@@ -20,7 +20,10 @@ module Riak
           super
           set_encoding "BINARY"
         end
-        def close; rewind; end
+
+        def close
+          rewind
+        end
       end
 
       # Decompresses a gzipped string.
@@ -29,7 +32,7 @@ module Riak
       end
 
       # Compresses a string using gzip.
-      def self.compress(source, level=Zlib::DEFAULT_COMPRESSION, strategy=Zlib::DEFAULT_STRATEGY)
+      def self.compress(source, level = Zlib::DEFAULT_COMPRESSION, strategy = Zlib::DEFAULT_STRATEGY)
         output = Stream.new
         gz = Zlib::GzipWriter.new(output, level, strategy)
         gz.write(source)
