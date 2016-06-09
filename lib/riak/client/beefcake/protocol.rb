@@ -8,10 +8,16 @@ module Riak
     class BeefcakeProtobuffsBackend < ProtobuffsBackend
       class Protocol
         include Riak::Util::Translation
-        attr_reader :socket
+        attr_reader :socket, :read_timeout, :write_timeout
 
-        def initialize(socket)
+        # @param [Socket]
+        # @param [Hash] options
+        # @option options [Numeric] :read_timeout (nil) The read timeout, in seconds
+        # @option options [Numeric] :write_timeout (nil) The write timeout, in seconds
+        def initialize(socket, options = {})
           @socket = socket
+          @read_timeout = options[:read_timeout]
+          @write_timeout = options[:write_timeout]
         end
 
         # Encodes and writes a Riak-formatted message, including protocol buffer
@@ -32,7 +38,25 @@ module Riak
 
           payload = header + serialized
 
-          socket.write payload
+          if write_timeout
+            begin
+              loop do
+                bytes_written = socket.write_nonblock(payload)
+                # write_nonblock doesn't guarantee to write all data at once,
+                # so check if there are bytes left to be written
+                break if bytes_written >= payload.bytesize
+                payload.slice!(0, bytes_written)
+              end
+            rescue IO::WaitWritable, Errno::EINTR
+              # wait with the retry until socket is writable again
+              unless IO.select(nil, [socket], nil, write_timeout)
+                raise Errno::ETIMEDOUT, 'write timeout'
+              end
+              retry
+            end
+          else
+            socket.write(payload)
+          end
           socket.flush
         end
 
@@ -41,6 +65,9 @@ module Riak
         #
         # @return [Array<Symbol, String>]
         def receive
+          if read_timeout and !IO.select([socket], nil, nil, read_timeout)
+            raise Errno::ETIMEDOUT, 'read timeout'
+          end
           header = socket.read 5
 
           raise ProtobuffsFailedHeader.new if header.nil?

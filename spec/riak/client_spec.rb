@@ -26,7 +26,7 @@ describe Riak::Client, test_client: true do
       expect(client.client_id).to eq("AAAAAA==")
     end
 
-    it "creates a client ID if not specified" do
+    it "creates a client ID if not specified", :integration => true do
       expect(Riak::Client.new(pb_port: test_client.nodes.first.pb_port).
               client_id).to_not be_nil
     end
@@ -62,6 +62,17 @@ describe Riak::Client, test_client: true do
     it "accepts max_retries option" do
       client = Riak::Client.new :max_retries => 42
       expect(client.max_retries).to eq(42)
+    end
+
+    it "accepts timeouts" do
+      client = Riak::Client.new(
+        :connect_timeout => 1,
+        :read_timeout    => 2,
+        :write_timeout   => 3
+      )
+      expect(client.connect_timeout).to eq(1)
+      expect(client.read_timeout).to eq(2)
+      expect(client.write_timeout).to eq(3)
     end
   end
 
