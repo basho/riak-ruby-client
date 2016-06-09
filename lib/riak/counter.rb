@@ -14,8 +14,8 @@ module Riak
     # @param [Bucket] bucket the {Riak::Bucket} for this counter
     # @param [String] key the name of the counter
     def initialize(bucket, key)
-      fail ArgumentError, t('bucket_type', bucket: bucket.inspect) unless bucket.is_a? Bucket
-      fail ArgumentError, t('string_type', string: key.inspect) unless key.is_a? String
+      fail ArgumentError, t('bucket_type', bucket: bucket.inspect) unless Bucket === bucket
+      fail ArgumentError, t('string_type', string: key.inspect) unless String === key
       @bucket, @key = bucket, key
       @client = bucket.client
 

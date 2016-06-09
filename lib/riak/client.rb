@@ -261,7 +261,7 @@ module Riak
     # Get an object. See Bucket#get
     def get_object(bucket, key, options = {})
       fail ArgumentError, t('zero_length_key') if key == ''
-      fail ArgumentError, t('string_type', :string => key) unless key.nil? or String === key
+      fail ArgumentError, t('string_type', :string => key) unless String === key
       backend do |b|
         b.fetch_object(bucket, key, options)
       end
