@@ -12,7 +12,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       config[:host] = '192.0.2.0'
       config[:pb_port] = 65535
 
-      config[:connect_timeout] = 0.001
+      config[:connect_timeout] = 0.0001
       client = Riak::Client.new(config)
 
       expect do
@@ -66,7 +66,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       config = {}
       config[:pb_port] = port
       config[:client_id] = port
-      config[:read_timeout] = 0.001
+      config[:read_timeout] = 0.0001
       client = Riak::Client.new(config)
 
       max_ping_attempts = 16
@@ -143,7 +143,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       config = {}
       config[:pb_port] = port
       config[:client_id] = port
-      config[:write_timeout] = 0.001
+      config[:write_timeout] = 0.0001
       client = Riak::Client.new(config)
 
       bucket = client.bucket('timeouts')
