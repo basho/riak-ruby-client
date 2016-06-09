@@ -665,6 +665,7 @@ Thank you to all of our contributors!
 * [Eric Cestari](https://github.com/cstar)
 * [Eric Redmond](https://github.com/coderoshi)
 * [Hidekazu Tanaka](https://github.com/holidayworking)
+* [Hiroyasu Ohyama](https://github.com/userlocalhost2000)
 * [Jace](https://github.com/jace)
 * [Jack Dempsey](https://github.com/jackdempsey)
 * Jay Adkisson
