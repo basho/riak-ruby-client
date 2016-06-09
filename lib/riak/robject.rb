@@ -141,6 +141,7 @@ module Riak
       fail Conflict, self if conflict?
       fail ArgumentError, t('content_type_undefined') unless content_type.present?
       fail ArgumentError, t('zero_length_key') if key == ''
+      fail ArgumentError, t('string_type', :string => key) unless key.nil? or String === key
       @bucket.client.store_object(self, default(options))
       self
     end
