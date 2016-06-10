@@ -56,8 +56,11 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     def timestamp(cell)
-      return false unless cell.timestamp_value.is_a? Integer
-      Time.at(cell.timestamp_value.to_f / 1000)
+      return false unless Integer === cell.timestamp_value
+      tsv = cell.timestamp_value
+      secs = tsv / 1000
+      msec = tsv % 1000
+      Time.at(secs, msec * 1000)
     end
   end
 end

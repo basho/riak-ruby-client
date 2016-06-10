@@ -15,9 +15,9 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
     end
     # GH-274
     it do
-      ts_val = 1_459_444_070.103
-      t = Time.at(ts_val)
-      is_expected.to symmetric_serialize(t, timestamp_value: ts_val)
+      ts = 1_459_444_070_103
+      t = Time.at(1_459_444_070, 103_000)
+      is_expected.to symmetric_serialize(t, timestamp_value: ts)
     end
     it { is_expected.to symmetric_serialize(true, boolean_value: true) }
     it { is_expected.to symmetric_serialize(false, boolean_value: false) }
