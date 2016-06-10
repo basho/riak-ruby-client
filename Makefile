@@ -1,4 +1,4 @@
-.PHONY: release
+.PHONY: release gemspec_validate
 
 unexport LANG
 unexport LC_ADDRESS
@@ -17,7 +17,10 @@ unexport LC_TIME
 # NB:
 # VERSION does NOT include the v suffix
 
-release:
+gemspec_validate:
+	@rake gemspec
+
+release: gemspec_validate
 ifeq ($(VERSION),)
 	$(error VERSION must be set to build a release and deploy this package)
 endif
