@@ -8,7 +8,7 @@ describe Riak::RObject do
 
   describe "initialization" do
     it "sets the bucket" do
-      @object = Riak::RObject.new(@bucket)
+      @object = Riak::RObject.new(@bucket, "bar")
       expect(@object.bucket).to eq(@bucket)
     end
 
@@ -293,6 +293,7 @@ describe Riak::RObject do
     end
 
     it "passes quorum parameters and returnbody to the backend" do
+      @object.key = 'foo'
       expect(@backend).to receive(:store_object).
                            with(@object,
                                 returnbody: false,

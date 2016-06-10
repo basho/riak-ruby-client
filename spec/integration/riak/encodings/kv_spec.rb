@@ -77,5 +77,11 @@ describe 'Encoding and Riak KV', integration: true, test_client: true do
 
       expect(binary_bucket.keys).to include random_binary_string
     end
+
+    it 'throws an exception when non-string used as key' do
+      expect do
+        binary_bucket.get(1234)
+      end.to raise_error ArgumentError, /is not a String/
+    end
   end
 end
