@@ -36,7 +36,8 @@ module Riak::TimeSeries
     # attribute
     def issue!
       @results = client.backend do |be|
-        be.time_series_query_operator.query(query_text, interpolations)
+        op = be.time_series_query_operator(client.convert_timestamp)
+        op.query(query_text, interpolations)
       end
     end
   end

@@ -37,7 +37,7 @@ module Riak
     HOST_REGEX = /^(?:(?:(?:[a-zA-Z\d](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.)*(?:[a-zA-Z](?:[-a-zA-Z\d]*[a-zA-Z\d])?)\.?|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})|(?:(?:[a-fA-F\d]{1,4}:)*[a-fA-F\d]{1,4})?::(?:(?:[a-fA-F\d]{1,4}:)*(?:[a-fA-F\d]{1,4}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))?)\])$/n
 
     # Valid constructor options.
-    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication, :max_retries, :connect_timeout, :read_timeout, :write_timeout] | Node::VALID_OPTIONS
+    VALID_OPTIONS = [:nodes, :client_id, :protobuffs_backend, :authentication, :max_retries, :connect_timeout, :read_timeout, :write_timeout, :convert_timestamp] | Node::VALID_OPTIONS
 
     # Network errors.
     NETWORK_ERRORS = [
@@ -86,6 +86,9 @@ module Riak
     # @return [Numeric] The write timeout, in seconds
     attr_reader :write_timeout
 
+    # @return [Boolean] Convert timestamps from Riak TS to Time objects
+    attr_reader :convert_timestamp
+
     # Creates a client connection to Riak
     # @param [Hash] options configuration options for the client
     # @option options [Array] :nodes A list of nodes this client connects to.
@@ -126,6 +129,7 @@ module Riak
       @connect_timeout        = options[:connect_timeout]
       @read_timeout           = options[:read_timeout]
       @write_timeout          = options[:write_timeout]
+      @convert_timestamp      = options[:convert_timestamp]  || false
     end
 
     # Is security enabled?

@@ -2,13 +2,18 @@ require_relative './ts_cell_codec'
 require_relative './operator'
 
 class Riak::Client::BeefcakeProtobuffsBackend
-  def time_series_get_operator
-    TimeSeriesGetOperator.new(self)
+  def time_series_get_operator(convert_timestamp)
+    TimeSeriesGetOperator.new(self, convert_timestamp)
   end
 
   class TimeSeriesGetOperator < Operator
+    def initialize(backend, convert_timestamp)
+      super(backend)
+      @convert_timestamp = convert_timestamp
+    end
+
     def get(table_name, key_components, options = {})
-      codec = TsCellCodec.new
+      codec = TsCellCodec.new(@convert_timestamp)
 
       request_options = options.merge(table: table_name,
                                       key: codec.cells_for(key_components))

@@ -2,6 +2,12 @@ require 'bigdecimal'
 
 class Riak::Client::BeefcakeProtobuffsBackend
   class TsCellCodec
+    attr_accessor :convert_timestamp
+
+    def initialize(convert_timestamp = false)
+      @convert_timestamp = convert_timestamp
+    end
+
     def cells_for(measures)
       measures.map{ |m| cell_for m }
     end
@@ -57,6 +63,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
     def timestamp(cell)
       return false unless Integer === cell.timestamp_value
+      return cell.timestamp_value unless @convert_timestamp
       tsv = cell.timestamp_value
       secs = tsv / 1000
       msec = tsv % 1000

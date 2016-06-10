@@ -44,9 +44,8 @@ module Riak::TimeSeries
       potential_results = nil
 
       client.backend do |be|
-        potential_results = be.time_series_list_operator.list(table_name,
-                                                              block,
-                                                              options)
+        op = be.time_series_list_operator(client.convert_timestamp)
+        potential_results = op.list(table_name, block, options)
       end
 
       return @results = potential_results unless block_given?

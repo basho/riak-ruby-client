@@ -74,6 +74,18 @@ describe Riak::Client, test_client: true do
       expect(client.read_timeout).to eq(2)
       expect(client.write_timeout).to eq(3)
     end
+
+    it "accepts convert_timestamp" do
+      client = Riak::Client.new(
+        :convert_timestamp => true
+      )
+      expect(client.convert_timestamp).to be
+    end
+
+    it "has default convert_timestamp of false" do
+      client = Riak::Client.new
+      expect(client.convert_timestamp).to_not be
+    end
   end
 
   it "exposes a Stamp object" do

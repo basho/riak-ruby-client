@@ -5,7 +5,8 @@ describe 'Time Series',
          test_client: true, integration: true, time_series: true do
   let(:table_name){ 'GeoCheckin' }
 
-  let(:now){ Time.at(Time.now.to_i) }
+  let(:now_ts) { Time.now.to_i }
+  let(:now){ Time.at(now_ts) }
   let(:five_minutes_ago){ now - 300 }
   let(:now_range_str) do
     past = (now.to_i - 100) * 1000
@@ -22,6 +23,7 @@ describe 'Time Series',
   let(:series){ 'user-' + random_key }
 
   let(:key){ [family, series, now] }
+  let(:key_ts){ [family, series, now_ts * 1000] }
   let(:key2){ [family, series, five_minutes_ago] }
   let(:datum){ [*key, 'cloudy', 27.1] }
   let(:datum_null){ [*key2, 'cloudy', nil] }
@@ -192,7 +194,7 @@ SQL
       lister = Riak::TimeSeries::List.new test_client, table_name
 
       lister.issue! do |row|
-        found_expectation.found! if row.to_a == key
+        found_expectation.found! if row.to_a == key_ts
       end
     end
 
@@ -204,7 +206,7 @@ SQL
 
       results = lister.issue!
 
-      expect(results).to include key
+      expect(results).to include key_ts
     end
   end
 end

@@ -11,7 +11,8 @@ module Riak::TimeSeries
 
     def read!
       client.backend do |be|
-        be.time_series_get_operator.get(table_name, key)
+        op = be.time_series_get_operator(client.convert_timestamp)
+        op.get(table_name, key)
       end
     end
   end

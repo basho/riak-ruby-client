@@ -2,11 +2,16 @@ require_relative './ts_cell_codec'
 require_relative './operator'
 
 class Riak::Client::BeefcakeProtobuffsBackend
-  def time_series_list_operator
-    TimeSeriesListOperator.new(self)
+  def time_series_list_operator(convert_timestamp)
+    TimeSeriesListOperator.new(self, convert_timestamp)
   end
 
   class TimeSeriesListOperator < Operator
+    def initialize(backend, convert_timestamp)
+      super(backend)
+      @convert_timestamp = convert_timestamp
+    end
+
     def list(table_name, block, options = {  })
       request = TsListKeysReq.new options.merge(table: table_name)
 
@@ -25,7 +30,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
       backend.protocol do |p|
         p.write :TsListKeysReq, request
 
-        codec = TsCellCodec.new
+        codec = TsCellCodec.new(@convert_timestamp)
 
         while resp = p.expect(:TsListKeysResp, TsListKeysResp)
           break if resp.done
