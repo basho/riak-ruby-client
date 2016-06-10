@@ -31,11 +31,6 @@ task :gemspec do
   gemspec.validate
 end
 
-desc %{Release the gem to RubyGems.org}
-task :release => :gem do
-  system "gem push pkg/#{gemspec.name}-#{gemspec.version}.gem"
-end
-
 desc "Cleans up white space in source files"
 task :clean_whitespace do
   no_file_cleaned = true

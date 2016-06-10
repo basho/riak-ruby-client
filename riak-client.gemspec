@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.email = ['bryce@basho.com']
   gem.homepage = "http://github.com/basho/riak-ruby-client"
   gem.authors = ['Bryce Kerley']
-  gem.license = 'Apache 2.0'
+  gem.license = 'Apache-2.0'
 
   gem.required_ruby_version = '>= 1.9.3'
 
