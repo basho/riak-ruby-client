@@ -32,6 +32,7 @@ module Riak
 
       attr_accessor :client
       attr_accessor :node
+
       def initialize(client, node)
         @client = client
         @node = node

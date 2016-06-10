@@ -5,13 +5,21 @@ require 'time'
 Riak::Client::BeefcakeProtobuffsBackend.configured?
 
 describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
-  describe 'symmetric serialziation' do
+  describe 'symmetric serialization' do
     it { is_expected.to symmetric_serialize("hello", varchar_value: "hello")}
     it { is_expected.to symmetric_serialize(5, sint64_value: 5)}
     it { is_expected.to symmetric_serialize(123.45, double_value: 123.45) }
     it do
+      subject.convert_timestamp = true
       is_expected.to symmetric_serialize(Time.parse("June 23, 2015 at 9:46:28 EDT"),
                                          timestamp_value: 1_435_067_188_000)
+    end
+    # GH-274
+    it do
+      subject.convert_timestamp = true
+      ts = 1_459_444_070_103
+      t = Time.at(1_459_444_070, 103_000)
+      is_expected.to symmetric_serialize(t, timestamp_value: ts)
     end
     it { is_expected.to symmetric_serialize(true, boolean_value: true) }
     it { is_expected.to symmetric_serialize(false, boolean_value: false) }

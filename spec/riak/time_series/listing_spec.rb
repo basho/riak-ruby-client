@@ -8,6 +8,7 @@ describe Riak::TimeSeries::List do
   let(:backend) do
     instance_double('Riak::Client::BeefcakeProtobuffsBackend').tap do |be|
       allow(client).to receive(:backend).and_yield be
+      allow(client).to receive(:convert_timestamp).and_return(true)
     end
   end
   let(:operator) do
