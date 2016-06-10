@@ -639,6 +639,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 The included photo (spec/fixtures/cat.jpg) is Copyright &copy;2009 [Sean Cribbs](http://seancribbs.com/), and is licensed under the [Creative Commons Attribution Non-Commercial 3.0](http://creativecommons.org/licenses/by-nc/3.0) license.
 !["Creative Commons"](http://i.creativecommons.org/l/by-nc/3.0/88x31.png)
 
+`gzip` encoding support is copied from the [ActiveSupport project](https://github.com/rails/rails/blob/master/activesupport/lib/active_support/gzip.rb).
+
 ## Contributors
 
 Thank you to all of our contributors!

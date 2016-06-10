@@ -12,6 +12,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::ObjectMethods do
       :value => '',
       :vtag => nil,
       :content_type => nil,
+      :content_encoding => nil,
       :links => nil,
       :usermeta => nil,
       :last_mod => nil,
