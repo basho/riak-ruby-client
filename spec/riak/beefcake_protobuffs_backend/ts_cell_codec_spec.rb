@@ -13,6 +13,12 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
       is_expected.to symmetric_serialize(Time.parse("June 23, 2015 at 9:46:28 EDT"),
                                          timestamp_value: 1_435_067_188_000)
     end
+    # GH-274
+    it do
+      ts_val = 1_459_444_070.103
+      t = Time.at(ts_val)
+      is_expected.to symmetric_serialize(t, timestamp_value: ts_val)
+    end
     it { is_expected.to symmetric_serialize(true, boolean_value: true) }
     it { is_expected.to symmetric_serialize(false, boolean_value: false) }
     it { is_expected.to symmetric_serialize(nil, {}) }
