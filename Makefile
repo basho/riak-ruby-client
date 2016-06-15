@@ -33,6 +33,7 @@ endif
 	@rake package
 	@git commit -a -m "riak-client $(VERSION)"
 	@git tag --sign -a "v$(VERSION)" -m "riak-client $(VERSION)" --local-user "$(RELEASE_GPG_KEYNAME)"
-	@git push --tags master
+	@git push --tags
+	@git push
 	@gem push "pkg/riak-client-$(VERSION).gem"
 	@bash ./build/publish $(VERSION)
