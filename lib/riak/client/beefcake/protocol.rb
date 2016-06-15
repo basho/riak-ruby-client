@@ -65,7 +65,7 @@ module Riak
         #
         # @return [Array<Symbol, String>]
         def receive
-          if read_timeout and !IO.select([socket], nil, nil, read_timeout)
+          if read_timeout && !IO.select([socket], nil, nil, read_timeout)
             raise Errno::ETIMEDOUT, 'read timeout'
           end
           header = socket.read 5

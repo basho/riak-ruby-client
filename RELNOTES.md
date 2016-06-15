@@ -1,5 +1,13 @@
 # Riak Ruby Client Release Notes
 
+## [2.4.0 Release - 2016-06-15](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.4.0)
+
+Highlights (see milestone for full changes):
+
+* [Timestamps returned by Riak TS are *not* converted to `Time` objects by default](https://github.com/basho/riak-ruby-client/pull/275)
+* [Add `gzip` encoding support](https://github.com/basho/riak-ruby-client/pull/273)
+* [Support connect, read and write socket timeouts](https://github.com/basho/riak-ruby-client/pull/270)
+
 ## 2.3.2 Release - 2016-01-12
 
 Version 2.3.2 is a bugfix release with a small fix in support of the Riak TS

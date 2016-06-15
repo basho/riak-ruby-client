@@ -23,9 +23,9 @@ module Riak
     # @param [Client] client the {Riak::Client} for this bucket
     # @param [String] name the name of the bucket
     def initialize(client, name)
-      fail ArgumentError, t('client_type', :client => client.inspect) unless Client === client
-      fail ArgumentError, t('string_type', :string => name.inspect) unless String === name
-      fail ArgumentError, t('zero_length_bucket') if name == ''
+      raise ArgumentError, t('client_type', :client => client.inspect) unless Client === client
+      raise ArgumentError, t('string_type', :string => name.inspect) unless String === name
+      raise ArgumentError, t('zero_length_bucket') if name == ''
       @client, @name = client, name
     end
 
@@ -71,7 +71,7 @@ module Riak
     # @raise [FailedRequest] if the new properties were not accepted by the Riakserver
     # @see #n_value, #allow_mult, #r, #w, #dw, #rw
     def props=(properties)
-      fail ArgumentError, t("hash_type", :hash => properties.inspect) unless Hash === properties
+      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless Hash === properties
       props.merge!(properties)
       @client.set_bucket_props(self, properties)
       props

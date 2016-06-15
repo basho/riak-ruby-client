@@ -26,7 +26,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       port = 0
 
       server = nil
-      thr = Thread.new {
+      thr = Thread.new do
         server = TCPServer.new port
         port = server.addr[1]
         ok_to_continue = true
@@ -36,8 +36,8 @@ describe 'Protocol Buffers', test_client: true, integration: true do
               loop do
                 p = Riak::Client::BeefcakeProtobuffsBackend::Protocol.new s
                 begin
-                  msgname, body = p.receive
-                rescue IOError => e
+                  msgname, _body = p.receive
+                rescue IOError
                   break if quitting
                   raise
                 end
@@ -50,12 +50,12 @@ describe 'Protocol Buffers', test_client: true, integration: true do
                 end
               end
             end
-          rescue IOError => e
+          rescue IOError
             break if quitting
             raise
           end
         end
-      }
+      end
 
       loop do
         break if ok_to_continue
@@ -86,7 +86,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       server.close
       thr.join
 
-      ping_count > max_ping_attempts and fail 'did not see expected timeout!'
+      expect(ping_count).to be < max_ping_attempts
     end
 
     it 'raises error on write timeout' do
@@ -95,19 +95,18 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       port = 0
 
       server = nil
-      thr = Thread.new {
+      thr = Thread.new do
         server = TCPServer.new port
         port = server.addr[1]
         ok_to_continue = true
-        put_count = 0
         loop do
           begin
             Thread.start(server.accept) do |s|
               loop do
                 p = Riak::Client::BeefcakeProtobuffsBackend::Protocol.new s
                 begin
-                  msgname, body = p.receive
-                rescue IOError => e
+                  msgname, _body = p.receive
+                rescue IOError
                   break if quitting
                   raise
                 end
@@ -127,12 +126,12 @@ describe 'Protocol Buffers', test_client: true, integration: true do
                 end
               end
             end
-          rescue IOError => e
+          rescue IOError
             break if quitting
             raise
           end
         end
-      }
+      end
 
       loop do
         break if ok_to_continue
@@ -169,7 +168,7 @@ describe 'Protocol Buffers', test_client: true, integration: true do
       server.close
       thr.join
 
-      store_count > max_store_attempts and fail 'did not see expected timeout!'
+      expect(store_count).to be < max_store_attempts
     end
   end
 end
