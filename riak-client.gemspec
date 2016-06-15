@@ -41,7 +41,7 @@ Gem::Specification.new do |gem|
     Rakefile
     Guardfile
     LICENSE*
-    RELEASE_NOTES*
+    RELNOTES*
     README*
     erl_src/*
     .gitignore
