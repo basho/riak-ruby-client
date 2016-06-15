@@ -1,9 +1,14 @@
+language: ruby
 rvm:
   - 1.9
   - 2.0
   - 2.1
   - 2.2
   - jruby
+before_install:
+  - gem update --system
+  - gem --version
+  - gem update bundler
 bundler_args: --without=guard
 notifications:
   webhooks: http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
