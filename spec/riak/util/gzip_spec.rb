@@ -26,10 +26,22 @@ describe Riak::Util::Gzip do
       source_string = "Hello World"*100
 
       gzipped_by_speed = Riak::Util::Gzip.compress(source_string, Zlib::BEST_SPEED)
-      expect(Zlib::GzipReader.new(StringIO.new(gzipped_by_speed)).level).to eq(1)
+      expected_level = if RUBY_PLATFORM == 'java'
+                         # NB HACK: on jruby, level is -1
+                         -1
+                       else
+                         Zlib::BEST_SPEED
+                       end
+      expect(Zlib::GzipReader.new(StringIO.new(gzipped_by_speed)).level).to eq(expected_level)
 
       gzipped_by_best_compression = Riak::Util::Gzip.compress(source_string, Zlib::BEST_COMPRESSION)
-      expect(Zlib::GzipReader.new(StringIO.new(gzipped_by_best_compression)).level).to eq(9)
+      expected_level = if RUBY_PLATFORM == 'java'
+                         # NB HACK: on jruby, level is -1
+                         -1
+                       else
+                         Zlib::BEST_COMPRESSION
+                       end
+      expect(Zlib::GzipReader.new(StringIO.new(gzipped_by_best_compression)).level).to eq(expected_level)
 
       expect(gzipped_by_best_compression.bytesize < gzipped_by_speed.bytesize).to be true
     end

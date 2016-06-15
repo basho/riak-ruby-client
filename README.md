@@ -18,7 +18,7 @@ read at http://www.rubydoc.info/gems/riak-client/frames .
 Ruby 1.9.3, 2.0, 2.1, and 2.2 are supported. JRuby in 1.9 and 2.0 modes are
 also supported. `riak-client` is not compatible with Ruby 1.8.
 
-Travis CI is configured to run unit tests on 2.X versions of Ruby.
+Travis CI is configured to run unit tests on 2.X versions of Ruby and JRuby.
 
 *NOTE:* official support for the [Ruby 1.9 series ended February of 2015](https://www.ruby-lang.org/en/news/2014/01/10/ruby-1-9-3-will-end-on-2015/).
 
