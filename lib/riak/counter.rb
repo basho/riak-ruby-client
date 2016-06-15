@@ -14,8 +14,8 @@ module Riak
     # @param [Bucket] bucket the {Riak::Bucket} for this counter
     # @param [String] key the name of the counter
     def initialize(bucket, key)
-      fail ArgumentError, t('bucket_type', bucket: bucket.inspect) unless Bucket === bucket
-      fail ArgumentError, t('string_type', string: key.inspect) unless String === key
+      raise ArgumentError, t('bucket_type', bucket: bucket.inspect) unless bucket.is_a? Bucket
+      raise ArgumentError, t('string_type', string: key.inspect) unless key.is_a? String
       @bucket, @key = bucket, key
       @client = bucket.client
 
@@ -79,11 +79,11 @@ module Riak
 
     private
     def validate_bucket
-      fail ArgumentError, t("counter.bucket_needs_allow_mult") unless bucket.allow_mult
+      raise ArgumentError, t("counter.bucket_needs_allow_mult") unless bucket.allow_mult
     end
 
     def validate_amount(amount)
-      fail ArgumentError, t("counter.increment_by_integer") unless amount.is_a? Integer
+      raise ArgumentError, t("counter.increment_by_integer") unless amount.is_a? Integer
     end
 
     def backend(&blk)

@@ -62,7 +62,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     def timestamp(cell)
-      return false unless Integer === cell.timestamp_value
+      return false unless cell.timestamp_value.is_a? Integer
       return cell.timestamp_value unless @convert_timestamp
       tsv = cell.timestamp_value
       secs = tsv / 1000
