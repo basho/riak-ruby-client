@@ -9,6 +9,10 @@ Exhaustive documentation is available at
 http://basho.github.io/riak-ruby-client/ , and API documentation can be
 read at http://www.rubydoc.info/gems/riak-client/frames .
 
+## Build Status
+
+[![Build Status](https://travis-ci.org/basho/riak-ruby-client.svg?branch=master)](https://travis-ci.org/basho/riak-ruby-client)
+
 ## Dependencies
 
 Ruby 1.9.3, 2.0, 2.1, and 2.2 are supported. JRuby in 1.9 and 2.0 modes are
