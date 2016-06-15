@@ -20,8 +20,14 @@ module TestClient
       return $test_client_configuration
     end
 
-    config_path = File.expand_path '../test_client.yml', __FILE__
-    config = YAML.load_file(config_path).symbolize_keys
+    begin
+      config_path = File.expand_path '../test_client.yml', __FILE__
+      config = YAML.load_file(config_path).symbolize_keys
+    rescue Errno::ENOENT => ex
+      $stderr.puts("WARNING: could not find file: #{config_path}, exception: #{ex}")
+      config = {}
+      config[:pb_port] = 10017
+    end
 
     if config[:nodes]
       new_nodes = config[:nodes].map(&:symbolize_keys)
