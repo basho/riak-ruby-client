@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.authors = ['Bryce Kerley']
   gem.license = 'Apache-2.0'
 
-  gem.required_ruby_version = '>= 1.9.3'
+  gem.required_ruby_version = '>= 2'
 
   # Deps
   gem.add_development_dependency 'rspec', '~> 3.0'
