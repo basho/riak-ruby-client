@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.authors = ['Bryce Kerley']
   gem.license = 'Apache-2.0'
 
-  gem.required_ruby_version = '>= 1.9.3'
+  gem.required_ruby_version = '>= 2'
 
   # Deps
   gem.add_development_dependency 'rspec', '~> 3.0'
@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'kramdown', '~> 1.4'
   gem.add_development_dependency 'simplecov', '~> 0.10'
   gem.add_development_dependency 'instrumentable', '~> 1.1'
+  gem.add_development_dependency 'activesupport', '~> 4.2'
   gem.add_development_dependency 'rubocop', '~> 0.40'
 
   gem.add_runtime_dependency 'i18n', '~> 0.6'
