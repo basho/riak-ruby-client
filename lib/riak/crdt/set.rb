@@ -1,3 +1,5 @@
+require 'riak/util/string'
+
 module Riak
   module Crdt
 
@@ -6,6 +8,7 @@ module Riak
     # Uses the Ruby standard library `::Set` frequently, so the full class names will
     # be used frequently.
     class Set < Base
+      include Util::String
 
       # Create a set instance. The bucket type is determined by the first of
       # these sources:
@@ -73,7 +76,7 @@ module Riak
       # @param [String] candidate string to check for inclusion in this structure
       # @return [Boolean] if the structure includes
       def include?(candidate)
-        members.include?(candidate)
+        members.any? { |m| equal_bytes?(m, candidate) }
       end
 
       # Add a {String} to the {Riak::Crdt::Set}

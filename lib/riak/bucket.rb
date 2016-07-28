@@ -1,3 +1,4 @@
+require 'riak/util/string'
 require 'riak/util/translation'
 require 'riak/client'
 require 'riak/robject'
@@ -8,6 +9,7 @@ module Riak
   # Represents and encapsulates operations on a Riak bucket.  You may retrieve a bucket
   # using {Client#bucket}, or create it manually and retrieve its meta-information later.
   class Bucket
+    include Util::String
     include Util::Translation
 
     # (Riak Search) The precommit specification for kv/search integration
@@ -294,12 +296,7 @@ module Riak
     def ==(other)
       return false unless self.class == other.class
       return false unless self.client == other.client
-      return true if self.name.nil? && other.name.nil?
-      unless self.name.respond_to?(:bytes) && other.name.respond_to?(:bytes)
-        return false
-      end
-      return false unless self.name.bytes == other.name.bytes
-      true
+      return equal_bytes?(self.name, other.name)
     end
   end
 end

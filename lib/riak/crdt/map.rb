@@ -1,6 +1,5 @@
 module Riak
   module Crdt
-
     # A distributed map of multiple fields, such as counters, flags, registers,
     # sets, and, recursively, other maps, using the Riak 2 Data Types feature.
     #
