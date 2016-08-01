@@ -38,7 +38,7 @@ lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
 	@cd ..; bin/rubocop lib spec
 
-test: test-normal test-security archive-coverage
+test: test-normal test-security
 
 test-normal:
 	@echo 'nodes:' > ../spec/support/test_client.yml
@@ -56,8 +56,3 @@ test-security:
 	@cat ../spec/support/test_client.yml
 	${RIAK_ADMIN} security enable
 	@cd ..; COVERAGE=true COVERAGE_SUITE=yes-security bin/rspec --tag yes_security --tag ~time_series
-
-archive-coverage:
-	gzip -f ../coverage/index.html
-	s3cmd put -P --add-header="Content-Encoding:gzip" --mime-type=text/html ../coverage/index.html.gz s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`.html
-	s3cmd sync -P ../coverage/assets s3://builds.basho.com/ruby-coverage/
