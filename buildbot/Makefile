@@ -34,7 +34,7 @@ configure:
 compile:
 	@cd .. && rm -rf vendor/*
 	@cd .. && rm -f Gemfile.lock
-	@cd .. && bundle install --binstubs --binstubs --path=vendor
+	@cd .. && bundle install --binstubs --path=vendor --without=guard
 
 lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
@@ -43,6 +43,7 @@ lint:
 test: test-normal test-security
 
 test-normal:
+	${RIAK_ADMIN} security disable
 	@echo 'nodes:' > ../spec/support/test_client.yml
 	@echo '  - { pb_port: 8087 }' >> ../spec/support/test_client.yml
 	@echo "Test client config:"
@@ -50,11 +51,11 @@ test-normal:
 	@cd ..; COVERAGE=true bin/rspec --tag ~time_series
 
 test-security:
+	${RIAK_ADMIN} security enable
 	@echo 'authentication:' >> ../spec/support/test_client.yml
 	@echo '  user: user' >> ../spec/support/test_client.yml
 	@echo '  password: password' >> ../spec/support/test_client.yml
 	@echo "  ca_file: ${CERTS_DIR}/ca.crt" >> ../spec/support/test_client.yml
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
-	${RIAK_ADMIN} security enable
 	@cd ..; COVERAGE=true COVERAGE_SUITE=yes-security bin/rspec --tag yes_security --tag ~time_series
