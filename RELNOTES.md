@@ -1,12 +1,12 @@
 # Riak Ruby Client Release Notes
 
-## [`2.4.1` Release - 2016-08-02](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-`2.4.1`)
+## [`2.4.1` Release - 2016-08-02](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.4.1)
 
 Version `2.4.1` is a bugfix release that addresses some issues when using Ruby `1.9.3`.
 
 * [Update `1.9.3` support](https://github.com/basho/riak-ruby-client/pull/281)
 
-## [`2.4.0` Release - 2016-06-15](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-`2.4.0`)
+## [`2.4.0` Release - 2016-06-15](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.4.0)
 
 Highlights (see milestone for full changes):
 
