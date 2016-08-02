@@ -35,8 +35,7 @@ Gemfile.lock
 
 .riaktest
 **/.riaktest
-vendor/erlang
-vendor/riak
 .ruby-version
 tmp
 tags
+vendor/

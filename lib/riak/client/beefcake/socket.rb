@@ -20,9 +20,13 @@ module Riak
 
           private
           def start_tcp_socket(host, port, options = {})
-            Socket.tcp(host, port, connect_timeout: options[:connect_timeout]).tap do |sock|
-              sock.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
-            end
+            sock = if options[:connect_timeout] && RUBY_VERSION >= '2.0.0'
+                     Socket.tcp(host, port, connect_timeout: options[:connect_timeout])
+                   else
+                     Socket.tcp(host, port)
+                   end
+            sock.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, true)
+            sock
           end
 
           def start_tls_socket(host, port, options)

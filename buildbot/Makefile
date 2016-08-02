@@ -5,7 +5,7 @@ RIAK_ADMIN = ${RIAK_DIR}/bin/riak-admin
 CERTS_DIR = $(shell pwd)/../spec/support/certs
 
 preconfigure:
-	echo "storage_backend = memory" >> ${RIAK_CONF}
+	echo "storage_backend = leveldb" >> ${RIAK_CONF}
 	echo "search = on" >> ${RIAK_CONF}
 	echo "listener.protobuf.internal = 127.0.0.1:8087" >> ${RIAK_CONF}
 	echo "ssl.keyfile = ${CERTS_DIR}/server.key" >> ${RIAK_CONF}
@@ -32,15 +32,18 @@ configure:
 	@${RIAK_ADMIN} security grant riak_kv.get,riak_kv.put,riak_kv.delete,riak_kv.index,riak_kv.list_keys,riak_kv.list_buckets,riak_core.get_bucket,riak_core.set_bucket,riak_core.get_bucket_type,riak_core.set_bucket_type,search.admin,search.query on any to user
 
 compile:
-	@cd ..; bundle install --binstubs --path=vendor
+	@cd .. && rm -rf vendor/*
+	@cd .. && rm -f Gemfile.lock
+	@cd .. && bundle install --binstubs --path=vendor --without=guard
 
 lint:
 	@find ../lib ../spec -type f -name "*.rb" | xargs -n1 ruby -c
 	@cd ..; bin/rubocop lib spec
 
-test: test-normal test-security archive-coverage
+test: test-normal test-security
 
 test-normal:
+	${RIAK_ADMIN} security disable
 	@echo 'nodes:' > ../spec/support/test_client.yml
 	@echo '  - { pb_port: 8087 }' >> ../spec/support/test_client.yml
 	@echo "Test client config:"
@@ -48,16 +51,11 @@ test-normal:
 	@cd ..; COVERAGE=true bin/rspec --tag ~time_series
 
 test-security:
+	${RIAK_ADMIN} security enable
 	@echo 'authentication:' >> ../spec/support/test_client.yml
 	@echo '  user: user' >> ../spec/support/test_client.yml
 	@echo '  password: password' >> ../spec/support/test_client.yml
 	@echo "  ca_file: ${CERTS_DIR}/ca.crt" >> ../spec/support/test_client.yml
 	@echo "Test client config for security:"
 	@cat ../spec/support/test_client.yml
-	${RIAK_ADMIN} security enable
 	@cd ..; COVERAGE=true COVERAGE_SUITE=yes-security bin/rspec --tag yes_security --tag ~time_series
-
-archive-coverage:
-	gzip -f ../coverage/index.html
-	s3cmd put -P --add-header="Content-Encoding:gzip" --mime-type=text/html ../coverage/index.html.gz s3://builds.basho.com/ruby-coverage/`git show HEAD --pretty=%H | head -n1`.html
-	s3cmd sync -P ../coverage/assets s3://builds.basho.com/ruby-coverage/

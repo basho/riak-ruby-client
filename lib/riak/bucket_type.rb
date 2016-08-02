@@ -1,9 +1,12 @@
+require 'riak/util/string'
 require 'riak/bucket_typed/bucket'
 require 'riak/errors/crdt_error'
 
 module Riak
   # A representation of a bucket type
   class BucketType
+    include Util::String
+
     attr_reader :client, :name
 
     # The name of Riak's default bucket type.
@@ -70,8 +73,7 @@ module Riak
     def ==(other)
       return false unless self.class == other.class
       return false unless self.client == other.client
-      return false unless self.name.bytes == other.name.bytes
-      true
+      return equal_bytes?(self.name, other.name)
     end
   end
 end

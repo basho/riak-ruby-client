@@ -74,7 +74,7 @@ module Riak
       # @param [String] key the key to get the value for
       # @return the value for the given key
       def [](key)
-        key = normalize_key key
+        key = normalize_key(key)
         if include? key
           candidate = @contents[key]
           return candidate unless candidate.respond_to? :parent
@@ -97,7 +97,7 @@ module Riak
       # @param [Boolean, String, Integer] value the value to set at the key,
       #        or in the case of counters, the amount to increment
       def []=(key, value)
-        key = normalize_key key
+        key = normalize_key(key)
 
         operation = @type.update value
         operation.name = key
@@ -112,11 +112,15 @@ module Riak
 
       alias_method :increment, :[]=
 
+      def length
+        @contents.length
+      end
+
       # Remove the entry from the map.
       #
       # @param [String] key the key to remove from the map
       def delete(key)
-        key = normalize_key key
+        key = normalize_key(key)
         operation = @type.delete
         operation.name = key
 
@@ -127,7 +131,7 @@ module Riak
 
       # @api private
       def operate(key, inner_operation)
-        key = normalize_key key
+        key = normalize_key(key)
 
         inner_operation.name = key
 
@@ -152,7 +156,7 @@ module Riak
       private
 
       def normalize_key(unnormalized_key)
-        unnormalized_key.to_s
+        unnormalized_key.to_s.dup.force_encoding('binary')
       end
 
       def initialize_nil?
