@@ -5,7 +5,7 @@ RIAK_ADMIN = ${RIAK_DIR}/bin/riak-admin
 CERTS_DIR = $(shell pwd)/../spec/support/certs
 
 preconfigure:
-	echo "storage_backend = memory" >> ${RIAK_CONF}
+	echo "storage_backend = leveldb" >> ${RIAK_CONF}
 	echo "search = on" >> ${RIAK_CONF}
 	echo "listener.protobuf.internal = 127.0.0.1:8087" >> ${RIAK_CONF}
 	echo "ssl.keyfile = ${CERTS_DIR}/server.key" >> ${RIAK_CONF}
