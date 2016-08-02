@@ -1,6 +1,12 @@
 # Riak Ruby Client Release Notes
 
-## [2.4.0 Release - 2016-06-15](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.4.0)
+## [`2.4.1` Release - 2016-08-02](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-`2.4.1`)
+
+Version `2.4.1` is a bugfix release that addresses some issues when using Ruby `1.9.3`.
+
+* [Update `1.9.3` support](https://github.com/basho/riak-ruby-client/pull/281)
+
+## [`2.4.0` Release - 2016-06-15](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-`2.4.0`)
 
 Highlights (see milestone for full changes):
 
@@ -8,22 +14,19 @@ Highlights (see milestone for full changes):
 * [Add `gzip` encoding support](https://github.com/basho/riak-ruby-client/pull/273)
 * [Support connect, read and write socket timeouts](https://github.com/basho/riak-ruby-client/pull/270)
 
-## 2.3.2 Release - 2016-01-12
+## `2.3.2` Release - 2016-01-12
 
-Version 2.3.2 is a bugfix release with a small fix in support of the Riak TS
-time series database.
+Version `2.3.2` is a bugfix release with a small fix in support of the Riak TS time series database.
 
 * Queries that return no data will return an empty collection.
 
-## 2.3.0 Release - 2015-12-15
+## `2.3.0` Release - 2015-12-15
 
-Version 2.3.0 is a feature release, introducing support for the Riak TS time
-series database.
+Version `2.3.0` is a feature release, introducing support for the Riak TS time series database.
 
 New features:
 
-* Riak TS support, for queries, reads, writes, and deletes. Key list support
-is also provided.
+* Riak TS support, for queries, reads, writes, and deletes. Key list support is also provided.
 * Network error logging, thanks to Sebastian Röbke.
 
 Bug fixes:
@@ -31,18 +34,18 @@ Bug fixes:
 * The `last_modified` field on `RContent` and `RObject` objects now has
 microsecond precision, thanks to Sebastian Röbke.
 
-## 2.2.2 Release - 2015-11-24
+## `2.2.2` Release - 2015-11-24
 
-Version 2.2.2 is a bugfix release.
+Version `2.2.2` is a bugfix release.
 
-* Corrected Hidekazu Tanaka's name in the 2.2.1 release notes.
+* Corrected Hidekazu Tanaka's name in the `2.2.1` release notes.
 * Deleting maps inside map CRDTs works, thanks to Kazuhiro Suzuki.
 * Fix `Riak::Search::Index` documentation in the readme, thanks to Zshawn Syed.
-* Tighten up the i18n gem requirement, thanks to Sean Kelly.
+* Tighten up the `i18n` gem requirement, thanks to Sean Kelly.
 
-## 2.2.1 Release - 2015-06-19
+## `2.2.1` Release - 2015-06-19
 
-Version 2.2.1 is a bugfix release, and includes additional testing of character
+Version `2.2.1` is a bugfix release, and includes additional testing of character
 encodings.
 
 Bug fixes:
@@ -63,9 +66,9 @@ Testing enhancements:
   findings are available on our documentation site:
   http://basho.github.io/riak-ruby-client/encoding.html
 
-## 2.2.0 Release - 2015-05-27
+## `2.2.0` Release - 2015-05-27
 
-Version 2.2.0 is a feature release.
+Version `2.2.0` is a feature release.
 
 New features:
 
@@ -90,9 +93,9 @@ Bug fixes:
 * Loading and storing objects from bucket-typed buckets is more reliable and
   correct thanks to Takeshi Akima.
 
-## 2.1.0 Release - 2014-10-03
+## `2.1.0` Release - 2014-10-03
 
-Version 2.1.0 is a feature release.
+Version `2.1.0` is a feature release.
 
 New features:
 
@@ -106,12 +109,12 @@ New features:
 Small changes:
 
 * UTF-8 support is now tested against.
-* RSpec 3.1 is now supported, although RSpec 3.0 still works.
+* RSpec `3.1` is now supported, although RSpec `3.0` still works.
 * Specs no longer use gratuitous "should"s.
 
-## 2.0.0 Release - 2014-09-05
+## `2.0.0` Release - 2014-09-05
 
-Version 2.0.0 is a major new version with many new features, API changes,
+Version `2.0.0` is a major new version with many new features, API changes,
 and feature removals.
 
 New features:
@@ -128,7 +131,7 @@ API changes:
 * Exceptions raised by the client are subclasses of `Riak::Error`.
 * The internals of the Beefcake-based protocol buffers support have been
   refactored for reliability and maintainability.
-* The Beefcake version has been bumped to 1.0 for improvements in speed and
+* The Beefcake version has been bumped to `1.0` for improvements in speed and
   memory usage.
 * Tests now use RSpec 3.
 
@@ -139,22 +142,22 @@ Removed:
 * The included test-server has been removed. Tests now require a Riak node to
   be configured and run independently of the test suite.
 
-## 1.4.2 Bugfix Release - 2013-09-20
+## `1.4.2` Bugfix Release - 2013-09-20
 
-Release 1.4.2 fixes a couple bugs.
+Release `1.4.2` fixes a couple bugs.
 
 Bugfixes:
 
-* 2i Requests over PBC block forever when 0 results match in 1.4.x,
+* 2i Requests over PBC block forever when 0 results match in `1.4.x`,
   reported by Sean "graphex" McKibben in
   https://github.com/basho/riak-ruby-client/pull/121 and
   https://github.com/basho/riak-ruby-client/pull/122
 * RObject#links is an Array when loaded from PBC, reported by Dan Pisarski in
   https://github.com/basho/riak-ruby-client/pull/123
 
-## 1.4.1 Patch/Bugfix Release - 2013-09-06
+## `1.4.1` Patch/Bugfix Release - 2013-09-06
 
-Release 1.4.1 fixes a few minor bugs and issues.
+Release `1.4.1` fixes a few minor bugs and issues.
 
 Issues:
 
@@ -170,16 +173,16 @@ Bugfixes:
 * Issue when reading Git-based version numbers, reported and fixed by
   jacepp in https://github.com/basho/riak-ruby-client/pull/120
 
-## 1.4.0 Feature Release - 2013-08-16
+## `1.4.0` Feature Release - 2013-08-16
 
-Release 1.4.0 adds support for Riak 1.4 and fixes a few bugs.
+Release `1.4.0` adds support for Riak `1.4` and fixes a few bugs.
 
 Features for all Riak versions:
 
 * Multi-get parallelizes fetching multiple objects from one or more
   buckets.
 
-Features for Riak 1.4 and newer:
+Features for Riak `1.4` and newer:
 
 * Bucket properties are settable and resettable over Protocol Buffers.
 * Distributed counters are implemented by the `Riak::Counter` class.
@@ -193,18 +196,18 @@ Features for Riak 1.4 and newer:
 
 Bugfixes:
 
-* Tests pass and don't stall in Ruby 2.0.
+* Tests pass and don't stall in Ruby `2.0`.
 * Zero-length key and bucket names are forbidden in the client.
-* Test server works with Riak 1.4.
+* Test server works with Riak `1.4`.
 
-## 1.2.0 Feature Release - 2013-05-15
+## `1.2.0` Feature Release - 2013-05-15
 
-Release 1.2.0 adds support for Riak 1.3 and fixes a number of bugs.
+Release `1.2.0` adds support for Riak `1.3` and fixes a number of bugs.
 
 Features:
 
 * The "clear bucket properties" feature has been added. This resets
-  modified bucket properties to the defaults on Riak 1.3+ clusters.
+  modified bucket properties to the defaults on Riak `1.3+` clusters.
 * Anonymous "strfun" MapReduce functions written in Erlang can now be
   sent from the client, if they are enabled on the server-side.
 
@@ -215,19 +218,19 @@ Bugfixes:
   submitting secondary index queries.
 * Search query results returned over PBC are assumed to be UTF-8
   encoded.
-* The newer Excon API is now supported (>= 0.19.0).
+* The newer Excon API is now supported `(>= 0.19.0)`.
 * When enabling the search commit hook, the 'precommit' property will
   now be checked more safely.
 
-## 1.1.1 Patch/Bugfix Release - 2013-01-10
+## `1.1.1` Patch/Bugfix Release - 2013-01-10
 
-Release 1.1.1 fixes a minor bug with Net::HTTP on Ruby 1.8.7 with
+Release `1.1.1` fixes a minor bug with Net::HTTP on Ruby `1.8.7` with
 patch level less than 315, where an exception would cause closing the
 socket before it was opened.
 
-## 1.1.0 Feature Release - 2012-11-07
+## `1.1.0` Feature Release - 2012-11-07
 
-Release 1.1.0 includes full Riak 1.2 compatibility, and includes
+Release `1.1.0` includes full Riak `1.2` compatibility, and includes
 improvements to the handling of siblings, the node generation
 tools, and resolves a number of important bugs.
 
@@ -235,12 +238,12 @@ Features:
 
 * Client features are enabled or disabled based on the detected Riak
   version.
-* Riak 1.2 compatibility, including search and 2I over Protocol
+* Riak `1.2` compatibility, including search and 2I over Protocol
   Buffers.
-* Phaseless MapReduce (which was available in 1.1) is allowed, using
+* Phaseless MapReduce (which was available in `1.1`) is allowed, using
   feature detection to determine whether an exception is raised.
 * Conditional store_object operations on Protocol Buffers use the
-  message features available since Riak 1.0.
+  message features available since Riak `1.0`.
 * The integration test-suite can be run without generating a test
   node, which lets us support riak_test.
 
@@ -272,32 +275,32 @@ Bugfixes:
   required all HTTP requests to use streaming, even if invoked without
   a block.
 
-## 1.0.5 Packaging Fix Release - 2012-10-12
+## `1.0.5` Packaging Fix Release - 2012-10-12
 
-Release 1.0.5 fixes a bug with the RubyGems packaging that
+Release `1.0.5` fixes a bug with the RubyGems packaging that
 inadvertently included the `pkg` directory, which might have included
 old gem versions. No client functionality has changed with this
 release.
 
-## 1.0.4 Patch/Bugfix Release - 2012-07-06
+## `1.0.4` Patch/Bugfix Release - 2012-07-06
 
-Release 1.0.4 fixes some bugs and adds configurable timeouts to the
+Release `1.0.4` fixes some bugs and adds configurable timeouts to the
 Excon HTTP backend.
 
-**NOTE** This will likely be the last release in the 1.0.x series. The
-planned changes for 1.1.x are:
+**NOTE** This will likely be the last release in the `1.0.x` series. The
+planned changes for `1.1.x` are:
 
 * `Riak::Client::Pool` will be replaced by the `innertube` gem, which
   is its extraction.
-* Riak 1.2 will be fully supported, including the new native 2I and
+* Riak `1.2` will be fully supported, including the new native 2I and
   Search features over PBC.
 * A richer exception hierarchy so that applications can deal more
   intelligently with request failures.
 
-Changes in 1.0.4:
+Changes in `1.0.4`:
 
 * A function in the `app_helper` module that does not exist on Riak
-  1.1 and earlier was copied into the KV test backend.
+  `1.1` and earlier was copied into the KV test backend.
 * Excon's configuration logic was made more idempotent.
 * Added timeout support to the Excon HTTP backend. [Mat Brown]
 * Corrected an misnamed constant in Excon which would cause timeouts
@@ -309,9 +312,9 @@ Changes in 1.0.4:
 * Deprecation warnings for later versions of MultiJson are now
   resolved.
 
-## 1.0.3 Patch/Bugfix Release - 2012-04-17
+## `1.0.3` Patch/Bugfix Release - 2012-04-17
 
-Release 1.0.3 fixes some bugs and adds support for secondary indexes
+Release `1.0.3` fixes some bugs and adds support for secondary indexes
 when using `Riak::TestServer`.
 
 * Added tests for secondary index features to the unified backend
@@ -324,7 +327,7 @@ when using `Riak::TestServer`.
   generated nodes.
 * `Riak::Node::Console` no longer overrides the `SIGWINCH` signal
   handler.
-* [Excon](http://rubygems.org/gems/excon) versions >= 0.7.0 are now
+* [Excon](http://rubygems.org/gems/excon) versions >= `0.7.0` are now
   supported.
 * IO-style objects will now be emitted properly when using the
   `NetHTTPBackend`. [#1](https://github.com/basho/riak-ruby-client/issues/1)
@@ -338,14 +341,14 @@ when using `Riak::TestServer`.
 * Nodes should now generate properly when the `riak` script is a
   symlink (e.g. Homebrew). [#26](https://github.com/basho/riak-ruby-client/issues/26)
 
-## 1.0.2 Repackaging - 2012-04-02
+## `1.0.2` Repackaging - 2012-04-02
 
-Release 1.0.2 relaxes the multi_json dependency so that the client
-will function with Rails 3.2. Version 1.0.1 was yanked.
+Release `1.0.2` relaxes the multi_json dependency so that the client
+will function with Rails 3.2. Version `1.0.1` was yanked.
 
-## 1.0.1 Patch/Bugfix Release - 2012-04-02
+## `1.0.1` Patch/Bugfix Release - 2012-04-02
 
-Release 1.0.1 is a minor bugfix/patch release. Included in this
+Release `1.0.1` is a minor bugfix/patch release. Included in this
 release are:
 
 * I18n messages now include the French locale. [Eric Cestari]
@@ -356,18 +359,18 @@ release are:
   is not clobbered by the `Riak::TestServer` when adding the location
   of the test backend code.
 
-## 1.0.0 Feature Release - 2012-02-03
+## `1.0.0` Feature Release - 2012-02-03
 
-Release 1.0.0 is a major feature release and is the first where
+Release `1.0.0` is a major feature release and is the first where
 `riak-client`, `ripple`, and `riak-sessions` will be released
 independently (see below). Because there too many individual changes
 to recount, this entry will cover the major features and bugfixes
 present in the release.
 
-### Riak 1.0/1.1 Compatibility
+### Riak `1.0`/`1.1` Compatibility
 
-`riak-client` is fully compatible with Riak 1.0.x and
-(yet-to-be-released) 1.1.x, including supporting secondary indexes,
+`riak-client` is fully compatible with Riak `1.0.x` and
+(yet-to-be-released) `1.1.x`, including supporting secondary indexes,
 integrated search, and cluster membership commands.
 
 ### Multi-node Connections and Retries
@@ -441,7 +444,7 @@ The new gem and repository locations are below:
 
 ### Significant Known Issues
 
-Attempting to use the Protocol Buffers transport with a 0.14.x cluster
+Attempting to use the Protocol Buffers transport with a `0.14.x` cluster
 may cause the connection to dump because of incompatibilities in
 certain protocol messages. This will be addressed in a future
 patch/bugfix release.
@@ -449,7 +452,7 @@ patch/bugfix release.
 The new node generation and test server intermittently fails on JRuby,
 specifically from deadlocks related to blocking opens for the console
 FIFOs. The JRuby team has helped on this issue, but there may not be a
-clear resolution path until JRuby 1.7 or later.
+clear resolution path until JRuby `1.7` or later.
 
 Other known issues may be found on the
 [Github issue tracker](https://github.com/basho/riak-ruby-client/issues?milestone=1).
