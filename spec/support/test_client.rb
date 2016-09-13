@@ -26,7 +26,7 @@ module TestClient
     rescue Errno::ENOENT => ex
       $stderr.puts("WARNING: could not find file: #{config_path}, exception: #{ex}")
       config = {}
-      config[:pb_port] = 10017
+      config[:pb_port] = ENV['RIAK_PORT'] || 10017
     end
 
     if config[:nodes]
