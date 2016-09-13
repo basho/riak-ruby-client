@@ -24,9 +24,14 @@ module TestClient
       config_path = File.expand_path '../test_client.yml', __FILE__
       config = YAML.load_file(config_path).symbolize_keys
     rescue Errno::ENOENT => ex
-      $stderr.puts("WARNING: could not find file: #{config_path}, exception: #{ex}")
+      # check for RIAK_PORT environment variable if test_client.yml file does not exist
       config = {}
-      config[:pb_port] = 10017
+      if ENV['RIAK_PORT'] != nil
+        config[:pb_port] = ENV['RIAK_PORT']
+      else
+        $stderr.puts("WARNING: could not find file: #{config_path}, exception: #{ex}")
+        config[:pb_port] = 10017
+      end
     end
 
     if config[:nodes]
