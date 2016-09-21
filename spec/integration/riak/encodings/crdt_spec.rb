@@ -76,6 +76,29 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
 
       expect(random_string.encoding.name).to eq expected_encoding
     end
+
+    it 'updates hyper_log_logs' do
+      set = nil
+
+      expect(random_string.encoding.name).to eq expected_encoding
+
+      expect{ set = Riak::Crdt::HyperLogLog.new set_bucket, random_string }.
+        to_not raise_error
+
+      expect(set).to be_a Riak::Crdt::HyperLogLog
+
+      expect(set.include?(random_string)).to_not be
+
+      set.add random_string
+
+      expect(set.include?(random_string)).to be
+
+      set.remove random_string
+
+      expect(set.include?(random_string)).to_not be
+
+      expect(random_string.encoding.name).to eq expected_encoding
+    end
   end
 
   describe 'with utf-8 strings' do

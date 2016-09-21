@@ -82,6 +82,7 @@ describe "CRDTs", integration: true, test_client: true do
       it { is_expected.to eq similar }
     end
   end
+
   describe 'sets' do
 
     subject { Riak::Crdt::Set.new bucket, random_key }
@@ -257,6 +258,64 @@ describe "CRDTs", integration: true, test_client: true do
         expect{ subject.flags['unset'] }.to_not raise_error
         expect(subject.flags['other_unset']).to_not be
       end
+    end
+  end
+
+  describe 'hyper_log_logs' do
+
+    subject { Riak::Crdt::HyperLogLog.new bucket, random_key }
+
+    it 'allows straightforward hyper_log_log ops' do
+      start = subject.members
+      addition = random_key
+
+      subject.add addition
+      expect(subject.include? addition).to be
+      expect(subject.members).to include(addition)
+
+      subject.remove addition
+      expect(subject.include? addition).to_not be
+      expect(subject.members).to_not include(addition)
+      expect(subject.members).to eq(start)
+    end
+
+    it 'lets Riak silently accept removals after reload' do
+      addition = random_key
+      subject.add addition
+
+      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key
+      expect{ other.remove addition }.to raise_error(Riak::CrdtError::SetRemovalWithoutContextError)
+      other.reload
+      expect{ other.remove addition }.to_not raise_error
+      other.reload
+      expect{ other.remove 'an element not in the hyper_log_log' }.to_not raise_error
+    end
+
+    it 'allows batched hyper_log_log ops' do
+      subject.add 'zero'
+      subject.reload
+
+      subject.batch do |s|
+        s.add 'first'
+        s.remove 'zero'
+      end
+
+      expect(subject.members.to_a).to eq %w{first}
+    end
+
+    it 'asks for and accepts a returned body by default' do
+      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key
+
+      expect(subject.include? 'coffee').to_not be
+      expect(other.include? 'coffee').to_not be
+
+      other.add 'coffee'
+      subject.add 'tea'
+
+      expect(subject.dirty?).to_not be
+
+      expect(other.include? 'coffee').to be
+      expect(subject.include? 'coffee').to be
     end
   end
 end
