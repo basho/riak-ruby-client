@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'spec_helper'
 require 'riak'
+require 'riak/util/string'
 
 describe 'Encoding and Riak Search', integration: true, search_config: true do
   let(:bucket_type){ test_client.bucket_type 'yokozuna' }
@@ -72,7 +73,7 @@ EOD
       expect(results).to_not be_empty
       expect(results.docs.first.bucket_type).to eq robj.bucket.type
       expect(results.docs.first.bucket).to eq robj.bucket
-      expect(results.docs.first.key.bytes).to eq robj.key.bytes
+      expect(Riak::Util::String.equal_bytes?(results.docs.first.key, robj.key)).to be
     end
   end
 

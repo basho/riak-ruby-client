@@ -1,20 +1,27 @@
+sudo: required
+dist: trusty
 language: ruby
 rvm:
-- 1.9.3
-- 2.0
-- 2.1
-- 2.2
-- jruby-9.0.5.0
+  - 1.9.3
+  - 2.0
+  - 2.1
+  - 2.2
+  - 2.3
+  - jruby-9.1.5.0
 before_install:
-- gem update --system
-- gem --version
-- gem update bundler
-bundler_args: "--without=guard"
+  - gem update --system
+  - gem --version
+  - gem update bundler
+bundler_args: "--binstubs --path=vendor --without=guard"
+before_script:
+  - cp -vf ./spec/support/test_client.yml.example ./spec/support/test_client.yml
+  - echo 'Test client config:'
+  - cat ./spec/support/test_client.yml
+  - sudo ./tools/travis-ci/riak-install
+  - sudo ./tools/devrel/riak-cluster-config "$(which riak-admin)" 8098 false false
 script:
-- bundle exec rake
-- bundle exec rubocop lib spec
+  - bundle exec rubocop lib spec
+  - bundle exec rake spec spec:integration
 notifications:
-  webhooks: http://basho-engbot.herokuapp.com/travis?key=d9ab1d53db09fc1760d7a5dde3246201522ca2c7
-  email: clients@basho.com
   slack:
-    secure: oIxOxIC/zDeZO1NODNLt3BdAsaunv0u1yZg5c1rfCKzell/UzaF/FRkFRZooIxExSmQO6aoTdCfUMjxyggcoGYXxOkwZxTUP4sLvibl5RiCafDVLMUu1qHSR6pRWldL4tIE+OWd+tYHNmGM92etg6h7AbzMCpMTOngsfVwABrNs=
+    secure: nryEZNlLs0xpMJcrmTRzJIaFdfHWigsD4i9zEI8SgDdHqEgJ52/UfCifWHC7N4UckpRkmMUc8yt/Y4YS7G4Gu4yx4qXNIL33VmuudUe2YEVv+oVnG9oHVPkHDvOkRSLlWyAIqd4uXbLzghYBrHigoinfCcmjjRq5HNocRrvnwdE=

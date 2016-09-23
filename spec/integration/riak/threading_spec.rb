@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe "Multithreaded client", :test_client => true do
+  if ENV['TRAVIS'] == 'true' && RUBY_PLATFORM == 'java'
+    skip 'multithreaded client tests time out on Travis CI'
+    break
+  end
   class Synchronizer
     def initialize(n)
       @mutex = Mutex.new
