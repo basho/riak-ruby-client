@@ -1,0 +1,16 @@
+* text=auto
+
+.rb         text eol=lf
+Makefile    text eol=lf
+.yml        text eol=lf
+.sh         text eol=lf
+.pl         text eol=lf
+.md         text eol=lf
+
+*.jpg  binary
+*.png  binary
+*.gif  binary
+*.ico  binary
+*.bmp  binary
+*.mdf  binary
+*.ldf  binary
