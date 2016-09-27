@@ -1,6 +1,6 @@
 require 'riak/errors/crdt_error'
 
-%w{ operation base inner_register inner_flag counter inner_counter batch_counter map inner_map batch_map set inner_set typed_collection }.each do |f|
+%w{ operation base inner_register inner_flag counter inner_counter batch_counter hyper_log_log map inner_map batch_map set inner_set typed_collection }.each do |f|
   require "riak/crdt/#{f}"
 end
 
@@ -16,7 +16,7 @@ module Riak
       counter: 'counters',
       map: 'maps',
       set: 'sets',
-      hyper_loglog: 'hlls',
+      hyper_log_log: 'hlls',
     }
   end
 end
