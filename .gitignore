@@ -17,6 +17,9 @@ tmtags
 ## VIM
 *.swp
 
+## VS Code
+.vscode/
+
 ## PROJECT::GENERAL
 coverage
 rdoc
