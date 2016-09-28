@@ -68,6 +68,8 @@ module Riak
           case operations.first.type
           when :counter
             serialize_counter operations
+          when :hyper_log_log
+            serialize_hyper_log_log operations
           when :set
             serialize_set operations
           when :map
@@ -167,6 +169,17 @@ module Riak
           SetOp.new(
                     adds: adds.to_a.flatten,
                     removes: removes.to_a.flatten
+                    )
+        end
+
+        def serialize_hyper_log_log(hyper_log_log_ops)
+          adds = ::Set.new
+          hyper_log_log_ops.each do |o|
+            adds.add [o.value[:add]] if o.value[:add]
+          end
+
+          HllOp.new(
+                    adds: adds.to_a.flatten
                     )
         end
 

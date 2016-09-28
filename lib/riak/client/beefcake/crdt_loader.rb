@@ -1,4 +1,5 @@
 require 'riak/client/beefcake/crdt/counter_loader'
+require 'riak/client/beefcake/crdt/hyper_log_log_loader'
 require 'riak/client/beefcake/crdt/map_loader'
 require 'riak/client/beefcake/crdt/set_loader'
 
@@ -47,7 +48,7 @@ module Riak
         def get_loader_for_value(value)
           return nil if value.nil?
 
-          [CounterLoader, MapLoader, SetLoader].map do |loader|
+          [CounterLoader, HyperLogLogLoader, MapLoader, SetLoader].map do |loader|
             loader.for_value value
           end.compact.first
         end
