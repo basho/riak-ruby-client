@@ -18,14 +18,26 @@ describe 'Preflist', integration: true, test_client: true do
   end
 
   it 'is available from RObjects' do
-    expect(robject.preflist).to be_a_preflist
+    begin
+      expect(robject.preflist).to be_a_preflist
+    rescue Riak::ProtobuffsErrorResponse
+      skip('preflists are not supported')
+    end
   end
 
   it 'is available from Buckets' do
-    expect(bucket.get_preflist robject.key).to be_a_preflist
+    begin
+      expect(bucket.get_preflist robject.key).to be_a_preflist
+    rescue Riak::ProtobuffsErrorResponse
+      skip('preflists are not supported')
+    end
   end
 
   it 'is available from the Client' do
-    expect(test_client.get_preflist bucket.name, robject.key).to be_a_preflist
+    begin
+      expect(test_client.get_preflist bucket.name, robject.key).to be_a_preflist
+    rescue Riak::ProtobuffsErrorResponse
+      skip('preflists are not supported')
+    end
   end
 end
