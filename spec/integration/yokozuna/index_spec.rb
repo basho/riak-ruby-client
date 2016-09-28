@@ -50,7 +50,7 @@ describe "Yokozuna", test_client: true, integration: true do
         object.raw_data = {"cat_s"=>"Lela"}.to_json
         object.content_type = 'application/json'
         object.store
-        sleep 1.1  # pause for index commit to trigger
+        sleep 2.1  # pause for index commit to trigger
 
         resp = @client.search(@index, "cat_s:Lela")
         expect(resp).to include('docs')
