@@ -68,7 +68,7 @@ module Riak
           case operations.first.type
           when :counter
             serialize_counter operations
-          when :hyper_log_log
+          when :hll
             serialize_hyper_log_log operations
           when :set
             serialize_set operations

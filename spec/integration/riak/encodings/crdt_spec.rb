@@ -96,7 +96,7 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
       expect(hll).to be_a Riak::Crdt::HyperLogLog
 
       hll.add random_string
-      expect(subject.value).to be_a(Integer)
+      expect(hll.value).to be_a(Integer)
 
       expect(random_string.encoding.name).to eq expected_encoding
     end

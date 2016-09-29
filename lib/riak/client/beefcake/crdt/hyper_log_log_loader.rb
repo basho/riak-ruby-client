@@ -11,7 +11,7 @@ class Riak::Client::BeefcakeProtobuffsBackend
       end
 
       def rubyfy
-        ::Set.new @value
+        @value
       end
     end
   end

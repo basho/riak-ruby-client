@@ -65,7 +65,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
     let(:added_element){ 'added_element' }
     let(:operation) do
       Riak::Crdt::Operation::Update.new.tap do |op|
-        op.type = :set
+        op.type = :hll
         op.value = {
           add: [added_element]
         }
@@ -78,8 +78,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect{result.encode}.to_not raise_error
 
       expect(result).to be_a backend_class::DtOp
-      expect(result.set_op).to be_a backend_class::HllOp
-      expect(result.set_op.adds).to eq [added_element]
+      expect(result.hyper_log_log_op).to be_a backend_class::HllOp
+      expect(result.hyper_log_log_op.adds).to eq [added_element]
     end
   end
 

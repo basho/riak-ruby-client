@@ -277,24 +277,24 @@ describe 'Bucket Types', test_client: true, integration: true do
         end
       end
 
-      let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:hyper_log_log] }
-      let(:hyper_log_log) do
-        hyper_log_log = Riak::Crdt::Set.new bucket, random_key
+      let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll] }
+      let(:hll) do
+        hyper_log_log = Riak::Crdt::HyperLogLog.new bucket, random_key
         hyper_log_log.add random_key
         hyper_log_log
       end
 
       it 'retrieves the set blob via key-value using a bucket type' do
-        expect{ bucket.get hyper_log_log.key }.to raise_error /not_found/
-        expect(bucket.get hyper_log_log.key, type: bucket_type).to be
+        expect{ bucket.get hll.key }.to raise_error /not_found/
+        expect(bucket.get hll.key, type: bucket_type).to be
       end
 
       it 'deletes the hyper_log_log blob through the bucket type' do
-        expect(bucket.delete hyper_log_log.key).to be
-        expect{ bucket.get hyper_log_log.key, type: bucket_type }.to_not raise_error
+        expect(bucket.delete hll.key).to be
+        expect{ bucket.get hll.key, type: bucket_type }.to_not raise_error
 
-        expect(bucket.delete hyper_log_log.key, type: bucket_type).to be
-        expect{ bucket.get hyper_log_log.key, type: bucket_type }.to raise_error /not_found/
+        expect(bucket.delete hll.key, type: bucket_type).to be
+        expect{ bucket.get hll.key, type: bucket_type }.to raise_error /not_found/
       end
     end
   end

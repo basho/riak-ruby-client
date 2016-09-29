@@ -16,7 +16,7 @@ module Riak
       counter: 'counters',
       map: 'maps',
       set: 'sets',
-      hyper_log_log: 'hlls',
+      hll: 'hlls',
     }
   end
 end

@@ -20,7 +20,7 @@ module Riak
       # @param [String] bucket_type The optional bucket type for this set.
       # @param options [Hash]
       def initialize(bucket, key, bucket_type = nil, options = {})
-        super(bucket, key, bucket_type || :hyper_log_log, options)
+        super(bucket, key, bucket_type || :hll, options)
       end
 
       # Gets the current HLL value from Riak
@@ -30,15 +30,7 @@ module Riak
         reload if dirty?
         @value
       end
-
-      # Gets the current set members from Riak if necessary, and return the
-      # stdlib `::Set` of them.
-      #
-      # @return [::Set] a Ruby standard library {::Set} of the members
-      #                 of this {Riak::Crdt::Set}
-      def members
-        @members
-      end
+      alias :cardinality :value
 
       # Add a {String} to the {Riak::Crdt::HyperLogLog}
       #
@@ -62,7 +54,7 @@ module Riak
 
       def operation(direction, element)
         Operation::Update.new.tap do |op|
-          op.type = :hyper_log_log
+          op.type = :hll
           op.value = { direction => element }
         end
       end
