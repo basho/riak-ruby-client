@@ -271,8 +271,8 @@ describe 'Bucket Types', test_client: true, integration: true do
       before(:each) do
         begin
           hlls = test_client.bucket_type 'hlls'
-          props = hlls.properties
-        rescue Riak::ProtobuffsErrorResponse => e
+          hlls.properties
+        rescue Riak::ProtobuffsErrorResponse
           skip('HyperLogLog bucket-type not found or active.')
         end
       end

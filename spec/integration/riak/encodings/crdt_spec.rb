@@ -14,6 +14,9 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
     let(:set_bucket) do
       test_client.bucket_type('sets').bucket(random_string)
     end
+    let(:hll_bucket) do
+      test_client.bucket_type('hlls').bucket(random_string)
+    end
 
     it 'creates counters' do
       counter = nil
@@ -80,19 +83,19 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
     it 'updates hyper_log_logs', hll: true do
       begin
         hlls = test_client.bucket_type 'hlls'
-        props = hlls.properties
-      rescue Riak::ProtobuffsErrorResponse => e
+        hlls.properties
+      rescue Riak::ProtobuffsErrorResponse
         skip('HyperLogLog bucket-type not found or active.')
       end
 
-      set = nil
+      hll = nil
 
       expect(random_string.encoding.name).to eq expected_encoding
 
-      expect{ set = Riak::Crdt::HyperLogLog.new set_bucket, random_string }.to_not raise_error
-      expect(set).to be_a Riak::Crdt::HyperLogLog
+      expect{ hll = Riak::Crdt::HyperLogLog.new hll_bucket, random_string }.to_not raise_error
+      expect(hll).to be_a Riak::Crdt::HyperLogLog
 
-      set.add random_string
+      hll.add random_string
       expect(subject.value).to be_a(Integer)
 
       expect(random_string.encoding.name).to eq expected_encoding
