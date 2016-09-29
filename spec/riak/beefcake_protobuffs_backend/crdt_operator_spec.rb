@@ -78,8 +78,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
       expect{result.encode}.to_not raise_error
 
       expect(result).to be_a backend_class::DtOp
-      expect(result.hyper_log_log_op).to be_a backend_class::HllOp
-      expect(result.hyper_log_log_op.adds).to eq [added_element]
+      expect(result.hll_op).to be_a backend_class::HllOp
+      expect(result.hll_op.adds).to eq [added_element]
     end
   end
 
