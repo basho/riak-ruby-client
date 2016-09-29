@@ -78,6 +78,10 @@ shared_examples_for 'HyperLogLog CRDT' do
     expect(subject).to respond_to :value
   end
 
+  it 'has a cardinality' do
+    expect(subject).to respond_to :cardinality
+  end
+
   it 'has an add method' do
     expect(subject).to respond_to :add
   end

@@ -7,17 +7,17 @@ module Riak
     class HyperLogLog < Base
       include Util::String
 
-      # Create a set instance. The bucket type is determined by the first of
+      # Create a HLL instance. The bucket type is determined by the first of
       # these sources:
       #
       # 1. The `bucket_type` String argument
       # 2. A {BucketTyped::Bucket} as the `bucket` argument
-      # 3. The `Crdt::Base::DEFAULT_BUCKET_TYPES[:set]` entry
+      # 3. The `Crdt::Base::DEFAULT_BUCKET_TYPES[:hll]` entry
       #
       # @param bucket [Bucket] the {Riak::Bucket} for this set
       # @param [String, nil] key The name of the set. A nil key makes
       #        Riak assign a key.
-      # @param [String] bucket_type The optional bucket type for this set.
+      # @param [String] bucket_type The bucket type for this HLL datatype
       # @param options [Hash]
       def initialize(bucket, key, bucket_type = nil, options = {})
         super(bucket, key, bucket_type || :hll, options)

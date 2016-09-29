@@ -262,7 +262,7 @@ describe "CRDTs", integration: true, test_client: true do
     end
   end
 
-  describe 'hyper_log_logs', hll: true do
+  describe 'HLLs', hll: true do
     before(:each) do
       begin
         hlls = test_client.bucket_type 'hlls'
@@ -272,20 +272,45 @@ describe "CRDTs", integration: true, test_client: true do
       end
     end
 
-    subject { Riak::Crdt::HyperLogLog.new bucket, random_key }
+    subject { Riak::Crdt::HyperLogLog.new bucket, random_key, Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll] }
 
-    it 'allows straightforward hyper_log_log ops' do
+    it 'allows straightforward HLL ops' do
       addition = random_key
 
       subject.add addition
+
       expect(subject.value).to be_a(Integer)
+      expect(subject.value).to eq 1
     end
 
     it 'asks for and accepts a returned body by default' do
-      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key
+      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key, Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
 
       other.add 'coffee'
+
+      expect(other.value).to be_a(Integer)
+      expect(other.value).to eq 1
+
+      expect(subject.value).to eq 1
+
       subject.add 'tea'
+
+      expect(subject.value).to be_a(Integer)
+      expect(subject.value).to eq 2
+
+      other.reload
+      expect(other.value).to eq 2
+
+      other.add 'juice'
+
+      expect(other.value).to be_a(Integer)
+      expect(other.value).to eq 3
+
+      # repeat input to verify the HLL value doesn't increment
+      other.add 'juice'
+
+      expect(other.value).to be_a(Integer)
+      expect(other.value).to eq 3
 
       expect(subject.dirty?).to_not be
     end

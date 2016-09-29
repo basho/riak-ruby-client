@@ -10,8 +10,8 @@ describe Riak::Crdt::HyperLogLog, hll: true do
     end
   end
 
-  it 'initializes with bucket, key, and optional bucket-type' do
-    expect{described_class.new bucket, 'key', 'optional bucket type'}.
+  it 'initializes with bucket, key, and bucket-type' do
+    expect{described_class.new bucket, 'key', 'bucket type'}.
       to_not raise_error
   end
 
