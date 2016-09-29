@@ -23,14 +23,21 @@ module Riak
         super(bucket, key, bucket_type || :hyper_log_log, options)
       end
 
-      # Gets the current set value from Riak if necessary, and return the
-      # stdlib `::HyperLogLog` of them.
+      # Gets the current HLL value from Riak
       #
-      # @return [::HyperLogLog] a Ruby standard library {::HyperLogLog} of the value
-      #                 of this {Riak::Crdt::HyperLogLog}
+      # @return [Integer]
       def value
         reload if dirty?
         @value
+      end
+
+      # Gets the current set members from Riak if necessary, and return the
+      # stdlib `::Set` of them.
+      #
+      # @return [::Set] a Ruby standard library {::Set} of the members
+      #                 of this {Riak::Crdt::Set}
+      def members
+        @members
       end
 
       # Add a {String} to the {Riak::Crdt::HyperLogLog}
