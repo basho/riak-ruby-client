@@ -23,57 +23,14 @@ module Riak
         super(bucket, key, bucket_type || :hyper_log_log, options)
       end
 
-      # Yields a `BatchSet` to proxy multiple set operations into a single
-      # Riak update. The `BatchSet` has the same methods as this
-      # {Riak::Crdt::HyperLogLog}.
-      #
-      # @yieldparam batch_set [BatchSet] collects set operations
-      def vivify(value)
-        value.each(&:freeze)
-        @members = ::Set.new(value)
-        @members.freeze
-      end
-
-      def batch
-        batcher = BatchSet.new self
-
-        yield batcher
-
-        operate batcher.operations
-      end
-
-      # Gets the current set members from Riak if necessary, and return the
+      # Gets the current set value from Riak if necessary, and return the
       # stdlib `::HyperLogLog` of them.
       #
-      # @return [::HyperLogLog] a Ruby standard library {::HyperLogLog} of the members
+      # @return [::HyperLogLog] a Ruby standard library {::HyperLogLog} of the value
       #                 of this {Riak::Crdt::HyperLogLog}
-      def members
+      def value
         reload if dirty?
-        @members
-      end
-
-      alias :value :members
-
-      # Cast this {Riak::Crdt::HyperLogLog} to a Ruby {Array}.
-      #
-      # @return [Array] array of set members
-      def to_a
-        members.to_a
-      end
-
-      # Check to see if this structure has any members.
-      #
-      # @return [Boolean] if the structure is empty
-      def empty?
-        members.empty?
-      end
-
-      # Check to see if a given string is present in this data structure.
-      #
-      # @param [String] candidate string to check for inclusion in this structure
-      # @return [Boolean] if the structure includes
-      def include?(candidate)
-        members.any? { |m| equal_bytes?(m, candidate) }
+        @value
       end
 
       # Add a {String} to the {Riak::Crdt::HyperLogLog}
@@ -84,17 +41,6 @@ module Riak
         operate operation(:add, element), options
       end
 
-      # Remove a {String} from the {Riak::Crdt::HyperLogLog}
-      #
-      # @param [String] element to remove from the set
-      # @param [Hash] options
-      def remove(element, options = {})
-        raise CrdtError::SetRemovalWithoutContextError unless context?
-        operate operation(:remove, element), options
-      end
-
-      alias :delete :remove
-
       def pretty_print(pp)
         super pp do
           pp.comma_breakable
@@ -104,61 +50,13 @@ module Riak
 
       private
       def vivify(value)
-        @members = value
+        @value = value
       end
 
       def operation(direction, element)
         Operation::Update.new.tap do |op|
           op.type = :hyper_log_log
           op.value = { direction => element }
-        end
-      end
-
-      class BatchHyperLogLog
-        def initialize(base)
-          @base = base
-          @adds = ::Set.new
-          @removes = ::Set.new
-        end
-
-        def add(element)
-          @adds.add element
-        end
-
-        def remove(element)
-          raise CrdtError::SetRemovalWithoutContextError.new unless context?
-          @removes.add element
-        end
-
-        alias :delete :remove
-
-        def include?(element)
-          members.include? element
-        end
-
-        def empty?
-          members.empty?
-        end
-
-        def context?
-          @base.context?
-        end
-
-        def to_a
-          members.to_a
-        end
-
-        def members
-          (@base + @adds).subtract @removes
-        end
-
-        alias :value :members
-
-        def operations
-          Operation::Update.new.tap do |op|
-            op.type = :hyper_log_log
-            op.value = {add: @adds.to_a, remove: @removes.to_a}
-          end
         end
       end
     end

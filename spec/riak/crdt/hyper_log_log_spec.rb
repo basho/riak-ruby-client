@@ -1,7 +1,7 @@
 require 'spec_helper'
 require_relative 'shared_examples'
 
-describe Riak::Crdt::HyperLogLog do
+describe Riak::Crdt::HyperLogLog, hll: true do
   let(:bucket) do
     double('bucket').tap do |b|
       allow(b).to receive(:name).and_return('bucket')
@@ -32,30 +32,5 @@ describe Riak::Crdt::HyperLogLog do
     end
 
     include_examples 'HyperLogLog CRDT'
-
-    it 'batches properly' do
-      expect(operator).
-        to receive(:operate) { |bucket, key, type, operations|
-
-        expect(bucket).to eq bucket
-        expect(key).to eq 'key'
-        expect(type).to eq subject.bucket_type
-
-        expect(operations).to be_a Riak::Crdt::Operation::Update
-        expect(operations.value).to eq({
-                                         add: %w{alpha bravo},
-                                         remove: %w{foxtrot}
-                                       })
-      }.
-        and_return(response)
-
-      subject.instance_variable_set :@context, 'placeholder'
-
-      subject.batch do |s|
-        s.add 'alpha'
-        s.add 'bravo'
-        s.remove 'foxtrot'
-      end
-    end
   end
 end

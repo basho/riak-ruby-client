@@ -77,25 +77,23 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
       expect(random_string.encoding.name).to eq expected_encoding
     end
 
-    it 'updates hyper_log_logs' do
+    it 'updates hyper_log_logs', hll: true do
+      begin
+        hlls = test_client.bucket_type 'hlls'
+        props = hlls.properties
+      rescue Riak::ProtobuffsErrorResponse => e
+        skip('HyperLogLog bucket-type not found or active.')
+      end
+
       set = nil
 
       expect(random_string.encoding.name).to eq expected_encoding
 
-      expect{ set = Riak::Crdt::HyperLogLog.new set_bucket, random_string }.
-        to_not raise_error
-
+      expect{ set = Riak::Crdt::HyperLogLog.new set_bucket, random_string }.to_not raise_error
       expect(set).to be_a Riak::Crdt::HyperLogLog
 
-      expect(set.include?(random_string)).to_not be
-
       set.add random_string
-
-      expect(set.include?(random_string)).to be
-
-      set.remove random_string
-
-      expect(set.include?(random_string)).to_not be
+      expect(subject.value).to be_a(Integer)
 
       expect(random_string.encoding.name).to eq expected_encoding
     end
