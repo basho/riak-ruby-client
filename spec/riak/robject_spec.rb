@@ -535,10 +535,8 @@ describe Riak::RObject do
       @object.revive
       @object.content_type = "text/plain"
       @object.data = "This is some text."
-      expect(@backend).to receive(:store_object)
-                           .and_return(true)
-      @object.store()
+      expect(@backend).to receive(:store_object).and_return(true)
+      @object.store
     end
-
   end
 end
