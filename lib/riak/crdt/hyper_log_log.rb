@@ -32,6 +32,14 @@ module Riak
       end
       alias :cardinality :value
 
+      def batch
+        batcher = BatchHyperLogLog.new self
+
+        yield batcher
+
+        operate batcher.operations
+      end
+
       # Add a {String} to the {Riak::Crdt::HyperLogLog}
       #
       # @param [String] element the element to add to the set
@@ -56,6 +64,32 @@ module Riak
         Operation::Update.new.tap do |op|
           op.type = :hll
           op.value = { direction => element }
+        end
+      end
+
+      class BatchHyperLogLog
+        def initialize(base)
+          @base = base
+          @adds = ::Set.new
+        end
+
+        def add(element)
+          @adds.add element
+        end
+
+        def to_a
+          @adds.to_a
+        end
+
+        def value
+          @adds
+        end
+
+        def operations
+          Operation::Update.new.tap do |op|
+            op.type = :hll
+            op.value = {add: @adds.to_a}
+          end
         end
       end
     end

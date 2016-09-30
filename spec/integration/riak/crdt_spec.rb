@@ -314,5 +314,19 @@ describe "CRDTs", integration: true, test_client: true do
 
       expect(subject.dirty?).to_not be
     end
+
+    it 'allows batched HLL ops' do
+      subject.add 'zero'
+      subject.reload
+
+      subject.batch do |s|
+        s.add 'first'
+        s.add 'second'
+        s.add 'second'
+      end
+
+      expect(subject.value).to be_a(Integer)
+      expect(subject.value).to eq 3
+    end
   end
 end

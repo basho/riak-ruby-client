@@ -32,5 +32,25 @@ describe Riak::Crdt::HyperLogLog, hll: true do
     end
 
     include_examples 'HyperLogLog CRDT'
+
+    it 'batches properly' do
+      expect(operator).
+        to receive(:operate) { |bucket, key, type, operations|
+          expect(bucket).to eq bucket
+          expect(key).to eq 'key'
+          expect(type).to eq subject.bucket_type
+
+          expect(operations).to be_a Riak::Crdt::Operation::Update
+          expect(operations.value).to eq({add: %w{alpha bravo}})
+        }.
+        and_return(response)
+
+      subject.instance_variable_set :@context, 'placeholder'
+
+      subject.batch do |s|
+        s.add 'alpha'
+        s.add 'bravo'
+      end
+    end
   end
 end
