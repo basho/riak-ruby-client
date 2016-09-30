@@ -61,6 +61,28 @@ describe Riak::Client::BeefcakeProtobuffsBackend::CrdtOperator do
     end
   end
 
+  describe 'operating on a hyper_log_log' do
+    let(:added_element){ 'added_element' }
+    let(:operation) do
+      Riak::Crdt::Operation::Update.new.tap do |op|
+        op.type = :hll
+        op.value = {
+          add: [added_element]
+        }
+      end
+    end
+
+    it 'serializes a hyper_log_log operation into protobuffs' do
+      result = subject.serialize operation
+
+      expect{result.encode}.to_not raise_error
+
+      expect(result).to be_a backend_class::DtOp
+      expect(result.hll_op).to be_a backend_class::HllOp
+      expect(result.hll_op.adds).to eq [added_element]
+    end
+  end
+
   describe 'operating on a map' do
     it 'serializes inner counter operations' do
       counter_op = Riak::Crdt::Operation::Update.new.tap do |op|

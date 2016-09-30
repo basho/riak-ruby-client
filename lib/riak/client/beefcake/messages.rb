@@ -150,6 +150,7 @@ class RpbBucketProps
   optional :datatype, :bytes, 26
   optional :consistent, :bool, 27
   optional :write_once, :bool, 28
+  optional :hll_precision, :uint32, 29
 end
 
 class RpbAuthReq
@@ -682,6 +683,7 @@ class DtFetchResp
     COUNTER = 1
     SET = 2
     MAP = 3
+    HLL = 4
   end
 end
 
@@ -690,6 +692,10 @@ class CounterOp
 end
 
 class SetOp
+  include Beefcake::Message
+end
+
+class HllOp
   include Beefcake::Message
 end
 
@@ -750,6 +756,7 @@ class DtValue
   optional :counter_value, :sint64, 1
   repeated :set_value, :bytes, 2
   repeated :map_value, MapEntry, 3
+  optional :hll_value, :uint64, 4
 end
 
 class DtFetchResp
@@ -765,6 +772,10 @@ end
 class SetOp
   repeated :adds, :bytes, 1
   repeated :removes, :bytes, 2
+end
+
+class HllOp
+  repeated :adds, :bytes, 1
 end
 
 class MapUpdate
@@ -785,6 +796,7 @@ class DtOp
   optional :counter_op, CounterOp, 1
   optional :set_op, SetOp, 2
   optional :map_op, MapOp, 3
+  optional :hll_op, HllOp, 4
 end
 
 class DtUpdateReq
@@ -809,6 +821,7 @@ class DtUpdateResp
   optional :counter_value, :sint64, 3
   repeated :set_value, :bytes, 4
   repeated :map_value, MapEntry, 5
+  optional :hll_value, :uint64, 6
 end
 ## Generated from riak_ts.proto
 require "beefcake"
@@ -878,9 +891,26 @@ class TsListKeysResp
   include Beefcake::Message
 end
 
+class TsCoverageReq
+  include Beefcake::Message
+end
+
+class TsCoverageResp
+  include Beefcake::Message
+end
+
+class TsCoverageEntry
+  include Beefcake::Message
+end
+
+class TsRange
+  include Beefcake::Message
+end
+
 class TsQueryReq
   optional :query, TsInterpolation, 1
   optional :stream, :bool, 2, :default => false
+  optional :cover_context, :bytes, 3
 end
 
 class TsQueryResp
@@ -949,6 +979,33 @@ end
 class TsListKeysResp
   repeated :keys, TsRow, 1
   optional :done, :bool, 2
+end
+
+class TsCoverageReq
+  optional :query, TsInterpolation, 1
+  required :table, :bytes, 2
+  optional :replace_cover, :bytes, 3
+  repeated :unavailable_cover, :bytes, 4
+end
+
+class TsCoverageResp
+  repeated :entries, TsCoverageEntry, 1
+end
+
+class TsCoverageEntry
+  required :ip, :bytes, 1
+  required :port, :uint32, 2
+  required :cover_context, :bytes, 3
+  optional :range, TsRange, 4
+end
+
+class TsRange
+  required :field_name, :bytes, 1
+  required :lower_bound, :sint64, 2
+  required :lower_bound_inclusive, :bool, 3
+  required :upper_bound, :sint64, 4
+  required :upper_bound_inclusive, :bool, 5
+  required :desc, :bytes, 6
 end
 
     end

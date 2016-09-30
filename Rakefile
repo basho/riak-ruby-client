@@ -113,7 +113,7 @@ namespace :beefcake do
 
   directory 'tmp/riak_pb' => 'tmp' do
     cd 'tmp' do
-      sh "git clone -b 2.1.3.0 https://github.com/basho/riak_pb.git"
+      sh "git clone -b 2.2 https://github.com/basho/riak_pb.git"
     end
   end
 end

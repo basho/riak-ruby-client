@@ -477,6 +477,7 @@ Style/EmptyLinesAroundModuleBody:
     - 'lib/riak/crdt/counter.rb'
     - 'lib/riak/crdt/map.rb'
     - 'lib/riak/crdt/set.rb'
+    - 'lib/riak/crdt/hyper_log_log.rb'
     - 'lib/riak/errors/base.rb'
     - 'lib/riak/index_collection.rb'
     - 'lib/riak/search/result_collection.rb'

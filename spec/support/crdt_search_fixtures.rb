@@ -4,7 +4,7 @@ module CrdtSearchFixtures
   end
 
   def maps_type_name
-    'maps'
+    Riak::Crdt::DEFAULT_BUCKET_TYPES[:map]
   end
 
   def maps_bucket_type

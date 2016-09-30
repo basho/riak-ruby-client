@@ -92,6 +92,15 @@ module Riak::Search
       return crdt if check_type_class Riak::Crdt::Set
     end
 
+    # If the result document describes a set, return it.
+    #
+    # @return [Riak::Crdt::HyperLogLog]
+    # @raise [Riak::CrdtError::NotACrdt] if the result is not a CRDT
+    # @raise [Riak::CrdtError::UnexpectedDataType] if the CRDT is not a hyper_log_log
+    def hyper_log_log
+      return crdt if check_type_class Riak::Crdt::HyperLogLog
+    end
+
     # Provides access to other parts of the result document without
     # materializing them. Useful when querying non-default fields.
     #

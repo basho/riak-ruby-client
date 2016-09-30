@@ -266,5 +266,43 @@ describe 'Bucket Types', test_client: true, integration: true do
         expect{ bucket.get set.key, type: bucket_type }.to raise_error /not_found/
       end
     end
+
+    describe 'performing CRDT HLL operations', hll: true do
+      before(:each) do
+        begin
+          hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
+          hlls.properties
+        rescue Riak::ProtobuffsErrorResponse
+          skip('HyperLogLog bucket-type not found or active.')
+        end
+      end
+
+      let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll] }
+      let(:hll) do
+        hyper_log_log = Riak::Crdt::HyperLogLog.new bucket, random_key, bucket_type
+        hyper_log_log.add random_key
+        hyper_log_log
+      end
+      let(:empty_hll) do
+        Riak::Crdt::HyperLogLog.new bucket, random_key, bucket_type
+      end
+
+      it 'defaults to 0 for a new key' do
+        expect(empty_hll.cardinality).to eq 0
+      end
+
+      it 'retrieves the HLL blob via key-value using a bucket type' do
+        expect{ bucket.get hll.key }.to raise_error /not_found/
+        expect(bucket.get hll.key, type: bucket_type).to be
+      end
+
+      it 'deletes the HLL blob through the bucket type' do
+        expect(bucket.delete hll.key).to be
+        expect{ bucket.get hll.key, type: bucket_type }.to_not raise_error
+
+        expect(bucket.delete hll.key, type: bucket_type).to be
+        expect{ bucket.get hll.key, type: bucket_type }.to raise_error /not_found/
+      end
+    end
   end
 end

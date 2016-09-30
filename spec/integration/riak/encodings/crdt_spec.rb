@@ -6,13 +6,16 @@ require 'riak/util/string'
 describe 'Encoding and CRDTs', integration: true, search_config: true do
   shared_examples 'CRDTs with weird names' do
     let(:counter_bucket) do
-      test_client.bucket_type('counters').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:counter]).bucket(random_string)
     end
     let(:map_bucket) do
-      test_client.bucket_type('maps').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:map]).bucket(random_string)
     end
     let(:set_bucket) do
-      test_client.bucket_type('sets').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:set]).bucket(random_string)
+    end
+    let(:hll_bucket) do
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]).bucket(random_string)
     end
 
     it 'creates counters' do
@@ -73,6 +76,29 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
       set.remove random_string
 
       expect(set.include?(random_string)).to_not be
+
+      expect(random_string.encoding.name).to eq expected_encoding
+    end
+
+    it 'updates hyper_log_logs', hll: true do
+      begin
+        hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
+        hlls.properties
+      rescue Riak::ProtobuffsErrorResponse
+        skip('HyperLogLog bucket-type not found or active.')
+      end
+
+      hll = nil
+
+      expect(random_string.encoding.name).to eq expected_encoding
+
+      expect{ hll = Riak::Crdt::HyperLogLog.new hll_bucket, random_string }.to_not raise_error
+      expect(hll).to be_a Riak::Crdt::HyperLogLog
+
+      hll.add random_string
+
+      expect(hll.value).to be_a(Integer)
+      expect(hll.value).to eq 1
 
       expect(random_string.encoding.name).to eq expected_encoding
     end
