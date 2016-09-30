@@ -1,6 +1,7 @@
 require 'forwardable'
 require 'riak/rcontent'
 require 'riak/conflict'
+require 'riak/tombstone'
 require 'riak/util/translation'
 require 'riak/util/escape'
 require 'riak/bucket'
@@ -141,6 +142,7 @@ module Riak
     # @raise [Conflict] if the object has siblings
     def store(options = {})
       fail Conflict, self if conflict?
+      fail Tombstone, self if tombstone?
       raise ArgumentError, t('content_type_undefined') unless content_type.present?
       raise ArgumentError, t('zero_length_key') if key == ''
       # NB: key can be nil to indicate that Riak should generate one
@@ -188,12 +190,26 @@ module Riak
     # @raise [Conflict] when multiple siblings are present
     def content
       raise Conflict, self if conflict?
+      raise Tombstone, self if tombstone?
       @siblings.first
     end
 
     # @return [true,false] Whether this object has conflicting sibling objects (divergent vclocks)
     def conflict?
-      @siblings.size != 1
+      @siblings.size > 1
+    end
+
+    # @return [true,false] Whether this object is a Riak tombstone (has no RContents, but contains a vclock)
+    def tombstone?
+      @siblings.empty? && !@vclock.nil?
+    end
+
+    # Will "revive" a tombstone object by giving it a new content.
+    # If the object is not a tombstone, will just return self.
+    # @return [Riak::RObject] self
+    def revive
+      @siblings = [ RContent.new(self) ] if tombstone?
+      self
     end
 
     # @return [String] A representation suitable for IRB and debugging output

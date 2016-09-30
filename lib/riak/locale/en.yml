@@ -102,6 +102,7 @@ en:
       serialize_big_integer: "%{bignum} is out of range for sint64 field"
       serialize_complex_number: "Cannot serialize Complex numbers"
       serialize_rational_number: "Cannot serialize Rational numbers without losing precision"
+    tombstone_object: "The object is a tombstone (has vclock but no values) and cannot be treated singly or saved: %{robject}"
     too_few_arguments: "too few arguments: %{params}"
     walk_spec_invalid_unless_link: "WalkSpec is only valid for a function when the type is :link"
     wrong_argument_count_walk_spec: "wrong number of arguments (one Hash or bucket,tag,keep required)"
