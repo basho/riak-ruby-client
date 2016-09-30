@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'riak'
 
 describe "CRDT configuration", integration: true, test_client: true do
-  SETS = Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] 
+  SETS = Riak::Crdt::DEFAULT_BUCKET_TYPES[:set]
   let(:bucket) { random_bucket }
 
   it "allows default bucket-types to be configured for each data type" do
