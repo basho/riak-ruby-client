@@ -283,6 +283,13 @@ describe 'Bucket Types', test_client: true, integration: true do
         hyper_log_log.add random_key
         hyper_log_log
       end
+      let(:empty_hll) do
+        Riak::Crdt::HyperLogLog.new bucket, random_key, bucket_type
+      end
+
+      it 'defaults to 0 for a new key' do
+        expect(empty_hll.cardinality).to eq 0
+      end
 
       it 'retrieves the HLL blob via key-value using a bucket type' do
         expect{ bucket.get hll.key }.to raise_error /not_found/

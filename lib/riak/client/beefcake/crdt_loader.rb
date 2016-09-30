@@ -77,6 +77,8 @@ module Riak
               registers: {},
               sets: {},
             }
+          when DtFetchResp::DataType::HLL
+            0
           end
         end
       end
