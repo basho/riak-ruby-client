@@ -216,6 +216,10 @@ describe Riak::RObject do
       expect(@object.conflict?).to be_falsey
     end
 
+    it "doesn't set tombstone when there is none" do
+      expect(@object.tombstone?).to be_falsey
+    end
+
     it 'returns [RContent] for siblings' do
       expect(@object.siblings).to eq([@object.content])
     end
@@ -493,5 +497,48 @@ describe Riak::RObject do
       expect(conflicted_robject.attempt_conflict_resolution).to be(conflicted_robject)
       expect(invoked_resolvers).to eq([:resolver_1, :resolver_2])
     end
+  end
+
+  describe "when working with a tombstone object" do
+    before :each do
+      @backend = double("Backend")
+      allow(@client).to receive(:backend).and_yield(@backend)
+      @object =Riak::RObject.new(@bucket)
+      @object.siblings.clear
+      @object.vclock = "notnil"
+    end
+
+    it "sets the tombstone flag" do
+      expect(@object.tombstone?).to be true
+    end
+
+    it "does not set the conflict flag" do
+      expect(@object.conflict?).to be_falsey
+    end
+
+    it "does not allow you to store a tombstone" do
+      expect { @object.store }.to raise_error(Riak::Tombstone)
+    end
+
+    it "does not allow you to fetch a value" do
+      expect { @object.content }.to raise_error(Riak::Tombstone)
+    end
+
+    it "allows you to revive the object" do
+      @object.revive
+      expect(@object.tombstone?).to be_falsey
+      expect(@object.siblings.empty?).to be_falsey
+    end
+
+    it "allows revived objects to be stored" do
+      expect(@object.tombstone?).to be true
+      @object.revive
+      @object.content_type = "text/plain"
+      @object.data = "This is some text."
+      expect(@backend).to receive(:store_object)
+                           .and_return(true)
+      @object.store()
+    end
+
   end
 end
