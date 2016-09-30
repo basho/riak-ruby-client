@@ -11,7 +11,8 @@ module Riak
 
     # These are the default bucket types for the three top-level data types.
     # Broadly, CRDTs require allow_mult to be enabled, and the `datatype`
-    # property to be set to the appropriate atom (`counter`, `map`, or `set`).
+    # property to be set to the appropriate atom (`counter`, `map`, `set`
+    # or 'hll').
     DEFAULT_BUCKET_TYPES = {
       counter: 'counters',
       map: 'maps',
