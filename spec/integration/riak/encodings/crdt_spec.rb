@@ -6,16 +6,16 @@ require 'riak/util/string'
 describe 'Encoding and CRDTs', integration: true, search_config: true do
   shared_examples 'CRDTs with weird names' do
     let(:counter_bucket) do
-      test_client.bucket_type('counters').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:counter]).bucket(random_string)
     end
     let(:map_bucket) do
-      test_client.bucket_type('maps').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:map]).bucket(random_string)
     end
     let(:set_bucket) do
-      test_client.bucket_type('sets').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:set]).bucket(random_string)
     end
     let(:hll_bucket) do
-      test_client.bucket_type('hlls').bucket(random_string)
+      test_client.bucket_type(Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]).bucket(random_string)
     end
 
     it 'creates counters' do
@@ -82,7 +82,7 @@ describe 'Encoding and CRDTs', integration: true, search_config: true do
 
     it 'updates hyper_log_logs', hll: true do
       begin
-        hlls = test_client.bucket_type 'hlls'
+        hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
         hlls.properties
       rescue Riak::ProtobuffsErrorResponse
         skip('HyperLogLog bucket-type not found or active.')

@@ -2,16 +2,17 @@ require 'spec_helper'
 require 'riak'
 
 describe "CRDT configuration", integration: true, test_client: true do
+  SETS = Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] 
   let(:bucket) { random_bucket }
 
   it "allows default bucket-types to be configured for each data type" do
-    expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
+    expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq SETS
 
     Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'new_set_default'
     expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'new_set_default'
 
-    Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = 'sets'
-    expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq 'sets'
+    Riak::Crdt::DEFAULT_BUCKET_TYPES[:set] = SETS
+    expect(Riak::Crdt::Set.new(bucket, 'set').bucket_type).to eq SETS
   end
 
   describe 'overriding bucket-types' do

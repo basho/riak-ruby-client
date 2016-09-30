@@ -270,7 +270,7 @@ describe 'Bucket Types', test_client: true, integration: true do
     describe 'performing CRDT HLL operations', hll: true do
       before(:each) do
         begin
-          hlls = test_client.bucket_type 'hlls'
+          hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
           hlls.properties
         rescue Riak::ProtobuffsErrorResponse
           skip('HyperLogLog bucket-type not found or active.')

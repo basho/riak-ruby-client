@@ -265,14 +265,14 @@ describe "CRDTs", integration: true, test_client: true do
   describe 'HLLs', hll: true do
     before(:each) do
       begin
-        hlls = test_client.bucket_type 'hlls'
+        hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
         hlls.properties
       rescue Riak::ProtobuffsErrorResponse
         skip('HyperLogLog bucket-type not found or active.')
       end
     end
 
-    subject { Riak::Crdt::HyperLogLog.new bucket, random_key, Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll] }
+    subject { Riak::Crdt::HyperLogLog.new bucket, random_key }
 
     it 'allows straightforward HLL ops' do
       addition = random_key
@@ -284,7 +284,7 @@ describe "CRDTs", integration: true, test_client: true do
     end
 
     it 'asks for and accepts a returned body by default' do
-      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key, Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
+      other = Riak::Crdt::HyperLogLog.new subject.bucket, subject.key
 
       other.add 'coffee'
 
