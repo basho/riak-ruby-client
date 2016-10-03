@@ -47,8 +47,9 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
           rw: 1,
           precommit: precommit,
           postcommit: backend_class::RpbCommitHook.new(name: 'piper'),
-          linkfun: backend_class::RpbModFun.new(module: 'nachos',
-                                                function: 'galacticos')
+          linkfun: backend_class::RpbModFun.new(module: 'nachos', function: 'galacticos'),
+          write_once: true,
+          hll_precision: 12
           )
   end
 
@@ -93,6 +94,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
     expect{ resp = subject.get bucket }.to_not raise_error
 
     expect(resp['n_val']).to eq 3
+    expect(resp['write_once']).to eq true
+    expect(resp['hll_precision']).to eq 12
   end
 
   describe 'quorums' do

@@ -60,5 +60,11 @@ describe Riak::BucketType do
       props_expectation.and_return(datatype: 'set')
       expect(subject.data_type_class).to eq Riak::Crdt::Set
     end
+
+    it 'provides-hll-precision' do
+      props_expectation.and_return(hll_precision: 14)
+      expect(props = subject.properties).to be_a Hash
+      expect(props[:hll_precision]).to be
+    end
   end
 end
