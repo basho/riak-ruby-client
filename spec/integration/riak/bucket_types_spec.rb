@@ -327,7 +327,7 @@ describe 'Bucket Types', test_client: true, integration: true do
     end
 
     describe 'performing CRDT HLL operations', hll: true do
-      before(:each) do
+      before(:all) do
         ensure_datatype_exists :hll
       end
 
@@ -356,6 +356,17 @@ describe 'Bucket Types', test_client: true, integration: true do
 
         expect(bucket.delete hll.key, type: bucket_type).to be
         expect{ bucket.get hll.key, type: bucket_type }.to raise_error /not_found/
+      end
+
+      it 'defaults to 14 for hll_precision' do
+        bt = test_client.bucket_type bucket_type
+        expect(props = bt.properties).to be_a Hash
+        expect(props[:hll_precision]).to eq 14
+      end
+
+      it 'allows setting hll_precision' do
+        bt = test_client.bucket_type bucket_type
+        expect{ bt.properties[:hll_precision] = 14 }.to_not raise_error
       end
     end
   end
