@@ -75,6 +75,11 @@ namespace :spec do
   RSpec::Core::RakeTask.new(:time_series) do |spec|
     spec.rspec_opts = %w[--profile --tag time_series]
   end
+
+  desc "Run Security Specs Only"
+  RSpec::Core::RakeTask.new(:security) do |spec|
+    spec.rspec_opts = %w[--profile --tag yes_security --tag ~time_series]
+  end
 end
 
 desc "Run Unit Test Specs (excluding slow, integration and time_series)"

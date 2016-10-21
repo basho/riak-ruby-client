@@ -51,9 +51,14 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       bugged_crypto_client = Riak::Client.new broken_auth_config
 
-      expect{ bugged_crypto_client.ping }.
-        to(raise_error(OpenSSL::SSL::SSLError,
-                       /certificate verify failed/i))
+      if RUBY_PLATFORM == 'java'
+        expect{ bugged_crypto_client.ping }.
+          to(raise_error(OpenSSL::SSL::SSLError))
+      else
+        expect{ bugged_crypto_client.ping }.
+          to(raise_error(OpenSSL::SSL::SSLError,
+                         /certificate verify failed/i))
+      end
     end
 
     it "refuses to connect if the server cert is revoked" do
@@ -86,10 +91,10 @@ describe 'Secure Protobuffs', test_client: true, integration: true do
 
       client_cert_config[:authentication][:client_ca] = client_cert_config[:authentication]['ca_file']
 
-      client_cert_config[:authentication][:cert] = 'spec/support/certs/client.crt'
-      client_cert_config[:authentication][:key] = 'spec/support/certs/client.key'
+      client_cert_config[:authentication][:cert] = 'tools/test-ca/certs/riakuser-client-cert.pem'
+      client_cert_config[:authentication][:key] = 'tools/test-ca/private/riakuser-client-cert-key.pem'
 
-      client_cert_config[:authentication][:user] = 'certuser'
+      client_cert_config[:authentication][:user] = 'riakuser'
       client_cert_config[:authentication][:password] = ''
 
       cert_client = Riak::Client.new client_cert_config
