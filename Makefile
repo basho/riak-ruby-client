@@ -79,12 +79,12 @@ ifeq ($(RELEASE_GPG_KEYNAME),)
 	$(error RELEASE_GPG_KEYNAME must be set to build a release and deploy this package)
 endif
 	@rm -rf pkg
-	@bash ./build/publish $(VERSION) validate
-	@sed -i'' -e 's/VERSION.*/VERSION = "$(VERSION)"/' ./lib/riak/version.rb
-	@rake package
+	@$(PROJDIR)/build/publish $(VERSION) validate
+	@sed -i'' -e 's/VERSION.*/VERSION = "$(VERSION)"/' $(PROJDIR)/lib/riak/version.rb
+	@bundle exec rake package
 	@git commit -a -m "riak-client $(VERSION)"
 	@git tag --sign -a "v$(VERSION)" -m "riak-client $(VERSION)" --local-user "$(RELEASE_GPG_KEYNAME)"
 	@git push --tags
 	@git push
 	@gem push "pkg/riak-client-$(VERSION).gem"
-	@bash ./build/publish $(VERSION)
+	@$(PROJDIR)/build/publish $(VERSION)
