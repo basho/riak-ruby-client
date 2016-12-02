@@ -37,7 +37,6 @@ Lint/AssignmentInCondition:
     - 'lib/riak/client/beefcake/object_methods.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
-    - 'lib/riak/multiget.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.

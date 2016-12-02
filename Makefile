@@ -32,6 +32,7 @@ help:
 	@echo ' test             - Run unit & integration tests '
 	@echo ' unit-test        - Run unit tests               '
 	@echo ' integration-test - Run integration tests        '
+	@echo ' timeseries-test  - Run timeseries tests         '
 	@echo ' security-test    - Run security tests           '
 	@echo '-------------------------------------------------'
 	@echo ''
@@ -56,6 +57,10 @@ integration-test:
 	@cp -f $(TCY).example $(TCY)
 	@bundle exec rake spec:integration
 
+timeseries-test:
+	@cp -f $(TCY).example $(TCY)
+	@bundle exec rake spec:time_series
+
 security-test:
 	@cp -f $(TCY).example $(TCY) && \
 		echo 'authentication:' >> $(TCY) && \
@@ -64,7 +69,7 @@ security-test:
 		echo "  ca_file: $(CA_CERT)" >> $(TCY)
 	@bundle exec rake spec:security
 
-test: lint integration-test
+test: lint unit-test integration-test
 
 gemspec_validate:
 	@bundle exec rake gemspec
