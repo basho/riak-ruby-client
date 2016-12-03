@@ -1,4 +1,4 @@
-require 'rubygems'
+require 'bundler/setup'
 require 'rubygems/package_task'
 require 'yard'
 require 'rspec/core'
