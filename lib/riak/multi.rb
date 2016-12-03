@@ -34,29 +34,28 @@ module Riak
     # Create a Riak Multi operation.
     # @param [Client] client the {Riak::Client} that will perform the multiget
     # @param [Array<Bucket, String>] keys an {Array} of {Bucket} and {String} keys to work on
+    # @raise [ArgumentError] when a non-positive-Integer count is given for threads
     def initialize(client, keys)
       raise ArgumentError, t('client_type', :client => client.inspect) unless client.is_a? Riak::Client
       raise ArgumentError, t('array_type', :array => keys.inspect) unless keys.is_a? Array
+
+      self.thread_count = client.multi_threads
+      unless thread_count.is_a?(Integer) && thread_count > 0
+        raise ArgumentError, t("invalid_multiget_thread_count") # TODO: should be invalid_multi_thread_count
+      end
 
       validate_keys keys
       @client = client
       @keys = keys.uniq
       self.result_hash = {}
       @finished = false
-      self.thread_count = client.multi_threads
     end
 
     # Starts the parallelized operation
-    # @raise [ArgumentError] when a non-positive-Integer count is given for threads
     def perform
       queue = keys.dup
       queue_mutex = Mutex.new
       result_mutex = Mutex.new
-
-      # TODO: check should be in initialize ... move comment too
-      unless thread_count.is_a?(Integer) && thread_count > 0
-        raise ArgumentError, t("invalid_multiget_thread_count") # TODO: should be invalid_multi_thread_count
-      end
 
       @threads = 1.upto(thread_count).map do |_node|
         Thread.new do
@@ -109,13 +108,11 @@ module Riak
     end
 
     def validate_keys(keys)
-      erroneous = keys.detect do |bucket, key|
-        next true unless bucket.is_a? Bucket
-        next true unless key.is_a? String
+      return unless erroneous = keys.detect do |bucket, key|
+        !bucket.is_a?(Bucket) || !key.is_a?(String)
       end
-      return unless erroneous
 
-      raise ArgumentError, t('fetch_list_type', :problem => erroneous) # TODO: should be keys_type
+      raise ArgumentError, t('fetch_list_type', problem: erroneous) # TODO: should be keys_type
     end
   end
 end
