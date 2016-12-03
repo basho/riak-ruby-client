@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+SingleCov.covered! uncovered: 3 if defined?(SingleCov)
+
 describe Riak::Multiget do
   before :each do
     @client = Riak::Client.new
