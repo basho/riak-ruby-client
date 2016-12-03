@@ -1,4 +1,4 @@
-require 'rubygems'
+require 'bundler/setup'
 require 'rubygems/package_task'
 require 'yard'
 require 'rspec/core'
@@ -103,7 +103,6 @@ namespace :beefcake do
     sh "rm -rf #{PROTO_TMP.join ' '}"
   end
 
-
   file 'lib/riak/client/beefcake/messages.rb' => PROTO_TMP do |t|
     sh "cat lib/riak/client/beefcake/header tmp/riak.pb.rb #{t.prerequisites.join ' '} lib/riak/client/beefcake/footer > #{t.name}"
   end
@@ -118,7 +117,7 @@ namespace :beefcake do
 
   directory 'tmp/riak_pb' => 'tmp' do
     cd 'tmp' do
-      sh "git clone -b 2.2 https://github.com/basho/riak_pb.git"
+      sh "git clone --branch 2.2.0.2 --single-branch https://github.com/basho/riak_pb.git"
     end
   end
 end

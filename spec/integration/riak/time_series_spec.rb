@@ -15,6 +15,11 @@ describe 'Time Series',
   end
   let(:never_range_str) do
     range_start = '1'
+    range_end = '3'
+    "time > #{range_start} AND time < #{range_end}"
+  end
+  let(:overlap_str) do
+    range_start = '1'
     range_end = '2'
     "time > #{range_start} AND time < #{range_end}"
   end
@@ -50,6 +55,15 @@ WHERE
 SQL
   end
 
+  let(:overlap_query) do
+    <<-SQL
+SELECT * FROM #{table_name}
+WHERE
+  #{family_series_str} AND
+  #{overlap_str}
+SQL
+  end
+
   let(:describe_table) do
     "DESCRIBE #{table_name}"
   end
@@ -61,6 +75,7 @@ CREATE TABLE timeseries-#{random_key} (
     user varchar not null,
     time timestamp not null,
     weather varchar not null,
+    frazzle blob not null,
     temperature double,
     PRIMARY KEY(
         (geohash, user, quantum(time, 15, m)),
@@ -108,6 +123,9 @@ SQL
     let(:subject_without_data) do
       Riak::TimeSeries::Query.new test_client, no_data_query
     end
+    let(:subject_overlap_error) do
+      Riak::TimeSeries::Query.new test_client, overlap_query
+    end
 
     it 'queries data without error' do
       stored_datum_expectation
@@ -118,8 +136,14 @@ SQL
       expect(subject.results.columns).to_not be_empty
     end
 
-    it 'returns an empty collection when not finding data' do
+    it 'returns an empty response when not finding data' do
       expect{ subject_without_data.issue! }.to_not raise_error
+      expect(subject.results).to_not be
+    end
+
+    it 'returns an error when query overlaps' do
+      expect{ subject_overlap_error.issue! }.
+        to raise_error Riak::ProtobuffsErrorResponse
       expect(subject.results).to_not be
     end
   end
