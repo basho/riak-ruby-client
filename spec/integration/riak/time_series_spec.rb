@@ -274,7 +274,7 @@ SQL
 
       row = result.first
       expect(row).to_not be_empty
-      expect(row[4]).to be extended_datum[4]
+      expect(row[4]).to eq extended_datum[4]
     end
   end
 end
