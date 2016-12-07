@@ -7,6 +7,7 @@ Riak::Client::BeefcakeProtobuffsBackend.configured?
 describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
   describe 'symmetric serialization' do
     it { is_expected.to symmetric_serialize("hello", varchar_value: "hello")}
+    it { is_expected.to symmetric_serialize("\x0\x1\x2\x3\x4\x5\x6\x7", varchar_value: "\x0\x1\x2\x3\x4\x5\x6\x7")}
     it { is_expected.to symmetric_serialize(5, sint64_value: 5)}
     it { is_expected.to symmetric_serialize(123.45, double_value: 123.45) }
     it do
@@ -51,10 +52,11 @@ describe Riak::Client::BeefcakeProtobuffsBackend::TsCellCodec do
   # describe 'deserializing values'
 
   describe 'with a collection' do
-    let(:not_serialized){ ['hi', 5, 12.34] }
+    let(:not_serialized){ ['hi', "\x0\x1\x2\x3\x4\x5\x6\x7", 5, 12.34] }
     let(:serialized) do
       [
         Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(varchar_value: 'hi'),
+        Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(varchar_value: "\x0\x1\x2\x3\x4\x5\x6\x7"),
         Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(sint64_value: 5),
         Riak::Client::BeefcakeProtobuffsBackend::TsCell.new(double_value: 12.34)
       ]

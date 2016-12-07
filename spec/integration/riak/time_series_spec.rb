@@ -4,6 +4,7 @@ require 'riak'
 describe 'Time Series',
          test_client: true, integration: true, time_series: true do
   let(:table_name){ 'GeoCheckin' }
+  let(:extended_table_name){ 'timeseries-' + random_key }
 
   let(:now_ts) { Time.now.to_i }
   let(:now){ Time.at(now_ts) }
@@ -32,6 +33,7 @@ describe 'Time Series',
   let(:key2){ [family, series, five_minutes_ago] }
   let(:datum){ [*key, 'cloudy', 27.1] }
   let(:datum_null){ [*key2, 'cloudy', nil] }
+  let(:extended_datum){ [*key, 'cloudy', "\x0\x1\x2\x3\x4\x5\x6\x7", 27.1] }
 
   let(:family_series_str) do
     "geohash = '#{family}' AND user = '#{series}'"
@@ -70,7 +72,7 @@ SQL
 
   let(:create_table) do
     <<-SQL
-CREATE TABLE timeseries-#{random_key} (
+CREATE TABLE #{extended_table_name} (
     geohash varchar not null,
     user varchar not null,
     time timestamp not null,
@@ -95,6 +97,19 @@ SQL
     submission = Riak::TimeSeries::Submission.new test_client, table_name
     submission.measurements = [datum_null]
     expect{ submission.write! }.to_not raise_error
+  end
+
+  let(:stored_extended_datum_expectation) do
+    submission = Riak::TimeSeries::Submission.new test_client, extended_table_name
+    submission.measurements = [extended_datum]
+    expect{ submission.write! }.to_not raise_error
+  end
+
+  let(:create_extended_table_expectation) do
+    query = Riak::TimeSeries::Query.new test_client, create_table
+    expect{ query.issue! }.to_not raise_error
+    expect(query.results).to be
+    expect(query.results).to be_empty
   end
 
   describe 'create table via query' do
@@ -231,6 +246,35 @@ SQL
       results = lister.issue!
 
       expect(results).to include key_ts
+    end
+  end
+
+  describe 'blob datetype handling' do
+    it 'creates a new table with a blob type without error' do
+      create_extended_table_expectation
+    end
+
+    it 'writes data without error' do
+      create_extended_table_expectation
+      stored_extended_datum_expectation
+    end
+
+    subject{ Riak::TimeSeries::Read.new test_client, extended_table_name }
+    it 'returns fetch blob data' do
+      create_extended_table_expectation
+      stored_extended_datum_expectation
+
+      subject.key = key
+      result = nil
+
+      expect{ result = subject.read! }.to_not raise_error
+      expect(result).to be
+      expect(result).to_not be_empty
+      expect(result.first).to_not be_empty
+
+      row = result.first
+      expect(row).to_not be_empty
+      expect(row[4]).to be extended_datum[4]
     end
   end
 end
