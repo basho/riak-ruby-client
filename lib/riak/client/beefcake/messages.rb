@@ -684,6 +684,7 @@ class DtFetchResp
     SET = 2
     MAP = 3
     HLL = 4
+    GSET = 5
   end
 end
 
@@ -692,6 +693,10 @@ class CounterOp
 end
 
 class SetOp
+  include Beefcake::Message
+end
+
+class GSetOp
   include Beefcake::Message
 end
 
@@ -757,6 +762,7 @@ class DtValue
   repeated :set_value, :bytes, 2
   repeated :map_value, MapEntry, 3
   optional :hll_value, :uint64, 4
+  repeated :gset_value, :bytes, 5
 end
 
 class DtFetchResp
@@ -772,6 +778,10 @@ end
 class SetOp
   repeated :adds, :bytes, 1
   repeated :removes, :bytes, 2
+end
+
+class GSetOp
+  repeated :adds, :bytes, 1
 end
 
 class HllOp
@@ -797,6 +807,7 @@ class DtOp
   optional :set_op, SetOp, 2
   optional :map_op, MapOp, 3
   optional :hll_op, HllOp, 4
+  optional :gset_op, GSetOp, 5
 end
 
 class DtUpdateReq
@@ -822,6 +833,7 @@ class DtUpdateResp
   repeated :set_value, :bytes, 4
   repeated :map_value, MapEntry, 5
   optional :hll_value, :uint64, 6
+  repeated :gset_value, :bytes, 7
 end
 ## Generated from riak_ts.proto
 require "beefcake"
@@ -833,6 +845,7 @@ module TsColumnType
   DOUBLE = 2
   TIMESTAMP = 3
   BOOLEAN = 4
+  BLOB = 5
 end
 
 class TsQueryReq

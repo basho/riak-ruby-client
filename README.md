@@ -684,6 +684,7 @@ Thank you to all of our contributors!
 * [John Leach](https://github.com/johnl)
 * [John Lynch](https://github.com/johnthethird)
 * Jordan Goldstein
+* [Michael Grosser](https://github.com/grosser)
 * [Josh Nichols](https://github.com/technicalpickles)
 * [Justin Pease](https://github.com/jpease)
 * [Kazuhiro Suzuki](https://github.com/ksauzz)

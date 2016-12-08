@@ -1,5 +1,4 @@
-$LOAD_PATH.unshift(File.dirname(__FILE__))
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+require 'bundler/setup'
 
 if ENV['COVERAGE']
   require 'simplecov'
@@ -9,14 +8,12 @@ if ENV['COVERAGE']
     end
     add_filter 'vendor/'
   end
-
 end
 
-require 'rubygems' # Use the gems path only for the spec suite
 require 'riak'
-require 'rspec'
 require 'stringio'
 require 'pp'
+require 'instrumentable'
 
 # Only the tests should really get away with this.
 Riak.disable_list_keys_warnings = true
@@ -31,7 +28,7 @@ Riak.disable_list_keys_warnings = true
    crdt_search_config
    crdt_search_fixtures
 ].each do |file|
-  require File.join("support", file)
+  require_relative File.join("support", file)
 end
 
 RSpec.configure do |config|
@@ -58,10 +55,4 @@ RSpec.configure do |config|
   end
 
   config.raise_errors_for_deprecations!
-
-  begin
-    require 'instrumentable'
-  rescue LoadError => e
-    config.filter_run_excluding instrumentation: true
-  end
 end
