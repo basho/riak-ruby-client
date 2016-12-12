@@ -114,7 +114,7 @@ module Riak
     # @return [Hash<String, Riak::RObject>] hash of keys to objects
     def get_many(keys)
       pairs = keys.map{|k| [self, k]}
-      results = Multiget.get_all @client, pairs
+      results = Multiget.perform @client, pairs
       results.keys.inject(Hash.new) do |mem, var|
         mem[var[1]] = results[var]
         mem
