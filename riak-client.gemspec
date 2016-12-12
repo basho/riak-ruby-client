@@ -1,7 +1,6 @@
 require './lib/riak/version'
 
 Gem::Specification.new do |gem|
-  # Meta
   gem.name = "riak-client"
   gem.version = Riak::VERSION
   gem.summary = %Q{riak-client is a rich client for Riak, the distributed database by Basho.}
@@ -13,7 +12,6 @@ Gem::Specification.new do |gem|
 
   gem.required_ruby_version = '>= 1.9.3'
 
-  # Deps
   gem.add_development_dependency 'activesupport', '~> 4.2'
   gem.add_development_dependency 'instrumentable', '~> 1.1'
   gem.add_development_dependency 'kramdown', '~> 1.4'
@@ -29,5 +27,5 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'innertube', '~> 1.0'
   gem.add_runtime_dependency 'multi_json', '~> 1.0'
 
-  gem.files = `git ls-files lib LICENSE.md README.md RELNOTES.md`.split($/)
+  gem.files = Dir['LICENSE.md', 'README.md', 'RELNOTES.md', 'lib/**/*']
 end
