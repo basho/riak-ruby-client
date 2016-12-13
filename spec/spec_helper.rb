@@ -3,6 +3,7 @@ require 'bundler/setup'
 if RUBY_VERSION >= "2."
   require 'single_cov'
   SingleCov.setup :rspec
+  SingleCov.rewrite { |f| f.sub('/integration/', '/') }
 end
 
 require 'riak'

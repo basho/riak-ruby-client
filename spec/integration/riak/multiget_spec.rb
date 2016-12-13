@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-SingleCov.covered! file: 'lib/riak/multiget.rb'
+SingleCov.covered!
 
 describe Riak::Multiget do
   before :each do

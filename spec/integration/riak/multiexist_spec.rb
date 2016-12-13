@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+SingleCov.covered!
+
 describe Riak::Multiexist do
   before :each do
     @client = Riak::Client.new

@@ -15,9 +15,6 @@ module Riak
     # @return [Hash<fetch_list_entry, RObject] result_hash a {Hash} of {Bucket} and {String} key pairs to {RObject} instances
     attr_accessor :result_hash
 
-    # @return [Boolean] finished if the fetch operation has completed
-    attr_reader :finished
-
     # @return [Integer] The number of threads to use
     attr_accessor :thread_count
 
@@ -43,6 +40,7 @@ module Riak
       @keys = keys.uniq
       self.result_hash = {}
       @finished = false
+      @threads = false
       self.thread_count = client.multi_threads
     end
 
@@ -82,9 +80,9 @@ module Riak
     end
 
     def finished?
-      set_finished_for_thread_liveness
-      finished
+      @finished ||= @threads && @threads.none?(&:alive?)
     end
+    alias :finished :finished? # deprecated
 
     def wait_for_finish
       return if finished?
@@ -96,16 +94,6 @@ module Riak
 
     def work(_bucket, _key)
       raise NotImplementedError
-    end
-
-    def set_finished_for_thread_liveness
-      return if @finished # already done
-
-      all_dead = @threads.none?(&:alive?)
-      return unless all_dead # still working
-
-      @finished = true
-      return
     end
 
     def validate_keys(keys)
