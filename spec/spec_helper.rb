@@ -1,13 +1,8 @@
 require 'bundler/setup'
 
-if ENV['COVERAGE']
-  require 'simplecov'
-  SimpleCov.start do
-    if ENV['COVERAGE_SUITE']
-      SimpleCov.command_name ENV['COVERAGE_SUITE']
-    end
-    add_filter 'vendor/'
-  end
+if RUBY_VERSION >= "2."
+  require 'single_cov'
+  SingleCov.setup :rspec
 end
 
 require 'riak'

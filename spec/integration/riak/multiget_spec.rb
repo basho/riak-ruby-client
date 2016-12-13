@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+SingleCov.covered! file: 'lib/riak/multiget.rb'
+
 describe Riak::Multiget do
   before :each do
     @client = Riak::Client.new
