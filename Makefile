@@ -64,7 +64,7 @@ security-test:
 		echo "  ca_file: $(CA_CERT)" >> $(TCY)
 	@bundle exec rake spec:security
 
-test: lint integration-test
+test: lint unit-test integration-test
 
 gemspec_validate:
 	@bundle exec rake gemspec
