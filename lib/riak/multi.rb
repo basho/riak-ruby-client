@@ -37,10 +37,6 @@ module Riak
       raise ArgumentError, t('array_type', :array => keys.inspect) unless keys.is_a? Array
 
       self.thread_count = client.multi_threads
-      unless thread_count.is_a?(Integer) && thread_count > 0
-        raise ArgumentError, t("invalid_multiget_thread_count") # TODO: should be invalid_multi_thread_count
-      end
-
       validate_keys keys
       @client = client
       @keys = keys.uniq
