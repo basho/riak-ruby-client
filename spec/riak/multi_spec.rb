@@ -3,7 +3,13 @@ require 'spec_helper'
 SingleCov.covered! if defined?(SingleCov)
 
 describe Riak::Multi do
-  let(:multi) { Riak::Multi.new(@client, @pairs) }
+  class TestMulti < Riak::Multi
+    def work(bucket, key)
+      "value-#{bucket.name}-#{key}"
+    end
+  end
+
+  let(:multi) { TestMulti.new(@client, @pairs) }
 
   before :each do
     @client = Riak::Client.new
@@ -25,18 +31,15 @@ describe Riak::Multi do
 
   describe ".perform" do
     it "works" do
-      expect_any_instance_of(Riak::Multi).to receive(:work).with(@bucket, 'key1')
-      expect_any_instance_of(Riak::Multi).to receive(:work).with(@bucket, 'key2')
-      expect(Riak::Multi.perform(@client, @pairs)).to eq([@bucket, 'key1'] => nil, [@bucket, 'key2'] => nil)
+      expect(TestMulti.perform(@client, @pairs)).to eq([@bucket, 'key1'] => 'value-foo-key1', [@bucket, 'key2'] => 'value-foo-key2')
     end
   end
 
   describe "#perform" do
     it "works on both keys from the bucket" do
-      expect(multi).to receive(:work).with(@bucket, 'key1')
-      expect(multi).to receive(:work).with(@bucket, 'key2')
       multi.perform
       multi.wait_for_finish
+      expect(multi.results).to eq([@bucket, 'key1'] => "value-foo-key1", [@bucket, 'key2'] => "value-foo-key2")
     end
 
     it "works asynchronously" do
@@ -91,18 +94,14 @@ describe Riak::Multi do
 
   describe "#results" do
     it "returns a hash of pairs to values" do
-      expect(multi).to receive(:work).with(@bucket, 'key1')
-      expect(multi).to receive(:work).with(@bucket, 'key2')
-
       multi.perform
-
       expect(multi.results).to be_a Hash
     end
   end
 
   describe "#work" do
     it "needs to be implemented in the subclasses" do
-      expect { multi.send(:work, 1, 2) }.to raise_error(NotImplementedError)
+      expect { Riak::Multi.new(@client, @pairs).send(:work, 1, 2) }.to raise_error(NotImplementedError)
     end
   end
 end

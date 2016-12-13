@@ -1,6 +1,7 @@
 require 'bundler/setup'
 
-if RUBY_VERSION >= "2."
+# ruby 1.9 and jruby without debug do not support single-cov
+if RUBY_VERSION >= "2." && (RUBY_ENGINE != 'jruby' || ENV['JRUBY_OPTS'].to_s.include?('--debug'))
   require 'single_cov'
   SingleCov.setup :rspec
 end
