@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+SingleCov.covered! if defined?(SingleCov)
+
 describe Riak::Bucket do
   before :each do
     @client = Riak::Client.new
@@ -178,8 +180,19 @@ describe Riak::Bucket do
 
       @results = @bucket.get_many %w{key1 key2}
 
-      expect(@results['key1']).to eq(@object1)
-      expect(@results['key2']).to eq(@object2)
+      expect(@results).to eq('key1' => @object1, 'key2' => @object2)
+    end
+  end
+
+  describe "checking if multiple objects exist" do
+    it 'checks each object individually' do
+      expect(@bucket).to receive(:get).with('key1', head: true).and_return(true)
+      expect(@bucket).to receive(:get).with('key2', head: true).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
+
+      @results = @bucket.exist_many %w{key1 key2}
+
+      expect(@results).to eq('key1' => true, 'key2' => false)
     end
   end
 
