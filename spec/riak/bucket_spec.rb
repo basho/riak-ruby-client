@@ -285,4 +285,65 @@ describe Riak::Bucket do
       @bucket.delete('bar', :rw => "all")
     end
   end
+
+  describe "Retrieves a preflist" do
+    it "finds the list" do
+      expect(@client).to receive(:get_preflist).with(@bucket, 'KEY', nil, {}).and_return(['yep'])
+      expect(@bucket.get_preflist('KEY')).to eq(['yep'])
+    end
+
+    it "adds the type when needed" do
+      expect(@bucket).to receive(:type).and_return(double(name: "NAME"))
+      expect(@bucket).to receive(:needs_type?).and_return(true)
+      expect(@client).to receive(:get_preflist).with(@bucket, 'KEY', 'NAME', {}).and_return(['yep'])
+      expect(@bucket.get_preflist('KEY')).to eq(['yep'])
+    end
+  end
+
+  describe "#enable_index!" do
+    let(:props) { {'search' => true, 'precommit' => ["old"]} }
+
+    before { expect(@client).to receive(:get_bucket_props).and_return(props) }
+
+    it "does nothing when enabled" do
+      @bucket.enable_index!
+    end
+
+    it "enables when disabled" do
+      props['search'] = false
+      expect(@client).to receive(:set_bucket_props).
+        with(@bucket, "precommit" => ["old", {"mod" => "riak_search_kv_hook", "fun" => "precommit"}], "search" => true)
+      @bucket.enable_index!
+    end
+  end
+
+  describe "#disable_index!" do
+    let(:props) { {'search' => true, 'precommit' => ["old", {"mod" => "riak_search_kv_hook", "fun" => "precommit"}]} }
+
+    before { expect(@client).to receive(:get_bucket_props).and_return(props) }
+
+    it "does nothing when disabled" do
+      props['search'] = false
+      props['precommit'] = []
+      @bucket.disable_index!
+    end
+
+    it "disables when enabled" do
+      expect(@client).to receive(:set_bucket_props).
+        with(@bucket, "precommit" => ["old"], "search" => false)
+      @bucket.disable_index!
+    end
+  end
+
+  describe "#inspect" do
+    it "returns a nice name" do
+      expect(@bucket.inspect).to eq("#<Riak::Bucket {foo}>")
+    end
+  end
+
+  describe "#pretty_print" do
+    it "prints nicely" do
+      expect { pp(@bucket) }.to output("#<Riak::Bucket name=foo>\n").to_stdout
+    end
+  end
 end
