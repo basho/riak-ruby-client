@@ -18,6 +18,7 @@ require 'riak/bucket'
 require 'riak/bucket_properties'
 require 'riak/bucket_type'
 require 'riak/multiget'
+require 'riak/multiexist'
 require 'riak/secondary_index'
 require 'riak/search'
 require 'riak/stamp'
@@ -69,7 +70,10 @@ module Riak
     attr_reader :protobuffs_pool
 
     # @return [Integer] The number of threads for multiget requests
-    attr_reader :multiget_threads
+    attr_reader :multi_threads
+
+    # @deprecated use multi_threads
+    alias_method :multiget_threads, :multi_threads
 
     # @return [Hash] The authentication information this client will use.
     attr_reader :authentication
@@ -123,7 +127,7 @@ module Riak
 
       self.protobuffs_backend = options[:protobuffs_backend] || :Beefcake
       self.client_id          = options[:client_id]          if options[:client_id]
-      self.multiget_threads   = options[:multiget_threads]
+      self.multi_threads      = options[:multi_threads] || options[:multiget_threads]
       @authentication         = options[:authentication] && options[:authentication].symbolize_keys
       self.max_retries        = options[:max_retries]        || 2
       @connect_timeout        = options[:connect_timeout]
@@ -195,19 +199,22 @@ module Riak
     # If set to nil, defaults to twice the number of nodes.
     # @param [Integer] count The number of threads to use.
     # @raise [ArgumentError] when a non-nil, non-positive-Integer count is given
-    def multiget_threads=(count)
+    def multi_threads=(count)
       if count.nil?
-        @multiget_threads = nodes.length * 2
+        @multi_threads = nodes.length * 2
         return
       end
 
       if count.is_a?(Integer) && count > 0
-        @multiget_threads = count
+        @multi_threads = count
         return
       end
 
-      raise ArgumentError, t("invalid_multiget_thread_count")
+      raise ArgumentError, t("invalid_multiget_thread_count") # TODO: rename to invalid_multi_thread_count
     end
+
+    # @deprecated use multi_threads=
+    alias_method :multiget_threads=, :multi_threads=
 
     # Set the client ID for this client. Must be a string or Fixnum value 0 =<
     # value < MAX_CLIENT_ID.
@@ -275,7 +282,7 @@ module Riak
 
     # Get multiple objects in parallel.
     def get_many(pairs)
-      Multiget.get_all self, pairs
+      Multiget.perform self, pairs
     end
 
     # Get an object. See Bucket#get

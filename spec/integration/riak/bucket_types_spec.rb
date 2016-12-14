@@ -2,7 +2,6 @@ require 'spec_helper'
 require 'riak'
 
 describe 'Bucket Types', test_client: true, integration: true do
-
   describe 'nested bucket types API' do
     let(:bucket_type){ test_client.bucket_type 'yokozuna' }
 

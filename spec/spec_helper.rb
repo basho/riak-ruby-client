@@ -1,13 +1,9 @@
 require 'bundler/setup'
 
-if ENV['COVERAGE']
-  require 'simplecov'
-  SimpleCov.start do
-    if ENV['COVERAGE_SUITE']
-      SimpleCov.command_name ENV['COVERAGE_SUITE']
-    end
-    add_filter 'vendor/'
-  end
+# ruby 1.9 and jruby without debug do not support single-cov
+if RUBY_VERSION >= "2." && (RUBY_ENGINE != 'jruby' || ENV['JRUBY_OPTS'].to_s.include?('--debug'))
+  require 'single_cov'
+  SingleCov.setup :rspec
 end
 
 require 'riak'
