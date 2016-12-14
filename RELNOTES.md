@@ -1,5 +1,8 @@
 # Riak Ruby Client Release Notes
 
+## [`2.6.0` Release - 2016-12-14](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.6.0)
+  * Riak TS 1.5 support
+
 ## [`2.5.0` Release - 2016-11-16](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.5.0)
 
 Version `2.5.0` adds support for the HyperLogLog data type in Riak 2.2.0.
