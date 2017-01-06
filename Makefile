@@ -1,6 +1,6 @@
 .PHONY: help all deps lint clean
 .PHONY: test unit-test integration-test
-.PHONY: security-test security-test-legacy security-test-tls
+.PHONY: security-test security-test-legacy security-test-tls security-test-plain
 .PHONY: release gemspec_validat0
 
 unexport LANG
@@ -65,7 +65,7 @@ timeseries-test:
 	@cp -f $(TCY).example $(TCY)
 	@bundle exec rake spec:time_series
 
-security-test: security-test-legacy security-test-tls
+security-test: security-test-legacy security-test-tls security-test-plain
 
 security-test-legacy:
 	@echo 'pb_port: $(RIAK_PORT)' > $(TCY) && \
@@ -86,6 +86,15 @@ security-test-tls:
 		echo '  start_tls: false' >> $(TCY) && \
 		echo '  ca_file: $(CA_CERT)' >> $(TCY)
 	@bundle exec rake spec:security
+
+security-test-plain:
+	@echo 'pb_port: $(RIAK_PORT)' > $(TCY) && \
+		echo 'authentication:' >> $(TCY) && \
+		echo '  user: user' >> $(TCY) && \
+		echo '  password: password' >> $(TCY) && \
+		echo '  tls: false' >> $(TCY) && \
+		echo '  start_tls: false' >> $(TCY)
+	@bundle exec rake spec:security_plain
 
 test: lint unit-test integration-test
 
