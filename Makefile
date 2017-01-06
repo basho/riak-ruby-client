@@ -1,5 +1,6 @@
 .PHONY: help all deps lint clean
-.PHONY: test unit-test integration-test security-test
+.PHONY: test unit-test integration-test
+.PHONY: security-test security-test-legacy security-test-tls
 .PHONY: release gemspec_validat0
 
 unexport LANG
@@ -20,6 +21,9 @@ PROJDIR = $(realpath $(CURDIR))
 TCY := $(PROJDIR)/spec/support/test_client.yml
 CLIENT_CERT := $(PROJDIR)/tools/test-ca/certs/riakuser-client-cert.pem
 CA_CERT := $(PROJDIR)/tools/test-ca/certs/cacert.pem
+RIAK_PORT ?= 8087
+RIAK_TLS ?= 'true'
+RIAK_START_TLS ?= 'true'
 
 help:
 	@echo ''
@@ -61,12 +65,26 @@ timeseries-test:
 	@cp -f $(TCY).example $(TCY)
 	@bundle exec rake spec:time_series
 
-security-test:
-	@cp -f $(TCY).example $(TCY) && \
+security-test: security-test-legacy security-test-tls
+
+security-test-legacy:
+	@echo 'pb_port: $(RIAK_PORT)' > $(TCY) && \
 		echo 'authentication:' >> $(TCY) && \
 		echo '  user: user' >> $(TCY) && \
 		echo '  password: password' >> $(TCY) && \
-		echo "  ca_file: $(CA_CERT)" >> $(TCY)
+		echo '  tls: $(RIAK_TLS)' >> $(TCY) && \
+		echo '  start_tls: $(RIAK_START_TLS)' >> $(TCY) && \
+		echo '  ca_file: $(CA_CERT)' >> $(TCY)
+	@bundle exec rake spec:security
+
+security-test-tls:
+	@echo 'pb_port: 8487' > $(TCY) && \
+		echo 'authentication:' >> $(TCY) && \
+		echo '  user: user' >> $(TCY) && \
+		echo '  password: password' >> $(TCY) && \
+		echo '  tls: true' >> $(TCY) && \
+		echo '  start_tls: false' >> $(TCY) && \
+		echo '  ca_file: $(CA_CERT)' >> $(TCY)
 	@bundle exec rake spec:security
 
 test: lint unit-test integration-test

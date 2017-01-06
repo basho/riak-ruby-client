@@ -58,9 +58,13 @@ module Riak
             #
             # @return [OpenSSL::SSL::SSLSocket]
             def tls_socket
-              configure_context
-              start_tls
-              validate_session
+              if @auth[:tls]
+                configure_context
+                start_tls
+                validate_session
+              else
+                @tls = @sock = @tcp
+              end
               send_authentication
               validate_connection
               return @tls
@@ -161,8 +165,10 @@ module Riak
 
             # Attempt to exchange the TCP socket for a TLS socket.
             def start_tls
-              write_message :StartTls
-              expect_message :StartTls
+              if @auth[:start_tls]
+                write_message :StartTls
+                expect_message :StartTls
+              end
               # Swap the tls socket in for the tcp socket, so write_message and
               # read_message continue working
               @sock = @tls = OpenSSL::SSL::SSLSocket.new @tcp, @context
