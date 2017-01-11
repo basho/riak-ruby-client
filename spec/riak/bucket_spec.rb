@@ -14,6 +14,8 @@
 
 require 'spec_helper'
 
+SingleCov.covered! if defined?(SingleCov)
+
 describe Riak::Bucket do
   before :each do
     @client = Riak::Client.new
@@ -192,8 +194,19 @@ describe Riak::Bucket do
 
       @results = @bucket.get_many %w{key1 key2}
 
-      expect(@results['key1']).to eq(@object1)
-      expect(@results['key2']).to eq(@object2)
+      expect(@results).to eq('key1' => @object1, 'key2' => @object2)
+    end
+  end
+
+  describe "checking if multiple objects exist" do
+    it 'checks each object individually' do
+      expect(@bucket).to receive(:get).with('key1', head: true).and_return(true)
+      expect(@bucket).to receive(:get).with('key2', head: true).
+        and_raise(Riak::ProtobuffsFailedRequest.new(:not_found, "not found"))
+
+      @results = @bucket.exist_many %w{key1 key2}
+
+      expect(@results).to eq('key1' => true, 'key2' => false)
     end
   end
 
@@ -284,6 +297,67 @@ describe Riak::Bucket do
     it "uses the specified RW quorum" do
       expect(@backend).to receive(:delete_object).with(@bucket, "bar", {:rw => "all"})
       @bucket.delete('bar', :rw => "all")
+    end
+  end
+
+  describe "Retrieves a preflist" do
+    it "finds the list" do
+      expect(@client).to receive(:get_preflist).with(@bucket, 'KEY', nil, {}).and_return(['yep'])
+      expect(@bucket.get_preflist('KEY')).to eq(['yep'])
+    end
+
+    it "adds the type when needed" do
+      expect(@bucket).to receive(:type).and_return(double(name: "NAME"))
+      expect(@bucket).to receive(:needs_type?).and_return(true)
+      expect(@client).to receive(:get_preflist).with(@bucket, 'KEY', 'NAME', {}).and_return(['yep'])
+      expect(@bucket.get_preflist('KEY')).to eq(['yep'])
+    end
+  end
+
+  describe "#enable_index!" do
+    let(:props) { {'search' => true, 'precommit' => ["old"]} }
+
+    before { expect(@client).to receive(:get_bucket_props).and_return(props) }
+
+    it "does nothing when enabled" do
+      @bucket.enable_index!
+    end
+
+    it "enables when disabled" do
+      props['search'] = false
+      expect(@client).to receive(:set_bucket_props).
+        with(@bucket, "precommit" => ["old", {"mod" => "riak_search_kv_hook", "fun" => "precommit"}], "search" => true)
+      @bucket.enable_index!
+    end
+  end
+
+  describe "#disable_index!" do
+    let(:props) { {'search' => true, 'precommit' => ["old", {"mod" => "riak_search_kv_hook", "fun" => "precommit"}]} }
+
+    before { expect(@client).to receive(:get_bucket_props).and_return(props) }
+
+    it "does nothing when disabled" do
+      props['search'] = false
+      props['precommit'] = []
+      @bucket.disable_index!
+    end
+
+    it "disables when enabled" do
+      expect(@client).to receive(:set_bucket_props).
+        with(@bucket, "precommit" => ["old"], "search" => false)
+      @bucket.disable_index!
+    end
+  end
+
+  describe "#inspect" do
+    it "returns a nice name" do
+      expect(@bucket.inspect).to eq("#<Riak::Bucket {foo}>")
+    end
+  end
+
+  describe "#pretty_print" do
+    it "prints nicely" do
+      expect { pp(@bucket) }.to output("#<Riak::Bucket name=foo>\n").to_stdout
     end
   end
 end
