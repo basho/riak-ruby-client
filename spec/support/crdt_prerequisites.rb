@@ -12,28 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require 'spec_helper'
-require 'riak'
-
-describe 'Grow Only CRDT set validation', integration: true, test_client: true do
-  before(:each) do
-    ensure_datatype_exists :gset
+module CrdtPrerequisites
+  def ensure_datatype_exists(data_type)
+    type = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[data_type]
+    type.properties
+  rescue Riak::ProtobuffsErrorResponse
+    skip('#{data_type.to_s} bucket-type not found or active.')
   end
+end
 
-  let(:bucket){ random_bucket 'crdt_validation' }
-  let(:set){ Riak::Crdt::GrowOnlySet.new bucket, random_key }
-
-  it 'adds duplicate members' do
-    set.batch do |s|
-      s.add 'X'
-      s.add 'Y'
-    end
-
-    set.reload
-
-    expect{ set.add 'X' }.to_not raise_error
-
-    set2 = Riak::Crdt::GrowOnlySet.new bucket, set.key
-    expect(set2.members).to eq ::Set.new(%w{X Y})
-  end
+RSpec.configure do |config|
+  config.include CrdtPrerequisites
 end

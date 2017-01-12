@@ -35,6 +35,7 @@ Riak.disable_list_keys_warnings = true
    unified_backend_examples
    test_client
    search_config
+   crdt_prerequisites
    crdt_search_config
    crdt_search_fixtures
 ].each do |file|

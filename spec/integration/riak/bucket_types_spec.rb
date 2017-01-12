@@ -280,14 +280,35 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
     end
 
+    describe 'performing CRDT Grow Only Set operations' do
+      before(:each) do
+        ensure_datatype_exists :gset
+      end
+
+      let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:gset] }
+      let(:gset) do
+        gset = Riak::Crdt::GrowOnlySet.new bucket, random_key
+        gset.add random_key
+        gset
+      end
+
+      it 'retrieves the grow only set blob via key-value using a bucket type' do
+        expect{ bucket.get gset.key }.to raise_error /not_found/
+        expect(bucket.get gset.key, type: bucket_type).to be
+      end
+
+      it 'deletes the grow only set blob through the bucket type' do
+        expect(bucket.delete gset.key).to be
+        expect{ bucket.get gset.key, type: bucket_type }.to_not raise_error
+
+        expect(bucket.delete gset.key, type: bucket_type).to be
+        expect{ bucket.get gset.key, type: bucket_type }.to raise_error /not_found/
+      end
+    end
+
     describe 'performing CRDT HLL operations', hll: true do
       before(:each) do
-        begin
-          hlls = test_client.bucket_type Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll]
-          hlls.properties
-        rescue Riak::ProtobuffsErrorResponse
-          skip('HyperLogLog bucket-type not found or active.')
-        end
+        ensure_datatype_exists :hll
       end
 
       let(:bucket_type){ Riak::Crdt::DEFAULT_BUCKET_TYPES[:hll] }
