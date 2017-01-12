@@ -464,7 +464,7 @@ Style/EmptyLinesAroundMethodBody:
   Exclude:
     - 'lib/riak/client/beefcake/socket.rb'
 
-# Offense count: 15
+# Offense count: 16
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: empty_lines, no_empty_lines
@@ -474,6 +474,7 @@ Style/EmptyLinesAroundModuleBody:
     - 'lib/riak/counter.rb'
     - 'lib/riak/crdt.rb'
     - 'lib/riak/crdt/counter.rb'
+    - 'lib/riak/crdt/grow_only_set.rb'
     - 'lib/riak/crdt/map.rb'
     - 'lib/riak/crdt/set.rb'
     - 'lib/riak/crdt/hyper_log_log.rb'
