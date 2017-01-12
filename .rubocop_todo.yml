@@ -46,7 +46,6 @@ Lint/BlockAlignment:
   Exclude:
     - 'spec/riak/client_spec.rb'
     - 'spec/riak/crdt/counter_spec.rb'
-    - 'spec/riak/crdt/set_spec.rb'
     - 'spec/riak/crdt/typed_collection_spec.rb'
 
 # Offense count: 1
@@ -434,6 +433,7 @@ Style/EmptyLinesAroundBlockBody:
     - 'spec/riak/core_ext/to_param_spec.rb'
     - 'spec/riak/counter_spec.rb'
     - 'spec/riak/crdt/map_spec.rb'
+    - 'spec/riak/crdt/grow_only_set_spec.rb'
     - 'spec/riak/crdt/set_spec.rb'
     - 'spec/riak/crdt/typed_collection_spec.rb'
     - 'spec/riak/instrumentation_spec.rb'

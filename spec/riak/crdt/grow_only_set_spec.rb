@@ -51,16 +51,15 @@ describe Riak::Crdt::GrowOnlySet do
       expect(operator).
         to receive(:operate) { |bucket, key, type, operations|
 
-        expect(bucket).to eq bucket
-        expect(key).to eq 'key'
-        expect(type).to eq subject.bucket_type
+          expect(bucket).to eq bucket
+          expect(key).to eq 'key'
+          expect(type).to eq subject.bucket_type
 
-        expect(operations).to be_a Riak::Crdt::Operation::Update
-        expect(operations.value).to eq({
-                                         add: %w{alpha bravo},
-                                       })
-      }.
-        and_return(response)
+          expect(operations).to be_a Riak::Crdt::Operation::Update
+          expect(operations.value).to eq({
+                                           add: %w{alpha bravo}
+                                         })
+        }.and_return(response)
 
       subject.instance_variable_set :@context, 'placeholder'
 

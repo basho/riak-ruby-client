@@ -14,7 +14,7 @@
 
 require 'riak/errors/crdt_error'
 
-%w{ operation base inner_register inner_flag counter inner_counter batch_counter hyper_log_log map inner_map batch_map grow_only_set set inner_set grow_only_set typed_collection }.each do |f|
+%w{ operation base inner_register inner_flag counter inner_counter batch_counter hyper_log_log map inner_map batch_map grow_only_set set inner_set typed_collection }.each do |f|
   require "riak/crdt/#{f}"
 end
 
