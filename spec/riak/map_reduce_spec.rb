@@ -14,6 +14,8 @@
 
 require 'spec_helper'
 
+require 'riak/errors/list_error'
+
 describe Riak::MapReduce do
 
   let(:backend){ double 'Backend' }
@@ -286,15 +288,13 @@ describe Riak::MapReduce do
       before { Riak.disable_list_keys_warnings = false }
       after { Riak.disable_list_keys_warnings = true }
 
-      it "warns about list-keys on buckets" do
-        expect(mr).to receive(:warn).twice
-        mr.add("foo")
-        mr.add(Riak::Bucket.new(client, "foo"))
+      it "raises list-keys exception on buckets" do
+        expect { mr.add("foo") }.to raise_error Riak::ListError
+        expect { mr.add(Riak::Bucket.new(client, "foo")) }.to raise_error Riak::ListError
       end
 
-      it "warns about list-keys on key-filters" do
-        expect(mr).to receive(:warn)
-        mr.filter("foo") { matches "bar" }
+      it "raises list-keys exception on key-filters" do
+        expect { mr.filter("foo") { matches "bar" } }.to raise_error Riak::ListError
       end
     end
   end

@@ -43,11 +43,15 @@ module Riak
     # Only change this if you really know what you're doing. Better to
     # err on the side of caution and assume you don't.
     # @private
-    attr_accessor :disable_list_keys_warnings
+    attr_accessor :disable_list_exceptions
+
+    # backwards compat
+    alias :disable_list_keys_warnings :disable_list_exceptions
+    alias :disable_list_keys_warnings= :disable_list_exceptions=
 
     # Set a custom logger object (e.g. Riak.logger = Rails.logger)
     attr_accessor :logger
   end
-  self.disable_list_keys_warnings = false
+  self.disable_list_exceptions = false
   self.logger = NullLogger.new
 end

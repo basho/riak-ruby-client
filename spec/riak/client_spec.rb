@@ -245,7 +245,7 @@ describe Riak::Client, test_client: true do
       allow(@client).to receive(:backend).and_yield(@backend)
     end
 
-    after { Riak.disable_list_keys_warnings = true }
+    after { Riak.disable_list_exceptions = true }
 
     it "lists buckets" do
       expect(@backend).to receive(:list_buckets).and_return(%w{test test2})
@@ -256,11 +256,10 @@ describe Riak::Client, test_client: true do
       expect(buckets[1].name).to eq("test2")
     end
 
-    it "warns about the expense of list-buckets when warnings are not disabled" do
-      Riak.disable_list_keys_warnings = false
+    it "raises list-error when exceptions are not disabled" do
+      Riak.disable_list_exceptions = false
       allow(@backend).to receive(:list_buckets).and_return(%w{test test2})
-      expect(@client).to receive(:warn)
-      @client.buckets
+      expect { @client.buckets }.to raise_error Riak::ListError
     end
 
     it "supports a timeout option" do

@@ -18,6 +18,7 @@ require 'riak/client'
 require 'riak/robject'
 require 'riak/counter'
 require 'riak/errors/failed_request'
+require 'riak/errors/list_error'
 
 module Riak
   # Represents and encapsulates operations on a Riak bucket.  You may retrieve a bucket
@@ -58,7 +59,10 @@ module Riak
     # @note This operation has serious performance implications and
     #    should not be used in production applications.
     def keys(options = {}, &block)
-      warn(t('list_keys', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+      unless Riak.disable_list_exceptions
+        msg = t('list_keys', :backtrace => caller.join("\n    "))
+        raise Riak::ListError.new(msg)
+      end
       if block_given?
         @client.list_keys(self, options, &block)
       else

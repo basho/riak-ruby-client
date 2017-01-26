@@ -21,6 +21,7 @@ require 'riak/robject'
 require 'riak/bucket_typed/bucket'
 require 'riak/walk_spec'
 require 'riak/errors/failed_request'
+require 'riak/errors/list_error'
 require 'riak/map_reduce_error'
 require 'riak/map_reduce/phase'
 require 'riak/map_reduce/filter_builder'
@@ -87,20 +88,18 @@ module Riak
         when RObject
           @inputs << robject_input(p)
         when String
-          warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+          maybe_raise_list_exception(caller)
           @inputs = maybe_escape(p)
         end
       when 2..3
         bucket = params.shift
-
         if Array === params.first
           if bucket.is_a? Bucket
             bucket = bucket_input(bucket)
           else
             bucket = maybe_escape(bucket)
           end
-
-          warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+          maybe_raise_list_exception(caller)
           @inputs = {:bucket => bucket, :key_filters => params.first }
         else
           key = params.shift
@@ -255,12 +254,10 @@ module Riak
     # Processes a {Bucket} or {BucketTyped::Bucket} into a whole-bucket
     # {MapReduce} input.
     def bucket_input(bucket)
-      warn(t('full_bucket_mapred', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
-
+      maybe_raise_list_exception(caller)
       if bucket.needs_type?
         return [maybe_escape(bucket.type.name), maybe_escape(bucket.name)]
       end
-
       maybe_escape(bucket.name)
     end
 
@@ -304,6 +301,14 @@ module Riak
                 maybe_escape(bucket.name),
                 maybe_escape(key)
                ] + kd
+      end
+    end
+
+    def maybe_raise_list_exception(bound_caller)
+      unless Riak.disable_list_exceptions
+        bt = bound_caller.join("\n    ")
+        msg = t('full_bucket_mapred', :backtrace => bt)
+        raise Riak::ListError.new(msg)
       end
     end
   end
