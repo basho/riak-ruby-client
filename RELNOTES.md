@@ -1,7 +1,15 @@
 # Riak Ruby Client Release Notes
 
+## [`2.7.0` Release](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.7.0)
+
+Highlights (see milestone for full changes):
+
+* [Running expensive operations *now raise exceptions*](https://github.com/basho/riak-ruby-client/pull/308). You can disable these exceptions for development purposes but should not do so in production.
+ 
+
 ## [`2.6.0` Release - 2016-12-14](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.6.0)
-  * Riak TS 1.5 support
+
+* Riak TS 1.5 support
 
 ## [`2.5.0` Release - 2016-11-16](https://github.com/basho/riak-ruby-client/issues?q=milestone%3Ariak-ruby-client-2.5.0)
 

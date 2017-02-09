@@ -21,6 +21,8 @@ TCY := $(PROJDIR)/spec/support/test_client.yml
 CLIENT_CERT := $(PROJDIR)/tools/test-ca/certs/riakuser-client-cert.pem
 CA_CERT := $(PROJDIR)/tools/test-ca/certs/cacert.pem
 
+all: test
+
 help:
 	@echo ''
 	@echo ' Targets:'
@@ -36,8 +38,6 @@ help:
 	@echo ' security-test    - Run security tests           '
 	@echo '-------------------------------------------------'
 	@echo ''
-
-all: test
 
 deps: clean
 	@gem install bundler

@@ -18,9 +18,10 @@ require 'innertube'
 require 'riak'
 require 'riak/util/translation'
 require 'riak/util/escape'
-require 'riak/errors/failed_request'
-require 'riak/errors/protobuffs_error'
 require 'riak/errors/backend_creation'
+require 'riak/errors/failed_request'
+require 'riak/errors/list_error'
+require 'riak/errors/protobuffs_error'
 require 'riak/client/decaying'
 require 'riak/client/node'
 require 'riak/client/search'
@@ -182,7 +183,10 @@ module Riak
     #       in development.
     # @return [Array<Bucket>] a list of buckets
     def buckets(options = {}, &block)
-      warn(t('list_buckets', :backtrace => caller.join("\n    "))) unless Riak.disable_list_keys_warnings
+      unless Riak.disable_list_exceptions
+        msg = warn(t('list_buckets', :backtrace => caller.join("\n    ")))
+        raise Riak::ListError.new(msg)
+      end
 
       return ListBuckets.new self, options, block if block_given?
 

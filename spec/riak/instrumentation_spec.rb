@@ -14,6 +14,8 @@
 
 require 'spec_helper'
 
+require 'riak/errors/list_error'
+
 describe Riak::Client do
 
   before do
@@ -26,21 +28,29 @@ describe Riak::Client do
     @events = []
     @notifier = ActiveSupport::Notifications.notifier
     @notifier.subscribe { |*args| (@events ||= []) << event(*args) }
+
+    Riak.disable_list_exceptions = false
   end
+
+  after { Riak.disable_list_exceptions = true }
 
   describe "instrumentation", instrumentation: true do
 
     it "should notify on the 'buckets' operation" do
       expect(@backend).to receive(:list_buckets).and_return(%w{test test2})
       test_client_event(@client, 'riak.list_buckets') do
+        Riak.disable_list_exceptions = true
         @client.buckets
+        Riak.disable_list_exceptions = false
       end
     end
 
     it "should notify on the 'list_buckets' operation" do
       expect(@backend).to receive(:list_buckets).and_return(%w{test test2})
       test_client_event(@client, 'riak.list_buckets') do
+        Riak.disable_list_exceptions = true
         @client.list_buckets
+        Riak.disable_list_exceptions = false
       end
     end
 
@@ -107,12 +117,14 @@ describe Riak::Client do
       end
     end
 
-    it "should notify on the 'mapred' operation" do
+    it "should raise list-error on the 'mapred' operation" do
+      Riak.disable_list_keys_warnings = true
       @mapred = Riak::MapReduce.new(@client).add('test').map("function(){}").map("function(){}")
       expect(@backend).to receive(:mapred).and_return(nil)
       test_client_event(@client, 'riak.map_reduce') do
         @client.mapred(@mapred)
       end
+      Riak.disable_list_keys_warnings = false
     end
 
     it "should notify on the 'ping' operation" do

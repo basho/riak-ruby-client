@@ -26,7 +26,7 @@ require 'pp'
 require 'instrumentable'
 
 # Only the tests should really get away with this.
-Riak.disable_list_keys_warnings = true
+Riak.disable_list_exceptions = true
 
 %w[integration_setup
    version_filter

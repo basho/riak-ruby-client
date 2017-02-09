@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require 'riak/errors/list_error'
+
 module Riak::TimeSeries
 
   # A request to list keys in a Riak Time Series collection. Very expensive,
@@ -51,7 +53,10 @@ module Riak::TimeSeries
     #
     # @yieldparam key [Riak::TimeSeries::Row] a listed key
     def issue!(&block)
-      list_keys_warning(caller)
+      unless Riak.disable_list_exceptions
+        msg = t('time_series.list_keys', :backtrace => caller.join("\n    "))
+        raise Riak::ListError.new(msg)
+      end
 
       options = { timeout: self.timeout }
 
@@ -65,15 +70,6 @@ module Riak::TimeSeries
       return @results = potential_results unless block_given?
 
       true
-    end
-
-    private
-    def list_keys_warning(bound_caller)
-      return if Riak.disable_list_keys_warnings
-
-      backtrace = bound_caller.join("\n    ")
-
-      warn(t('time_series.list_keys'), backtrace: backtrace)
     end
   end
 end

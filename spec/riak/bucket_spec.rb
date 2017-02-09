@@ -14,6 +14,8 @@
 
 require 'spec_helper'
 
+require 'riak/errors/list_error'
+
 describe Riak::Bucket do
   before :each do
     @client = Riak::Client.new
@@ -60,12 +62,11 @@ describe Riak::Bucket do
       2.times { expect(@bucket.keys).to eq(['bar']) }
     end
 
-    it "warns about the expense of list-keys when warnings are not disabled" do
-      Riak.disable_list_keys_warnings = false
+    it "raises list error when exceptions are not disabled" do
+      Riak.disable_list_exceptions = false
       allow(@backend).to receive(:list_keys).and_return(%w{test test2})
-      expect(@bucket).to receive(:warn)
-      @bucket.keys
-      Riak.disable_list_keys_warnings = true
+      expect { @bucket.keys }.to raise_error Riak::ListError
+      Riak.disable_list_exceptions = true
     end
 
     it "allows a specified timeout when listing keys" do
