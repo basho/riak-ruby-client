@@ -131,12 +131,14 @@ module Riak
     # @param [Array<String>] keys array of keys to fetch
     # @return [Hash<String, Riak::RObject>] hash of keys to objects
     def get_many(keys)
-      pairs = keys.map{|k| [self, k]}
-      results = Multiget.perform @client, pairs
-      results.keys.inject(Hash.new) do |mem, var|
-        mem[var[1]] = results[var]
-        mem
-      end
+      perform_multi(Multiget, keys)
+    end
+
+    # Check multiple keys from this bucket.
+    # @param [Array<String>] keys array of keys to check
+    # @return [Hash<String, Riak::RObject>] hash of keys to true/false
+    def exist_many(keys)
+      perform_multi(Multiexist, keys)
     end
 
     # Create a new blank object
@@ -210,12 +212,11 @@ module Riak
       client.get_index(self, index, query, options)
     end
 
-
     # Retrieves a preflist for the given key; useful for
     # figuring out where in the cluster an object is stored.
     # @param [String] key the key
     # @return [Array<PreflistItem>] an array of preflist entries
-    def get_preflist(key, options = {  })
+    def get_preflist(key, options = {})
       type = self.type.name if needs_type?
       client.get_preflist self, key, type, options
     end
@@ -315,6 +316,14 @@ module Riak
       return false unless self.class == other.class
       return false unless self.client == other.client
       return equal_bytes?(self.name, other.name)
+    end
+
+    private
+
+    def perform_multi(klass, keys)
+      pairs = keys.map { |k| [self, k] }
+      results = klass.perform @client, pairs
+      results.each_with_object({}) { |(pair, value), all| all[pair[1]] = value }
     end
   end
 end
