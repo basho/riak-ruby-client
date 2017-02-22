@@ -16,6 +16,7 @@ require 'riak/client/beefcake/crdt/counter_loader'
 require 'riak/client/beefcake/crdt/hyper_log_log_loader'
 require 'riak/client/beefcake/crdt/map_loader'
 require 'riak/client/beefcake/crdt/set_loader'
+require 'riak/client/beefcake/crdt/grow_only_set_loader'
 
 module Riak
   class Client
@@ -62,7 +63,7 @@ module Riak
         def get_loader_for_value(value)
           return nil if value.nil?
 
-          [CounterLoader, HyperLogLogLoader, MapLoader, SetLoader].map do |loader|
+          [CounterLoader, HyperLogLogLoader, MapLoader, SetLoader, GrowOnlySetLoader].map do |loader|
             loader.for_value value
           end.compact.first
         end
@@ -81,7 +82,7 @@ module Riak
           case type
           when DtFetchResp::DataType::COUNTER
             0
-          when DtFetchResp::DataType::SET
+          when DtFetchResp::DataType::GSET, DtFetchResp::DataType::SET
             ::Set.new
           when DtFetchResp::DataType::MAP
             {

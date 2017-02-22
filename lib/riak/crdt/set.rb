@@ -21,7 +21,7 @@ module Riak
     #
     # Uses the Ruby standard library `::Set` frequently, so the full class names will
     # be used frequently.
-    class Set < Base
+    class Set < GrowOnlySet
       include Util::String
 
       # Create a set instance. The bucket type is determined by the first of
@@ -59,38 +59,11 @@ module Riak
         operate batcher.operations
       end
 
-      # Gets the current set members from Riak if necessary, and return the
-      # stdlib `::Set` of them.
-      #
-      # @return [::Set] a Ruby standard library {::Set} of the members
-      #                 of this {Riak::Crdt::Set}
-      def members
-        reload if dirty?
-        @members
-      end
-
-      alias :value :members
-
       # Cast this {Riak::Crdt::Set} to a Ruby {Array}.
       #
       # @return [Array] array of set members
       def to_a
-        members.to_a
-      end
-
-      # Check to see if this structure has any members.
-      #
-      # @return [Boolean] if the structure is empty
-      def empty?
-        members.empty?
-      end
-
-      # Check to see if a given string is present in this data structure.
-      #
-      # @param [String] candidate string to check for inclusion in this structure
-      # @return [Boolean] if the structure includes
-      def include?(candidate)
-        members.any? { |m| equal_bytes?(m, candidate) }
+        super.to_a
       end
 
       # Add a {String} to the {Riak::Crdt::Set}
@@ -112,18 +85,7 @@ module Riak
 
       alias :delete :remove
 
-      def pretty_print(pp)
-        super pp do
-          pp.comma_breakable
-          pp.pp to_a
-        end
-      end
-
       private
-      def vivify(value)
-        @members = value
-      end
-
       def operation(direction, element)
         Operation::Update.new.tap do |op|
           op.type = :set
@@ -131,15 +93,10 @@ module Riak
         end
       end
 
-      class BatchSet
+      class BatchSet < GrowOnlySet::BatchGrowOnlySet
         def initialize(base)
-          @base = base
-          @adds = ::Set.new
+          super(base)
           @removes = ::Set.new
-        end
-
-        def add(element)
-          @adds.add element
         end
 
         def remove(element)
@@ -148,22 +105,6 @@ module Riak
         end
 
         alias :delete :remove
-
-        def include?(element)
-          members.include? element
-        end
-
-        def empty?
-          members.empty?
-        end
-
-        def context?
-          @base.context?
-        end
-
-        def to_a
-          members.to_a
-        end
 
         def members
           (@base + @adds).subtract @removes

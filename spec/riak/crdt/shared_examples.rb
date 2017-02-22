@@ -87,6 +87,26 @@ shared_examples_for 'Set CRDT' do
   end
 end
 
+shared_examples_for 'Grow Only Set CRDT' do
+  it 'has a value' do
+    expect(subject).to respond_to :value
+    expect(subject).to respond_to :members
+    expect(subject).to respond_to :to_a
+  end
+
+  it 'has an include? method' do
+    expect(subject).to respond_to :include?
+  end
+
+  it 'has an empty? method' do
+    expect(subject).to respond_to :empty?
+  end
+
+  it 'has an add method' do
+    expect(subject).to respond_to :add
+  end
+end
+
 shared_examples_for 'HyperLogLog CRDT' do
   it 'has a value' do
     expect(subject).to respond_to :value

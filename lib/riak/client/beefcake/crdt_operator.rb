@@ -84,6 +84,8 @@ module Riak
             serialize_counter operations
           when :hll
             serialize_hyper_log_log operations
+          when :gset
+            serialize_gset operations
           when :set
             serialize_set operations
           when :map
@@ -170,6 +172,15 @@ module Riak
                                             ),
                         register_op: register_op.value
                         )
+        end
+
+        def serialize_gset(gset_ops)
+          adds = ::Set.new
+          gset_ops.each do |o|
+            adds.add [o.value[:add]] if o.value[:add]
+          end
+
+          GSetOp.new(adds: adds.to_a.flatten)
         end
 
         def serialize_set(set_ops)

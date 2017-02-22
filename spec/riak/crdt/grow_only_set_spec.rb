@@ -15,7 +15,7 @@
 require 'spec_helper'
 require_relative 'shared_examples'
 
-describe Riak::Crdt::Set do
+describe Riak::Crdt::GrowOnlySet do
   let(:bucket) do
     double('bucket').tap do |b|
       allow(b).to receive(:name).and_return('bucket')
@@ -45,7 +45,7 @@ describe Riak::Crdt::Set do
       allow(backend).to receive(:crdt_loader).and_return(loader)
     end
 
-    include_examples 'Set CRDT'
+    include_examples 'Grow Only Set CRDT'
 
     it 'batches properly' do
       expect(operator).
@@ -57,8 +57,7 @@ describe Riak::Crdt::Set do
 
           expect(operations).to be_a Riak::Crdt::Operation::Update
           expect(operations.value).to eq({
-                                           add: %w{alpha bravo},
-                                           remove: %w{foxtrot}
+                                           add: %w{alpha bravo}
                                          })
         }.and_return(response)
 
@@ -67,7 +66,6 @@ describe Riak::Crdt::Set do
       subject.batch do |s|
         s.add 'alpha'
         s.add 'bravo'
-        s.remove 'foxtrot'
       end
     end
   end

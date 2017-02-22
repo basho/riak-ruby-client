@@ -46,7 +46,6 @@ Lint/BlockAlignment:
   Exclude:
     - 'spec/riak/client_spec.rb'
     - 'spec/riak/crdt/counter_spec.rb'
-    - 'spec/riak/crdt/set_spec.rb'
     - 'spec/riak/crdt/typed_collection_spec.rb'
 
 # Offense count: 1
@@ -434,6 +433,7 @@ Style/EmptyLinesAroundBlockBody:
     - 'spec/riak/core_ext/to_param_spec.rb'
     - 'spec/riak/counter_spec.rb'
     - 'spec/riak/crdt/map_spec.rb'
+    - 'spec/riak/crdt/grow_only_set_spec.rb'
     - 'spec/riak/crdt/set_spec.rb'
     - 'spec/riak/crdt/typed_collection_spec.rb'
     - 'spec/riak/instrumentation_spec.rb'
@@ -464,7 +464,7 @@ Style/EmptyLinesAroundMethodBody:
   Exclude:
     - 'lib/riak/client/beefcake/socket.rb'
 
-# Offense count: 15
+# Offense count: 16
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 # SupportedStyles: empty_lines, no_empty_lines
@@ -474,6 +474,7 @@ Style/EmptyLinesAroundModuleBody:
     - 'lib/riak/counter.rb'
     - 'lib/riak/crdt.rb'
     - 'lib/riak/crdt/counter.rb'
+    - 'lib/riak/crdt/grow_only_set.rb'
     - 'lib/riak/crdt/map.rb'
     - 'lib/riak/crdt/set.rb'
     - 'lib/riak/crdt/hyper_log_log.rb'

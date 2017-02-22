@@ -14,7 +14,7 @@
 
 require 'riak/errors/crdt_error'
 
-%w{ operation base inner_register inner_flag counter inner_counter batch_counter hyper_log_log map inner_map batch_map set inner_set typed_collection }.each do |f|
+%w{ operation base inner_register inner_flag counter inner_counter batch_counter hyper_log_log map inner_map batch_map grow_only_set set inner_set typed_collection }.each do |f|
   require "riak/crdt/#{f}"
 end
 
@@ -25,13 +25,14 @@ module Riak
 
     # These are the default bucket types for the three top-level data types.
     # Broadly, CRDTs require allow_mult to be enabled, and the `datatype`
-    # property to be set to the appropriate atom (`counter`, `map`, `set`
-    # or 'hll').
+    # property to be set to the appropriate atom (`counter`, `map`, `set`,
+    # 'hll', or 'gset').
     DEFAULT_BUCKET_TYPES = {
       counter: 'counters',
       map: 'maps',
       set: 'sets',
       hll: 'hlls',
+      gset: 'gsets',
     }
   end
 end
