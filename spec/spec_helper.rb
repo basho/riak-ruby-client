@@ -43,7 +43,6 @@ Riak.disable_list_exceptions = true
 end
 
 RSpec.configure do |config|
-  #config.debug = true
   config.mock_with :rspec
 
   config.before(:each) do

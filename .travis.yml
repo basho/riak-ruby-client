@@ -24,7 +24,7 @@ script:
   - sudo riak-admin security disable
   - make test
   - sudo riak-admin security enable
-  - make security-test
+  - make security-test-legacy # TODO FIXME change to security-test when 2.3 ships
 notifications:
   slack:
     secure: nryEZNlLs0xpMJcrmTRzJIaFdfHWigsD4i9zEI8SgDdHqEgJ52/UfCifWHC7N4UckpRkmMUc8yt/Y4YS7G4Gu4yx4qXNIL33VmuudUe2YEVv+oVnG9oHVPkHDvOkRSLlWyAIqd4uXbLzghYBrHigoinfCcmjjRq5HNocRrvnwdE=
