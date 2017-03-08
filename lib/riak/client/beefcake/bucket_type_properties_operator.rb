@@ -17,7 +17,6 @@ class Riak::Client::BeefcakeProtobuffsBackend
     BucketTypePropertiesOperator.new(self)
   end
 
-
   class BucketTypePropertiesOperator
     attr_reader :backend
 
