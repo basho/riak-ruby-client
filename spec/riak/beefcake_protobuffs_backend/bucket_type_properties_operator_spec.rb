@@ -76,9 +76,8 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketTypePropertiesOperator d
       with(:GetBucketTypeReq, get_bucket_type_request)
 
     expect(protocol).to receive(:expect).
-      with(:GetBucketTypeResp,
-           backend_class::RpbGetBucketResp).
-      and_return(get_bucket_type_response)
+      with(:GetBucketResp, backend_class::RpbGetBucketResp).
+        and_return(get_bucket_type_response)
   end
 
   subject{ described_class.new backend }
@@ -129,7 +128,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketTypePropertiesOperator d
       set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketTypeReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
@@ -154,7 +153,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketTypePropertiesOperator d
         with(:GetBucketTypeReq, get_bucket_type_request)
 
       expect(protocol).to receive(:expect).
-        with(:GetBucketTypeResp, backend_class::RpbGetBucketResp).
+        with(:GetBucketResp, backend_class::RpbGetBucketResp).
         and_return(get_bucket_type_response)
 
       resp = nil
@@ -212,7 +211,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketTypePropertiesOperator d
       set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketTypeReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)

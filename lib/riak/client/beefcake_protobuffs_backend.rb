@@ -28,6 +28,7 @@ module Riak
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
           require 'riak/client/beefcake/bucket_properties_operator'
+          require 'riak/client/beefcake/bucket_type_properties_operator'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
           require 'riak/client/beefcake/time_series_delete_operator'
