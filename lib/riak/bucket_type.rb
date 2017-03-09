@@ -74,7 +74,7 @@ module Riak
     # @raise [FailedRequest] if the new properties were not accepted by the Riakserver
     # @see #n_value, #allow_mult, #r, #w, #dw, #rw
     def props=(properties)
-      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless Hash === properties
+      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless properties.is_a? Hash
       props.merge!(properties)
       @client.set_bucket_type_props(self, properties)
       props
