@@ -84,7 +84,7 @@ module Riak
     # Get the properties of this bucket type
     # @return [Hash<Symbol,Object>]
     def props
-      @prope ||= @client.get_bucket_type_props(self)
+      @props ||= @client.get_bucket_type_props(self)
     end
     alias :properties :props
 
