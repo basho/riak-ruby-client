@@ -48,7 +48,6 @@ module Riak
           robject.conflict? ? robject.attempt_conflict_resolution : robject
         end
 
-        private
         def load_content(pbuf, rcontent)
           if ENCODING && pbuf.charset.present?
             pbuf.value.force_encoding(pbuf.charset) if Encoding.find(pbuf.charset)
