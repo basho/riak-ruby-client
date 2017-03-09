@@ -28,6 +28,7 @@ module Riak
           require 'riak/client/beefcake/message_overlay'
           require 'riak/client/beefcake/object_methods'
           require 'riak/client/beefcake/bucket_properties_operator'
+          require 'riak/client/beefcake/bucket_type_properties_operator'
           require 'riak/client/beefcake/crdt_operator'
           require 'riak/client/beefcake/crdt_loader'
           require 'riak/client/beefcake/time_series_delete_operator'
@@ -256,7 +257,7 @@ module Riak
         return resp.value
       end
 
-      def get_bucket_props(bucket, options = {  })
+      def get_bucket_props(bucket, options = {})
         bucket_properties_operator.get bucket, options
       end
 
@@ -264,27 +265,16 @@ module Riak
         bucket_properties_operator.put bucket, props, type: type
       end
 
-      def reset_bucket_props(bucket, options)
-        bucket = bucket.name if Bucket === bucket
-        req = RpbResetBucketReq.new(bucket: maybe_encode(bucket),
-                                    type: options[:type])
-
-        protocol do |p|
-          p.write :ResetBucketReq, req
-          p.expect :ResetBucketResp
-        end
+      def reset_bucket_props(bucket, options = {})
+        bucket_properties_operator.reset bucket, options
       end
 
       def get_bucket_type_props(bucket_type)
-        bucket_type = bucket_type.name if bucket_type.is_a? BucketType
-        req = RpbGetBucketTypeReq.new type: bucket_type
+        bucket_type_properties_operator.get bucket_type
+      end
 
-        resp = protocol do |p|
-          p.write :GetBucketTypeReq, req
-          p.expect(:GetBucketResp, RpbGetBucketResp)
-        end
-
-        resp.props.to_hash
+      def set_bucket_type_props(bucket_type, props, options = {})
+        bucket_type_properties_operator.put bucket_type, props, options
       end
 
       def list_keys(bucket, options = {}, &block)

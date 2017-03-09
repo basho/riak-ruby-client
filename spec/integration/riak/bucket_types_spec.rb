@@ -21,7 +21,7 @@ describe 'Bucket Types', test_client: true, integration: true do
 
     it 'exposes bucket type properties' do
       expect(props = bucket_type.properties).to be_a Hash
-      expect(props[:allow_mult]).to be
+      expect(props['allow_mult']).to be
     end
 
     describe 'performing key-value operations' do
@@ -201,6 +201,26 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
     end
 
+    # describe 'manipulating bucket type properties' do
+    #   let(:bucket_type){ test_client.bucket_type 'plain' }
+    #   let(:other_bucket_type){ test_client.bucket_type 'no_siblings' }
+
+    #   it 'allows reading and writing bucket properties' do
+    #     expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to_not be
+    #     expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to_not be
+
+    #     expect{ bucket_type.props = {'notfound_ok' => true} }.to_not raise_error
+
+    #     expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to be
+    #     expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to_not be
+
+    #     expect{ bucket_type.props = {'notfound_ok' => false} }.to_not raise_error
+
+    #     expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to_not be
+    #     expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to_not be
+    #   end
+    # end
+
     describe 'performing CRDT operations' do
       let(:bucket_type){ test_client.bucket_type 'other_counters' }
       let(:bucket){ bucket_type.bucket random_key }
@@ -307,7 +327,7 @@ describe 'Bucket Types', test_client: true, integration: true do
     end
 
     describe 'performing CRDT HLL operations', hll: true do
-      before(:each) do
+      before(:all) do
         ensure_datatype_exists :hll
       end
 
@@ -336,6 +356,17 @@ describe 'Bucket Types', test_client: true, integration: true do
 
         expect(bucket.delete hll.key, type: bucket_type).to be
         expect{ bucket.get hll.key, type: bucket_type }.to raise_error /not_found/
+      end
+
+      it 'defaults to 14 for hll_precision' do
+        bt = test_client.bucket_type bucket_type
+        expect(props = bt.properties).to be_a Hash
+        expect(props['hll_precision']).to eq 14
+      end
+
+      it 'allows setting hll_precision' do
+        bt = test_client.bucket_type bucket_type
+        expect{ bt.properties['hll_precision'] = 14 }.to_not raise_error
       end
     end
   end

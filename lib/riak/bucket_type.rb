@@ -53,14 +53,40 @@ module Riak
       end
     end
 
+    # Sets internal properties on the bucket type
+    # Note: this results in a request to the Riak server!
+    # @param [Hash] properties new properties for the bucket type
+    # @option properties [Fixnum] :n_val (3) The N value (replication factor)
+    # @option properties [true,false] :allow_mult (false) Whether to permit object siblings
+    # @option properties [true,false] :last_write_wins (false) Whether to ignore
+    #   causal context in regular key-value buckets
+    # @option properties [Array<Hash>] :precommit ([]) precommit hooks
+    # @option properties [Array<Hash>] :postcommit ([])postcommit hooks
+    # @option properties [Fixnum,String] :r ("quorum") read quorum (numeric or
+    # symbolic)
+    # @option properties [Fixnum,String] :w ("quorum") write quorum (numeric or
+    # symbolic)
+    # @option properties [Fixnum,String] :dw ("quorum") durable write quorum
+    # (numeric or symbolic)
+    # @option properties [Fixnum,String] :rw ("quorum") delete quorum (numeric or
+    # symbolic)
+    # @return [Hash] the merged bucket properties
+    # @raise [FailedRequest] if the new properties were not accepted by the Riakserver
+    # @see #n_value, #allow_mult, #r, #w, #dw, #rw
+    def props=(properties)
+      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless properties.is_a? Hash
+      props.merge!(properties)
+      @client.set_bucket_type_props(self, properties)
+      props
+    end
+    alias :'properties=' :'props='
+
     # Get the properties of this bucket type
     # @return [Hash<Symbol,Object>]
-    def properties
-      @properties ||= client.backend do |be|
-        be.get_bucket_type_props name
-      end
+    def props
+      @props ||= @client.get_bucket_type_props(self)
     end
-    alias :props :properties
+    alias :properties :props
 
     # Return the data type used for handling the CRDT stored in this bucket
     # type.

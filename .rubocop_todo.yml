@@ -34,6 +34,8 @@ Lint/AssignmentInCondition:
   Exclude:
     - 'lib/riak/bucket_type.rb'
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_type_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_or_type_properties_operator.rb'
     - 'lib/riak/client/beefcake/object_methods.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
@@ -138,7 +140,7 @@ Metrics/AbcSize:
 # Offense count: 12
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
-  Max: 440
+  Max: 441
 
 # Offense count: 18
 Metrics/CyclomaticComplexity:
@@ -327,6 +329,7 @@ Style/ClosingParenthesisIndentation:
     - 'lib/riak/crdt/map.rb'
     - 'lib/riak/map_reduce/filter_builder.rb'
     - 'spec/riak/beefcake_protobuffs_backend/bucket_properties_operator_spec.rb'
+    - 'spec/riak/beefcake_protobuffs_backend/bucket_type_properties_operator_spec.rb'
     - 'spec/riak/beefcake_protobuffs_backend_spec.rb'
     - 'spec/riak/map_reduce_spec.rb'
     - 'spec/riak/search/index_spec.rb'
@@ -347,6 +350,8 @@ Style/ColonMethodCall:
 Style/ConditionalAssignment:
   Exclude:
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_type_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_or_type_properties_operator.rb'
     - 'lib/riak/crdt/typed_collection.rb'
     - 'lib/riak/map_reduce.rb'
 
@@ -534,6 +539,7 @@ Style/FirstParameterIndentation:
     - 'lib/riak/client/beefcake/crdt_loader.rb'
     - 'lib/riak/client/beefcake/crdt_operator.rb'
     - 'spec/riak/beefcake_protobuffs_backend/bucket_properties_operator_spec.rb'
+    - 'spec/riak/beefcake_protobuffs_backend/bucket_type_properties_operator_spec.rb'
     - 'spec/riak/beefcake_protobuffs_backend_spec.rb'
     - 'spec/riak/map_reduce_spec.rb'
     - 'spec/riak/search/index_spec.rb'
@@ -681,6 +687,7 @@ Style/MultilineMethodCallBraceLayout:
     - 'lib/riak/crdt/map.rb'
     - 'lib/riak/map_reduce/filter_builder.rb'
     - 'spec/riak/beefcake_protobuffs_backend/bucket_properties_operator_spec.rb'
+    - 'spec/riak/beefcake_protobuffs_backend/bucket_type_properties_operator_spec.rb'
     - 'spec/riak/beefcake_protobuffs_backend/ts_cell_codec_spec.rb'
     - 'spec/riak/beefcake_protobuffs_backend_spec.rb'
     - 'spec/riak/bucket_typed/bucket_spec.rb'

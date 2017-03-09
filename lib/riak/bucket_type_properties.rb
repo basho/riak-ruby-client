@@ -16,25 +16,25 @@ require 'riak'
 require 'riak/base_bucket_or_type_properties'
 
 module Riak
-  # Provides a predictable and useful interface to bucket properties. Allows
-  # reading, reloading, and setting new values for bucket properties.
-  class BucketProperties < BaseBucketOrTypeProperties
-    attr_reader :bucket
+  # Provides a predictable and useful interface to bucket type properties. Allows
+  # reading, reloading, and setting new values for bucket type properties.
+  class BucketTypeProperties < BaseBucketOrTypeProperties
+    attr_reader :bucket_type
 
-    # Create a properties object for a bucket (including bucket-typed buckets).
-    # @param [Riak::Bucket, Riak::BucketTyped::Bucket] bucket
-    def initialize(bucket)
-      super(bucket.client)
-      @bucket = bucket
+    # Create a properties object for a bucket type
+    # @param [Riak::BucketType] bucket_type
+    def initialize(bucket_type)
+      super(bucket_type.client)
+      @bucket_type = bucket_type
     end
 
-    # Write bucket properties and invalidate the cache in this object.
+    # Write bucket type properties and invalidate the cache in this object.
     def store_properties(backend, props)
-      backend.bucket_properties_operator.put @bucket, props
+      backend.bucket_type_properties_operator.put @bucket_type, props
     end
 
     def get_properties(backend)
-      backend.bucket_properties_operator.get @bucket
+      backend.bucket_type_properties_operator.get @bucket_type
     end
   end
 end

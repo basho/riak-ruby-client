@@ -278,6 +278,13 @@ module Riak
       end
     end
 
+    # Bucket type properties. See BucketType#props
+    def get_bucket_type_props(bucket_type)
+      backend do |b|
+        b.get_bucket_type_props bucket_type
+      end
+    end
+
     # Queries a secondary index on a bucket. See Bucket#get_index
     def get_index(bucket, index, query, options = {})
       backend do |b|
@@ -433,6 +440,13 @@ module Riak
     def set_bucket_props(bucket, properties, type = nil)
       backend do |b|
         b.set_bucket_props(bucket, properties, type)
+      end
+    end
+
+    # Sets the properties on a bucket type. See BucketType#props=
+    def set_bucket_type_props(bucket_type, properties)
+      backend do |b|
+        b.set_bucket_type_props(bucket_type, properties)
       end
     end
 

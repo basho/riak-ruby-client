@@ -15,7 +15,7 @@
 require 'spec_helper'
 Riak::Client::BeefcakeProtobuffsBackend.configured?
 
-describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
+describe Riak::Client::BeefcakeProtobuffsBackend::BucketTypePropertiesOperator do
   let(:backend_class){ Riak::Client::BeefcakeProtobuffsBackend }
   let(:backend) { instance_double('Riak::Client::BeefcakeProtobuffsBackend') }
 
@@ -26,12 +26,12 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
     end
   end
 
-  let(:bucket_name){ 'bucket_name' }
-  let(:bucket) do
-    instance_double('Riak::Bucket').tap do |b|
-      allow(b).to receive(:name).and_return(bucket_name)
-      allow(b).to receive(:is_a?).with(Riak::Bucket).and_return(true)
-      allow(b).to receive(:needs_type?).and_return(false)
+  let(:bucket_type_name){ 'bucket_type_name' }
+  let(:bucket_type) do
+    instance_double('Riak::BucketType').tap do |b|
+      allow(b).to receive(:name).and_return(bucket_type_name)
+      allow(b).to receive(:is_a?).with(Riak::BucketType).and_return(true)
+      allow(b).to receive(:default?).and_return(false)
     end
   end
 
@@ -62,23 +62,22 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
                                                ))
   end
 
-  let(:get_bucket_request) do
-    backend_class::RpbGetBucketReq.new bucket: bucket_name
+  let(:get_bucket_type_request) do
+    backend_class::RpbGetBucketTypeReq.new type: bucket_type_name
   end
 
-  let(:get_bucket_response) do
+  let(:get_bucket_type_response) do
     backend_class::RpbGetBucketResp.
       new(props: test_props)
   end
 
-  let(:get_bucket_expectation) do
+  let(:get_bucket_type_expectation) do
     expect(protocol).to receive(:write).
-      with(:GetBucketReq, get_bucket_request)
+      with(:GetBucketTypeReq, get_bucket_type_request)
 
     expect(protocol).to receive(:expect).
-      with(:GetBucketResp,
-           backend_class::RpbGetBucketResp).
-      and_return(get_bucket_response)
+      with(:GetBucketResp, backend_class::RpbGetBucketResp).
+        and_return(get_bucket_type_response)
   end
 
   subject{ described_class.new backend }
@@ -88,10 +87,10 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
   end
 
   it 'passes through scalar properties' do
-    get_bucket_expectation
+    get_bucket_type_expectation
 
     resp = nil
-    expect{ resp = subject.get bucket }.to_not raise_error
+    expect{ resp = subject.get bucket_type }.to_not raise_error
 
     expect(resp['n_val']).to eq 3
     expect(resp['write_once']).to eq true
@@ -100,10 +99,10 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
 
   describe 'quorums' do
     it 'rubyfies' do
-      get_bucket_expectation
+      get_bucket_type_expectation
 
       resp = nil
-      expect{ resp = subject.get bucket }.to_not raise_error
+      expect{ resp = subject.get bucket_type }.to_not raise_error
 
       expect(resp['pr']).to eq 'one'
       expect(resp['r']).to eq 'quorum'
@@ -124,12 +123,12 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
             rw: 1
             )
 
-      set_bucket_request = backend_class::RpbSetBucketReq.new
-      set_bucket_request.bucket = bucket_name
-      set_bucket_request.props = expected_props
+      set_bucket_type_request = backend_class::RpbSetBucketTypeReq.new
+      set_bucket_type_request.type = bucket_type_name
+      set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
@@ -144,22 +143,21 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
         rw: 1
       }
 
-      expect{ subject.put bucket, write_props }.to_not raise_error
+      expect{ subject.put bucket_type, write_props }.to_not raise_error
     end
   end
 
   describe 'commit hooks' do
     it 'rubyfies' do
       expect(protocol).to receive(:write).
-        with(:GetBucketReq, get_bucket_request)
+        with(:GetBucketTypeReq, get_bucket_type_request)
 
       expect(protocol).to receive(:expect).
-        with(:GetBucketResp,
-             backend_class::RpbGetBucketResp).
-        and_return(get_bucket_response)
+        with(:GetBucketResp, backend_class::RpbGetBucketResp).
+        and_return(get_bucket_type_response)
 
       resp = nil
-      expect{ resp = subject.get bucket }.to_not raise_error
+      expect{ resp = subject.get bucket_type }.to_not raise_error
 
       expect(resp['precommit']).to be_an Array
       expect(pre = resp['precommit'].first).to be_a Hash
@@ -170,24 +168,18 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
     end
 
     it 'riakifies' do
-      modfun = backend_class::RpbModFun.new(
-                                            module: 'validate_json',
-                                            function: 'validate'
-                                            )
+      modfun = backend_class::RpbModFun.new(module: 'validate_json', function: 'validate')
+      precommit = [backend_class::RpbCommitHook.new(modfun: modfun)]
+      postcommit = [backend_class::RpbCommitHook.new(name: 'piper')]
       expected_props = backend_class::RpbBucketProps.
-        new(
-            precommit:  [backend_class::RpbCommitHook.
-                         new(modfun: modfun)],
-            postcommit: [backend_class::RpbCommitHook.
-                         new(name: 'piper')]
-            )
+        new(precommit: precommit, postcommit: postcommit)
 
-      set_bucket_request = backend_class::RpbSetBucketReq.new
-      set_bucket_request.bucket = bucket_name
-      set_bucket_request.props = expected_props
+      set_bucket_type_request = backend_class::RpbSetBucketTypeReq.new
+      set_bucket_type_request.type = bucket_type_name
+      set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
@@ -197,38 +189,29 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
         postcommit: ['piper']
       }
 
-      expect{ subject.put bucket, write_props }.to_not raise_error
+      expect{ subject.put bucket_type, write_props }.to_not raise_error
     end
   end
 
   describe 'modfuns' do
     it 'rubyfies' do
-      get_bucket_expectation
-
+      get_bucket_type_expectation
       resp = nil
-      expect{ resp = subject.get bucket }.to_not raise_error
-
-      expect(resp['linkfun']).to eq({
-                                           'mod' => 'nachos',
-                                           'fun' => 'galacticos'
-                                         })
-
+      expect{ resp = subject.get bucket_type }.to_not raise_error
+      expect(resp['linkfun']).to eq({'mod' => 'nachos', 'fun' => 'galacticos'})
       expect(resp['chash_keyfun']).to_not be
     end
 
     it 'riakifies' do
-      expected_props = backend_class::RpbBucketProps.
-        new(
-            linkfun: backend_class::RpbModFun.new(module: 'nachos',
-                                                  function: 'galacticos')
-            )
+      linkfun = backend_class::RpbModFun.new(module: 'nachos', function: 'galacticos')
+      expected_props = backend_class::RpbBucketProps.new(linkfun: linkfun)
 
-      set_bucket_request = backend_class::RpbSetBucketReq.new
-      set_bucket_request.bucket = bucket_name
-      set_bucket_request.props = expected_props
+      set_bucket_type_request = backend_class::RpbSetBucketTypeReq.new
+      set_bucket_type_request.type = bucket_type_name
+      set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
@@ -237,28 +220,27 @@ describe Riak::Client::BeefcakeProtobuffsBackend::BucketPropertiesOperator do
         linkfun: { mod: 'nachos', fun: 'galacticos' }
       }
 
-      expect{ subject.put bucket, write_props }.to_not raise_error
+      expect{ subject.put bucket_type, write_props }.to_not raise_error
     end
   end
 
   describe 'repl modes' do
     it 'riakifies symbols' do
-      expected_props = backend_class::RpbBucketProps.
-        new(repl: 2)
+      expected_props = backend_class::RpbBucketProps.new(repl: 2)
 
-      set_bucket_request = backend_class::RpbSetBucketReq.new
-      set_bucket_request.bucket = bucket_name
-      set_bucket_request.props = expected_props
+      set_bucket_type_request = backend_class::RpbSetBucketTypeReq.new
+      set_bucket_type_request.type = bucket_type_name
+      set_bucket_type_request.props = expected_props
 
       expect(protocol).to receive(:write).
-        with(:SetBucketReq, set_bucket_request)
+        with(:SetBucketTypeReq, set_bucket_type_request)
 
       expect(protocol).to receive(:expect).
         with(:SetBucketResp)
 
       write_props = { repl: :fullsync }
 
-      expect{ subject.put bucket, write_props }.to_not raise_error
+      expect{ subject.put bucket_type, write_props }.to_not raise_error
     end
   end
 end

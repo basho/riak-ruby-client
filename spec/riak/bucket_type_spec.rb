@@ -48,7 +48,7 @@ describe Riak::BucketType do
   end
 
   describe 'properties' do
-    let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(name) }
+    let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(subject) }
 
     it 'is queryable' do
       props_expectation.and_return(allow_mult: true)
@@ -59,6 +59,12 @@ describe Riak::BucketType do
     it 'asks for data type' do
       props_expectation.and_return(datatype: 'set')
       expect(subject.data_type_class).to eq Riak::Crdt::Set
+    end
+
+    it 'provides-hll-precision' do
+      props_expectation.and_return(hll_precision: 14)
+      expect(props = subject.properties).to be_a Hash
+      expect(props[:hll_precision]).to be
     end
   end
 end
