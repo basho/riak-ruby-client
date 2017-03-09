@@ -35,6 +35,7 @@ Lint/AssignmentInCondition:
     - 'lib/riak/bucket_type.rb'
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/bucket_type_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_or_type_properties_operator.rb'
     - 'lib/riak/client/beefcake/object_methods.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
@@ -350,6 +351,7 @@ Style/ConditionalAssignment:
   Exclude:
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/bucket_type_properties_operator.rb'
+    - 'lib/riak/client/beefcake/bucket_or_type_properties_operator.rb'
     - 'lib/riak/crdt/typed_collection.rb'
     - 'lib/riak/map_reduce.rb'
 

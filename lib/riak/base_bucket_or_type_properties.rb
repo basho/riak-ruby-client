@@ -67,11 +67,11 @@ module Riak
       cached_props[property_name.to_s] = value
     end
 
-    def get_properties(backend)
+    def get_properties(_backend)
       raise NotImplementedError
     end
 
-    def store_properties(backend)
+    def store_properties(_backend)
       @cached_props = nil
       return true
     end
