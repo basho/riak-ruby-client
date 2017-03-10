@@ -32,7 +32,6 @@ Lint/AmbiguousRegexpLiteral:
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
   Exclude:
-    - 'lib/riak/bucket_type.rb'
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/object_methods.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
@@ -265,7 +264,6 @@ Style/BarePercentLiterals:
 # IgnoredMethods: lambda, proc, it
 Style/BlockDelimiters:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/link.rb'
     - 'lib/riak/map_reduce/filter_builder.rb'
     - 'spec/failover/failover.rb'
@@ -291,7 +289,6 @@ Style/BracesAroundHashParameters:
 # Offense count: 30
 Style/CaseEquality:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
     - 'lib/riak/client/yokozuna.rb'
     - 'lib/riak/map_reduce.rb'
@@ -360,7 +357,6 @@ Style/DefWithParentheses:
 # Cop supports --auto-correct.
 Style/DeprecatedHashMethods:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/core_ext/slice.rb'
     - 'lib/riak/map_reduce/phase.rb'
 
@@ -390,7 +386,6 @@ Style/DoubleNegation:
 # Offense count: 6
 Style/EachWithObject:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/core_ext/stringify_keys.rb'
     - 'lib/riak/core_ext/symbolize_keys.rb'
     - 'lib/riak/map_reduce/results.rb'
@@ -401,7 +396,6 @@ Style/EachWithObject:
 # Cop supports --auto-correct.
 Style/EmptyLines:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/client.rb'
     - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/messages.rb'
@@ -491,7 +485,6 @@ Style/EmptyLinesAroundModuleBody:
 # Cop supports --auto-correct.
 Style/EmptyLiteral:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/core_ext/extract_options.rb'
     - 'lib/riak/crdt/typed_collection.rb'
     - 'lib/riak/index_collection.rb'
@@ -509,7 +502,6 @@ Style/EndOfLine:
 # Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
 Style/ExtraSpacing:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/client.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
@@ -552,7 +544,6 @@ Style/GlobalVars:
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/map_reduce.rb'
     - 'spec/integration/riak/threading_spec.rb'
 
@@ -705,8 +696,6 @@ Style/MultilineOperationIndentation:
 # Cop supports --auto-correct.
 Style/MutableConstant:
   Exclude:
-    - 'lib/riak/bucket.rb'
-    - 'lib/riak/bucket_type.rb'
     - 'lib/riak/client.rb'
     - 'lib/riak/client/beefcake/message_codes.rb'
     - 'lib/riak/client/node.rb'
@@ -761,8 +750,6 @@ Style/OpMethod:
 # Cop supports --auto-correct.
 Style/ParallelAssignment:
   Exclude:
-    - 'lib/riak/bucket.rb'
-    - 'lib/riak/bucket_type.rb'
     - 'lib/riak/client/search.rb'
     - 'lib/riak/counter.rb'
     - 'lib/riak/map_reduce.rb'
@@ -792,7 +779,6 @@ Style/PerlBackrefs:
 Style/PredicateName:
   Exclude:
     - 'spec/**/*'
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/client/beefcake/message_overlay.rb'
     - 'lib/riak/errors/failed_request.rb'
     - 'lib/riak/secondary_index.rb'
@@ -808,7 +794,6 @@ Style/RaiseArgs:
 # Cop supports --auto-correct.
 Style/RedundantBegin:
   Exclude:
-    - 'lib/riak/bucket.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
     - 'lib/riak/counter.rb'
     - 'lib/riak/errors/failed_request.rb'
@@ -823,8 +808,6 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 Style/RedundantSelf:
   Exclude:
-    - 'lib/riak/bucket.rb'
-    - 'lib/riak/bucket_type.rb'
     - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/core_ext/deep_dup.rb'
     - 'lib/riak/crdt/base.rb'
