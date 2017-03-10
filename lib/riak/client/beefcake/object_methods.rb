@@ -15,12 +15,13 @@
 require 'riak/robject'
 require 'riak/link'
 require 'riak/client/beefcake/messages'
+require 'riak/client/beefcake/encoding_methods'
 
 module Riak
   class Client
     class BeefcakeProtobuffsBackend
       module ObjectMethods
-        ENCODING = "Riak".respond_to?(:encoding)
+        include EncodingMethods
 
         # Returns RpbPutReq
         def dump_object(robject, options = {})
@@ -114,10 +115,6 @@ module Riak
             RpbPair.new(:key => maybe_encode(key.to_s),
                         :value => maybe_encode(v.to_s))
           end
-        end
-
-        def maybe_encode(string)
-          ENCODING ? string.dup.force_encoding('BINARY') : string
         end
       end
 

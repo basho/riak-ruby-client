@@ -13,6 +13,7 @@
 # limitations under the License.
 
 require 'riak/client/beefcake/bucket_or_type_properties_operator'
+require 'riak/client/beefcake/encoding_methods'
 
 class Riak::Client::BeefcakeProtobuffsBackend
   def bucket_properties_operator
@@ -20,6 +21,8 @@ class Riak::Client::BeefcakeProtobuffsBackend
   end
 
   class BucketPropertiesOperator < BucketOrTypePropertiesOperator
+    include EncodingMethods
+
     def get_properties(bucket, options = {})
       return backend.protocol do |p|
         p.write :GetBucketReq, get_request(bucket, options)
@@ -32,6 +35,15 @@ class Riak::Client::BeefcakeProtobuffsBackend
       backend.protocol do |p|
         p.write :SetBucketReq, request
         p.expect :SetBucketResp
+      end
+    end
+
+    def reset(bucket, options)
+      req_options = options.merge name_options(bucket)
+      req = RpbResetBucketReq.new req_options
+      backend.protocol do |p|
+        p.write :ResetBucketReq, req
+        p.expect :ResetBucketResp
       end
     end
 
@@ -50,10 +62,10 @@ class Riak::Client::BeefcakeProtobuffsBackend
     def name_options(bucket)
       o = {}
       if bucket.is_a? Riak::Bucket
-        o[:bucket] = bucket.name
-        o[:type] = bucket.type.name if bucket.needs_type?
+        o[:bucket] = maybe_encode(bucket.name)
+        o[:type] = maybe_encode(bucket.type.name) if bucket.needs_type?
       else
-        o[:bucket] = bucket
+        o[:bucket] = maybe_encode(bucket)
       end
 
       return o

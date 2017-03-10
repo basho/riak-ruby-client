@@ -265,14 +265,7 @@ module Riak
       end
 
       def reset_bucket_props(bucket, options)
-        bucket = bucket.name if Bucket === bucket
-        req = RpbResetBucketReq.new(bucket: maybe_encode(bucket),
-                                    type: options[:type])
-
-        protocol do |p|
-          p.write :ResetBucketReq, req
-          p.expect :ResetBucketResp
-        end
+        bucket_properties_operator.reset bucket, options
       end
 
       def get_bucket_type_props(bucket_type)
