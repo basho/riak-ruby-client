@@ -55,12 +55,12 @@ module Riak
 
     # Get the properties of this bucket type
     # @return [Hash<Symbol,Object>]
-    def properties
-      @properties ||= client.backend do |be|
+    def props
+      @props ||= client.backend do |be|
         be.get_bucket_type_props name
       end
     end
-    alias :props :properties
+    alias :properties :props
 
     # Return the data type used for handling the CRDT stored in this bucket
     # type.
