@@ -48,10 +48,12 @@ describe Riak::BucketType do
   end
 
   describe 'getting properties' do
-    let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(name) }
+    let(:props_expectation) {
+      expect(backend).to receive(:get_bucket_type_props).with(subject, {})
+    }
 
     it 'is queryable' do
-      props_expectation.and_return(allow_mult: true)
+      props_expectation.and_return('allow_mult' => true)
       expect(props = subject.properties).to be_a Hash
       expect(props['allow_mult']).to be
     end
@@ -63,10 +65,14 @@ describe Riak::BucketType do
   end
 
   describe 'setting properties' do
-    let(:props_expectation){ expect(backend).to receive(:set_bucket_type_props) }
-
     it 'sets the new properties on the bucket type' do
-      expect{ subject.props = { :allow_mult => false } }.to_not raise_error
+      p0 = { 'allow_mult' => false }
+      p1 = { 'allow_mult' => true }
+      expect(backend).to receive(:get_bucket_type_props).with(subject, {}).and_return(p0)
+      allow(backend).to receive(:set_bucket_type_props)
+      expect{ subject.props = p1 }.to_not raise_error
+      expect(props = subject.properties).to be_a Hash
+      expect(props['allow_mult']).to be
     end
   end
 end
