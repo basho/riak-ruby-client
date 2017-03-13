@@ -59,7 +59,7 @@ describe Riak::BucketType do
     end
 
     it 'asks for data type' do
-      props_expectation.and_return(datatype: 'set')
+      props_expectation.and_return('datatype' => 'set')
       expect(subject.data_type_class).to eq Riak::Crdt::Set
     end
   end
