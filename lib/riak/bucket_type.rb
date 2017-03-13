@@ -97,7 +97,7 @@ module Riak
     # @return [Class<Riak::Crdt::Base>] CRDT subclass to use with this bucket
     #   type
     def data_type_class
-      dt = properties[:datatype]
+      dt = props['datatype']
       return nil unless dt
       parent = Riak::Crdt
       case dt
