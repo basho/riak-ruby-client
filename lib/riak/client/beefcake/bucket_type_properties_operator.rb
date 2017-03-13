@@ -52,12 +52,11 @@ class Riak::Client::BeefcakeProtobuffsBackend
 
     def name_options(bucket_type)
       o = {}
-      if bucket_type.is_a? Riak::BucketType
-        o[:type] = maybe_encode(bucket_type.name)
-      else
-        o[:type] = maybe_encode(bucket_type)
-      end
-
+      o[:type] = if bucket_type.is_a? Riak::BucketType
+                   maybe_encode(bucket_type.name)
+                 else
+                   maybe_encode(bucket_type)
+                 end
       return o
     end
   end

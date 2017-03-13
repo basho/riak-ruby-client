@@ -48,9 +48,9 @@ describe Riak::BucketType do
   end
 
   describe 'getting properties' do
-    let(:props_expectation) {
+    let(:props_expectation) do
       expect(backend).to receive(:get_bucket_type_props).with(subject, {})
-    }
+    end
 
     it 'is queryable' do
       props_expectation.and_return('allow_mult' => true)
