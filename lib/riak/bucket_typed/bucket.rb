@@ -16,16 +16,13 @@ require 'riak/bucket'
 require 'riak/bucket_type'
 
 module Riak
-
   # Container module for subclasses of objects with bucket type data attached.
   # Currently only used for {BucketTyped::Bucket}.
   module BucketTyped
-
     # A bucket that has a {BucketType} attached to it. Normally created using
     # the {BucketType#bucket} method. Inherits most of its behavior from the
     # {Riak::Bucket} class.
     class Bucket < Riak::Bucket
-
       # @return [BucketType] the bucket type used with this bucket
       attr_reader :type
 
@@ -51,7 +48,7 @@ module Riak
       # @option options [Fixnum] :r - the read quorum for the request - how many nodes should concur on the read
       # @return [Riak::RObject] the object
       # @raise [FailedRequest] if the object is not found or some other error occurs
-      def get(key, options = {  })
+      def get(key, options = {})
         object = super key, o(options)
         object.bucket = self
         return object
@@ -65,7 +62,7 @@ module Riak
       #   delete
       # @option options [String] :vclock - the vector clock of the
       #   object being deleted
-      def delete(key, options = {  })
+      def delete(key, options = {})
         super key, o(options)
       end
 
@@ -77,28 +74,28 @@ module Riak
       # @return [Array<String>] Keys in this bucket
       # @note This operation has serious performance implications and
       #    should not be used in production applications.
-      def keys(options = {  }, &block)
+      def keys(options = {}, &block)
         super o(options), &block
       end
 
       # @return [String] a friendly representation of this bucket-typed bucket
       def inspect
-        "#<Riak::BucketTyped::Bucket {#{ type.name }/#{ name }}>"
+        "#<Riak::BucketTyped::Bucket {#{type.name}/#{name}}>"
       end
 
       def props=(new_props)
         raise ArgumentError, t('hash_type', hash: new_props.inspect) unless new_props.is_a? Hash
         complete_props = props.merge new_props
-        @client.set_bucket_props(self, complete_props, self.type.name)
+        @client.set_bucket_props(self, complete_props, type.name)
       end
 
       def props
-        @props ||= @client.get_bucket_props(self, type: self.type.name)
+        @props ||= @client.get_bucket_props(self, type: type.name)
       end
 
       def clear_props
         @props = nil
-        @client.clear_bucket_props(self, type: self.type.name)
+        @client.clear_bucket_props(self, type: type.name)
       end
 
       # Pretty prints the bucket for `pp` or `pry`.
@@ -119,7 +116,7 @@ module Riak
       #   Range of values to query
       # @return [Array<String>] a list of keys that match the index
       #   query
-      def get_index(index, query, options = {  })
+      def get_index(index, query, options = {})
         super index, query, o(options)
       end
 
@@ -132,7 +129,7 @@ module Riak
 
       def ==(other)
         return false unless self.class == other.class
-        return false unless self.type == other.type
+        return false unless type == other.type
         super
       end
 

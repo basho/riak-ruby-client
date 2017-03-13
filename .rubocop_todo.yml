@@ -32,7 +32,6 @@ Lint/AmbiguousRegexpLiteral:
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
   Exclude:
-    - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/object_methods.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
     - 'lib/riak/client/beefcake_protobuffs_backend.rb'
@@ -343,7 +342,6 @@ Style/ColonMethodCall:
 # SupportedStyles: assign_to_condition, assign_inside_condition
 Style/ConditionalAssignment:
   Exclude:
-    - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/crdt/typed_collection.rb'
     - 'lib/riak/map_reduce.rb'
 
@@ -397,7 +395,6 @@ Style/EachWithObject:
 Style/EmptyLines:
   Exclude:
     - 'lib/riak/client.rb'
-    - 'lib/riak/client/beefcake/bucket_properties_operator.rb'
     - 'lib/riak/client/beefcake/messages.rb'
     - 'lib/riak/crdt/inner_set.rb'
     - 'spec/integration/riak/encodings/yz_spec.rb'
@@ -439,7 +436,6 @@ Style/EmptyLinesAroundBlockBody:
 # SupportedStyles: empty_lines, no_empty_lines
 Style/EmptyLinesAroundClassBody:
   Exclude:
-    - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/client/beefcake/crdt_loader.rb'
     - 'lib/riak/client/beefcake/crdt_operator.rb'
     - 'lib/riak/client/beefcake/message_overlay.rb'
@@ -464,7 +460,6 @@ Style/EmptyLinesAroundMethodBody:
 # SupportedStyles: empty_lines, no_empty_lines
 Style/EmptyLinesAroundModuleBody:
   Exclude:
-    - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/counter.rb'
     - 'lib/riak/crdt.rb'
     - 'lib/riak/crdt/counter.rb'
@@ -502,7 +497,6 @@ Style/EndOfLine:
 # Configuration parameters: AllowForAlignment, ForceEqualSignAlignment.
 Style/ExtraSpacing:
   Exclude:
-    - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/client.rb'
     - 'lib/riak/client/beefcake/time_series_list_operator.rb'
     - 'lib/riak/client/beefcake/time_series_query_operator.rb'
@@ -808,7 +802,6 @@ Style/RedundantReturn:
 # Cop supports --auto-correct.
 Style/RedundantSelf:
   Exclude:
-    - 'lib/riak/bucket_typed/bucket.rb'
     - 'lib/riak/core_ext/deep_dup.rb'
     - 'lib/riak/crdt/base.rb'
     - 'lib/riak/link.rb'
@@ -924,7 +917,6 @@ Style/SpaceInsideParens:
 # SupportedStyles: space, no_space
 Style/SpaceInsideStringInterpolation:
   Exclude:
-    - 'lib/riak/bucket_typed/bucket.rb'
     - 'spec/integration/riak/time_series_spec.rb'
     - 'spec/support/crdt_search_config.rb'
 
