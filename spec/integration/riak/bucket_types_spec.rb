@@ -201,6 +201,26 @@ describe 'Bucket Types', test_client: true, integration: true do
       end
     end
 
+    describe 'manipulating bucket type properties' do
+      let(:bucket_type){ test_client.bucket_type 'plain' }
+      let(:other_bucket_type){ test_client.bucket_type 'yokozuna' }
+
+      it 'allows reading and writing bucket type properties' do
+        expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to be
+        expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to be
+
+        expect{ bucket_type.props = {'notfound_ok' => false} }.to_not raise_error
+
+        expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to_not be
+        expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to be
+
+        expect{ bucket_type.props = {'notfound_ok' => true} }.to_not raise_error
+
+        expect(test_client.get_bucket_type_props(bucket_type)['notfound_ok']).to be
+        expect(test_client.get_bucket_type_props(other_bucket_type)['notfound_ok']).to be
+      end
+    end
+
     describe 'performing CRDT operations' do
       let(:bucket_type){ test_client.bucket_type 'other_counters' }
       let(:bucket){ bucket_type.bucket random_key }
