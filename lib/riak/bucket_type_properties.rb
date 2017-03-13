@@ -16,21 +16,22 @@ require 'riak'
 require 'riak/bucket_or_type_properties'
 
 module Riak
-  # Provides a predictable and useful interface to bucket properties. Allows
-  # reading, reloading, and setting new values for bucket properties.
-  class BucketProperties < BucketOrTypeProperties
-    attr_reader :bucket
+  # Provides a predictable and useful interface to bucket type properties. Allows
+  # reading, reloading, and setting new values for bucket type properties.
+  class BucketTypeProperties < BucketOrTypeProperties
+    attr_reader :bucket_type
 
-    # Create a properties object for a bucket (including bucket-typed buckets).
-    # @param [Riak::Bucket, Riak::BucketTyped::Bucket] bucket
-    def initialize(bucket)
-      super(bucket.client)
-      @bucket = bucket
+    # Create a properties object for a bucket type.
+    # @param [Riak::BucketType] bucket type
+    def initialize(bucket_type)
+      super(bucket_type.client)
+      @bucket_type = bucket_type
     end
 
+    # Write bucket type properties and invalidate the cache in this object.
     def store
       client.backend do |be|
-        be.bucket_properties_operator.put bucket, cached_props
+        be.bucket_type_properties_operator.put bucket_type, cached_props
       end
       super()
     end
@@ -38,7 +39,7 @@ module Riak
     private
     def cached_props
       @cached_props ||= client.backend do |be|
-        be.bucket_properties_operator.get bucket
+        be.bucket_type_properties_operator.get bucket_type
       end
     end
   end

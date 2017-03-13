@@ -28,7 +28,10 @@ module Riak
     include Util::Translation
 
     # (Riak Search) The precommit specification for kv/search integration
-    SEARCH_PRECOMMIT_HOOK = {"mod" => "riak_search_kv_hook", "fun" => "precommit"}
+    SEARCH_PRECOMMIT_HOOK = {
+      "mod" => "riak_search_kv_hook".freeze,
+      "fun" => "precommit".freeze
+    }.freeze
 
     # @return [Riak::Client] the associated client
     attr_reader :client
@@ -40,10 +43,11 @@ module Riak
     # @param [Client] client the {Riak::Client} for this bucket
     # @param [String] name the name of the bucket
     def initialize(client, name)
-      raise ArgumentError, t('client_type', :client => client.inspect) unless Client === client
-      raise ArgumentError, t('string_type', :string => name.inspect) unless String === name
+      raise ArgumentError, t('client_type', :client => client.inspect) unless client.is_a? Client
+      raise ArgumentError, t('string_type', :string => name.inspect) unless name.is_a? String
       raise ArgumentError, t('zero_length_bucket') if name == ''
-      @client, @name = client, name
+      @client = client
+      @name = name
     end
 
     # Retrieves a list of keys in this bucket.
@@ -91,7 +95,7 @@ module Riak
     # @raise [FailedRequest] if the new properties were not accepted by the Riakserver
     # @see #n_value, #allow_mult, #r, #w, #dw, #rw
     def props=(properties)
-      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless Hash === properties
+      raise ArgumentError, t("hash_type", :hash => properties.inspect) unless properties.is_a? Hash
       props.merge!(properties)
       @client.set_bucket_props(self, properties)
       props
@@ -155,15 +159,10 @@ module Riak
     # @param [String] key the key to fetch or create
     # @return [RObject] the new or existing object
     def get_or_new(key, options = {})
-      begin
-        get(key, options)
-      rescue Riak::FailedRequest => fr
-        if fr.not_found?
-          new(key)
-        else
-          raise fr
-        end
-      end
+      get(key, options)
+    rescue Riak::FailedRequest => fr
+      return new(key) if fr.not_found?
+      raise fr
     end
 
     # Gets a counter object. Counters initially hvae a value of zero, and can be
@@ -180,13 +179,11 @@ module Riak
     # @option options [Fixnum] :r - the read quorum value for the request (R)
     # @return [true, false] whether the key exists in this bucket
     def exists?(key, options = {})
-      begin
-        get(key, options.merge({ :head => true }))
-        true
-      rescue Riak::FailedRequest => e
-        raise e unless e.not_found?
-        false
-      end
+      get(key, options.merge({ :head => true }))
+      true
+    rescue Riak::FailedRequest => e
+      raise e unless e.not_found?
+      false
     end
     alias :exist? :exists?
 
@@ -253,43 +250,42 @@ module Riak
 
     %w(r w dw rw).each do |q|
       define_method(q) { props[q] }
-      define_method("#{q}=") { |value|
+      define_method("#{q}=") do |value|
         self.props = { q => value }
         value
-      }
+      end
     end
 
     # (Riak Search) Installs a precommit hook that automatically indexes objects
     # into riak_search.
     def enable_index!
-      unless is_indexed?
-        self.props = {
-          "precommit" => (props['precommit'] + [SEARCH_PRECOMMIT_HOOK]),
-          "search" => true
-        }
-      end
+      return if indexed?
+      self.props = {
+        "precommit" => (props['precommit'] + [SEARCH_PRECOMMIT_HOOK]),
+        "search" => true
+      }
     end
 
     # (Riak Search) Removes the precommit hook that automatically indexes
     # objects into riak_search.
     def disable_index!
-      if is_indexed?
-        self.props = {
-          "precommit" => (props['precommit'] - [SEARCH_PRECOMMIT_HOOK]),
-          "search" => false
-        }
-      end
+      return unless indexed?
+      self.props = {
+        "precommit" => (props['precommit'] - [SEARCH_PRECOMMIT_HOOK]),
+        "search" => false
+      }
     end
 
     # (Riak Search) Detects whether the bucket is automatically indexed into
     # riak_search.
     # @return [true,false] whether the bucket includes the search indexing hook
-    def is_indexed?
+    def indexed?
       return true if props['search'] == true
-      return true if props.has_key?('precommit') &&
+      return true if props.key?('precommit') &&
                      props['precommit'].include?(SEARCH_PRECOMMIT_HOOK)
       false
     end
+    alias :is_indexed? :indexed?
 
     # @return [String] a representation suitable for IRB and debugging output
     def inspect
@@ -314,8 +310,8 @@ module Riak
     # @return [true,false] whether the other is equivalent
     def ==(other)
       return false unless self.class == other.class
-      return false unless self.client == other.client
-      return equal_bytes?(self.name, other.name)
+      return false unless client == other.client
+      return equal_bytes?(name, other.name)
     end
 
     private

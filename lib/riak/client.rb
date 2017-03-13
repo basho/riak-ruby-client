@@ -272,9 +272,16 @@ module Riak
     end
 
     # Bucket properties. See Bucket#props
-    def get_bucket_props(bucket, options = {  })
+    def get_bucket_props(bucket, options = {})
       backend do |b|
         b.get_bucket_props bucket, options
+      end
+    end
+
+    # Bucket type properties. See BucketType#props
+    def get_bucket_type_props(bucket_type, options = {})
+      backend do |b|
+        b.get_bucket_type_props bucket_type, options
       end
     end
 
@@ -433,6 +440,13 @@ module Riak
     def set_bucket_props(bucket, properties, type = nil)
       backend do |b|
         b.set_bucket_props(bucket, properties, type)
+      end
+    end
+
+    # Sets the properties on a bucket type. See BucketType#props=
+    def set_bucket_type_props(bucket_type, properties)
+      backend do |b|
+        b.set_bucket_type_props(bucket_type, properties)
       end
     end
 

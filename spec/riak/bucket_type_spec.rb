@@ -47,18 +47,38 @@ describe Riak::BucketType do
     it { is_expected.to_not eq different_name }
   end
 
-  describe 'properties' do
-    let(:props_expectation){ expect(backend).to receive(:get_bucket_type_props).with(name) }
+  describe 'getting properties' do
+    let(:props_expectation) do
+      expect(backend).to receive(:get_bucket_type_props).with(subject, {})
+    end
 
     it 'is queryable' do
-      props_expectation.and_return(allow_mult: true)
+      props_expectation.and_return('allow_mult' => true)
       expect(props = subject.properties).to be_a Hash
-      expect(props[:allow_mult]).to be
+      expect(props['allow_mult']).to be
     end
 
     it 'asks for data type' do
-      props_expectation.and_return(datatype: 'set')
+      props_expectation.and_return('datatype' => 'set')
       expect(subject.data_type_class).to eq Riak::Crdt::Set
+    end
+
+    it 'provides-hll-precision' do
+      props_expectation.and_return('hll_precision' => 14)
+      expect(props = subject.properties).to be_a Hash
+      expect(props['hll_precision']).to be
+    end
+  end
+
+  describe 'setting properties' do
+    it 'sets the new properties on the bucket type' do
+      p0 = { 'allow_mult' => false }
+      p1 = { 'allow_mult' => true }
+      expect(backend).to receive(:get_bucket_type_props).with(subject, {}).and_return(p0)
+      allow(backend).to receive(:set_bucket_type_props)
+      expect{ subject.props = p1 }.to_not raise_error
+      expect(props = subject.properties).to be_a Hash
+      expect(props['allow_mult']).to be
     end
   end
 end

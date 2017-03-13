@@ -31,31 +31,34 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     def cell_for(measure)
-      TsCell.new case measure
-                 when String
-                   { varchar_value: measure }
-                 when Fixnum
-                   { sint64_value: measure }
-                 when Bignum
-                   { sint64_value: check_bignum_range(measure) }
-                 when Float
-                   { double_value: measure }
-                 when BigDecimal
-                   { double_value: measure.to_f }
-                 when Rational
-                   fail Riak::TimeSeriesError::SerializeRationalNumberError
-                 when Complex
-                   fail Riak::TimeSeriesError::SerializeComplexNumberError
-                 when Time
-                   seconds = measure.to_f
-                   milliseconds = seconds * 1000
-                   truncated_ms = milliseconds.to_i
-                   { timestamp_value: truncated_ms }
-                 when TrueClass, FalseClass
-                   { boolean_value: measure }
-                 when nil
-                   {  }
-                 end
+      # NB: https://bugs.ruby-lang.org/issues/12005
+      v = nil
+      if measure.is_a?(Integer)
+        v = { sint64_value: check_range(measure) }
+      else
+        v = case measure
+            when String
+              { varchar_value: measure }
+            when Float
+              { double_value: measure }
+            when BigDecimal
+              { double_value: measure.to_f }
+            when Rational
+              fail Riak::TimeSeriesError::SerializeRationalNumberError
+            when Complex
+              fail Riak::TimeSeriesError::SerializeComplexNumberError
+            when Time
+              seconds = measure.to_f
+              milliseconds = seconds * 1000
+              truncated_ms = milliseconds.to_i
+              { timestamp_value: truncated_ms }
+            when TrueClass, FalseClass
+              { boolean_value: measure }
+            when nil
+              {  }
+            end
+      end
+      TsCell.new v
     end
 
     def scalar_for(cell)
@@ -67,12 +70,12 @@ class Riak::Client::BeefcakeProtobuffsBackend
     end
 
     private
-    def check_bignum_range(bignum)
-      if (bignum > -0x8000000000000000) && (bignum < 0x7FFFFFFFFFFFFFFF)
-        return bignum
+    def check_range(number)
+      if (number > -0x8000000000000000) && (number < 0x7FFFFFFFFFFFFFFF)
+        return number
       end
 
-      fail Riak::TimeSeriesError::SerializeBigIntegerError, bignum
+      fail Riak::TimeSeriesError::SerializeBigIntegerError, number
     end
 
     def timestamp(cell)
