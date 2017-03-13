@@ -64,9 +64,9 @@ describe Riak::BucketType do
     end
 
     it 'provides-hll-precision' do
-      props_expectation.and_return(hll_precision: 14)
+      props_expectation.and_return('hll_precision' => 14)
       expect(props = subject.properties).to be_a Hash
-      expect(props[:hll_precision]).to be
+      expect(props['hll_precision']).to be
     end
   end
 

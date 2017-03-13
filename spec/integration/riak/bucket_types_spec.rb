@@ -361,12 +361,12 @@ describe 'Bucket Types', test_client: true, integration: true do
       it 'defaults to 14 for hll_precision' do
         bt = test_client.bucket_type bucket_type
         expect(props = bt.properties).to be_a Hash
-        expect(props[:hll_precision]).to eq 14
+        expect(props['hll_precision']).to eq 14
       end
 
       it 'allows setting hll_precision' do
         bt = test_client.bucket_type bucket_type
-        expect{ bt.properties[:hll_precision] = 14 }.to_not raise_error
+        expect{ bt.properties['hll_precision'] = 14 }.to_not raise_error
       end
     end
   end
