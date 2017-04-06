@@ -97,17 +97,6 @@ module Riak
       self
     end
 
-    # Loads a list of RObjects that were emitted from a MapReduce
-    # query.
-    # @param [Client] client A Riak::Client with which the results will be associated
-    # @param [Array<Hash>] response A list of results a MapReduce job. Each entry should contain these keys: bucket, key, vclock, values
-    # @return [Array<RObject>] An array of RObject instances
-    def self.load_from_mapreduce(client, response)
-      response.map do |item|
-        RObject.new(client[unescape(item['bucket'])], unescape(item['key'])).load_from_mapreduce(item)
-      end
-    end
-
     # Create a new object manually
     # @param [Bucket] bucket the bucket in which the object exists
     # @param [String] key the key at which the object resides. If nil, a key will be assigned when the object is saved.
@@ -124,21 +113,6 @@ module Riak
       end
       @siblings = [ RContent.new(self) ]
       yield self if block_given?
-    end
-
-    # Load object data from a map/reduce response item.
-    # This method is used by RObject::load_from_mapreduce to instantiate the
-    # necessary objects.
-    # @param [Hash] response a response from {Riak::MapReduce}
-    # @return [RObject] self
-    def load_from_mapreduce(response)
-      self.vclock = response['vclock']
-      @siblings = response['values'].map do |v|
-        RContent.new(self) do |rcontent|
-          rcontent.load_map_reduce_value(v)
-        end
-      end
-      self
     end
 
     # Store the object in Riak
