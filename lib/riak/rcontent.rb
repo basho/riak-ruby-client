@@ -44,7 +44,7 @@ module Riak
     # @return [Time] the Last-Modified header from the most recent HTTP response, useful for caching and reloading
     attr_accessor :last_modified
 
-    # @return [Hash] a hash of any X-Riak-Meta-* headers that were in the HTTP response, keyed on the trailing portion
+    # @return [Hash] a hash of user metadata values
     attr_accessor :meta
 
     # @return [Hash<Set>] a hash of secondary indexes, where the
@@ -173,36 +173,7 @@ module Riak
       "#<#{self.class.name} [#{@content_type}]:#{body}>"
     end
 
-    # @api private
-    def load_map_reduce_value(hash)
-      metadata = hash['metadata']
-      extract_if_present(metadata, 'X-Riak-VTag', :etag)
-      extract_if_present(metadata, 'content-type', :content_type)
-      extract_if_present(metadata, 'X-Riak-Last-Modified', :last_modified) { |v| Time.httpdate( v ) }
-      extract_if_present(metadata, 'index', :indexes) do |entries|
-        Hash[ entries.map {|k, v| [k, Set.new(Array(v))] } ]
-      end
-      extract_if_present(metadata, 'Links', :links) do |links|
-        Set.new( links.map { |l| Link.new(*l) } )
-      end
-      extract_if_present(metadata, 'X-Riak-Meta', :meta) do |meta|
-        Hash[
-             meta.map do |k, v|
-               [k.sub(%r{^x-riak-meta-}i, ''), [v]]
-             end
-            ]
-      end
-      extract_if_present(hash, 'data', :data) { |v| deserialize(v) }
-    end
-
     private
-    def extract_if_present(hash, key, attribute = nil)
-      return unless hash[key].present?
-      attribute ||= key
-      value = block_given? ? yield(hash[key]) : hash[key]
-      send("#{attribute}=", value)
-    end
-
     def new_index_hash
       Hash.new {|h, k| h[k] = Set.new }
     end
