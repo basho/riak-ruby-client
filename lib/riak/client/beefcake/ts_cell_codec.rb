@@ -34,10 +34,10 @@ class Riak::Client::BeefcakeProtobuffsBackend
       TsCell.new case measure
                  when String
                    { varchar_value: measure }
-                 when Fixnum
-                   { sint64_value: measure }
                  when Bignum
                    { sint64_value: check_bignum_range(measure) }
+                 when Fixnum
+                   { sint64_value: measure }
                  when Float
                    { double_value: measure }
                  when BigDecimal
