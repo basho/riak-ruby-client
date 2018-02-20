@@ -203,9 +203,11 @@ module Riak
     # @see Phase#initialize
     def link(*params)
       options = params.extract_options!
-      walk_spec_options = options.slice!(:type, :function, :language, :arg) unless params.first
+      phase_options_keys = [:type, :function, :language, :arg]
+      walk_spec_options = options.reject { |key| phase_options_keys.include? key } unless params.first
       walk_spec = WalkSpec.normalize(params.shift || walk_spec_options).first
-      @query << Phase.new({:type => :link, :function => walk_spec}.merge(options))
+      phase_options = walk_spec_options ? options.slice(*phase_options_keys) : options
+      @query << Phase.new({:type => :link, :function => walk_spec}.merge(phase_options))
       self
     end
 
