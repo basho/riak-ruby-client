@@ -30,7 +30,7 @@ describe Riak::Crdt::InnerRegister do
     end
     it "isn't be gsub!-able" do
       # "gsub!-able" is awful, open to suggestions
-      expect{ subject.gsub!('s', 'x') }.to raise_error
+      expect{ subject.gsub!('s', 'x') }.to raise_error(RuntimeError)
     end
   end
 

@@ -64,7 +64,7 @@ describe Riak::Link do
 
   it "converts to a walk spec when pointing to an object" do
     expect(Riak::Link.new("/riak/foo/bar", "next").to_walk_spec.to_s).to eq("foo,next,_")
-    expect { Riak::Link.new("/riak/foo", "up").to_walk_spec }.to raise_error
+    expect { Riak::Link.new("/riak/foo", "up").to_walk_spec }.to raise_error(RuntimeError)
   end
 
   it "is equivalent to a link with the same url and rel" do

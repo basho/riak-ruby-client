@@ -36,7 +36,7 @@ describe Riak::Crdt::TypedCollection do
         expect(subject['existing']).to eq 'existing'
         expect(subject[:existing]).to be_an_instance_of register_class
         expect(subject['existing'].frozen?).to be
-        expect{subject['existing'].gsub!('e', 'a')}.to raise_error
+        expect{subject['existing'].gsub!('e', 'a')}.to raise_error(RuntimeError)
       end
 
       describe 'creating and updating' do

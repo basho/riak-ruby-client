@@ -184,7 +184,7 @@ module Riak
     # @return [Array<Bucket>] a list of buckets
     def buckets(options = {}, &block)
       unless Riak.disable_list_exceptions
-        msg = warn(t('list_buckets', :backtrace => caller.join("\n    ")))
+        msg = t('list_buckets', :backtrace => caller.join("\n    "))
         raise Riak::ListError.new(msg)
       end
 
