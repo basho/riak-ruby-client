@@ -401,7 +401,7 @@ describe Riak::RObject do
 
   it "doesn't convert to link without a tag" do
     @object = Riak::RObject.new(@bucket, "bar")
-    expect { @object.to_link }.to raise_error
+    expect { @object.to_link }.to raise_error(ArgumentError)
   end
 
   it "converts to a link having the same url and a supplied tag" do

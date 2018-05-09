@@ -35,7 +35,7 @@ describe Riak::MapReduce do
   let(:default_object){ Riak::RObject.new default_bucket, 'key' }
 
   it "requires a client" do
-    expect { Riak::MapReduce.new }.to raise_error
+    expect { Riak::MapReduce.new }.to raise_error(ArgumentError)
     expect { Riak::MapReduce.new(client) }.not_to raise_error
   end
 

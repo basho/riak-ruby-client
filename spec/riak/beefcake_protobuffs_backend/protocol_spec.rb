@@ -62,7 +62,7 @@ describe Riak::Client::BeefcakeProtobuffsBackend::Protocol do
 
     it 'raises an error and writes nothing when passed the wrong thing' do
       expect{ subject.write :YokozunaSchemaGetReq, Object.new }.
-        to raise_error
+        to raise_error(ArgumentError)
     end
   end
 
