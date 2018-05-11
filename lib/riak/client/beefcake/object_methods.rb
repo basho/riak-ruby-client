@@ -49,11 +49,12 @@ module Riak
         end
 
         private
+
         def load_content(pbuf, rcontent)
           if ENCODING && pbuf.charset.present?
             pbuf.value.force_encoding(pbuf.charset) if Encoding.find(pbuf.charset)
           end
-          rcontent.raw_data = pbuf.value
+          add_raw_data(pbuf, rcontent)
           rcontent.etag = pbuf.vtag if pbuf.vtag.present?
           rcontent.content_type = pbuf.content_type if pbuf.content_type.present?
           rcontent.content_encoding = pbuf.content_encoding if pbuf.content_encoding.present?
@@ -81,6 +82,10 @@ module Riak
 
           return unless ENCODING # 1.9 support
           pbuf.content.charset = maybe_encode(robject.raw_data.encoding.name)
+        end
+
+        def add_raw_data(pbuf, rcontent)
+          rcontent.raw_data = pbuf.value if pbuf.value.present?
         end
 
         def decode_link(pbuf)

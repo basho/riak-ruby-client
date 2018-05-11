@@ -44,6 +44,29 @@ describe Riak::Client::BeefcakeProtobuffsBackend::ObjectMethods do
       expect(o.key).to eq(pbuf.key)
     end
 
+    describe 'when data is absent from the response' do
+      it 'loads the value' do
+        pbuf = double(:vclock => nil, :content => [@content], :value => nil, :key => 'akey')
+        o = @backend.load_object(pbuf, @object)
+        expect(o).to eq(@object)
+        expect(o.data).to be_blank
+      end
+    end
+
+    describe 'when data is present from the response' do
+      before do
+        allow(@content).to receive(:content_type).and_return('text/plain')
+        allow(@content).to receive(:value).and_return('test-value')
+      end
+
+      it 'loads the value' do
+        pbuf = double(:vclock => nil, :content => [@content], :value => nil, :key => 'akey')
+        o = @backend.load_object(pbuf, @object)
+        expect(o).to eq(@object)
+        expect(o.data).to eq(@content.value)
+      end
+    end
+
     describe "last_modified" do
       before :each do
         allow(@content).to receive(:last_mod) { 1271442363 }
@@ -63,5 +86,4 @@ describe Riak::Client::BeefcakeProtobuffsBackend::ObjectMethods do
       end
     end
   end
-
 end
